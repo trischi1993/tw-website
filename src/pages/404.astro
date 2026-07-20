@@ -1,25 +1,15 @@
 ---
 import BaseLayout from '../layouts/BaseLayout.astro';
 import Icon from '../components/Icon.astro';
-import { ui, DEFAULT_LOCALE } from '../lib/i18n';
-
-// Statische Hosts liefern eine einzige 404-Seite, daher in der Default-Sprache.
-const locale = DEFAULT_LOCALE;
-const t = ui(locale);
+import { UI } from '../lib/i18n';
 ---
-<BaseLayout
-  title={t.notFoundMetaTitle}
-  description={t.notFoundMetaDescription}
-  noindex={true}
-  locale={locale}
->
+<BaseLayout title={UI.notFoundMetaTitle} description={UI.notFoundMetaDescription} noindex={true}>
   <section class="section error-404">
     <div class="container error-404__inner">
-      <p class="eyebrow">{t.notFoundEyebrow}</p>
-      <h1 class="display-lg">{t.notFoundTitle}</h1>
-      <p class="lede">{t.notFoundBody}</p>
+      <h1 class="display-lg">{UI.notFoundTitle}</h1>
+      <p class="lede">{UI.notFoundBody}</p>
       <div class="error-404__links">
-        <a href="/" class="btn btn--primary">{t.notFoundCta} <Icon name="arrow-right" /></a>
+        <a href="/" class="btn btn--primary">{UI.notFoundCta} <Icon name="arrow-right" /></a>
       </div>
     </div>
   </section>

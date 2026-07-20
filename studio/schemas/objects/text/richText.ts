@@ -1,4 +1,4 @@
-import { defineField, defineArrayMember, type PortableTextBlock } from 'sanity';
+import { defineField, defineArrayMember, type PortableTextBlock, type Rule } from 'sanity';
 import { LinkIcon } from '@sanity/icons/Link';
 import { t } from '../../uiLocale';
 
@@ -47,9 +47,11 @@ export function richTextField(opts?: { name?: string; title?: string; initialTex
                     de: 'Eine URL (https://…), ein Pfad (/ueber-uns) oder ein Anker (#abschnitt).',
                   }),
                   // Scheme-Allowlist gegen javascript:/data:-XSS (zweite Ebene:
-                  // safeHref im Renderer, src/lib/safe-href.ts).
+                  // safeHref im Renderer, src/lib/safe-href.ts). Cast: `.uri()`
+                  // existiert zur Laufzeit auch auf String-Feldern, fehlt aber
+                  // im StringRule-Typ.
                   validation: (R) =>
-                    R.required().uri({ scheme: ['http', 'https', 'mailto', 'tel'], allowRelative: true }),
+                    (R as unknown as Rule).required().uri({ scheme: ['http', 'https', 'mailto', 'tel'], allowRelative: true }),
                 }),
                 defineField({
                   name: 'newTab',

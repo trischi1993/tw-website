@@ -14,7 +14,6 @@ import {
 import { liveDocumentIds, activePreviewDoc } from './live-docs';
 import { startHoverChannel } from './hover-channel';
 import type { Section } from '../lib/content/types';
-import type { Locale } from '../lib/i18n';
 
 /* ---------------------------------------------------------------------------
    Live-Island der Vorschau - der Millisekunden-Pfad.
@@ -55,7 +54,6 @@ interface Props {
   documentId: string;
   documentType: 'homePage' | 'page';
   slug?: string;
-  locale: Locale;
   /** Studio-URL für die data-sanity-Attribute. */
   studioUrl: string;
 }
@@ -65,7 +63,6 @@ export default function SectionsIsland({
   documentId,
   documentType,
   slug,
-  locale,
   studioUrl,
 }: Props) {
   // Bei der Brücke anmelden: Mutationen an diesem Dokument brauchen keinen
@@ -90,9 +87,9 @@ export default function SectionsIsland({
   const { query, params } = useMemo(
     () =>
       documentType === 'homePage'
-        ? { query: HOME_SECTIONS_QUERY, params: { lang: locale } }
-        : { query: PAGE_SECTIONS_QUERY, params: { lang: locale, slug: slug ?? '' } },
-    [documentType, locale, slug],
+        ? { query: HOME_SECTIONS_QUERY, params: {} }
+        : { query: PAGE_SECTIONS_QUERY, params: { slug: slug ?? '' } },
+    [documentType, slug],
   );
 
   // 1) Live-Resultate aus dem Studio-Loader. stega bewusst aus: Click-to-edit

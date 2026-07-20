@@ -4,7 +4,6 @@ import SectionsList from '../components/sections/SectionsList';
 import SectionsIsland from './SectionsIsland';
 import { getPreviewContext } from '../lib/preview-context';
 import type { Section } from '../lib/content/types';
-import type { Locale } from '../lib/i18n';
 
 /**
  * VORSCHAU-Host für das Sections-System - NUR im Vorschau-Build aktiv
@@ -21,9 +20,8 @@ import type { Locale } from '../lib/i18n';
 interface Props {
   sections: Section[];
   document?: { id?: string; type: 'homePage' | 'page'; slug?: string };
-  locale: Locale;
 }
-const { sections, document, locale } = Astro.props;
+const { sections, document } = Astro.props;
 
 const draftMode = Astro.cookies.has(perspectiveCookieName);
 // document.id ist bereits die Basis-ID - normalisiert EINMAL serverseitig in
@@ -43,7 +41,6 @@ const studioUrl = getPreviewContext()?.studioUrl || 'http://localhost:3333';
       documentId={documentId}
       documentType={document.type}
       slug={document.slug}
-      locale={locale}
       studioUrl={studioUrl}
     />
   ) : (

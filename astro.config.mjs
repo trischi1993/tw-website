@@ -221,17 +221,7 @@ export default defineConfig({
     prefetchAll: true,
     defaultStrategy: 'hover',
   },
-  // Zweisprachig ab Werk: Deutsch ist Default und ohne Prefix (/), Englisch
-  // unter /en/. Sprachen zentral hier + in src/lib/i18n.ts (LOCALES) pflegen;
-  // eine dritte Sprache ist nur ein weiterer Eintrag. Einsprachige Projekte:
-  // siehe README „Auf eine Sprache reduzieren“.
-  i18n: {
-    defaultLocale: 'de',
-    locales: ['de', 'en'],
-    routing: {
-      prefixDefaultLocale: false, // /  (de)  ·  /en/  (en)
-    },
-  },
+  // Einsprachige Website (Deutsch) - kein Astro-i18n-Routing.
   integrations: [
     // Rendert die Section-Komponenten (.tsx) STATISCH zur Buildzeit. Solange
     // keine Seite ein client:-Directive nutzt, landet null React-JS im Output
@@ -241,12 +231,6 @@ export default defineConfig({
     assertNoReactInProdOutput(),
     injectCspScriptHashes(),
     sitemap({
-      // Korrekte xhtml:link hreflang-Annotationen – nur für Seiten, die
-      // @astrojs/sitemap paaren kann (beide Sprachversionen müssen existieren).
-      i18n: {
-        defaultLocale: 'de',
-        locales: { de: 'de', en: 'en' },
-      },
       // Keep noindex / utility pages out of the sitemap. Add project-specific
       // noindex pages here so they stay in sync.
       filter: (page) => !page.includes('/404'),

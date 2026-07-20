@@ -30,13 +30,12 @@ type PageLink = {
   icon: ComponentType;
 };
 
-// Startseiten je Sprache, feste IDs, Reihenfolge wie in der Studio-Navigation.
+// Feste Seiten (Singletons), Reihenfolge wie in der Studio-Navigation.
 const FIXED_PAGES: PageLink[] = [
-  { key: 'homePage-de', title: 'Startseite · DE', href: '/', doc: { type: 'homePage', id: 'homePage-de' }, icon: HomeIcon },
-  { key: 'homePage-en', title: 'Startseite · EN', href: '/en/', doc: { type: 'homePage', id: 'homePage-en' }, icon: HomeIcon },
+  { key: 'homePage', title: 'Startseite', href: '/', doc: { type: 'homePage', id: 'homePage' }, icon: HomeIcon },
 ];
 
-const PAGES_QUERY = `*[_type == "page" && defined(slug.current)]{ _id, title, "slug": slug.current, language } | order(language asc, title asc)`;
+const PAGES_QUERY = `*[_type == "page" && defined(slug.current)]{ _id, title, "slug": slug.current } | order(title asc)`;
 
 // drafts.<id> → <id>: Panes werden über die veröffentlichte ID adressiert
 // (zeigt automatisch den Entwurf, falls vorhanden).
@@ -60,17 +59,15 @@ export default function PagesNavigator() {
     const load = () =>
       client
         .withConfig({ perspective: 'drafts' })
-        .fetch<Array<{ _id: string; title?: string; slug?: string; language?: string }>>(PAGES_QUERY)
+        .fetch<Array<{ _id: string; title?: string; slug?: string }>>(PAGES_QUERY)
         .then((rows) => {
           if (!active) return;
           setPages(
             rows.map((row) => {
-              const lang = (row.language || 'de').toUpperCase();
-              const href = row.language === 'en' ? `/en/${row.slug}/` : `/${row.slug}/`;
               return {
                 key: row._id,
-                title: `${row.title || row.slug || 'Seite'} · ${lang}`,
-                href,
+                title: row.title || row.slug || 'Seite',
+                href: `/${row.slug}/`,
                 doc: { type: 'page', id: publishedId(row._id) },
                 icon: DocumentIcon,
               };

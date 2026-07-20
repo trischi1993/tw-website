@@ -1,6 +1,5 @@
 import { defineType, defineField } from 'sanity';
 import { DocumentIcon } from '@sanity/icons/Document';
-import { languageField, languageLabel } from '../objects/language';
 import { sectionsField } from '../objects/sectionsField';
 
 /**
@@ -21,10 +20,6 @@ export default defineType({
     { name: 'seo', title: 'SEO' },
   ],
   fields: [
-    // Vom Plugin @sanity/document-internationalization verwaltet (versteckt,
-    // schreibgeschützt). Die Verknüpfung der Sprachversionen läuft über das
-    // „Übersetzungen“-Menü und ein translation.metadata-Dokument.
-    { ...languageField({ hidden: true }), group: 'content' },
     defineField({
       name: 'title',
       title: 'Titel',
@@ -58,11 +53,10 @@ export default defineType({
     },
   ],
   preview: {
-    select: { title: 'title', slug: 'slug.current', language: 'language' },
-    prepare({ title, slug, language }) {
-      const lang = languageLabel(language);
-      const path = slug ? (language === 'en' ? `/en/${slug}/` : `/${slug}/`) : 'kein URL-Kürzel';
-      return { title: title || 'Seite', subtitle: [lang, path].filter(Boolean).join(' · ') };
+    select: { title: 'title', slug: 'slug.current' },
+    prepare({ title, slug }) {
+      const path = slug ? `/${slug}/` : 'kein URL-Kürzel';
+      return { title: title || 'Seite', subtitle: path };
     },
   },
 });

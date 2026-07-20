@@ -3,18 +3,13 @@ import Logo from './Logo.astro';
 import Icon from './Icon.astro';
 import { getSiteSettings } from '../lib/content';
 import { safeHref } from '../lib/safe-href';
-import { ui, DEFAULT_LOCALE, type Locale } from '../lib/i18n';
+import { UI as t } from '../lib/i18n';
 
-interface Props {
-  locale?: Locale;
-}
-const { locale = DEFAULT_LOCALE } = Astro.props;
-const t = ui(locale);
-const settings = await getSiteSettings(locale);
+const settings = await getSiteSettings();
 const { contact } = settings;
 const year = new Date().getFullYear();
 const socialIcon: Record<string, 'instagram' | 'mail'> = { Instagram: 'instagram' };
-const homeHref = locale === DEFAULT_LOCALE ? '/' : `/${locale}/`;
+const homeHref = '/';
 ---
 <footer class="site-footer">
   <div class="container container--wide">

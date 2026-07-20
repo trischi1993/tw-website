@@ -3,7 +3,6 @@ import imageUrlBuilder from '@sanity/image-url';
 import { getPreviewContext } from './preview-context';
 import { SECTIONS_PROJECTION, baseIdOf, mapSections } from './content/sections';
 import type { SiteSettings, HomeContent, SitePage, SiteImage } from './content/types';
-import type { Locale } from './i18n';
 
 /* ---------------------------------------------------------------------------
    Sanity adapter - DORMANT until env vars are set.
@@ -100,9 +99,7 @@ export function resolveImage(source?: RawImage, fallbackAlt = ''): SiteImage | u
 }
 
 /* --- Queries -------------------------------------------------------------- */
-/* Alle Abfragen sind nach Sprache gefiltert ($lang). Pro Sprache existiert ein
-   eigenes Dokument (Dokument-Ebene), siehe studio/schemas. */
-const SETTINGS_QUERY = `*[_type == "siteSettings" && language == $lang][0]{
+const SETTINGS_QUERY = `*[_type == "siteSettings"][0]{
   siteName, tagline,
   contact, nav[]{label, href}, legalLinks[]{label, href}, social[]{label, href},
   footerNote
@@ -116,16 +113,10 @@ const SEO_PROJECTION = `seo{ title, description, noindex, image{ alt, caption, a
 /* Die Sections-Projektion + Mapper leben in ./content/sections.ts - browser-
    sicher, weil die Live-Vorschau-Island dieselben Funktionen clientseitig
    nutzt. _id wird für Click-to-edit gebraucht (documentId der Island). */
-const HOME_QUERY = `*[_type == "homePage" && language == $lang][0]{ _id, ${SEO_PROJECTION}, ${SECTIONS_PROJECTION} }`;
+const HOME_QUERY = `*[_type == "homePage"][0]{ _id, ${SEO_PROJECTION}, ${SECTIONS_PROJECTION} }`;
 
-/* Echte Sprachversionen über das translation.metadata-Dokument des Plugins
-   @sanity/document-internationalization (references(^._id)). Daraus entstehen
-   hreflang + Sprachumschalter – nur existierende Übersetzungen, nie geraten. */
-const PAGES_QUERY = `*[_type == "page" && language == $lang && defined(slug.current)]{
-  _id, language, title, "slug": slug.current, ${SEO_PROJECTION}, ${SECTIONS_PROJECTION},
-  "translations": *[_type == "translation.metadata" && references(^._id)].translations[].value->{
-    language, "slug": slug.current
-  }
+const PAGES_QUERY = `*[_type == "page" && defined(slug.current)]{
+  _id, title, "slug": slug.current, ${SEO_PROJECTION}, ${SECTIONS_PROJECTION}
 }`;
 
 /* --- Mappers -------------------------------------------------------------- */
@@ -138,8 +129,8 @@ function mapSeo(seo: any, fallbackImg?: SiteImage) {
   };
 }
 
-export async function fetchSiteSettings(locale: Locale): Promise<SiteSettings> {
-  const d = await activeClient().fetch(SETTINGS_QUERY, { lang: locale });
+export async function fetchSiteSettings(): Promise<SiteSettings> {
+  const d = await activeClient().fetch(SETTINGS_QUERY);
   return {
     siteName: d.siteName,
     tagline: d.tagline,
@@ -151,8 +142,8 @@ export async function fetchSiteSettings(locale: Locale): Promise<SiteSettings> {
   };
 }
 
-export async function fetchHome(locale: Locale): Promise<HomeContent> {
-  const d = await activeClient().fetch(HOME_QUERY, { lang: locale });
+export async function fetchHome(): Promise<HomeContent> {
+  const d = await activeClient().fetch(HOME_QUERY);
   return {
     documentId: baseIdOf(d?._id),
     seo: mapSeo(d?.seo),
@@ -160,17 +151,13 @@ export async function fetchHome(locale: Locale): Promise<HomeContent> {
   };
 }
 
-export async function fetchAllPages(locale: Locale): Promise<SitePage[]> {
-  const docs = await activeClient().fetch(PAGES_QUERY, { lang: locale });
+export async function fetchAllPages(): Promise<SitePage[]> {
+  const docs = await activeClient().fetch(PAGES_QUERY);
   return (docs ?? []).map((d: any) => ({
     documentId: baseIdOf(d._id),
-    language: (d.language ?? locale) as Locale,
     title: d.title,
     slug: d.slug,
     seo: mapSeo(d.seo),
     sections: mapSections(d.sections),
-    translations: (d.translations ?? [])
-      .filter((t: any) => t?.language && t?.slug)
-      .map((t: any) => ({ language: t.language as Locale, slug: t.slug })),
   }));
 }

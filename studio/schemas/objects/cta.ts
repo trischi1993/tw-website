@@ -1,4 +1,4 @@
-import { defineField, defineType } from 'sanity';
+import { defineField, defineType, type Rule } from 'sanity';
 import { LinkIcon } from '@sanity/icons/Link';
 import { SegmentedInput, type SegmentedOption } from '../../components/inputs/SegmentedInput';
 import { categoryIcon } from '../../components/inputs/categoryIcon';
@@ -30,9 +30,10 @@ export default defineType({
       initialValue: '#',
       // Scheme-Allowlist: blockt javascript:/data:/… (XSS über href), lässt
       // http/https/mailto/tel + relative Pfade/Anker zu. Zweite Ebene: safeHref
-      // im Renderer (src/lib/safe-href.ts).
+      // im Renderer (src/lib/safe-href.ts). Cast: `.uri()` existiert zur
+      // Laufzeit auch auf String-Feldern, fehlt aber im StringRule-Typ.
       validation: (rule) =>
-        rule.required().uri({ scheme: ['http', 'https', 'mailto', 'tel'], allowRelative: true }),
+        (rule as unknown as Rule).required().uri({ scheme: ['http', 'https', 'mailto', 'tel'], allowRelative: true }),
     }),
     defineField({
       name: 'variant',

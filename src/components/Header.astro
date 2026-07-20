@@ -1,21 +1,16 @@
 ---
 import Logo from './Logo.astro';
 import Icon from './Icon.astro';
-import LanguageSwitcher from './LanguageSwitcher.astro';
 import { getSiteSettings } from '../lib/content';
 import { safeHref } from '../lib/safe-href';
-import { ui, DEFAULT_LOCALE, type Locale } from '../lib/i18n';
+import { UI as t } from '../lib/i18n';
 
 interface Props {
   /** Start transparent with light text; solidifies on scroll. For pages with a dark full-bleed hero. */
   transparent?: boolean;
-  locale?: Locale;
-  /** Echte Sprachversionen dieser Seite (für den Sprachumschalter). */
-  alternates?: { lang: Locale; path: string }[];
 }
-const { transparent = false, locale = DEFAULT_LOCALE, alternates = [] } = Astro.props;
-const t = ui(locale);
-const settings = await getSiteSettings(locale);
+const { transparent = false } = Astro.props;
+const settings = await getSiteSettings();
 const path = Astro.url.pathname.replace(/\/+$/, '') || '/';
 const isActive = (href: string) => {
   const base = href.split('#')[0].replace(/\/+$/, '') || '/';
@@ -25,7 +20,7 @@ const isActive = (href: string) => {
 ---
 <header class:list={['site-header', { 'site-header--overlay': transparent }]} data-site-header>
   <div class="site-header__inner container container--wide">
-    <a href={locale === DEFAULT_LOCALE ? '/' : `/${locale}/`} class="site-header__brand" aria-label={`${settings.siteName}, ${t.toStart}`}>
+    <a href="/" class="site-header__brand" aria-label={`${settings.siteName}, ${t.toStart}`}>
       <Logo width={120} priority alt={settings.siteName} />
     </a>
 
@@ -44,7 +39,6 @@ const isActive = (href: string) => {
     </nav>
 
     <div class="site-header__actions">
-      <LanguageSwitcher locale={locale} alternates={alternates} class="site-header__lang" />
       <button class="nav-toggle" type="button" aria-expanded="false" aria-controls="mobile-menu" data-nav-toggle>
         <span class="nav-toggle__label visually-hidden">{t.menu}</span>
         <span class="nav-toggle__icon" aria-hidden="true"><Icon name="menu" /></span>

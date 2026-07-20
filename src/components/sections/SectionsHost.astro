@@ -1,7 +1,6 @@
 ---
 import SectionsList from './SectionsList';
 import type { Section } from '../../lib/content/types';
-import type { Locale } from '../../lib/i18n';
 
 /**
  * PRODUKTIONS-Host für das Sections-System: rendert die React-Sections
@@ -14,13 +13,12 @@ import type { Locale } from '../../lib/i18n';
  * Sections als Live-Island hydriert. Gleiches Seam-Muster wie
  * `#preview-extras` (seitenweite Visual-Editing-Brücke im BaseLayout).
  *
- * `document`/`locale` werden hier nicht gebraucht - die Props sind identisch
+ * `document` wird hier nicht gebraucht - die Props sind identisch
  * zum Vorschau-Host, damit die Seiten für beide Builds gleich aussehen.
  */
 interface Props {
   sections: Section[];
   document?: { id?: string; type: 'homePage' | 'page'; slug?: string };
-  locale: Locale;
 }
 const { sections } = Astro.props;
 ---

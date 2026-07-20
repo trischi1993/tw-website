@@ -1,5 +1,4 @@
 import type { ImageMetadata } from 'astro';
-import type { Locale } from '../i18n';
 
 /* ---------------------------------------------------------------------------
    Component-facing content types.
@@ -204,17 +203,8 @@ export interface HomeContent {
 export interface SitePage {
   /** Sanity-Dokument-ID (Basis-ID) - siehe HomeContent.documentId. */
   documentId?: string;
-  /** Sprache dieses Dokuments. */
-  language: Locale;
   title: string;
   slug: string;
   seo: PageSeo;
   sections: Section[];
-  /**
-   * Echte Sprachversionen dieser Seite – aus dem `translation.metadata`-Dokument
-   * des Plugins @sanity/document-internationalization. Treibt hreflang +
-   * Sprachumschalter; es werden nur existierende Übersetzungen geführt.
-   * Startseiten brauchen das nicht (fest gepaart, siehe i18n.ts).
-   */
-  translations?: { language: Locale; slug: string }[];
 }

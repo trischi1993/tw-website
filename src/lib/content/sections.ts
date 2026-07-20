@@ -143,8 +143,8 @@ export function wrapStyle(token?: TextWrapToken): string | undefined {
 
 /* Live-Queries der Vorschau-Island: gleiche Projektion, plus Dokument-Identität
    für Click-to-edit (createDataAttribute braucht _id/_type). */
-export const HOME_SECTIONS_QUERY = `*[_type == "homePage" && language == $lang][0]{ _id, _type, ${SECTIONS_PROJECTION} }`;
-export const PAGE_SECTIONS_QUERY = `*[_type == "page" && language == $lang && slug.current == $slug][0]{ _id, _type, ${SECTIONS_PROJECTION} }`;
+export const HOME_SECTIONS_QUERY = `*[_type == "homePage"][0]{ _id, _type, ${SECTIONS_PROJECTION} }`;
+export const PAGE_SECTIONS_QUERY = `*[_type == "page" && slug.current == $slug][0]{ _id, _type, ${SECTIONS_PROJECTION} }`;
 
 /** Sanity-ID normalisieren: `drafts.`- und `versions.<release>.`-Präfixe ab. */
 export function baseIdOf(id: string | undefined): string {

@@ -7,7 +7,7 @@ import Footer from '../components/Footer.astro';
 // diesen Subpath auf die Visual-Editing-Brücke um (History/Overlay/Refresh).
 import PreviewExtras from '#preview-extras';
 import { getSiteSettings } from '../lib/content';
-import { HTML_LANG, ui, DEFAULT_LOCALE, type Locale } from '../lib/i18n';
+import { HTML_LANG, UI } from '../lib/i18n';
 
 interface Props {
   title: string;
@@ -15,10 +15,6 @@ interface Props {
   image?: string;
   noindex?: boolean;
   type?: 'website' | 'article';
-  /** Sprache dieser Seite. Setzt <html lang>, UI-Texte, og:locale. */
-  locale?: Locale;
-  /** Echte Sprachversionen dieser Seite (für hreflang + Sprachumschalter). */
-  alternates?: { lang: Locale; path: string }[];
   jsonLd?: Record<string, any> | Record<string, any>[];
   /** Header starts transparent with light text (for pages with a dark full-bleed hero). */
   transparentHeader?: boolean;
@@ -29,13 +25,10 @@ const {
   image,
   noindex,
   type,
-  locale = DEFAULT_LOCALE,
-  alternates = [],
   jsonLd,
   transparentHeader = false,
 } = Astro.props;
-const t = ui(locale);
-const settings = await getSiteSettings(locale);
+const settings = await getSiteSettings();
 
 // Organization auf jeder Seite: macht die Marke für Google/AI zur eindeutigen
 // Entität. name/logo/url generisch aus den SiteSettings; sameAs nur, wenn echte
@@ -55,7 +48,7 @@ const pageJsonLd = jsonLd ? (Array.isArray(jsonLd) ? jsonLd : [jsonLd]) : [];
 const jsonLdArray = [orgJsonLd, ...pageJsonLd];
 ---
 <!doctype html>
-<html lang={HTML_LANG[locale]}>
+<html lang={HTML_LANG}>
   <head>
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1" />
@@ -83,9 +76,7 @@ const jsonLdArray = [orgJsonLd, ...pageJsonLd];
       image={image}
       noindex={noindex}
       type={type}
-      locale={locale}
       siteName={settings.siteName}
-      alternates={alternates}
     />
     {
       jsonLdArray.map((data) => (
@@ -102,14 +93,14 @@ const jsonLdArray = [orgJsonLd, ...pageJsonLd];
     <slot name="head" />
   </head>
   <body>
-    <a href="#main" class="skip-link">{t.skipToContent}</a>
-    <Header transparent={transparentHeader} locale={locale} alternates={alternates} />
+    <a href="#main" class="skip-link">{UI.skipToContent}</a>
+    <Header transparent={transparentHeader} />
     {/* tabindex=-1: macht das Sprung-Ziel per Skip-Link fokussierbar (sonst
         setzen manche Browser/AT den Fokus nicht zuverlässig auf <main>). */}
     <main id="main" tabindex="-1">
       <slot />
     </main>
-    <Footer locale={locale} />
+    <Footer />
     <script>
       // GSAP/ScrollTrigger nur laden, wenn die Seite animierte Elemente hat.
       // Auf Seiten ohne Reveal/Parallax wird das Motion-Bundle nie geholt.

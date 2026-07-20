@@ -1,4 +1,4 @@
-import { defineType, defineField } from 'sanity';
+import { defineType, defineField, type Rule } from 'sanity';
 
 /**
  * Ein Link mit Beschriftung – für Navigation, Footer-Links und Social-Profile.
@@ -24,7 +24,7 @@ export default defineType({
       // Scheme-Allowlist gegen javascript:/data:-XSS (zweite Ebene: safeHref im
       // Renderer, src/lib/safe-href.ts).
       validation: (R) =>
-        R.required().uri({ scheme: ['http', 'https', 'mailto', 'tel'], allowRelative: true }),
+        (R as unknown as Rule).required().uri({ scheme: ['http', 'https', 'mailto', 'tel'], allowRelative: true }),
     }),
   ],
   preview: {

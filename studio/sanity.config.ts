@@ -6,8 +6,6 @@ import { visionTool } from '@sanity/vision';
 import { schemaTypes } from './schemas';
 import { structure, SINGLETONS } from './structure';
 import { resolve } from './resolve';
-import { documentInternationalization } from '@sanity/document-internationalization';
-import { LANGUAGES } from './schemas/objects/language';
 import PagesNavigator from './components/PagesNavigator';
 import { DescriptionTooltipField } from './components/DescriptionTooltipField';
 import { EditorKeyForwarder } from './components/EditorKeyForwarder';
@@ -54,19 +52,6 @@ export default defineConfig({
 
   plugins: [
     structureTool({ structure }),
-
-    /**
-     * Zweisprachigkeit auf Dokument-Ebene – NUR für frei angelegte Seiten
-     * (page). Gibt dem Kunden ein „Übersetzungen“-Menü und verwaltet das
-     * versteckte language-Feld + ein translation.metadata-Dokument je Seite.
-     * Die Singletons (Startseite, Einstellungen) sind bewusst NICHT hier: die
-     * haben feste, deterministische IDs je Sprache (homePage-de/-en, …).
-     */
-    documentInternationalization({
-      supportedLanguages: LANGUAGES.map((l) => ({ id: l.id, title: l.title })),
-      schemaTypes: ['page'],
-      apiVersion: '2025-02-19',
-    }),
 
     /**
      * Live-Vorschau (Stufe 2): zeigt die Webseite neben dem Formular und

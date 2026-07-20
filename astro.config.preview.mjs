@@ -67,15 +67,7 @@ export default defineConfig({
   // Fetch-Fehler in die Console und ihre Overlays kollidieren mit den
   // Sanity-Click-to-edit-Overlays. (Betrifft nur `npm run dev:preview`.)
   devToolbar: { enabled: false },
-  // Identisch zur Produktion, damit Astro.currentLocale auch in der Vorschau
-  // pro Sprache korrekt aufgelöst wird (/, /en/). Kein Sitemap hier.
-  i18n: {
-    defaultLocale: 'de',
-    locales: ['de', 'en'],
-    routing: {
-      prefixDefaultLocale: false,
-    },
-  },
+  // Einsprachige Website (Deutsch) - kein Astro-i18n-Routing. Kein Sitemap hier.
   image: {
     domains: ['cdn.sanity.io'],
   },

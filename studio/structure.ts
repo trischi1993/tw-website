@@ -12,19 +12,16 @@ import { CogIcon } from '@sanity/icons/Cog';
 export const SINGLETONS = ['siteSettings', 'homePage'] as const;
 
 /**
- * Aufbau der linken Navigation im Studio (zweisprachig, Dokument-Ebene):
+ * Aufbau der linken Navigation im Studio (einsprachig):
  *
  *   Website
- *     ├─ Startseite        ├─ Deutsch   (homePage-de)
- *     │                    └─ English   (homePage-en)
- *     ├─ Weitere Seiten    (frei anlegbare Seiten, je Sprache ein Dokument)
+ *     ├─ Startseite        (homePage)
+ *     ├─ Weitere Seiten    (frei anlegbare Seiten)
  *     ─────────────
- *     └─ Einstellungen     ├─ Deutsch   (siteSettings-de)
- *                          └─ English   (siteSettings-en)
+ *     └─ Einstellungen     (siteSettings)
  *
- * Pro Sprache ein eigenes, fest adressiertes Dokument (feste IDs) – damit ist
- * der Inhalt deterministisch und der Seed-Import (studio/seed.ndjson)
- * reproduzierbar.
+ * Feste, deterministische IDs – damit ist der Inhalt deterministisch und der
+ * Seed-Import (studio/seed.ndjson) reproduzierbar.
  */
 export const structure: StructureResolver = (S) =>
   S.list()
@@ -34,30 +31,7 @@ export const structure: StructureResolver = (S) =>
         .title('Startseite')
         .id('homePage')
         .icon(HomeIcon)
-        .child(
-          S.list()
-            .title('Startseite')
-            .items([
-              S.listItem()
-                .title('Deutsch')
-                .id('homePage-de')
-                .child(
-                  S.document()
-                    .schemaType('homePage')
-                    .documentId('homePage-de')
-                    .title('Startseite (DE)'),
-                ),
-              S.listItem()
-                .title('English')
-                .id('homePage-en')
-                .child(
-                  S.document()
-                    .schemaType('homePage')
-                    .documentId('homePage-en')
-                    .title('Startseite (EN)'),
-                ),
-            ]),
-        ),
+        .child(S.document().schemaType('homePage').documentId('homePage').title('Startseite')),
 
       S.documentTypeListItem('page').title('Weitere Seiten').icon(DocumentsIcon),
 
@@ -68,27 +42,6 @@ export const structure: StructureResolver = (S) =>
         .id('siteSettings')
         .icon(CogIcon)
         .child(
-          S.list()
-            .title('Einstellungen')
-            .items([
-              S.listItem()
-                .title('Deutsch')
-                .id('siteSettings-de')
-                .child(
-                  S.document()
-                    .schemaType('siteSettings')
-                    .documentId('siteSettings-de')
-                    .title('Einstellungen (DE)'),
-                ),
-              S.listItem()
-                .title('English')
-                .id('siteSettings-en')
-                .child(
-                  S.document()
-                    .schemaType('siteSettings')
-                    .documentId('siteSettings-en')
-                    .title('Einstellungen (EN)'),
-                ),
-            ]),
+          S.document().schemaType('siteSettings').documentId('siteSettings').title('Einstellungen'),
         ),
     ]);

@@ -6,13 +6,10 @@ import PageHeader from '../components/PageHeader.astro';
 import SectionsHost from '#sections-host';
 import { getHome, getSiteSettings } from '../lib/content';
 import { ogImageUrl } from '../lib/content/images';
-import { homeAlternates, HTML_LANG } from '../lib/i18n';
+import { HTML_LANG } from '../lib/i18n';
 
-// Deutsche Startseite (Default-Sprache, ohne Prefix unter /).
-const locale = 'de' as const;
-const home = await getHome(locale);
-const settings = await getSiteSettings(locale);
-const alternates = homeAlternates();
+const home = await getHome();
+const settings = await getSiteSettings();
 
 // Minimal, generic structured data. Extend per project as needed.
 const jsonLd = {
@@ -20,21 +17,15 @@ const jsonLd = {
   '@type': 'WebSite',
   name: settings.siteName,
   url: Astro.site?.href,
-  inLanguage: HTML_LANG[locale],
+  inLanguage: HTML_LANG,
 };
 ---
 <BaseLayout
   title={home.seo.title}
   description={home.seo.description}
   image={ogImageUrl(home.seo.image)}
-  locale={locale}
-  alternates={alternates}
   jsonLd={jsonLd}
 >
   <PageHeader title={settings.siteName} intro={settings.tagline} />
-  <SectionsHost
-    sections={home.sections}
-    document={{ id: home.documentId, type: 'homePage' }}
-    locale={locale}
-  />
+  <SectionsHost sections={home.sections} document={{ id: home.documentId, type: 'homePage' }} />
 </BaseLayout>

@@ -1,11 +1,10 @@
 import { defineType, defineField } from 'sanity';
 import { CogIcon } from '@sanity/icons/Cog';
-import { languageField, languageLabel } from '../objects/language';
 
 /**
- * EINSTELLUNGEN (pro Sprache ein Singleton: siteSettings-de / siteSettings-en).
+ * EINSTELLUNGEN (Singleton mit fester ID `siteSettings`).
  * Hier stehen Name, Kontaktdaten, Navigation und Footer-Links.
- * Diese Inhalte erscheinen im Kopf- und Fußbereich jeder Seite der Sprache.
+ * Diese Inhalte erscheinen im Kopf- und Fußbereich jeder Seite.
  */
 export default defineType({
   name: 'siteSettings',
@@ -18,7 +17,6 @@ export default defineType({
     { name: 'navigation', title: 'Navigation & Footer' },
   ],
   fields: [
-    { ...languageField({ hidden: true }), group: 'general' },
     defineField({
       name: 'siteName',
       title: 'Name der Website',
@@ -180,12 +178,11 @@ export default defineType({
     }),
   ],
   preview: {
-    select: { title: 'siteName', subtitle: 'tagline', language: 'language' },
-    prepare({ title, subtitle, language }) {
-      const lang = languageLabel(language);
+    select: { title: 'siteName', subtitle: 'tagline' },
+    prepare({ title, subtitle }) {
       return {
         title: title || 'Einstellungen',
-        subtitle: [lang, subtitle || 'Website-Einstellungen'].filter(Boolean).join(' · '),
+        subtitle: subtitle || 'Website-Einstellungen',
       };
     },
   },
