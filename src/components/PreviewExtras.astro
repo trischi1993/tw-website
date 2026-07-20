@@ -1,0 +1,11 @@
+---
+/**
+ * Produktions-Platzhalter für die Vorschau-Laufzeit: rendert NICHTS.
+ *
+ * BaseLayout importiert dieses Modul über den Alias `#preview-extras`
+ * (package.json → "imports"). In Produktion bleibt es bei dieser leeren
+ * Variante, der Live-Build enthält also keinerlei Vorschau-Code. Nur im
+ * Vorschau-Build wird `#preview-extras` per Alias auf
+ * src/preview/PreviewExtras.astro umgebogen.
+ */
+---

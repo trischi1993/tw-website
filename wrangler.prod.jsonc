@@ -1,0 +1,33 @@
+{
+  // PRODUKTIONS-Worker: reiner "Assets-only-Worker" (Workers Static Assets).
+  //
+  // Kein `main`, kein Adapter: dieser Worker fuehrt KEINEN Server-Code aus, er
+  // liefert nur die statischen Dateien aus `dist/` (Ergebnis von `npm run build`,
+  // output: 'static'). "Kein `main`" bezieht sich auf die Worker-Einstiegsdatei
+  // (Server-Code) - NICHT auf den Git-Branch `main`. Auto-Deploy bei Push regelt
+  // Workers Builds, voellig unabhaengig von diesem Feld.
+  //
+  // Warum ein Worker statt Cloudflare Pages: Pages ist eingefroren, und der
+  // Astro-Cloudflare-Adapter hat Pages-Support seit v13 entfernt. Der statische
+  // Output bleibt identisch - nur der Host davor wechselt. Static-Requests sind
+  // wie bei Pages gratis & unlimitiert; kein Token, kein React im Output.
+  //
+  // Deploy (lokal oder in Workers Builds):
+  //   npm run build && npx wrangler deploy -c wrangler.prod.jsonc
+  //
+  // Cloudflare respektiert die von Astro erzeugten `dist/_headers` und
+  // `dist/_redirects` genau wie unter Pages.
+  //
+  // Pro Projekt umbenennen (Platzhalter, wird von scripts/init.mjs ersetzt):
+  "name": "tristanweithaler-prod",
+  "compatibility_date": "2025-05-05",
+  "assets": {
+    "directory": "./dist",
+    // Fehlende Pfade liefern die statische 404-Seite (Astro erzeugt dist/404.html)
+    // mit HTTP-404 statt eines nackten Worker-404.
+    "not_found_handling": "404-page"
+  },
+  "observability": {
+    "enabled": true
+  }
+}

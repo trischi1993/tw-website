@@ -1,0 +1,38 @@
+---
+import BaseLayout from '../../layouts/BaseLayout.astro';
+import PageHeader from '../../components/PageHeader.astro';
+// In Produktion der statische Host; nur der Vorschau-Build biegt diesen
+// Subpath auf den Live-Island-Host um (package.json "imports" + Alias).
+import SectionsHost from '#sections-host';
+import { getHome, getSiteSettings } from '../../lib/content';
+import { homeAlternates, HTML_LANG } from '../../lib/i18n';
+
+// Englische Startseite (unter /en/). Spiegelt die deutsche Startseite, zieht
+// aber die englischen Inhalte (eigenes Dokument je Sprache).
+const locale = 'en' as const;
+const home = await getHome(locale);
+const settings = await getSiteSettings(locale);
+const alternates = homeAlternates();
+
+const jsonLd = {
+  '@context': 'https://schema.org',
+  '@type': 'WebSite',
+  name: settings.siteName,
+  url: Astro.site?.href,
+  inLanguage: HTML_LANG[locale],
+};
+---
+<BaseLayout
+  title={home.seo.title}
+  description={home.seo.description}
+  locale={locale}
+  alternates={alternates}
+  jsonLd={jsonLd}
+>
+  <PageHeader title={settings.siteName} intro={settings.tagline} />
+  <SectionsHost
+    sections={home.sections}
+    document={{ id: home.documentId, type: 'homePage' }}
+    locale={locale}
+  />
+</BaseLayout>

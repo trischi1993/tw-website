@@ -1,0 +1,96 @@
+---
+/**
+ * Lean, progressiv verbessertes Kontaktformular — OPTIONAL, per Default nirgends
+ * importiert. Es funktioniert OHNE JavaScript (nativer POST an einen Form-Host);
+ * so bleibt der Prod-Output null-JS und die Hausregel unangetastet.
+ *
+ * SETUP pro Projekt:
+ *  1. `action` auf euren Form-Host setzen (Default upgreight: Form.Taxi; ebenso
+ *     Web3Forms/Formspree/Basin/Netlify Forms möglich). Beispiel Form.Taxi:
+ *       <ContactForm action="https://www.formtaxi.com/submit/<dein-token>" />
+ *  2. CSP in public/_headers erweitern, sonst blockt der Browser den POST:
+ *       form-action 'self' https://www.formtaxi.com;
+ *     (und connect-src um denselben Host, falls ihr später AJAX statt nativem
+ *     POST nutzt.)
+ *  3. Erfolgs-/Fehlerseite beim Host hinterlegen (oder `_next`/Redirect-Feld).
+ *
+ * Labels sind deutsch (Default-Sprache). Für mehrsprachige Projekte die Strings
+ * an `src/lib/i18n.ts` anbinden.
+ */
+interface Props {
+  /** Ziel-URL des Form-Hosts. Platzhalter — pro Projekt setzen. */
+  action?: string;
+  /** Wohin der Host nach dem Absenden weiterleitet (optional, hostabhängig). */
+  redirectTo?: string;
+}
+const { action = 'https://www.formtaxi.com/submit/REPLACE_ME', redirectTo } = Astro.props;
+---
+<form class="contact-form" method="POST" action={action}>
+  {redirectTo && <input type="hidden" name="_redirect" value={redirectTo} />}
+  {/* Honeypot: für Menschen unsichtbar, Bots füllen es aus → serverseitig verwerfen. */}
+  <div class="contact-form__hp" aria-hidden="true">
+    <label>Dieses Feld leer lassen<input type="text" name="_gotcha" tabindex="-1" autocomplete="off" /></label>
+  </div>
+
+  <div class="field">
+    <label for="cf-name">Name</label>
+    <input id="cf-name" name="name" type="text" autocomplete="name" required />
+  </div>
+  <div class="field">
+    <label for="cf-email">E-Mail</label>
+    <input id="cf-email" name="email" type="email" autocomplete="email" required />
+  </div>
+  <div class="field">
+    <label for="cf-message">Nachricht</label>
+    <textarea id="cf-message" name="message" rows="5" required></textarea>
+  </div>
+
+  <button type="submit" class="btn btn--primary">Absenden</button>
+</form>
+
+<style>
+  .contact-form {
+    display: flex;
+    flex-direction: column;
+    gap: var(--space-md);
+    max-width: 40rem;
+  }
+  .field {
+    display: flex;
+    flex-direction: column;
+    gap: var(--space-xs);
+  }
+  .field label {
+    font-family: var(--font-mono);
+    font-size: var(--text-xs);
+    letter-spacing: var(--tracking-label);
+    text-transform: uppercase;
+    color: var(--ink-3);
+  }
+  .field input,
+  .field textarea {
+    font: inherit;
+    color: var(--ink);
+    background: var(--paper);
+    border: 1px solid var(--neutral-line);
+    border-radius: var(--radius-sm);
+    padding: 0.7em 0.9em;
+    transition: border-color var(--dur-fast) var(--ease-out);
+  }
+  .field input:focus-visible,
+  .field textarea:focus-visible {
+    outline: none;
+    border-color: var(--brand);
+  }
+  .field textarea {
+    resize: vertical;
+  }
+  /* Honeypot aus dem Layout und aus dem Accessibility-Tree nehmen. */
+  .contact-form__hp {
+    position: absolute;
+    left: -9999px;
+    width: 1px;
+    height: 1px;
+    overflow: hidden;
+  }
+</style>

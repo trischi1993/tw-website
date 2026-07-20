@@ -1,0 +1,52 @@
+---
+import { perspectiveCookieName } from '@sanity/preview-url-secret/constants';
+import SectionsList from '../components/sections/SectionsList';
+import SectionsIsland from './SectionsIsland';
+import { getPreviewContext } from '../lib/preview-context';
+import type { Section } from '../lib/content/types';
+import type { Locale } from '../lib/i18n';
+
+/**
+ * VORSCHAU-Host für das Sections-System - NUR im Vorschau-Build aktiv
+ * (astro.config.preview.mjs biegt `#sections-host` per Alias hierher um).
+ *
+ * Im Draft-Mode (Presentation-iframe, Perspektive-Cookie gesetzt) hydrieren
+ * die Sections als React-Island (`client:only`): initial gefüllt vom
+ * Server-Fetch, danach pusht das Studio pro Tastenanschlag neue Daten per
+ * comlink - Millisekunden statt Full-Reload (siehe SectionsIsland.tsx).
+ *
+ * Ohne Draft-Mode (direkter Aufruf der Vorschau-URL) oder ohne Sanity-Dokument
+ * (Seed-Betrieb) bleibt es beim statischen Server-Render wie in Produktion.
+ */
+interface Props {
+  sections: Section[];
+  document?: { id?: string; type: 'homePage' | 'page'; slug?: string };
+  locale: Locale;
+}
+const { sections, document, locale } = Astro.props;
+
+const draftMode = Astro.cookies.has(perspectiveCookieName);
+// document.id ist bereits die Basis-ID - normalisiert EINMAL serverseitig in
+// src/lib/sanity.ts (baseIdOf); ohne Sanity (Seed) bleibt sie undefined.
+const documentId = document?.id;
+const live = draftMode && document && documentId;
+
+// Studio-URL für createDataAttribute (Click-to-edit-Ziele). Kommt aus der
+// Vorschau-Umgebung (SANITY_STUDIO_URL); lokal das lokale Studio.
+const studioUrl = getPreviewContext()?.studioUrl || 'http://localhost:3333';
+---
+{
+  live ? (
+    <SectionsIsland
+      client:only="react"
+      initialSections={sections}
+      documentId={documentId}
+      documentType={document.type}
+      slug={document.slug}
+      locale={locale}
+      studioUrl={studioUrl}
+    />
+  ) : (
+    <SectionsList sections={sections} />
+  )
+}

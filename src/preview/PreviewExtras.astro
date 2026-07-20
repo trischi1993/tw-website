@@ -1,0 +1,18 @@
+---
+/**
+ * Vorschau-Laufzeit - NUR im Vorschau-Build aktiv (Alias in
+ * astro.config.preview.mjs) und nur bei gesetztem Draft-Mode-Cookie
+ * (= die Seite läuft im Studio-Presentation-Frame).
+ *
+ * Mountet die seitenweite Visual-Editing-Brücke (Overlays, History-Meldung an
+ * das Studio, Refresh-Politik) als React-Island. Sie läuft auf JEDER Seite im
+ * Draft-Mode - auch auf der 404 und auf Seiten ohne Sections-Island - damit
+ * Presentation die URL immer kennt. Details: src/preview/PreviewBridge.tsx.
+ */
+import { perspectiveCookieName } from '@sanity/preview-url-secret/constants';
+import PreviewBridge from './PreviewBridge';
+
+const draftMode = Astro.cookies.has(perspectiveCookieName);
+---
+
+{draftMode && <PreviewBridge client:only="react" />}

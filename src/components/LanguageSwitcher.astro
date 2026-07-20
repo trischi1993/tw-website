@@ -1,0 +1,80 @@
+---
+/**
+ * Sprachumschalter. Verlinkt auf die ECHTE übersetzte URL der aktuellen Seite
+ * (aus `alternates`, nie geraten). Die aktuelle Sprache ist markiert und nicht
+ * klickbar. Wird nichts oder nur eine Sprache übergeben, erscheint nichts.
+ */
+import { LOCALE_LABELS, LOCALE_NAMES, ui, type Locale } from '../lib/i18n';
+
+interface Props {
+  locale: Locale;
+  alternates: { lang: Locale; path: string }[];
+  class?: string;
+}
+const { locale, alternates, class: className } = Astro.props;
+const t = ui(locale);
+const show = alternates.length > 1;
+---
+{
+  show && (
+    <nav class:list={['lang-switch', className]} aria-label={t.languageNav}>
+      <ul role="list">
+        {alternates.map((a) => (
+          <li>
+            {a.lang === locale ? (
+              <span class="lang-switch__current" aria-current="true">
+                {LOCALE_LABELS[a.lang]}
+              </span>
+            ) : (
+              <a href={a.path} hreflang={a.lang} lang={a.lang} aria-label={LOCALE_NAMES[a.lang]}>
+                {LOCALE_LABELS[a.lang]}
+              </a>
+            )}
+          </li>
+        ))}
+      </ul>
+    </nav>
+  )
+}
+
+<style>
+  .lang-switch ul {
+    display: flex;
+    align-items: center;
+    gap: 0;
+    list-style: none;
+    margin: 0;
+    padding: 0;
+    font-family: var(--font-mono);
+    font-size: var(--text-xs);
+    letter-spacing: var(--tracking-label);
+  }
+  /* Schmaler Trenner zwischen den Sprachen. */
+  .lang-switch li + li::before {
+    content: '';
+    display: inline-block;
+    width: 1px;
+    height: 0.8em;
+    margin: 0 0.6rem;
+    background: currentColor;
+    opacity: 0.3;
+    vertical-align: middle;
+  }
+  .lang-switch a,
+  .lang-switch__current {
+    color: var(--header-fg, var(--ink));
+    text-decoration: none;
+    text-transform: uppercase;
+    transition: color var(--dur-fast) var(--ease-out), opacity var(--dur-fast) var(--ease-out);
+  }
+  .lang-switch a {
+    opacity: 0.6;
+  }
+  .lang-switch a:hover {
+    opacity: 1;
+    color: var(--brand-strong);
+  }
+  .lang-switch__current {
+    font-weight: 600;
+  }
+</style>

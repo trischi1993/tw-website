@@ -1,0 +1,27 @@
+---
+import SectionsList from './SectionsList';
+import type { Section } from '../../lib/content/types';
+import type { Locale } from '../../lib/i18n';
+
+/**
+ * PRODUKTIONS-Host für das Sections-System: rendert die React-Sections
+ * STATISCH zur Buildzeit (kein client:-Directive) - der Output ist reines
+ * HTML, null React-JS, keine data-sanity-Attribute.
+ *
+ * Die Seiten importieren `#sections-host` (package.json → "imports"). In
+ * Produktion zeigt der Subpath hierher; NUR der Vorschau-Build biegt ihn per
+ * Alias auf src/preview/SectionsHost.astro um, der im Draft-Mode dieselben
+ * Sections als Live-Island hydriert. Gleiches Seam-Muster wie
+ * `#preview-extras` (seitenweite Visual-Editing-Brücke im BaseLayout).
+ *
+ * `document`/`locale` werden hier nicht gebraucht - die Props sind identisch
+ * zum Vorschau-Host, damit die Seiten für beide Builds gleich aussehen.
+ */
+interface Props {
+  sections: Section[];
+  document?: { id?: string; type: 'homePage' | 'page'; slug?: string };
+  locale: Locale;
+}
+const { sections } = Astro.props;
+---
+<SectionsList sections={sections} />

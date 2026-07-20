@@ -1,0 +1,202 @@
+---
+import Logo from './Logo.astro';
+import Icon from './Icon.astro';
+import { getSiteSettings } from '../lib/content';
+import { safeHref } from '../lib/safe-href';
+import { ui, DEFAULT_LOCALE, type Locale } from '../lib/i18n';
+
+interface Props {
+  locale?: Locale;
+}
+const { locale = DEFAULT_LOCALE } = Astro.props;
+const t = ui(locale);
+const settings = await getSiteSettings(locale);
+const { contact } = settings;
+const year = new Date().getFullYear();
+const socialIcon: Record<string, 'instagram' | 'mail'> = { Instagram: 'instagram' };
+const homeHref = locale === DEFAULT_LOCALE ? '/' : `/${locale}/`;
+---
+<footer class="site-footer">
+  <div class="container container--wide">
+    <div class="footer-grid">
+      <div class="footer-brand">
+        <a href={homeHref} aria-label={`${settings.siteName}, ${t.toStart}`} class="footer-brand__logo">
+          <Logo width={150} alt={settings.siteName} />
+        </a>
+        {settings.footerNote && <p class="footer-brand__note">{settings.footerNote}</p>}
+        {
+          settings.social.length > 0 && (
+            <ul role="list" class="footer-social">
+              {settings.social.map((s) => (
+                <li>
+                  <a href={safeHref(s.href)} target="_blank" rel="noopener noreferrer" aria-label={s.label}>
+                    <Icon name={socialIcon[s.label] ?? 'arrow-up-right'} />
+                  </a>
+                </li>
+              ))}
+            </ul>
+          )
+        }
+      </div>
+
+      <nav class="footer-col" aria-label={t.footerDiscover}>
+        <h2 class="footer-col__title">{t.footerDiscover}</h2>
+        <ul role="list">
+          {settings.nav.map((item) => <li><a href={safeHref(item.href)}>{item.label}</a></li>)}
+        </ul>
+      </nav>
+
+      {
+        settings.legalLinks.length > 0 && (
+          <nav class="footer-col" aria-label={t.footerLegal}>
+            <h2 class="footer-col__title">{t.footerLegal}</h2>
+            <ul role="list">
+              {settings.legalLinks.map((item) => (
+                <li>
+                  <a href={safeHref(item.href)}>{item.label}</a>
+                </li>
+              ))}
+            </ul>
+          </nav>
+        )
+      }
+
+      <div class="footer-col footer-contact">
+        <h2 class="footer-col__title">{t.footerContact}</h2>
+        <address>
+          <p class="footer-contact__owner">{contact.ownerName}</p>
+          <p>
+            {contact.addressLines.join(', ')}<br />
+            {contact.postalCode} {contact.locality}, {contact.country}
+          </p>
+          <p>
+            <a href={`mailto:${contact.email}`}>{contact.email}</a><br />
+            <a href={safeHref(contact.phoneHref)}>{contact.phone}</a>
+          </p>
+        </address>
+      </div>
+    </div>
+
+    <div class="footer-bottom">
+      <p>© {year} {settings.siteName}. {t.rightsReserved}</p>
+      <p class="footer-credit">
+        Created by{' '}
+        <a href="https://upgreight.com" target="_blank" rel="noopener noreferrer">upgreight</a>
+      </p>
+    </div>
+  </div>
+</footer>
+
+<style>
+  .site-footer {
+    background: var(--paper-2);
+    border-top: var(--hairline);
+    padding-block: clamp(3.5rem, 2.5rem + 4vw, 6rem) var(--space-lg);
+  }
+
+  .footer-grid {
+    display: grid;
+    grid-template-columns: 1.6fr 1fr 1fr 1.4fr;
+    gap: var(--space-xl) var(--space-lg);
+    padding-block: var(--space-2xl) var(--space-xl);
+  }
+  .footer-brand__logo { display: inline-block; line-height: 0; }
+  .footer-brand__note {
+    margin-top: var(--space-md);
+    max-width: 30ch;
+    color: var(--ink-2);
+    font-size: var(--text-sm);
+    line-height: 1.55;
+  }
+  .footer-social {
+    display: flex;
+    gap: 0.6rem;
+    margin-top: var(--space-md);
+  }
+  .footer-social a {
+    display: grid;
+    place-items: center;
+    width: 2.75rem; /* 44px – WCAG 2.5.5 Ziel-Trefferfläche */
+    height: 2.75rem;
+    font-size: 1.1rem;
+    color: var(--ink);
+    border: 1px solid var(--neutral-line);
+    border-radius: var(--radius-pill);
+    transition: background var(--dur-fast) var(--ease-out), color var(--dur-fast) var(--ease-out),
+      border-color var(--dur-fast) var(--ease-out);
+  }
+  .footer-social a:hover {
+    background: var(--ink);
+    color: var(--paper);
+    border-color: var(--ink);
+  }
+
+  .footer-col__title {
+    font-family: var(--font-mono);
+    font-weight: 500;
+    font-size: var(--text-xs);
+    letter-spacing: var(--tracking-label);
+    text-transform: uppercase;
+    color: var(--ink-3);
+    margin-bottom: var(--space-md);
+  }
+  .footer-col ul {
+    list-style: none;
+    margin: 0;
+    padding: 0;
+    display: flex;
+    flex-direction: column;
+    gap: 0.7rem;
+  }
+  .footer-col a {
+    color: var(--ink-2);
+    text-decoration: none;
+    font-size: 0.95rem;
+    transition: color var(--dur-fast) var(--ease-out);
+  }
+  .footer-col a:hover { color: var(--brand-strong); }
+  .footer-contact address { font-style: normal; display: flex; flex-direction: column; gap: var(--space-sm); }
+  .footer-contact p { color: var(--ink-2); font-size: 0.95rem; line-height: 1.6; }
+  .footer-contact__owner { color: var(--ink); font-weight: 600; }
+
+  .footer-bottom {
+    display: flex;
+    flex-wrap: wrap;
+    gap: var(--space-sm) var(--space-lg);
+    justify-content: space-between;
+    align-items: center;
+    padding-top: var(--space-lg);
+    border-top: var(--hairline);
+    font-size: var(--text-sm);
+    color: var(--ink-3);
+  }
+  .footer-credit a {
+    position: relative;
+    color: var(--ink);
+    font-weight: 600;
+    text-decoration: none;
+    transition: color var(--dur-fast) var(--ease-out);
+  }
+  .footer-credit a::after {
+    content: '';
+    position: absolute;
+    left: 0;
+    bottom: -1px;
+    width: 100%;
+    height: 1px;
+    background: var(--brand);
+    transform: scaleX(0);
+    transform-origin: left;
+    transition: transform var(--dur) var(--ease-out);
+  }
+  .footer-credit a:hover { color: var(--brand-strong); }
+  .footer-credit a:hover::after { transform: scaleX(1); }
+
+  @media (max-width: 880px) {
+    .footer-grid { grid-template-columns: 1fr 1fr; }
+    .footer-brand { grid-column: 1 / -1; }
+  }
+  @media (max-width: 560px) {
+    .footer-grid { grid-template-columns: 1fr; }
+  }
+</style>

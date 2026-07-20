@@ -1,0 +1,74 @@
+---
+import BaseLayout from '../layouts/BaseLayout.astro';
+import PageHeader from '../components/PageHeader.astro';
+// In Produktion der statische Host; nur der Vorschau-Build biegt diesen
+// Subpath auf den Live-Island-Host um (package.json "imports" + Alias).
+import SectionsHost from '#sections-host';
+import { getAllPages, getPageBySlug } from '../lib/content';
+import { ogImageUrl } from '../lib/content/images';
+import { LOCALES, DEFAULT_LOCALE, pageAlternates, type Locale } from '../lib/i18n';
+import type { SitePage } from '../lib/content/types';
+
+// Erzeugt je Sprache eine Route für jede frei angelegte Seite (Seed heute,
+// Sanity später). Deutsch ohne Prefix (/<slug>/), Englisch unter /en/<slug>/.
+// Gilt NUR für den statischen Produktions-Build.
+export async function getStaticPaths() {
+  const paths: Array<{
+    params: { slug: string };
+    props: { locale: Locale; page: SitePage; alternates: { lang: Locale; path: string }[] };
+  }> = [];
+
+  for (const locale of LOCALES) {
+    for (const page of await getAllPages(locale)) {
+      const slugParam = locale === DEFAULT_LOCALE ? page.slug : `${locale}/${page.slug}`;
+      paths.push({
+        params: { slug: slugParam },
+        props: { locale, page, alternates: pageAlternates(page, locale) },
+      });
+    }
+  }
+  return paths;
+}
+
+// In der Vorschau-SSR kommen KEINE Props an (getStaticPaths läuft in
+// output:'server' nicht) → Partial statt der von getStaticPaths abgeleiteten
+// Pflicht-Props.
+type Props = { locale: Locale; page: SitePage; alternates: { lang: Locale; path: string }[] };
+const props = Astro.props as Partial<Props>;
+let locale = props.locale ?? DEFAULT_LOCALE;
+let page = props.page;
+let alternates = props.alternates ?? [];
+
+// Im Vorschau-Build (output: 'server') läuft getStaticPaths NICHT (Astro
+// ignoriert es bei dynamischen Routen) → Seite pro Anfrage aus der URL
+// auflösen, sonst wären alle Unterseiten in der Vorschau eine 404. Drafts
+// kommen automatisch mit: die Getter laufen im Draft-Kontext der Middleware.
+if (!page) {
+  const raw = Astro.params.slug ?? '';
+  const [first, ...rest] = raw.split('/').filter(Boolean);
+  const prefixed = first && first !== DEFAULT_LOCALE && (LOCALES as readonly string[]).includes(first);
+  locale = (prefixed ? first : DEFAULT_LOCALE) as Locale;
+  const slug = prefixed ? rest.join('/') : [first, ...rest].join('/');
+  page = slug ? await getPageBySlug(slug, locale) : undefined;
+  alternates = page ? pageAlternates(page, locale) : [];
+}
+
+// Unbekannte Pfade → sauber auf die 404-Seite umleiten statt 500. Im statischen
+// Produktions-Build werden nur echte Pfade gebaut, daher greift das dort nie.
+if (!page) return Astro.rewrite('/404');
+---
+<BaseLayout
+  title={page.seo.title}
+  description={page.seo.description}
+  image={ogImageUrl(page.seo.image)}
+  noindex={page.seo.noindex}
+  locale={locale}
+  alternates={alternates}
+>
+  <PageHeader title={page.title} />
+  <SectionsHost
+    sections={page.sections}
+    document={{ id: page.documentId, type: 'page', slug: page.slug }}
+    locale={locale}
+  />
+</BaseLayout>

@@ -1,0 +1,93 @@
+---
+// Single source of <head> SEO. Canonical + absolute OG URLs derive from
+// Astro.site, so they're always correct as long as `site` is set in the config.
+import { OG_LOCALE, DEFAULT_LOCALE, type Locale } from '../lib/i18n';
+
+interface Props {
+  title: string;
+  description: string;
+  /** Page-specific OG image (absolute or site-relative). Omitted if not set. */
+  image?: string;
+  /** Override canonical (rarely needed). Defaults to this page's own URL. */
+  canonical?: string;
+  noindex?: boolean;
+  type?: 'website' | 'article';
+  /** Sprache dieser Seite (für og:locale). */
+  locale?: Locale;
+  /** Markenname (aus den SiteSettings). Treibt Title-Suffix + og:site_name. */
+  siteName?: string;
+  /**
+   * Echte Sprachversionen DIESER Seite (nur existierende!). Treibt hreflang.
+   * Bei < 2 Einträgen wird kein hreflang ausgegeben (eine einsprachige Seite
+   * lügt Google sonst eine Alternative vor, die es nicht gibt).
+   */
+  alternates?: { lang: Locale; path: string }[];
+}
+
+// Fallback-Markenname, falls keine SiteSettings durchgereicht werden.
+const FALLBACK_SITE_NAME = 'Tristan Weithaler';
+// Standard-Share-Bild (1200×630), genutzt wenn eine Seite kein eigenes OG-Bild
+// setzt – so ist nie eine Seite bildlos. Pro Projekt public/og-default.png ersetzen.
+const DEFAULT_OG_IMAGE = '/og-default.png';
+
+const {
+  title,
+  description,
+  image,
+  canonical,
+  noindex = false,
+  type = 'website',
+  locale = DEFAULT_LOCALE,
+  siteName = FALLBACK_SITE_NAME,
+  alternates = [],
+} = Astro.props;
+
+const site = Astro.site;
+const canonicalURL = canonical ?? new URL(Astro.url.pathname, site).href;
+// Title-Vorlage „Seite | Marke“. Die Startseite (title === Marke) bleibt ohne Suffix.
+const fullTitle = title === siteName ? title : `${title} | ${siteName}`;
+// Immer ein OG-Bild: seitenspezifisches, sonst das Default-Share-Bild.
+const imageURL = new URL(image ?? DEFAULT_OG_IMAGE, site).href;
+
+// hreflang nur bei echten Übersetzungen. Self-referencing ist enthalten (die
+// Seite listet sich selbst), x-default zeigt auf die Default-Sprache.
+const hreflangs =
+  alternates.length > 1
+    ? alternates.map((a) => ({ lang: a.lang, href: new URL(a.path, site).href }))
+    : [];
+const xDefault = hreflangs.find((h) => h.lang === DEFAULT_LOCALE) ?? hreflangs[0];
+// og:locale:alternate für die jeweils anderen vorhandenen Sprachen.
+const ogAlternateLocales = hreflangs
+  .map((h) => h.lang)
+  .filter((l) => l !== locale)
+  .map((l) => OG_LOCALE[l]);
+---
+
+<title>{fullTitle}</title>
+<meta name="description" content={description} />
+<link rel="canonical" href={canonicalURL} />
+{noindex && <meta name="robots" content="noindex, nofollow" />}
+
+{/* hreflang – nur echte Übersetzungen, reziprok und mit x-default */}
+{hreflangs.map((h) => <link rel="alternate" hreflang={h.lang} href={h.href} />)}
+{hreflangs.length > 0 && xDefault && (
+  <link rel="alternate" hreflang="x-default" href={xDefault.href} />
+)}
+
+{/* Open Graph */}
+<meta property="og:type" content={type} />
+<meta property="og:title" content={title} />
+<meta property="og:description" content={description} />
+<meta property="og:url" content={canonicalURL} />
+<meta property="og:image" content={imageURL} />
+<meta property="og:image:width" content="1200" />
+<meta property="og:image:height" content="630" />
+<meta property="og:locale" content={OG_LOCALE[locale]} />
+{ogAlternateLocales.map((l) => <meta property="og:locale:alternate" content={l} />)}
+<meta property="og:site_name" content={siteName} />
+
+{/* Twitter */}
+<meta name="twitter:card" content="summary_large_image" />
+<meta name="twitter:title" content={title} />
+<meta name="twitter:description" content={description} />
+<meta name="twitter:image" content={imageURL} />

@@ -1,0 +1,34 @@
+{
+  "name": "tristanweithaler-studio",
+  "version": "1.0.0",
+  "private": true,
+  "description": "Sanity Studio for the upgreight Astro starter.",
+  "type": "module",
+  "scripts": {
+    "dev": "sanity dev",
+    "start": "sanity dev",
+    "build": "sanity build",
+    "deploy": "sanity deploy",
+    "seed:build": "node scripts/make-seed.mjs",
+    "import-seed": "sanity dataset import seed.ndjson production --replace"
+  },
+  "dependencies": {
+    "@sanity/comlink": "4.0.1",
+    "@sanity/document-internationalization": "6.2.17",
+    "@sanity/icons": "5.0.0",
+    "@sanity/vision": "6.4.0",
+    "react": "^19.2.7",
+    "react-dom": "^19.2.7",
+    "sanity": "6.4.0",
+    "sanity-plugin-internationalized-array": "5.1.17",
+    "styled-components": "^6.4.3"
+  },
+  "devDependencies": {
+    "@types/react": "^19.2.17",
+    "typescript": "^5.9.3"
+  },
+  "allowScripts": {
+    "esbuild@0.28.1": true,
+    "fsevents@2.3.3": true
+  }
+}

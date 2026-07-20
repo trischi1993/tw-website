@@ -1,0 +1,18 @@
+{
+  // Cloudflare-WORKER nur für die Live-Vorschau (Stufe 2). Der statische
+  // Produktions-Worker liegt getrennt in `wrangler.prod.jsonc` (Assets-only,
+  // kein `main`). Zwei Worker, ein Repo, per Workers Builds unterschieden.
+  //
+  // Der Astro-Cloudflare-Adapter liefert den Worker-Entry und die Assets selbst
+  // (deshalb hier KEIN `main`/`assets`: das würde der Build zu früh prüfen).
+  // `nodejs_compat` ist nötig, weil @sanity/preview-url-secret/@sanity/client
+  // node:crypto/node:buffer nutzen.
+  //
+  // Pro Projekt umbenennen (Platzhalter):
+  "name": "tristanweithaler-preview",
+  "compatibility_date": "2025-05-05",
+  "compatibility_flags": ["nodejs_compat"],
+  "observability": {
+    "enabled": true
+  }
+}

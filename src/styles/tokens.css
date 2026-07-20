@@ -1,0 +1,170 @@
+/* ---------------------------------------------------------------------------
+   Design tokens
+   Two layers: hue-neutral PRIMITIVES (the palette below) hold the raw values;
+   SEMANTIC tokens (--bg, --text, --surface*, --on-surface*, --accent*) map roles
+   onto them. Components read the semantic layer, so re-theming a project means
+   changing the primitive values here — the names stay accurate whatever the hue.
+   --------------------------------------------------------------------------- */
+
+:root {
+  /* --- Grounds / neutrals ------------------------------------------------- */
+  --paper:             #fafafa; /* page ground */
+  --paper-2:           #f2f2f2; /* alternate section ground, cards */
+  --paper-3:           #e9e9e9; /* deeper panel */
+  --neutral:           #e0e0e0; /* muted fills */
+  --neutral-line:      #d4d4d4; /* visible dividers */
+
+  --ink:               #1a1a1a; /* primary text / headings on light */
+  --ink-2:             #4a4a4a; /* body / secondary text */
+  --ink-3:             #5e5e5e; /* muted captions (AA on light grounds) */
+
+  --ink-surface:       #1f1f1f; /* dark section ground */
+  --ink-surface-2:     #171717; /* deeper dark */
+  --ink-surface-line:  #3a3a3a; /* hairline on dark */
+
+  --brand:             #2563eb; /* primary accent / CTA */
+  --brand-strong:      #1d4ed8; /* hover / active / link text on light */
+  --brand-tint:        #93c5fd; /* lighter brand tint for dark surfaces */
+
+  /* On dark surfaces */
+  --on-dark:      #f2f2f2; /* primary text on dark */
+  --on-dark-2:    #b5b5b5; /* muted text on dark */
+  --on-dark-line: #3a3a3a;
+
+  /* On imagery (full-bleed heroes). Alpha lives in the colour (not element
+     opacity) so reveal/GSAP animations cannot override it.
+     --on-image-2 (secondary) is only legible over a GUARANTEED dark scrim
+     (see --hero-scrim); never place it over raw imagery. */
+  --on-image:     #ffffff;                 /* primary text on imagery / scrims */
+  --on-image-2:   rgba(255, 255, 255, 0.75);
+
+  /* Accent gradient (neutral). */
+  --brand-gradient: linear-gradient(102deg, #111111 0%, #444444 48%, #888888 100%);
+
+  /* Hero scrim: near-black veil for legible text over imagery.
+     Shared by every full-bleed media hero so they stay identical. */
+  --scrim-rgb: 10, 10, 10;
+  --hero-scrim:
+    radial-gradient(86% 80% at 50% 42%, rgba(var(--scrim-rgb), 0.68) 0%, rgba(var(--scrim-rgb), 0.34) 48%, transparent 82%),
+    linear-gradient(180deg, rgba(var(--scrim-rgb), 0.56) 0%, rgba(var(--scrim-rgb), 0.12) 22%, transparent 50%, rgba(var(--scrim-rgb), 0.68) 100%);
+  --hero-scrim-mobile:
+    radial-gradient(120% 70% at 50% 42%, rgba(var(--scrim-rgb), 0.5) 0%, transparent 72%),
+    linear-gradient(180deg, rgba(var(--scrim-rgb), 0.5) 0%, transparent 30%, transparent 50%, rgba(var(--scrim-rgb), 0.8) 100%);
+
+  /* Semantic */
+  --bg:           var(--paper);
+  --text:         var(--ink);
+  --accent:       var(--brand);
+
+  /* --- Surface theming ---------------------------------------------------
+     Semantic slots that a section's context class (.on-dark / .is-alt)
+     remaps ONCE (see global.css). Components read these — never raw palette
+     tokens — so a new section themes correctly on light / alt / dark with
+     zero per-element overrides. Light surface is the default below. */
+  --surface:          var(--paper);      /* section background */
+  --surface-raised:   var(--paper-2);    /* cards / panels on this surface */
+  --on-surface:       var(--ink);        /* headings, strong text */
+  --on-surface-body:  var(--ink-2);      /* body copy */
+  --on-surface-muted: var(--ink-3);      /* captions, meta (AA on light grounds) */
+  --line:             var(--neutral-line);  /* borders, hairlines */
+  --accent-fg:        var(--brand-strong); /* eyebrows, index labels, inline links */
+  --on-accent:        var(--paper);      /* text on an accent (brand) fill */
+
+  /* CTA roles. Per-project branding changes these values; component classes
+     remain stable across every section and customer design. */
+  --button-primary-bg:       var(--brand);
+  --button-primary-fg:       var(--on-accent);
+  --button-primary-hover-bg: var(--brand-strong);
+  --button-secondary-bg:       var(--paper-2);
+  --button-secondary-fg:       var(--ink-surface-2);
+  --button-secondary-hover-bg: var(--paper-3);
+  --button-radius: var(--radius-sm);
+
+  /* --- Type --------------------------------------------------------------- */
+  --font-serif: 'Instrument Serif', 'Iowan Old Style', Georgia, 'Times New Roman', serif;
+  --font-sans:  'Hanken Grotesk', system-ui, -apple-system, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
+  --font-mono:  'IBM Plex Mono', ui-monospace, 'SF Mono', 'Cascadia Mono', Menlo, monospace;
+
+  /* Fluid type scale (min @ 360px to max @ 1280px) */
+  --text-xs:   0.75rem;                                  /* 12px */
+  --text-sm:   0.8125rem;                                /* 13px */
+  --text-base: 1.0625rem;                                /* 17px body */
+  --text-lg:   clamp(1.125rem, 0.9rem + 0.6vw, 1.375rem);
+  --text-xl:   clamp(1.3rem, 1rem + 1vw, 1.75rem);
+
+  --display-sm: clamp(1.6rem, 1.2rem + 1.6vw, 2.4rem);
+  --display-md: clamp(2.1rem, 1.4rem + 3vw, 3.6rem);
+  --display-lg: clamp(2.6rem, 1.4rem + 5vw, 5rem);
+  --display-xl: clamp(3rem, 1rem + 8.5vw, 7.5rem);       /* hero wordmark scale */
+
+  /* Heading visual-size scale — editor-selectable per heading element
+     (.h-sm … .h-4xl). Fluid clamps; applies to our serif headings via .heading. */
+  --h-sm:  1.25rem;
+  --h-md:  1.5rem;
+  --h-lg:  2rem;
+  --h-xl:  clamp(2rem, 1.4rem + 2.6vw, 3rem);
+  --h-2xl: clamp(2.4rem, 1.6rem + 3.4vw, 3.75rem);
+  --h-3xl: clamp(2.8rem, 1.8rem + 4.6vw, 4.5rem);
+  --h-4xl: clamp(3.2rem, 1.8rem + 6.4vw, 6rem);
+
+  --leading-tight: 1.04;
+  --leading-snug:  1.18;
+  --leading-body:  1.62;
+
+  --tracking-label: 0.22em; /* mono eyebrows */
+  --tracking-tight: -0.015em;
+  --tracking-display: -0.01em;
+
+  /* --- Space (8px base) — gap scale between blocks in a section ------------ */
+  --space-2xs: 0.5rem;
+  --space-xs:  0.75rem;
+  --space-sm:  1rem;
+  --space-md:  1.5rem;
+  --space-lg:  2.5rem;
+  --space-xl:  4rem;
+  --space-2xl: 6rem;
+  --space-3xl: 9rem;
+
+  /* --- Section vertical padding — a NAMED, editor-selectable scale ---------
+     top/bottom are chosen independently per section (none/even/small/medium/
+     large; pageTop only on top). Own vars (bigger, fluid clamps than the gap
+     scale above). The renderer maps the token → the var as an inline style
+     (see SECTION_PAD in lib/content/sections.ts); the token-snapping Resizer
+     (Phase c) snaps to these steps, never to freeform px. Keep the three in
+     sync: this list, SECTION_PAD, and the Studio padding options. */
+  --section-pad-none:     0rem;
+  --section-pad-even:     var(--gutter);                  /* equal to horizontal inset */
+  --section-pad-small:    clamp(3rem, 2rem + 4vw, 5.5rem);
+  --section-pad-medium:   clamp(4.5rem, 3rem + 7vw, 9rem); /* default */
+  --section-pad-large:    clamp(6rem, 4rem + 9vw, 12rem);
+  --section-pad-page-top: calc(var(--header-h) + var(--section-pad-medium)); /* clears a fixed header */
+  --section-y: var(--section-pad-medium);                 /* back-compat alias */
+
+  /* --- Layout ------------------------------------------------------------- */
+  --container:    78rem;   /* 1248px content max */
+  --container-sm: 46rem;   /* prose measure */
+  --container-wide: 90rem;
+  --gutter: clamp(1.25rem, 0.5rem + 3vw, 3rem);
+
+  /* --- Radii / borders ---------------------------------------------------- */
+  --radius-sm: 0.375rem;
+  --radius:    0.75rem;
+  --radius-lg: 1.25rem;
+  --radius-xl: 2rem;
+  --radius-pill: 999px;
+  --hairline: 1px solid var(--neutral-line);
+
+  /* --- Elevation ---------------------------------------------------------- */
+  --shadow-sm: 0 1px 2px rgba(0, 0, 0, 0.06), 0 2px 8px rgba(0, 0, 0, 0.05);
+  --shadow:    0 8px 24px rgba(0, 0, 0, 0.10), 0 2px 6px rgba(0, 0, 0, 0.06);
+  --shadow-lg: 0 24px 60px rgba(0, 0, 0, 0.16), 0 6px 18px rgba(0, 0, 0, 0.08);
+
+  /* --- Motion ------------------------------------------------------------- */
+  --ease-out: cubic-bezier(0.22, 1, 0.36, 1);
+  --ease-in-out: cubic-bezier(0.65, 0, 0.35, 1);
+  --dur-fast: 0.25s;
+  --dur: 0.5s;
+  --dur-slow: 0.9s;
+
+  --header-h: 5rem;
+}

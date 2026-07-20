@@ -1,0 +1,43 @@
+# Cloudflare Pages security headers (PRODUCTION, served on every response).
+# A generic, strict baseline. Tighten or relax per project.
+#
+# CSP notes / maintenance:
+#   - script-src 'self': Astro inlines small hoisted <script> chunks into the
+#     HTML. The build hook `injectCspScriptHashes` (astro.config.mjs) appends a
+#     sha256- hash for every executable inline script to the `script-src` line
+#     below AT BUILD TIME — so the deployed dist/_headers carries the hashes even
+#     though this source file shows only 'self'. Never add 'unsafe-inline' to
+#     script-src; the hook keeps it strict automatically as scripts change.
+#   - style-src needs 'unsafe-inline' (Astro inlines critical CSS + style="" attrs
+#     carrying section padding/alignment tokens; those cannot be hashed).
+#   - JSON-LD (<script type="application/ld+json">) is data, not executed: no hash needed.
+#   - img-src allows https://cdn.sanity.io so Sanity-hosted images load once the CMS
+#     is connected (urlFor() serves them straight from the CDN).
+#   - form-action 'self': if you post to a third-party form host, add it here
+#     (see src/components/ContactForm.astro).
+#   - Analytics (privacy-friendly, e.g. Plausible/Fathom/Cloudflare Web Analytics):
+#     inject the snippet via BaseLayout's <slot name="head" />, then allow its host
+#     here — add the script origin to script-src and the ingest origin to
+#     connect-src (e.g. script-src ... https://plausible.io; connect-src 'self'
+#     https://plausible.io). An external script needs its host, not a hash.
+#
+# NOTE: this file governs PRODUCTION only. The separate preview Worker sets its own
+# Content-Security-Policy (frame-ancestors for the Sanity Studio) in src/middleware.ts.
+
+/*
+  Content-Security-Policy: default-src 'self'; base-uri 'self'; object-src 'none'; frame-ancestors 'self'; frame-src 'none'; img-src 'self' data: https://cdn.sanity.io; font-src 'self'; style-src 'self' 'unsafe-inline'; script-src 'self'; connect-src 'self'; form-action 'self'; upgrade-insecure-requests
+  Strict-Transport-Security: max-age=31536000; includeSubDomains
+  X-Content-Type-Options: nosniff
+  Referrer-Policy: strict-origin-when-cross-origin
+  Permissions-Policy: camera=(), microphone=(), geolocation=()
+  X-Frame-Options: SAMEORIGIN
+
+# Content-gehashte Build-Assets (/_astro/*) ändern den Dateinamen bei jeder
+# Änderung – also dauerhaft cachebar. immutable = Browser fragt nie nach.
+/_astro/*
+  Cache-Control: public, max-age=31536000, immutable
+
+# Selbstgehostete Fonts: stabile Namen, lange cachen (ohne immutable, falls eine
+# Schrift mal unter gleichem Namen ausgetauscht wird).
+/fonts/*
+  Cache-Control: public, max-age=31536000

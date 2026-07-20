@@ -1,0 +1,12 @@
+# Cloudflare-Redirects (PRODUCTION). Wird wie unter Pages von `dist/_redirects`
+# ausgeliefert. Eine Regel pro Zeile:  <von>  <nach>  <status>
+#
+# Standardmäßig LEER (keine aktiven Regeln). Pro Projekt einkommentieren/ergänzen.
+# Die Apex/www-Vereinheitlichung macht ihr in der Regel auf DNS-/Zonen-Ebene in
+# Cloudflare (Redirect Rule) – falls doch hier: den www-Host in astro.config.mjs
+# NICHT als `site` setzen (canonical bleibt Apex).
+#
+# Beispiele (Platzhalter – anpassen, dann einkommentieren):
+# /alte-seite            /neue-seite            301
+# /kontakt.html          /kontakt/              301
+# /blog/*                /journal/:splat        301

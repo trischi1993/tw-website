@@ -1,0 +1,126 @@
+---
+import { Image } from 'astro:assets';
+import type { SiteImage } from '../lib/content/types';
+
+interface Props {
+  image: SiteImage;
+  /** CSS aspect-ratio for the crop box, e.g. '3/2', '4/5', '16/9'. */
+  ratio?: string;
+  /** Fill the positioned parent instead of using a fixed ratio (e.g. hero). */
+  fill?: boolean;
+  /** Parallax intensity (0 = off). ~8 is a gentle scrub. */
+  parallax?: number;
+  sizes?: string;
+  /** Eager-load + high priority (use only for the LCP/hero image). */
+  priority?: boolean;
+  rounded?: boolean;
+  position?: string;
+  class?: string;
+}
+const {
+  image,
+  ratio = '3/2',
+  fill = false,
+  parallax = 0,
+  sizes = '100vw',
+  priority = false,
+  rounded = true,
+  position = 'center',
+  class: className = '',
+} = Astro.props;
+
+// Build a responsive width ladder that never upscales beyond the source.
+const candidate = [400, 640, 828, 1080, 1440, 1920, 2400];
+const maxW = image.kind === 'local' ? image.asset.width : image.width;
+const widths = candidate.filter((w) => w < maxW);
+widths.push(maxW);
+
+// SVGs are passed through unchanged (no raster transform / srcset).
+const isSvg = image.kind === 'local' && image.asset.format === 'svg';
+
+const loading = priority ? 'eager' : 'lazy';
+const overscan = parallax > 0;
+const shared = {
+  alt: image.alt,
+  sizes,
+  loading: loading as 'eager' | 'lazy',
+  decoding: (priority ? 'sync' : 'async') as 'sync' | 'async',
+  style: `object-position:${position}`,
+};
+---
+<figure
+  class:list={['figure', { 'is-rounded': rounded && !fill, 'is-parallax': overscan, 'is-fill': fill }, className]}
+  style={`--ratio:${ratio}`}
+>
+  <div class="figure__media" data-parallax={overscan ? String(parallax) : undefined}>
+    {
+      image.kind === 'local' ? (
+        isSvg ? (
+          <Image src={image.asset} {...shared} fetchpriority={priority ? 'high' : 'auto'} />
+        ) : (
+          <Image src={image.asset} widths={widths} {...shared} fetchpriority={priority ? 'high' : 'auto'} />
+        )
+      ) : (
+        <Image
+          src={image.src}
+          width={image.width}
+          height={image.height}
+          widths={widths}
+          {...shared}
+          fetchpriority={priority ? 'high' : 'auto'}
+        />
+      )
+    }
+  </div>
+  {image.caption && <figcaption class="figure__caption">{image.caption}</figcaption>}
+</figure>
+
+<style>
+  .figure {
+    position: relative;
+    margin: 0;
+    aspect-ratio: var(--ratio);
+    overflow: hidden;
+    background: var(--neutral);
+  }
+  .is-rounded {
+    border-radius: var(--radius-lg);
+  }
+  /* Fill the positioned parent (hero / media-hero / cta backgrounds). */
+  .is-fill {
+    position: absolute;
+    inset: 0;
+    aspect-ratio: auto;
+    border-radius: 0;
+  }
+  .figure__media {
+    position: absolute;
+    inset: 0;
+  }
+  /* Overscan so parallax translation never reveals the edges (see motion.ts clamp). */
+  .is-parallax .figure__media {
+    inset: -10% 0;
+    height: 120%;
+    will-change: transform;
+  }
+  .figure__media :global(img) {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    display: block;
+  }
+  .figure__caption {
+    position: absolute;
+    inset-inline: 0;
+    bottom: 0;
+    padding: var(--space-lg) var(--space-sm) var(--space-sm);
+    font-family: var(--font-mono);
+    font-size: var(--text-xs);
+    letter-spacing: 0.04em;
+    color: var(--on-image);
+    /* Guarantee >=4.5:1 for the small caption even over a light photo: a
+       darker, earlier-ramping scrim plus a text-shadow as a hard floor. */
+    text-shadow: 0 1px 3px rgba(var(--scrim-rgb), 0.7);
+    background: linear-gradient(to top, rgba(var(--scrim-rgb), 0.85), rgba(var(--scrim-rgb), 0.45) 45%, transparent);
+  }
+</style>

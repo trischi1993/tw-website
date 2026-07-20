@@ -1,0 +1,300 @@
+---
+import Logo from './Logo.astro';
+import Icon from './Icon.astro';
+import LanguageSwitcher from './LanguageSwitcher.astro';
+import { getSiteSettings } from '../lib/content';
+import { safeHref } from '../lib/safe-href';
+import { ui, DEFAULT_LOCALE, type Locale } from '../lib/i18n';
+
+interface Props {
+  /** Start transparent with light text; solidifies on scroll. For pages with a dark full-bleed hero. */
+  transparent?: boolean;
+  locale?: Locale;
+  /** Echte Sprachversionen dieser Seite (für den Sprachumschalter). */
+  alternates?: { lang: Locale; path: string }[];
+}
+const { transparent = false, locale = DEFAULT_LOCALE, alternates = [] } = Astro.props;
+const t = ui(locale);
+const settings = await getSiteSettings(locale);
+const path = Astro.url.pathname.replace(/\/+$/, '') || '/';
+const isActive = (href: string) => {
+  const base = href.split('#')[0].replace(/\/+$/, '') || '/';
+  if (base === '/') return path === '/' && !href.includes('#');
+  return path === base || path.startsWith(base + '/');
+};
+---
+<header class:list={['site-header', { 'site-header--overlay': transparent }]} data-site-header>
+  <div class="site-header__inner container container--wide">
+    <a href={locale === DEFAULT_LOCALE ? '/' : `/${locale}/`} class="site-header__brand" aria-label={`${settings.siteName}, ${t.toStart}`}>
+      <Logo width={120} priority alt={settings.siteName} />
+    </a>
+
+    <nav class="site-nav" aria-label={t.mainNav}>
+      <ul role="list" class="site-nav__list">
+        {
+          settings.nav.map((item) => (
+            <li>
+              <a href={safeHref(item.href)} class:list={['site-nav__link', { 'is-active': isActive(item.href) }]}>
+                {item.label}
+              </a>
+            </li>
+          ))
+        }
+      </ul>
+    </nav>
+
+    <div class="site-header__actions">
+      <LanguageSwitcher locale={locale} alternates={alternates} class="site-header__lang" />
+      <button class="nav-toggle" type="button" aria-expanded="false" aria-controls="mobile-menu" data-nav-toggle>
+        <span class="nav-toggle__label visually-hidden">{t.menu}</span>
+        <span class="nav-toggle__icon" aria-hidden="true"><Icon name="menu" /></span>
+        <span class="nav-toggle__icon nav-toggle__icon--close" aria-hidden="true"><Icon name="close" /></span>
+      </button>
+    </div>
+  </div>
+
+  <div class="mobile-menu" id="mobile-menu" data-mobile-menu hidden>
+    <nav class="mobile-menu__nav" aria-label={t.menu}>
+      <ul role="list">
+        {
+          settings.nav.map((item) => (
+            <li>
+              <a href={safeHref(item.href)} class:list={['mobile-menu__link', { 'is-active': isActive(item.href) }]}>
+                {item.label}
+              </a>
+            </li>
+          ))
+        }
+      </ul>
+    </nav>
+    <div class="mobile-menu__foot">
+      <a href={`mailto:${settings.contact.email}`} class="mobile-menu__contact">{settings.contact.email}</a>
+    </div>
+  </div>
+</header>
+
+<style>
+  .site-header {
+    --header-fg: var(--ink);
+    position: fixed;
+    inset: 0 0 auto 0;
+    z-index: 100;
+    height: var(--header-h);
+    background: color-mix(in srgb, var(--paper) 68%, transparent);
+    -webkit-backdrop-filter: blur(14px) saturate(1.25);
+    backdrop-filter: blur(14px) saturate(1.25);
+    border-bottom: 1px solid transparent;
+    transition: background var(--dur-fast) var(--ease-out),
+      border-color var(--dur-fast) var(--ease-out),
+      box-shadow var(--dur-fast) var(--ease-out);
+  }
+  .site-header.is-scrolled {
+    background: color-mix(in srgb, var(--paper) 92%, transparent);
+    border-bottom-color: var(--neutral-line);
+    box-shadow: 0 1px 0 rgba(42, 30, 18, 0.02), 0 10px 30px -24px rgba(42, 30, 18, 0.5);
+  }
+  /* Overlay variant: no background over a dark hero, light text.
+     Solidifies into the default state once scrolled or when the menu opens. */
+  .site-header--overlay:not(.is-scrolled):not(.is-menu-open) {
+    --header-fg: var(--paper);
+    background: transparent;
+    -webkit-backdrop-filter: none;
+    backdrop-filter: none;
+    border-bottom-color: transparent;
+    box-shadow: none;
+  }
+  .site-header__inner {
+    height: 100%;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: var(--space-md);
+  }
+  .site-header__brand {
+    display: inline-flex;
+    align-items: center;
+    line-height: 0;
+    padding-block: 0.5rem;
+    transform-origin: left center;
+    transition: transform var(--dur-fast) var(--ease-out);
+  }
+  /* Shrink the logo once the header solidifies on scroll. */
+  .site-header.is-scrolled .site-header__brand {
+    transform: scale(0.8);
+  }
+  .site-header__brand:focus-visible {
+    outline-offset: 6px;
+  }
+
+  .site-nav__list {
+    display: flex;
+    gap: clamp(1rem, 0.5rem + 1.4vw, 2.25rem);
+    list-style: none;
+    margin: 0;
+    padding: 0;
+  }
+  .site-nav__link {
+    position: relative;
+    font-weight: 500;
+    font-size: 0.95rem;
+    color: var(--header-fg);
+    text-decoration: none;
+    padding: 0.4em 0;
+    transition: color var(--dur-fast) var(--ease-out);
+  }
+  .site-nav__link::after {
+    content: '';
+    position: absolute;
+    left: 0;
+    bottom: 0;
+    width: 100%;
+    height: 1px;
+    background: var(--brand);
+    transform: scaleX(0);
+    transform-origin: left;
+    transition: transform var(--dur) var(--ease-out);
+  }
+  .site-nav__link:hover {
+    color: var(--brand-strong);
+  }
+  .site-nav__link:hover::after,
+  .site-nav__link.is-active::after {
+    transform: scaleX(1);
+  }
+  .site-nav__link.is-active {
+    color: var(--brand-strong);
+  }
+  /* On a dark hero, the brand colour reads too dark - use the brand tint for hover/active. */
+  .site-header--overlay:not(.is-scrolled) .site-nav__link:hover,
+  .site-header--overlay:not(.is-scrolled) .site-nav__link.is-active {
+    color: var(--brand-tint);
+  }
+
+  .site-header__actions {
+    display: flex;
+    align-items: center;
+    gap: var(--space-sm);
+  }
+  .site-header__cta {
+    padding: 0.7em 1.3em;
+    font-size: 0.9rem;
+  }
+
+  .nav-toggle {
+    display: none;
+    position: relative;
+    width: 2.75rem;
+    height: 2.75rem;
+    align-items: center;
+    justify-content: center;
+    font-size: 1.4rem;
+    color: var(--header-fg);
+    border-radius: var(--radius-sm);
+    transition: color var(--dur-fast) var(--ease-out);
+  }
+  .nav-toggle__icon {
+    position: absolute;
+    display: grid;
+    place-items: center;
+    transition: opacity var(--dur-fast) var(--ease-out), transform var(--dur-fast) var(--ease-out);
+  }
+  .nav-toggle__icon--close {
+    opacity: 0;
+    transform: rotate(-30deg);
+  }
+  .site-header.is-menu-open .nav-toggle__icon {
+    opacity: 0;
+    transform: rotate(30deg);
+  }
+  .site-header.is-menu-open .nav-toggle__icon--close {
+    opacity: 1;
+    transform: rotate(0);
+  }
+
+  /* Mobile menu overlay.
+     Height is set explicitly rather than via `bottom: 0`: when the menu opens
+     the header regains its `backdrop-filter`, which makes the header a
+     containing block for this fixed child - so `bottom: 0` would collapse the
+     panel against the 5rem header box instead of the viewport. */
+  .mobile-menu {
+    position: fixed;
+    top: var(--header-h);
+    left: 0;
+    right: 0;
+    height: calc(100dvh - var(--header-h));
+    background: var(--paper);
+    padding: var(--space-xl) var(--gutter) var(--space-lg);
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+    gap: var(--space-xl);
+    overflow-y: auto;
+    opacity: 0;
+    transform: translateY(-1.5%);
+    pointer-events: none;
+    transition: opacity var(--dur) var(--ease-out), transform var(--dur) var(--ease-out);
+  }
+  .site-header.is-menu-open .mobile-menu {
+    opacity: 1;
+    transform: translateY(0);
+    pointer-events: auto;
+  }
+  .mobile-menu__nav ul {
+    list-style: none;
+    margin: 0;
+    padding: 0;
+    display: flex;
+    flex-direction: column;
+    gap: 0.4rem;
+  }
+  .mobile-menu__link {
+    font-family: var(--font-serif);
+    font-size: clamp(2rem, 1.4rem + 4vw, 3rem);
+    line-height: 1.1;
+    color: var(--ink);
+    text-decoration: none;
+    display: inline-block;
+    padding: 0.15em 0;
+  }
+  .mobile-menu__link.is-active {
+    color: var(--brand-strong);
+    font-style: italic;
+  }
+  .mobile-menu__foot {
+    display: flex;
+    flex-direction: column;
+    align-items: flex-start;
+    gap: var(--space-md);
+    border-top: var(--hairline);
+    padding-top: var(--space-lg);
+  }
+  .mobile-menu__contact {
+    font-family: var(--font-mono);
+    font-size: var(--text-sm);
+    letter-spacing: 0.02em;
+    color: var(--ink-2);
+    text-decoration: none;
+  }
+
+  @media (max-width: 880px) {
+    .site-nav,
+    .site-header__cta {
+      display: none;
+    }
+    .nav-toggle {
+      display: inline-flex;
+    }
+  }
+  @media (min-width: 881px) {
+    .mobile-menu {
+      display: none;
+    }
+  }
+</style>
+
+<script>
+  // Logik in src/scripts/menu.ts (Lesbarkeit). Astro inlinet den Chunk; die
+  // strikte CSP deckt ihn per sha256-Hash ab (injectCspScriptHashes,
+  // astro.config.mjs) — kein 'unsafe-inline'.
+  import '../scripts/menu.ts';
+</script>
