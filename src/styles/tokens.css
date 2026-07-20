@@ -1,170 +1,222 @@
 /* ---------------------------------------------------------------------------
-   Design tokens
-   Two layers: hue-neutral PRIMITIVES (the palette below) hold the raw values;
-   SEMANTIC tokens (--bg, --text, --surface*, --on-surface*, --accent*) map roles
-   onto them. Components read the semantic layer, so re-theming a project means
-   changing the primitive values here — the names stay accurate whatever the hue.
+   Design tokens — Tristan Weithaler (dunkles Theme, Gold-Akzent).
+   Werte 1:1 aus dem Webflow-Original (docs/webflow-spec/global-chrome.md).
+
+   Two layers: hue-neutral PRIMITIVES hold the raw values; SEMANTIC tokens
+   (--surface*, --on-surface*, --line, --accent*) map roles onto them.
+   Components read the semantic layer only.
+
+   Responsive: Webflow arbeitet mit Breakpoint-Sprüngen (991 / 767 / 479),
+   nicht mit clamp() — die Größen-Tokens werden unten per Media-Query
+   überschrieben, damit die Skala exakt dem Original entspricht.
    --------------------------------------------------------------------------- */
 
 :root {
-  /* --- Grounds / neutrals ------------------------------------------------- */
-  --paper:             #fafafa; /* page ground */
-  --paper-2:           #f2f2f2; /* alternate section ground, cards */
-  --paper-3:           #e9e9e9; /* deeper panel */
-  --neutral:           #e0e0e0; /* muted fills */
-  --neutral-line:      #d4d4d4; /* visible dividers */
+  /* --- Grounds / neutrals (Webflow base palette) --------------------------- */
+  --paper:   #0c0c0c; /* page ground (fast schwarz) */
+  --paper-2: #1d1d1d; /* Karten, FAQ-Antworten, Formular-Inputs, alt-Sektionen */
+  --paper-3: #2b2b2b; /* tiefere Fläche */
+  --panel:   #121212; /* Menü-Overlay-Panel */
 
-  --ink:               #1a1a1a; /* primary text / headings on light */
-  --ink-2:             #4a4a4a; /* body / secondary text */
-  --ink-3:             #5e5e5e; /* muted captions (AA on light grounds) */
+  --ink:   #f5f5f5;   /* Primärtext (whitesmoke) */
+  --ink-2: #d3d3d3;   /* Fließtext / tertiär */
+  --ink-3: #737373;   /* sekundär: Platzhalter, Labels, gedämpft */
+  --ink-4: #525252;   /* Footer-Legal */
 
-  --ink-surface:       #1f1f1f; /* dark section ground */
-  --ink-surface-2:     #171717; /* deeper dark */
-  --ink-surface-line:  #3a3a3a; /* hairline on dark */
+  --neutral-line: #1d1d1d;  /* Trennlinien auf dunklem Grund */
+  --line-strong:  #292929;  /* Menü-Trennlinien */
+  --form-line:    #808389;  /* Formular-Rahmen */
+  --icon-dot:     #686868;  /* Listen-Punkt-Icons */
+  --icon-line:    #424242;  /* FAQ-Plus-Linien */
 
-  --brand:             #2563eb; /* primary accent / CTA */
-  --brand-strong:      #1d4ed8; /* hover / active / link text on light */
-  --brand-tint:        #93c5fd; /* lighter brand tint for dark surfaces */
+  --brand:        #806429;  /* Gold/Bronze-Akzent */
+  --brand-strong: #5e4931;  /* Gold-alt (aktiv) */
+  --brand-cream:  #d8d3cc;  /* warmes Beige (Outline-Buttons) */
+  --logo-line:    #b39478;  /* Logo-Linie mobil / Interest-Icons */
 
-  /* On dark surfaces */
-  --on-dark:      #f2f2f2; /* primary text on dark */
-  --on-dark-2:    #b5b5b5; /* muted text on dark */
-  --on-dark-line: #3a3a3a;
+  --white: #ffffff;
 
-  /* On imagery (full-bleed heroes). Alpha lives in the colour (not element
-     opacity) so reveal/GSAP animations cannot override it.
-     --on-image-2 (secondary) is only legible over a GUARANTEED dark scrim
-     (see --hero-scrim); never place it over raw imagery. */
-  --on-image:     #ffffff;                 /* primary text on imagery / scrims */
-  --on-image-2:   rgba(255, 255, 255, 0.75);
+  /* Inverse Fläche (helle Sektion, selten) */
+  --paper-inverse: #f5f5f5;
+  --ink-inverse:   #0c0c0c;
+  --ink-inverse-2: #4d5258;
 
-  /* Accent gradient (neutral). */
-  --brand-gradient: linear-gradient(102deg, #111111 0%, #444444 48%, #888888 100%);
+  /* Status (Formulare) */
+  --success-fg: #027a48;
+  --success-bg: #ecfdf3;
+  --error-fg:   #b42318;
+  --error-bg:   #fef3f2;
+  --error-inline: #e05c5c;
 
-  /* Hero scrim: near-black veil for legible text over imagery.
-     Shared by every full-bleed media hero so they stay identical. */
-  --scrim-rgb: 10, 10, 10;
-  --hero-scrim:
-    radial-gradient(86% 80% at 50% 42%, rgba(var(--scrim-rgb), 0.68) 0%, rgba(var(--scrim-rgb), 0.34) 48%, transparent 82%),
-    linear-gradient(180deg, rgba(var(--scrim-rgb), 0.56) 0%, rgba(var(--scrim-rgb), 0.12) 22%, transparent 50%, rgba(var(--scrim-rgb), 0.68) 100%);
-  --hero-scrim-mobile:
-    radial-gradient(120% 70% at 50% 42%, rgba(var(--scrim-rgb), 0.5) 0%, transparent 72%),
-    linear-gradient(180deg, rgba(var(--scrim-rgb), 0.5) 0%, transparent 30%, transparent 50%, rgba(var(--scrim-rgb), 0.8) 100%);
+  /* Overlays */
+  --overlay-modal: #12131666;             /* Modal-Backdrop */
+  --overlay-navbar: #1515151f;            /* Navbar-Grundton */
+  --overlay-navbar-tint: #0c0c0cbf;       /* Navbar-Verlaufston */
+  --overlay-image: rgba(0, 0, 0, 0.7);    /* Timeline-Bild-Abdunklung */
+
+  /* Gold-Glow-Verlauf des Primär-Buttons (Webflow .gradient-btn, 1:1) */
+  --gradient-btn:
+    conic-gradient(from 0deg at 68% 62%, #73196e00 8%, #80642961 18%, #8064297d 36%, #80642966 68%, #80642945 72%, #ff000000 76%),
+    linear-gradient(112deg, #80642900 44%, #80642914 57%, #80642966 72%, #806429a6 86%, #806429ff 93%),
+    linear-gradient(105deg, #80642900 39%, #80642914 60%, #8064295e 79%, #806429b0 92%, #806429ff 100%),
+    linear-gradient(171deg, #73196e00 56%, #d8d3cc40 72%, #d8d3cc78 85%, #d8d3cc 99%),
+    url("data:image/svg+xml,%3Csvg viewBox='0 0 250 250' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.7' numOctaves='3' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)' opacity='0.15'/%3E%3C/svg%3E");
 
   /* Semantic */
-  --bg:           var(--paper);
-  --text:         var(--ink);
-  --accent:       var(--brand);
+  --bg:     var(--paper);
+  --text:   var(--ink);
+  --accent: var(--brand);
 
-  /* --- Surface theming ---------------------------------------------------
-     Semantic slots that a section's context class (.on-dark / .is-alt)
-     remaps ONCE (see global.css). Components read these — never raw palette
-     tokens — so a new section themes correctly on light / alt / dark with
-     zero per-element overrides. Light surface is the default below. */
-  --surface:          var(--paper);      /* section background */
-  --surface-raised:   var(--paper-2);    /* cards / panels on this surface */
-  --on-surface:       var(--ink);        /* headings, strong text */
-  --on-surface-body:  var(--ink-2);      /* body copy */
-  --on-surface-muted: var(--ink-3);      /* captions, meta (AA on light grounds) */
-  --line:             var(--neutral-line);  /* borders, hairlines */
-  --accent-fg:        var(--brand-strong); /* eyebrows, index labels, inline links */
-  --on-accent:        var(--paper);      /* text on an accent (brand) fill */
+  /* --- Surface theming -----------------------------------------------------
+     Kontextklassen (.is-alt / .on-dark / .on-brand, global.css) remappen diese
+     Slots EINMAL; Komponenten lesen nur die Slots. Default = dunkler Grund. */
+  --surface:          var(--paper);
+  --surface-raised:   var(--paper-2);
+  --on-surface:       var(--ink);
+  --on-surface-body:  var(--ink-2);
+  --on-surface-muted: var(--ink-3);
+  --line:             var(--neutral-line);
+  --accent-fg:        var(--brand);
+  --on-accent:        var(--ink);
 
-  /* CTA roles. Per-project branding changes these values; component classes
-     remain stable across every section and customer design. */
+  /* CTA roles (Token-Kontrakt der CtaElement-Varianten) */
   --button-primary-bg:       var(--brand);
-  --button-primary-fg:       var(--on-accent);
+  --button-primary-fg:       var(--ink);
   --button-primary-hover-bg: var(--brand-strong);
-  --button-secondary-bg:       var(--paper-2);
-  --button-secondary-fg:       var(--ink-surface-2);
-  --button-secondary-hover-bg: var(--paper-3);
-  --button-radius: var(--radius-sm);
+  --button-secondary-bg:       transparent;
+  --button-secondary-fg:       var(--ink-2);
+  --button-secondary-hover-bg: transparent;
+  --button-radius: var(--radius-pill);
 
-  /* --- Type --------------------------------------------------------------- */
-  --font-serif: 'Instrument Serif', 'Iowan Old Style', Georgia, 'Times New Roman', serif;
-  --font-sans:  'Hanken Grotesk', system-ui, -apple-system, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
-  --font-mono:  'IBM Plex Mono', ui-monospace, 'SF Mono', 'Cascadia Mono', Menlo, monospace;
+  /* --- Type ---------------------------------------------------------------- */
+  --font-sans: 'Poppins', Tahoma, sans-serif;
 
-  /* Fluid type scale (min @ 360px to max @ 1280px) */
-  --text-xs:   0.75rem;                                  /* 12px */
-  --text-sm:   0.8125rem;                                /* 13px */
-  --text-base: 1.0625rem;                                /* 17px body */
-  --text-lg:   clamp(1.125rem, 0.9rem + 0.6vw, 1.375rem);
-  --text-xl:   clamp(1.3rem, 1rem + 1vw, 1.75rem);
+  /* Heading-Skala (Desktop-Basis; responsive Overrides unten) */
+  --h1-size: 4.65rem;   --h1-weight: 300; --h1-lh: 1.1;    --h1-ls: -0.03em;
+  --h2-size: 2.875rem;  --h2-weight: 400; --h2-lh: 1.2;    --h2-ls: -0.02em;
+  --h3-size: 2.25rem;   --h3-weight: 500; --h3-lh: 1.175;  --h3-ls: -0.01em;
+  --h4-size: 2rem;      --h4-weight: 500; --h4-lh: 1.1875;
+  --h5-size: 1.5rem;    --h5-weight: 700; --h5-lh: 1.3;    --h5-ls: 0.01em;
+  --h6-size: 1.225rem;  --h6-weight: 700; --h6-lh: 1.375;
 
-  --display-sm: clamp(1.6rem, 1.2rem + 1.6vw, 2.4rem);
-  --display-md: clamp(2.1rem, 1.4rem + 3vw, 3.6rem);
-  --display-lg: clamp(2.6rem, 1.4rem + 5vw, 5rem);
-  --display-xl: clamp(3rem, 1rem + 8.5vw, 7.5rem);       /* hero wordmark scale */
+  /* Display-Sonderfälle */
+  --display-value: 4.25rem;   /* .hero-value / Modul-Titelzeilen */
+  --display-banner: 7.5rem;   /* Testimonials-Bannerzeile */
+  --display-year: 7rem;       /* Timeline-Jahreszahl */
+  --menu-link-size: 4.75rem;  /* Fullscreen-Menü-Links */
+  --hero-h1-span: 2.25rem;    /* "Südtirols erster" (kleine H1-Zeile) */
 
-  /* Heading visual-size scale — editor-selectable per heading element
-     (.h-sm … .h-4xl). Fluid clamps; applies to our serif headings via .heading. */
-  --h-sm:  1.25rem;
-  --h-md:  1.5rem;
-  --h-lg:  2rem;
-  --h-xl:  clamp(2rem, 1.4rem + 2.6vw, 3rem);
-  --h-2xl: clamp(2.4rem, 1.6rem + 3.4vw, 3.75rem);
-  --h-3xl: clamp(2.8rem, 1.8rem + 4.6vw, 4.5rem);
-  --h-4xl: clamp(3.2rem, 1.8rem + 6.4vw, 6rem);
+  /* Body-Größen */
+  --text-lg: 1.25rem;
+  --text-md: 1.125rem;
+  --text-base: 1rem;
+  --text-sm: 0.875rem;
+  --text-xs: 0.75rem;
+  --leading-body: 1.55;
 
-  --leading-tight: 1.04;
-  --leading-snug:  1.18;
-  --leading-body:  1.62;
+  /* Heading visual-size scale des Section-Editors (.h-sm … .h-4xl) —
+     auf die Webflow-Skala gemappt (h6 … h1 + Display). */
+  --h-sm:  var(--h6-size);
+  --h-md:  var(--h5-size);
+  --h-lg:  var(--h4-size);
+  --h-xl:  var(--h3-size);
+  --h-2xl: var(--h2-size);
+  --h-3xl: var(--display-value);
+  --h-4xl: var(--h1-size);
 
-  --tracking-label: 0.22em; /* mono eyebrows */
-  --tracking-tight: -0.015em;
-  --tracking-display: -0.01em;
-
-  /* --- Space (8px base) — gap scale between blocks in a section ------------ */
+  /* --- Space — Gap-Skala zwischen Blöcken einer Section --------------------- */
   --space-2xs: 0.5rem;
-  --space-xs:  0.75rem;
-  --space-sm:  1rem;
-  --space-md:  1.5rem;
-  --space-lg:  2.5rem;
+  --space-xs:  1rem;
+  --space-sm:  1.5rem;
+  --space-md:  2rem;
+  --space-lg:  3rem;
   --space-xl:  4rem;
-  --space-2xl: 6rem;
-  --space-3xl: 9rem;
+  --space-2xl: 5rem;
+  --space-3xl: 7rem;
 
-  /* --- Section vertical padding — a NAMED, editor-selectable scale ---------
-     top/bottom are chosen independently per section (none/even/small/medium/
-     large; pageTop only on top). Own vars (bigger, fluid clamps than the gap
-     scale above). The renderer maps the token → the var as an inline style
-     (see SECTION_PAD in lib/content/sections.ts); the token-snapping Resizer
-     (Phase c) snaps to these steps, never to freeform px. Keep the three in
-     sync: this list, SECTION_PAD, and the Studio padding options. */
+  /* --- Section vertical padding — benannte, editor-wählbare Skala.
+     Entspricht Webflow: small=3rem, medium=5rem, large=7rem (Responsive unten).
+     Kontrakt: diese Liste == SECTION_PAD (lib/content/sections.ts) == Studio. */
   --section-pad-none:     0rem;
-  --section-pad-even:     var(--gutter);                  /* equal to horizontal inset */
-  --section-pad-small:    clamp(3rem, 2rem + 4vw, 5.5rem);
-  --section-pad-medium:   clamp(4.5rem, 3rem + 7vw, 9rem); /* default */
-  --section-pad-large:    clamp(6rem, 4rem + 9vw, 12rem);
-  --section-pad-page-top: calc(var(--header-h) + var(--section-pad-medium)); /* clears a fixed header */
-  --section-y: var(--section-pad-medium);                 /* back-compat alias */
+  --section-pad-even:     var(--gutter);
+  --section-pad-small:    3rem;
+  --section-pad-medium:   5rem;
+  --section-pad-large:    7rem;
+  --section-pad-page-top: calc(var(--header-h) + var(--section-pad-medium));
+  --section-y: var(--section-pad-medium); /* back-compat alias */
 
-  /* --- Layout ------------------------------------------------------------- */
-  --container:    78rem;   /* 1248px content max */
-  --container-sm: 46rem;   /* prose measure */
-  --container-wide: 90rem;
-  --gutter: clamp(1.25rem, 0.5rem + 3vw, 3rem);
+  /* --- Layout -------------------------------------------------------------- */
+  --container:      80rem;  /* .container-large */
+  --container-md:   64rem;  /* .container-medium */
+  --container-sm:   48rem;  /* .container-small */
+  --max-w-lg:       37rem;  /* schmale Textspalte */
+  --max-w-md:       35rem;
+  --max-w-xs:       25rem;
+  --gutter: 5%;
 
-  /* --- Radii / borders ---------------------------------------------------- */
-  --radius-sm: 0.375rem;
-  --radius:    0.75rem;
-  --radius-lg: 1.25rem;
-  --radius-xl: 2rem;
-  --radius-pill: 999px;
+  /* --- Radii / borders ------------------------------------------------------ */
+  --radius-pill:  10rem;   /* Buttons */
+  --radius-card:  1.5rem;  /* Cards / Modals / Cookie-Banner */
+  --radius-media: 1rem;    /* Bilder, Karten-Medien */
+  --radius-input: 0.5rem;  /* Inputs, FAQ-Icon */
+  --radius-sm: 0.5rem;
+  --radius: 1rem;
+  --radius-lg: 1.5rem;
   --hairline: 1px solid var(--neutral-line);
 
-  /* --- Elevation ---------------------------------------------------------- */
-  --shadow-sm: 0 1px 2px rgba(0, 0, 0, 0.06), 0 2px 8px rgba(0, 0, 0, 0.05);
-  --shadow:    0 8px 24px rgba(0, 0, 0, 0.10), 0 2px 6px rgba(0, 0, 0, 0.06);
-  --shadow-lg: 0 24px 60px rgba(0, 0, 0, 0.16), 0 6px 18px rgba(0, 0, 0, 0.08);
+  /* --- Elevation ------------------------------------------------------------ */
+  --shadow-sm: 0 1px 3px #0000001a, 0 1px 2px #0000000f;
+  --shadow:    0 6px 12px #00000026;
 
-  /* --- Motion ------------------------------------------------------------- */
-  --ease-out: cubic-bezier(0.22, 1, 0.36, 1);
-  --ease-in-out: cubic-bezier(0.65, 0, 0.35, 1);
-  --dur-fast: 0.25s;
+  /* --- Motion --------------------------------------------------------------- */
+  --ease-smooth: cubic-bezier(0.165, 0.84, 0.44, 1); /* Webflow-Standardkurve */
+  --ease-out: var(--ease-smooth);
+  --dur-fast: 0.2s;
   --dur: 0.5s;
-  --dur-slow: 0.9s;
 
-  --header-h: 5rem;
+  --header-h: 4.375rem;
+}
+
+/* --- Responsive Größen-Sprünge (Webflow-Breakpoints) ----------------------- */
+@media (max-width: 991px) {
+  :root {
+    --display-value: 3.25rem;
+    --display-banner: 4rem;
+    --menu-link-size: 3.25rem;
+    --section-pad-medium: 4rem;
+    --section-pad-large: 6rem;
+  }
+}
+@media (max-width: 767px) {
+  :root {
+    --h1-size: 3rem;
+    --h2-size: 2.25rem; --h2-ls: 0;
+    --h3-size: 2rem;
+    --h4-size: 1.75rem;
+    --h5-size: 1.325rem;
+    --h6-size: 1.2rem;
+    --display-value: 3rem;
+    --display-year: 5rem;
+    --hero-h1-span: 1.75rem;
+    --text-lg: 1.125rem;
+    --text-md: 1rem;
+    --section-pad-small: 2rem;
+    --section-pad-medium: 3rem;
+    --section-pad-large: 4rem;
+  }
+}
+@media (max-width: 479px) {
+  :root {
+    --h2-size: 2rem;
+    --display-value: 2.2rem;
+    --display-banner: 3rem;
+    --display-year: 4rem;
+    --menu-link-size: 2.75rem;
+    --hero-h1-span: 1.5rem;
+  }
+}
+@media (min-width: 1600px) {
+  :root {
+    --header-h: 5.5rem;
+  }
 }

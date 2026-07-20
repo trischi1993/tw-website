@@ -1,7 +1,9 @@
 import type {
   Section,
+  SectionResults,
   ContentEl,
   RichText,
+  SiteImage,
   ToneToken,
   AlignToken,
   SectionPadToken,
@@ -29,12 +31,41 @@ import type {
    + SectionsList.tsx + das Studio-Schema zusammen.
    --------------------------------------------------------------------------- */
 
-/** Gemeinsame Projektion: Startseite und jede `page` nutzen dieselbe. Der Inhalt
-    ist EINE `content`-Liste aus Blöcken (eyebrow/heading/paragraph/cta), jeder mit
-    eigenen Controls; `text` ist Rich Text (Portable-Text-Array). `anchor` ist ein
-    Slug → auf den String heben. */
+/** Gemeinsame Projektion: Startseite und jede `page` nutzen dieselbe. `anchor`
+    ist ein Slug → auf den String heben. Bilder werden dereferenziert, damit der
+    Mapper URL + Dimensionen bekommt (funktioniert auch in der Live-Island:
+    groq-js im Presentation-Loader löst `asset->` lokal auf). */
 const CONTENT_PROJECTION = `content[]{ _type, _key, text, label, href, variant, newTab, level, size, color, textWrap, maxWidth, marginBottom }`;
-export const SECTIONS_PROJECTION = `sections[]{ _type, _key, name, "anchor": anchor.current, tone, align, paddingTop, paddingBottom, gap, fullHeight, ${CONTENT_PROJECTION} }`;
+const IMG = `{ alt, caption, asset->{ url, metadata{ dimensions, lqip } } }`;
+
+/* Eingebettete CMS-Collections: die Section liefert ihre Items gleich mit —
+   eine Quelle für Build, SSR und Live-Island (Änderungen an Services/
+   Testimonials erscheinen in der Vorschau live). */
+const SERVICES_SUB = `"services": *[_type == "service"] | order(order asc){ "id": _id, name, formName, category, description, image${IMG} }`;
+const TESTIMONIALS_SUB = `"testimonials": *[_type == "testimonial"] | order(coalesce(order, 9999) asc){ "id": _id, name, role, text, image${IMG} }`;
+
+export const SECTIONS_PROJECTION = `sections[]{
+  _type, _key, name, "anchor": anchor.current, tone, align, paddingTop, paddingBottom, gap, fullHeight,
+  ${CONTENT_PROJECTION},
+  _type == "sectionHomeHero" => { headingSmall, headingLarge, ctaLabel, image${IMG} },
+  _type == "sectionValueStatement" => { text },
+  _type == "sectionResults" => { title, images[]${IMG} },
+  _type == "sectionSplitCta" => { heading, body, ctaLabel, ctaAction, ctaHref, ctaNewTab, layout, image${IMG} },
+  _type == "sectionServicesTabs" => { heading, subtext, tabLabelPersonal, tabLabelBusiness, limit, ctaModalLabel, calendlyLabel, calendlyUrl, ${SERVICES_SUB} },
+  _type == "sectionGalleryMarquee" => { heading, titlesVisible, ctaLabel, ctaHref, items[]{ _key, title, image${IMG} } },
+  _type == "sectionUspList" => { heading, items[]{ _key, lead, text } },
+  _type == "sectionTestimonials" => { heading, loadMoreLabel, initialCount, ${TESTIMONIALS_SUB} },
+  _type == "sectionFaq" => { heading, items[]{ _key, question, answer } },
+  _type == "sectionVideoHero" => { heading, intro, ctaLabel, vimeoId, mockupImage${IMG}, posterImage${IMG} },
+  _type == "sectionModule" => { titleRowText, number, bannerWord, bannerGold, heading, bullets, bulletsNowrap, image${IMG}, imageWide, coachingHeading, coachingText, videoSrc, videoPoster },
+  _type == "sectionBonuses" => { heading, intro, ctaLabel, cards[]{ _key, tag, title, text, image${IMG} } },
+  _type == "sectionFinalCta" => { heading, text, ctaLabel, ctaAction, ctaHref, ctaNewTab },
+  _type == "sectionPortraitHero" => { heading, intro, image${IMG}, socials[]{ _key, platform, href } },
+  _type == "sectionTimeline" => { heading, items[]{ _key, year, title, titleSmall, description, image${IMG} } },
+  _type == "sectionInterests" => { heading, introLine, highlights[]{ _key, icon, title, text }, marquee1, marquee2 },
+  _type == "sectionPageHeader" => { heading, meta },
+  _type == "sectionRichText" => { body },
+}`;
 
 /* ---------------------------------------------------------------------------
    Token → CSS. EINE Quelle für Section-Level-Controls: der Server-Render, die
@@ -158,6 +189,42 @@ function num(v: unknown): number | undefined {
   return typeof v === 'number' ? v : undefined;
 }
 
+/* --- Bilder ----------------------------------------------------------------
+   Browser-sicherer Bild-Mapper (die Island nutzt ihn clientseitig):
+   - Seed liefert bereits fertige SiteImage-Objekte (`kind` gesetzt) → durchreichen.
+   - Sanity liefert das dereferenzierte Asset → in ein remote-SiteImage übersetzen
+     (CDN-URL mit Breiten-/Qualitäts-Parametern, wie resolveImage in sanity.ts). */
+const IMG_MAX_W = 2400;
+
+export function mapImage(raw: any, fallbackAlt = ''): SiteImage | undefined {
+  if (!raw) return undefined;
+  if (raw.kind === 'local' || raw.kind === 'remote') return raw as SiteImage;
+  const url: string | undefined = raw.asset?.url;
+  const dim = raw.asset?.metadata?.dimensions;
+  if (!url || !dim) return undefined;
+  const scale = dim.width > IMG_MAX_W ? IMG_MAX_W / dim.width : 1;
+  const width = Math.round(dim.width * scale);
+  const height = Math.round(dim.height * scale);
+  return {
+    kind: 'remote',
+    src: `${url}?w=${width}&q=80&auto=format&fit=max`,
+    width,
+    height,
+    alt: str(raw.alt) ?? fallbackAlt,
+    caption: str(raw.caption),
+    lqip: raw.asset?.metadata?.lqip,
+  };
+}
+
+function strArray(v: unknown): string[] {
+  return Array.isArray(v) ? v.filter((s): s is string => typeof s === 'string' && s.trim() !== '') : [];
+}
+
+function keyed<T extends { _key?: string }>(v: unknown, map: (item: any, i: number) => T | null): T[] {
+  if (!Array.isArray(v)) return [];
+  return v.map(map).filter(Boolean) as T[];
+}
+
 /** Rohes Sanity-Rich-Text-Feld → RichText (leeres/ungültiges → []). */
 function richText(raw: unknown): RichText {
   return Array.isArray(raw) ? (raw as RichText) : [];
@@ -233,6 +300,37 @@ function mapContent(raw: unknown): ContentEl[] {
   return raw.map(mapContentEl).filter(Boolean) as ContentEl[];
 }
 
+/** Eingebettete Service-Items einer Section (Seed und GROQ liefern dieselbe Form). */
+function mapServices(raw: unknown) {
+  return keyed(raw, (r) => {
+    const name = str(r?.name);
+    if (!r?.id || !name) return null;
+    return {
+      id: String(r.id),
+      name,
+      formName: str(r.formName) ?? name,
+      category: r.category === 'business' ? ('business' as const) : ('personal' as const),
+      description: str(r.description) ?? '',
+      image: mapImage(r.image, name),
+    };
+  });
+}
+
+function mapTestimonials(raw: unknown) {
+  return keyed(raw, (r) => {
+    const name = str(r?.name);
+    const text = str(r?.text);
+    if (!r?.id || !name || !text) return null;
+    return {
+      id: String(r.id),
+      name,
+      role: str(r.role),
+      text,
+      image: mapImage(r.image, name),
+    };
+  });
+}
+
 /** Rohe Sanity-Section → Komponenten-Typ. Unbekannte Typen fallen weg.
     GROQ liefert `null` für fehlende Felder - hier auf `undefined` normalisieren. */
 export function mapSection(s: any): Section | null {
@@ -251,6 +349,230 @@ export function mapSection(s: any): Section | null {
   switch (s._type) {
     case 'sectionText':
       return { ...base, _type: 'sectionText', content: mapContent(s.content) };
+
+    case 'sectionHomeHero':
+      return {
+        ...base,
+        _type: 'sectionHomeHero',
+        headingSmall: str(s.headingSmall) ?? '',
+        headingLarge: str(s.headingLarge) ?? '',
+        ctaLabel: str(s.ctaLabel) ?? '',
+        image: mapImage(s.image),
+      };
+
+    case 'sectionValueStatement':
+      return { ...base, _type: 'sectionValueStatement', text: str(s.text) ?? '' };
+
+    case 'sectionResults':
+      return {
+        ...base,
+        _type: 'sectionResults',
+        title: str(s.title) ?? '',
+        images: (Array.isArray(s.images) ? s.images : [])
+          .map((i: any) => mapImage(i))
+          .filter(Boolean) as SectionResults['images'],
+      };
+
+    case 'sectionSplitCta':
+      return {
+        ...base,
+        _type: 'sectionSplitCta',
+        heading: str(s.heading) ?? '',
+        body: richText(s.body),
+        ctaLabel: str(s.ctaLabel) ?? '',
+        ctaAction: s.ctaAction ?? undefined,
+        ctaHref: str(s.ctaHref),
+        ctaNewTab: s.ctaNewTab === true || undefined,
+        layout: s.layout === 'plain' ? 'plain' : 'glow',
+        image: mapImage(s.image),
+      };
+
+    case 'sectionServicesTabs':
+      return {
+        ...base,
+        _type: 'sectionServicesTabs',
+        heading: str(s.heading) ?? '',
+        subtext: str(s.subtext),
+        tabLabelPersonal: str(s.tabLabelPersonal) ?? 'Für Selbstständige',
+        tabLabelBusiness: str(s.tabLabelBusiness) ?? 'Für Unternehmen',
+        limit: num(s.limit),
+        ctaModalLabel: str(s.ctaModalLabel) ?? '',
+        calendlyLabel: str(s.calendlyLabel) ?? '',
+        calendlyUrl: str(s.calendlyUrl) ?? '',
+        services: mapServices(s.services),
+      };
+
+    case 'sectionGalleryMarquee':
+      return {
+        ...base,
+        _type: 'sectionGalleryMarquee',
+        heading: str(s.heading) ?? '',
+        titlesVisible: s.titlesVisible === true || undefined,
+        ctaLabel: str(s.ctaLabel),
+        ctaHref: str(s.ctaHref),
+        items: keyed(s.items, (r) =>
+          r?._key ? { _key: r._key, title: str(r.title) ?? '', image: mapImage(r.image, str(r.title)) } : null,
+        ),
+      };
+
+    case 'sectionUspList':
+      return {
+        ...base,
+        _type: 'sectionUspList',
+        heading: str(s.heading) ?? '',
+        items: keyed(s.items, (r) =>
+          r?._key && str(r.text) ? { _key: r._key, lead: str(r.lead), text: str(r.text)! } : null,
+        ),
+      };
+
+    case 'sectionTestimonials':
+      return {
+        ...base,
+        _type: 'sectionTestimonials',
+        heading: str(s.heading) ?? '',
+        loadMoreLabel: str(s.loadMoreLabel) ?? 'Mehr Testimonials laden',
+        initialCount: num(s.initialCount),
+        testimonials: mapTestimonials(s.testimonials),
+      };
+
+    case 'sectionFaq':
+      return {
+        ...base,
+        _type: 'sectionFaq',
+        heading: str(s.heading) ?? '',
+        items: keyed(s.items, (r) =>
+          r?._key && str(r.question)
+            ? { _key: r._key, question: str(r.question)!, answer: richText(r.answer) }
+            : null,
+        ),
+      };
+
+    case 'sectionVideoHero':
+      return {
+        ...base,
+        _type: 'sectionVideoHero',
+        heading: str(s.heading) ?? '',
+        intro: richText(s.intro),
+        ctaLabel: str(s.ctaLabel) ?? '',
+        vimeoId: str(s.vimeoId) ?? '',
+        mockupImage: mapImage(s.mockupImage),
+        posterImage: mapImage(s.posterImage),
+      };
+
+    case 'sectionModule':
+      return {
+        ...base,
+        _type: 'sectionModule',
+        titleRowText: str(s.titleRowText) ?? 'Modul',
+        number: str(s.number),
+        bannerWord: str(s.bannerWord) ?? '',
+        bannerGold: s.bannerGold === true || undefined,
+        heading: str(s.heading) ?? '',
+        bullets: strArray(s.bullets),
+        bulletsNowrap: s.bulletsNowrap === true || undefined,
+        image: mapImage(s.image),
+        imageWide: s.imageWide === true || undefined,
+        coachingHeading: str(s.coachingHeading),
+        coachingText: str(s.coachingText),
+        videoSrc: str(s.videoSrc),
+        videoPoster: str(s.videoPoster),
+      };
+
+    case 'sectionBonuses':
+      return {
+        ...base,
+        _type: 'sectionBonuses',
+        heading: str(s.heading) ?? '',
+        intro: str(s.intro),
+        ctaLabel: str(s.ctaLabel),
+        cards: keyed(s.cards, (r) =>
+          r?._key && str(r.title)
+            ? {
+                _key: r._key,
+                tag: str(r.tag) ?? '',
+                title: str(r.title)!,
+                text: str(r.text) ?? '',
+                image: mapImage(r.image, str(r.title)),
+              }
+            : null,
+        ),
+      };
+
+    case 'sectionFinalCta':
+      return {
+        ...base,
+        _type: 'sectionFinalCta',
+        heading: str(s.heading) ?? '',
+        text: str(s.text),
+        ctaLabel: str(s.ctaLabel) ?? '',
+        ctaAction: s.ctaAction ?? undefined,
+        ctaHref: str(s.ctaHref),
+        ctaNewTab: s.ctaNewTab === true || undefined,
+      };
+
+    case 'sectionPortraitHero':
+      return {
+        ...base,
+        _type: 'sectionPortraitHero',
+        heading: str(s.heading) ?? '',
+        intro: str(s.intro) ?? '',
+        image: mapImage(s.image),
+        socials: keyed(s.socials, (r) =>
+          r?._key && str(r.href)
+            ? {
+                _key: r._key,
+                platform: r.platform === 'linkedin' ? ('linkedin' as const) : ('instagram' as const),
+                href: str(r.href)!,
+              }
+            : null,
+        ),
+      };
+
+    case 'sectionTimeline':
+      return {
+        ...base,
+        _type: 'sectionTimeline',
+        heading: str(s.heading) ?? '',
+        items: keyed(s.items, (r) =>
+          r?._key && str(r.year)
+            ? {
+                _key: r._key,
+                year: str(r.year)!,
+                title: str(r.title) ?? '',
+                titleSmall: r.titleSmall === true || undefined,
+                description: richText(r.description),
+                image: mapImage(r.image),
+              }
+            : null,
+        ),
+      };
+
+    case 'sectionInterests':
+      return {
+        ...base,
+        _type: 'sectionInterests',
+        heading: str(s.heading) ?? '',
+        introLine: str(s.introLine),
+        highlights: keyed(s.highlights, (r) =>
+          r?._key && str(r.title)
+            ? {
+                _key: r._key,
+                icon: r.icon === 'weiterbildung' ? ('weiterbildung' as const) : ('reisen' as const),
+                title: str(r.title)!,
+                text: str(r.text) ?? '',
+              }
+            : null,
+        ),
+        marquee1: strArray(s.marquee1),
+        marquee2: strArray(s.marquee2),
+      };
+
+    case 'sectionPageHeader':
+      return { ...base, _type: 'sectionPageHeader', heading: str(s.heading) ?? '', meta: str(s.meta) };
+
+    case 'sectionRichText':
+      return { ...base, _type: 'sectionRichText', body: richText(s.body) };
+
     default:
       return null;
   }

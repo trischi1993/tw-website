@@ -1,0 +1,31 @@
+import type { SectionRichText } from '../../lib/content/types';
+import type { EditAttr } from './SectionsList';
+import ProseText from './ProseText';
+
+/** Freier Rich-Text (Rechtstexte): volle Portable-Text-Palette im Prose-Stil. */
+export default function RichTextSection({
+  section,
+  edit,
+}: {
+  section: SectionRichText;
+  edit?: EditAttr;
+}) {
+  const { _key, anchor, body } = section;
+  const path = `sections[_key=="${_key}"]`;
+
+  return (
+    <section
+      id={anchor || undefined}
+      className="legal-text"
+      data-section-key={edit ? _key : undefined}
+      {...edit?.(path)}
+    >
+      <div className="container">
+        <div {...edit?.(`${path}.body`)}>
+          <ProseText value={body} />
+        </div>
+        <div className="legal-text__spacer" aria-hidden="true" />
+      </div>
+    </section>
+  );
+}

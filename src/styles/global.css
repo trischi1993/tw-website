@@ -1,5 +1,6 @@
 @import './fonts.css';
 @import './tokens.css';
+@import './sections.css';
 
 /* ---------------------------------------------------------------------------
    Reset (modern, minimal)
@@ -18,15 +19,17 @@ body {
   font-family: var(--font-sans);
   font-size: var(--text-base);
   line-height: var(--leading-body);
+  font-weight: 300;
   color: var(--text);
   background-color: var(--bg);
-  font-weight: 400;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
   text-rendering: optimizeLegibility;
-  font-feature-settings: 'kern', 'liga', 'calt';
   overflow-x: clip;
 }
+
+/* Wie im Original: unsichtbare Scrollbar (WebKit), Layout bleibt stabil. */
+body::-webkit-scrollbar { width: 0; }
 
 img, picture, svg, video, canvas {
   display: block;
@@ -40,35 +43,24 @@ button { background: none; border: none; cursor: pointer; }
 ul[role='list'], ol[role='list'] { list-style: none; padding: 0; }
 
 /* ---------------------------------------------------------------------------
-   Headings & text
+   Headings & text — exakt die Webflow-Skala (Größen aus tokens.css)
    --------------------------------------------------------------------------- */
-h1, h2, h3, h4 {
-  font-family: var(--font-serif);
-  font-weight: 400;
-  line-height: var(--leading-tight);
-  letter-spacing: var(--tracking-display);
-  color: var(--on-surface);
-  text-wrap: balance;
-}
-h5, h6 { font-weight: 600; line-height: var(--leading-snug); }
-
-p { text-wrap: pretty; }
+h1, h2, h3, h4, h5, h6 { color: var(--on-surface); }
+h1 { font-size: var(--h1-size); font-weight: var(--h1-weight); line-height: var(--h1-lh); letter-spacing: var(--h1-ls); }
+h2 { font-size: var(--h2-size); font-weight: var(--h2-weight); line-height: var(--h2-lh); letter-spacing: var(--h2-ls); }
+h3 { font-size: var(--h3-size); font-weight: var(--h3-weight); line-height: var(--h3-lh); letter-spacing: var(--h3-ls); }
+h4 { font-size: var(--h4-size); font-weight: var(--h4-weight); line-height: var(--h4-lh); }
+h5 { font-size: var(--h5-size); font-weight: var(--h5-weight); line-height: var(--h5-lh); letter-spacing: var(--h5-ls); }
+h6 { font-size: var(--h6-size); font-weight: var(--h6-weight); line-height: var(--h6-lh); }
 
 a {
-  color: var(--brand-strong);
-  text-decoration: underline;
-  text-decoration-thickness: 1px;
-  text-underline-offset: 0.18em;
-  text-decoration-color: color-mix(in srgb, var(--brand-strong) 35%, transparent);
-  transition: color var(--dur-fast) var(--ease-out),
-              text-decoration-color var(--dur-fast) var(--ease-out);
+  color: inherit;
+  text-decoration: none;
+  transition: color var(--dur-fast) var(--ease-smooth);
 }
-a:hover { color: var(--brand); text-decoration-color: currentColor; }
 
 strong, b { font-weight: 600; }
 em, i { font-style: italic; }
-
-::selection { background: color-mix(in srgb, var(--brand) 22%, transparent); color: var(--ink); }
 
 :focus-visible {
   outline: 2px solid var(--brand);
@@ -79,20 +71,25 @@ em, i { font-style: italic; }
 /* ---------------------------------------------------------------------------
    Layout helpers
    --------------------------------------------------------------------------- */
+/* .container = Webflow .padding-global + .container-large */
 .container {
   width: 100%;
-  max-width: var(--container);
+  max-width: calc(var(--container) + 2 * 5vw);
   margin-inline: auto;
-  padding-inline: var(--gutter);
+  padding-inline: 5vw;
 }
-.container--sm { max-width: var(--container-sm); }
-.container--wide { max-width: var(--container-wide); }
+.container--md { max-width: calc(var(--container-md) + 2 * 5vw); }
+.container--sm { max-width: calc(var(--container-sm) + 2 * 5vw); }
+.max-w-lg { max-width: var(--max-w-lg); }
+.max-w-md { max-width: var(--max-w-md); }
+.max-w-xs { max-width: var(--max-w-xs); }
+.align-center { margin-inline: auto; }
+.text-center { text-align: center; }
 
-/* Default vertical rhythm (medium). Per section the renderer overrides padding
-   top/bottom inline from the named scale (SECTION_PAD); this is the fallback. */
+/* Default vertical rhythm (medium). Per section überschreibt der Renderer
+   padding oben/unten inline aus der benannten Skala (SECTION_PAD). */
 .section { padding-block: var(--section-pad-medium); }
 
-/* Full-viewport-height sections (hero): fill the screen and centre the content. */
 .section.is-full-height {
   min-height: 100svh;
   display: flex;
@@ -102,136 +99,158 @@ em, i { font-style: italic; }
 
 :where(section, [id]) { scroll-margin-top: calc(var(--header-h) + 1.5rem); }
 
-/* Lenis smooth scroll (desktop only - see scripts/smooth-scroll.ts).
-   These classes only apply while Lenis runs, so they no-op on tablet/mobile. */
-html.lenis,
-html.lenis body { height: auto; }
-.lenis.lenis-smooth { scroll-behavior: auto !important; }
-.lenis.lenis-smooth [data-lenis-prevent] { overscroll-behavior: contain; }
-.lenis.lenis-stopped { overflow: clip; }
-.lenis.lenis-smooth iframe { pointer-events: none; }
-
 /* ---------------------------------------------------------------------------
-   Display type utilities
+   Buttons — die drei Webflow-Typen
    --------------------------------------------------------------------------- */
-.display-xl { font-family: var(--font-serif); font-weight: 400; font-size: var(--display-xl); line-height: 0.98; letter-spacing: var(--tracking-display); }
-.display-lg { font-family: var(--font-serif); font-weight: 400; font-size: var(--display-lg); line-height: var(--leading-tight); letter-spacing: var(--tracking-display); }
-.display-md { font-family: var(--font-serif); font-weight: 400; font-size: var(--display-md); line-height: 1.06; letter-spacing: var(--tracking-display); }
-.display-sm { font-family: var(--font-serif); font-weight: 400; font-size: var(--display-sm); line-height: 1.12; }
 
-.serif-italic { font-style: italic; }
-
-.lede {
-  font-size: var(--text-lg);
-  line-height: 1.5;
-  color: var(--on-surface-body);
-  max-width: 42ch;
+/* 1) Primär: Gold-Glow-Button (.btn-glow). Struktur:
+   .btn-glow > .btn-glow__circle + .btn-glow__wrapper > .btn-glow__content */
+.btn-glow {
+  position: relative;
+  display: inline-block;
+  padding: 1px;
+  border-radius: var(--radius-pill);
+  background: #ffffff0d;
+  overflow: hidden;
+  border: 0;
+  cursor: pointer;
+  text-decoration: none;
 }
-
-/* Mono eyebrow / micro-label - the editorial signature */
-.eyebrow {
-  display: inline-flex;
+.btn-glow__circle {
+  position: absolute;
+  inset: -0.25rem;
+  background: var(--ink);
+  border-radius: 100%;
+  filter: blur(20px);
+  opacity: 0.55;
+  pointer-events: none;
+}
+.btn-glow__wrapper {
+  position: relative;
+  z-index: 1;
+  background: var(--paper);
+  border-radius: var(--radius-pill);
+  overflow: clip;
+}
+.btn-glow__content {
+  display: flex;
   align-items: center;
-  gap: 0.7em;
-  font-family: var(--font-mono);
-  font-weight: 500;
-  font-size: var(--text-xs);
-  letter-spacing: var(--tracking-label);
-  text-transform: uppercase;
-  color: var(--accent-fg);
+  justify-content: center;
+  gap: 0.75rem;
+  padding: 0.575rem 1.5rem;
+  background-image: var(--gradient-btn);
+  background-size: cover;
+  background-position: center;
+  background-repeat: no-repeat;
+  border-radius: var(--radius-pill);
 }
-/* No decorative dash/line before eyebrow labels (house rule). */
-.eyebrow--muted { color: var(--on-surface-muted); }
-/* .on-dark already remaps --accent-fg; this modifier forces the brand tint for
-   an eyebrow placed on dark imagery outside an .on-dark section. */
-.eyebrow--on-dark { color: var(--brand-tint); }
+.btn-glow__label {
+  color: var(--ink);
+  font-size: 1rem;
+  font-weight: 300;
+  letter-spacing: -0.02em;
+  line-height: 1.55;
+  white-space: nowrap;
+}
+@media (max-width: 991px) {
+  .btn-glow__circle { display: none; }
+}
 
-/* ---------------------------------------------------------------------------
-   Buttons
-   --------------------------------------------------------------------------- */
-.btn {
+/* Pfeil-Icon mit Hover-Swap (zwei Pfeile, der zweite schiebt nach) */
+.btn-arrows {
+  position: relative;
+  width: 1em;
+  height: 1em;
+  overflow: hidden;
+  flex: none;
+}
+.btn-arrows img {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  transition: transform 0.4s var(--ease-smooth);
+}
+.btn-arrows img + img { transform: translate(-120%, 120%); }
+a:hover > * .btn-arrows img:first-child,
+.btn-glow:hover .btn-arrows img:first-child,
+.button:hover .btn-arrows img:first-child { transform: translate(120%, -120%); }
+a:hover > * .btn-arrows img + img,
+.btn-glow:hover .btn-arrows img + img,
+.button:hover .btn-arrows img + img { transform: translate(0, 0); }
+
+/* 2) Outline-Button (.button) — Rahmen creme, Hover füllt beige */
+.button {
   display: inline-flex;
   align-items: center;
   justify-content: center;
-  gap: 0.55em;
-  font-family: var(--font-sans);
-  font-weight: 600;
-  font-size: 0.95rem;
-  letter-spacing: 0;
-  line-height: 1;
-  padding: 0.95em 1.6em;
-  border-radius: var(--button-radius);
-  border: 1px solid transparent;
+  gap: 0.75rem;
+  padding: 0.575rem 1.5rem;
+  border: 1.45px solid var(--brand-cream);
+  border-radius: var(--radius-pill);
+  color: var(--ink);
+  font-size: 1rem;
+  font-weight: 300;
   text-decoration: none;
   cursor: pointer;
-  transition: background var(--dur-fast) var(--ease-out),
-              color var(--dur-fast) var(--ease-out),
-              border-color var(--dur-fast) var(--ease-out),
-              transform var(--dur-fast) var(--ease-out),
-              box-shadow var(--dur-fast) var(--ease-out);
+  transition: all 0.5s var(--ease-smooth);
 }
-.btn svg { width: 1.05em; height: 1.05em; }
-/* Four token variants. Secondary is the former white style. */
-.btn--primary { background: var(--button-primary-bg); color: var(--button-primary-fg); }
-.btn--primary:hover { background: var(--button-primary-hover-bg); color: var(--button-primary-fg); transform: translateY(-2px); box-shadow: var(--shadow); }
-.btn--secondary { background: var(--button-secondary-bg); color: var(--button-secondary-fg); border-color: color-mix(in srgb, var(--ink) 10%, transparent); }
-.btn--secondary:hover { background: var(--button-secondary-hover-bg); color: var(--button-secondary-fg); transform: translateY(-2px); box-shadow: var(--shadow); }
-.btn--outline { background: transparent; color: var(--on-surface); border-color: var(--line); }
-.btn--outline:hover { background: var(--surface-raised); color: var(--on-surface); transform: translateY(-2px); box-shadow: var(--shadow-sm); }
-.btn--link {
-  gap: 0.35em;
-  padding: 0.2em 0;
-  border: 0;
-  border-radius: 0;
-  color: var(--accent-fg);
-  text-decoration: underline;
-  text-decoration-thickness: 1px;
-  text-underline-offset: 0.3em;
-}
-.btn--link .btn__chevron { font-size: 1.25em; line-height: 0.8; transition: transform var(--dur-fast) var(--ease-out); }
-.btn--link:hover { color: var(--accent-fg); transform: none; box-shadow: none; }
-.btn--link:hover .btn__chevron { transform: translateX(3px); }
-.btn .btn__arrow { transition: transform var(--dur-fast) var(--ease-out); }
-.btn:hover .btn__arrow { transform: translateX(3px); }
+.button:hover { background-color: var(--brand-cream); color: var(--paper); }
+.button:active { background-color: var(--brand); border-color: var(--brand); color: var(--ink); }
+.button.is-tertiary { border-color: var(--brand-cream); background: transparent; }
+.button.is-tertiary:hover { background-color: var(--brand-cream); color: var(--paper); }
 
-/* Quiet text link with arrow */
-.link-arrow {
-  display: inline-flex;
-  align-items: center;
-  gap: 0.5em;
-  font-weight: 600;
-  font-size: 0.95rem;
-  text-decoration: none;
-  color: var(--ink);
-  border-bottom: 1px solid var(--neutral-line);
+/* 3) Sekundär: Text-Link mit Underline-Wipe */
+.link-underline {
+  position: relative;
+  display: inline-block;
   padding-bottom: 0.2em;
+  color: var(--ink-2);
+  text-decoration: none;
+  overflow: hidden;
 }
-.link-arrow:hover { color: var(--brand-strong); border-color: var(--brand-strong); }
-.link-arrow svg { transition: transform var(--dur-fast) var(--ease-out); }
-.link-arrow:hover svg { transform: translateX(3px); }
+.link-underline:hover { color: var(--ink); }
+.link-underline__line {
+  position: absolute;
+  left: 0;
+  bottom: 0;
+  width: 100%;
+  height: 1.15px;
+  background: var(--ink);
+  transform: translateX(-101%);
+  transition: transform 0.3s ease-out;
+}
+.link-underline:hover .link-underline__line { transform: translateX(0); }
+
+.button-group {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 1rem 1.5rem;
+}
+.button-group.is-center { justify-content: center; }
 
 /* ---------------------------------------------------------------------------
-   Prose (rich text from CMS / legal pages)
+   Prose (Rechtstexte / Rich Text aus dem CMS)
    --------------------------------------------------------------------------- */
-.prose { max-width: var(--container-sm); color: var(--on-surface-body); }
-.prose > * + * { margin-top: 1.1em; }
-.prose h2 { font-size: var(--display-sm); color: var(--on-surface); margin-top: 2em; }
-.prose h3 { font-size: var(--text-xl); color: var(--on-surface); margin-top: 1.6em; }
-.prose p, .prose li { line-height: var(--leading-body); }
-.prose ul, .prose ol { padding-left: 1.3em; }
-.prose li + li { margin-top: 0.4em; }
-.prose a { font-weight: 500; }
+.prose { color: var(--on-surface); }
+.prose h2 { margin-top: 1.5rem; margin-bottom: 1rem; }
+.prose h3 { margin-top: 1.5rem; margin-bottom: 0.75rem; }
+.prose h4 { margin-top: 1.25rem; margin-bottom: 0.75rem; }
+.prose p { margin-bottom: 1rem; }
+.prose ul, .prose ol { padding-left: 2rem; margin-bottom: 1rem; }
+.prose li { margin-bottom: 0.4em; }
+.prose a {
+  color: var(--brand-cream);
+  text-decoration: underline;
+  text-underline-offset: 0.15em;
+}
+.prose a:hover { color: var(--ink); }
 .prose strong { color: var(--on-surface); }
 
 /* ---------------------------------------------------------------------------
    Text elements + section content stack (components/sections/*.tsx).
-   Global statt scoped: .tsx hat kein Astro-Scoped-CSS; das Token-System macht
-   scoping ohnehin überflüssig (Farben aus den Surface-Tokens).
-
-   Überschriften und Absätze sind eigene Elemente (schemas/objects/text/*), jedes
-   mit eigener Größe/Farbe/Umbruch/Breite. Der Content-Stack besitzt den
-   vertikalen Rhythmus (--section-gap) und die Ausrichtungs-Kaskade (--alignment);
-   ein Element darf zusätzlich einen eigenen Abstand (marginBottom) beisteuern.
+   Global statt scoped: .tsx hat kein Astro-Scoped-CSS.
    --------------------------------------------------------------------------- */
 .section__content {
   display: flex;
@@ -241,88 +260,111 @@ html.lenis body { height: auto; }
   text-align: var(--alignment, left);
 }
 
-/* Heading element: serif-Display-Look, entkoppelt vom semantischen Tag (h1–h6
-   getrennt wählbar). Größe über .h-* (var(--h-*)). */
-.heading {
-  font-family: var(--font-serif);
-  font-weight: 400;
-  line-height: var(--leading-tight);
-  letter-spacing: var(--tracking-display);
-  color: var(--on-surface);
-  text-wrap: balance;
-}
-.h-sm  { font-size: var(--h-sm); }
-.h-md  { font-size: var(--h-md); }
-.h-lg  { font-size: var(--h-lg); }
-.h-xl  { font-size: var(--h-xl); }
-.h-2xl { font-size: var(--h-2xl); }
-.h-3xl { font-size: var(--h-3xl); }
-.h-4xl { font-size: var(--h-4xl); }
+/* Heading element (Editor): Tag und Optik entkoppelt, Größen über .h-*. */
+.heading { color: var(--on-surface); }
+.h-sm  { font-size: var(--h-sm);  font-weight: 700; line-height: 1.375; }
+.h-md  { font-size: var(--h-md);  font-weight: 700; line-height: 1.3; letter-spacing: 0.01em; }
+.h-lg  { font-size: var(--h-lg);  font-weight: 500; line-height: 1.1875; }
+.h-xl  { font-size: var(--h-xl);  font-weight: 500; line-height: 1.175; letter-spacing: -0.01em; }
+.h-2xl { font-size: var(--h-2xl); font-weight: 400; line-height: 1.2;   letter-spacing: var(--h2-ls); }
+.h-3xl { font-size: var(--h-3xl); font-weight: 300; line-height: 1.3;   letter-spacing: -0.01em; }
+.h-4xl { font-size: var(--h-4xl); font-weight: 300; line-height: 1.1;   letter-spacing: -0.03em; }
 
-/* Paragraph element: Größe über .p-*, Farbe über .c-* (theme-aware Surface-Tokens). */
 .paragraph { line-height: var(--leading-body); color: var(--on-surface-body); }
 .p-sm { font-size: var(--text-sm); }
 .p-md { font-size: var(--text-base); }
-.p-lg { font-size: var(--text-lg); }
-.p-xl { font-size: var(--text-xl); }
+.p-lg { font-size: var(--text-md); }
+.p-xl { font-size: var(--text-lg); }
 .c-default { color: var(--on-surface-body); }
 .c-muted   { color: var(--on-surface-muted); }
 .c-brand   { color: var(--accent-fg); }
 
+.eyebrow {
+  display: inline-block;
+  font-weight: 600;
+  color: var(--accent-fg);
+}
+
+/* CTA-Element-Varianten (Token-Kontrakt CTA_VARIANT_CLASS) */
+.btn--primary {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.75rem;
+  padding: 0.575rem 1.5rem;
+  border-radius: var(--radius-pill);
+  background-image: var(--gradient-btn);
+  background-size: cover;
+  background-position: center;
+  color: var(--ink);
+  text-decoration: none;
+  transition: filter 0.3s var(--ease-smooth);
+}
+.btn--primary:hover { filter: brightness(1.15); }
+.btn--secondary {
+  display: inline-block;
+  color: var(--ink-2);
+  text-decoration: none;
+  border-bottom: 1.15px solid var(--ink);
+  padding-bottom: 0.2em;
+}
+.btn--secondary:hover { color: var(--ink); }
+.btn--outline {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.75rem;
+  padding: 0.575rem 1.5rem;
+  border: 1.45px solid var(--brand-cream);
+  border-radius: var(--radius-pill);
+  color: var(--ink);
+  text-decoration: none;
+  transition: all 0.5s var(--ease-smooth);
+}
+.btn--outline:hover { background: var(--brand-cream); color: var(--paper); }
+.btn--link {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.35em;
+  color: var(--accent-fg);
+  text-decoration: underline;
+  text-decoration-thickness: 1px;
+  text-underline-offset: 0.3em;
+}
+.btn--link .btn__chevron { font-size: 1.25em; line-height: 0.8; transition: transform var(--dur-fast) var(--ease-smooth); }
+.btn--link:hover .btn__chevron { transform: translateX(3px); }
+
 /* ---------------------------------------------------------------------------
-   Section surfaces — each context class remaps the surface tokens ONCE.
-   A section/card adds .on-dark or .is-alt; every component that reads
-   var(--on-surface*) / var(--line) / var(--surface-raised) / var(--accent-fg)
-   then themes correctly with no per-element overrides.
+   Section surfaces — Kontextklassen remappen die Surface-Tokens EINMAL.
+   Default = dunkler Seiten-Grund; .is-alt = dunkelgraue Fläche;
+   .on-dark = invertierte helle Fläche; .on-brand = Gold.
    --------------------------------------------------------------------------- */
 .is-alt {
   --surface:        var(--paper-2);
   --surface-raised: var(--paper-3);
+  --line:           var(--line-strong);
   background-color: var(--surface);
 }
 .on-dark {
-  --surface:          var(--ink-surface);
-  --surface-raised:   var(--ink-surface-2);
-  --on-surface:       var(--on-dark);
-  --on-surface-body:  var(--on-dark-2);
-  --on-surface-muted: var(--on-dark-2);
-  --line:             var(--on-dark-line);
-  --accent-fg:        var(--brand-tint);
+  --surface:          var(--paper-inverse);
+  --surface-raised:   #e8e8e8;
+  --on-surface:       var(--ink-inverse);
+  --on-surface-body:  var(--ink-inverse-2);
+  --on-surface-muted: #737373;
+  --line:             #d4d4d4;
+  --accent-fg:        var(--brand);
   background-color: var(--surface);
   color: var(--on-surface);
 }
-/* Plain links in dark sections use the brand tint - but never the buttons or
-   the link-arrow (those keep their own colours so they stay identical to their
-   light-section twins). */
-.on-dark a:not(.btn):not(.link-arrow) { color: var(--brand-tint); }
-.on-dark .link-arrow { color: var(--on-dark); border-color: var(--on-dark-line); }
-.on-dark .link-arrow:hover { color: var(--brand-tint); border-color: var(--brand-tint); }
-
-/* Brand surface: an accent-coloured section. Text sits on the brand fill, so
-   the surface tokens remap to the on-accent set. Like .on-dark this is a single
-   context flip — every child that reads the surface tokens follows automatically.
-   The concrete brand hue is a per-project token value (--brand); the roles here
-   stay accurate whatever the hue. */
 .on-brand {
   --surface:          var(--brand);
   --surface-raised:   var(--brand-strong);
-  --on-surface:       var(--on-accent);
-  --on-surface-body:  var(--on-accent);
-  --on-surface-muted: color-mix(in srgb, var(--on-accent) 78%, transparent);
-  --line:             color-mix(in srgb, var(--on-accent) 24%, transparent);
-  --accent-fg:        var(--on-accent);
-  --button-primary-bg:       var(--on-accent);
-  --button-primary-fg:       var(--brand-strong);
-  --button-primary-hover-bg: var(--paper-2);
+  --on-surface:       var(--ink);
+  --on-surface-body:  var(--ink);
+  --on-surface-muted: color-mix(in srgb, var(--ink) 78%, transparent);
+  --line:             color-mix(in srgb, var(--ink) 24%, transparent);
+  --accent-fg:        var(--ink);
   background-color: var(--surface);
   color: var(--on-surface);
 }
-/* On a brand fill the plain links and link-arrow ride the on-accent colour;
-   buttons keep their own styles (identical across contexts). */
-.on-brand a:not(.btn):not(.link-arrow) { color: var(--on-accent); text-decoration-color: color-mix(in srgb, var(--on-accent) 45%, transparent); }
-.on-brand a:not(.btn):not(.link-arrow):hover { text-decoration-color: currentColor; }
-.on-brand .link-arrow { color: var(--on-accent); border-color: color-mix(in srgb, var(--on-accent) 40%, transparent); }
-.on-brand .link-arrow:hover { color: var(--on-accent); border-color: var(--on-accent); }
 
 /* ---------------------------------------------------------------------------
    Accessibility utilities
@@ -337,19 +379,22 @@ html.lenis body { height: auto; }
 .skip-link {
   position: fixed;
   top: 0.5rem; left: 0.5rem;
-  z-index: 200;
+  z-index: 600;
   background: var(--ink);
   color: var(--paper);
   padding: 0.7em 1.1em;
-  border-radius: var(--radius-sm);
+  border-radius: var(--radius-input);
   text-decoration: none;
   transform: translateY(-160%);
-  transition: transform var(--dur-fast) var(--ease-out);
+  transition: transform var(--dur-fast) var(--ease-smooth);
 }
 .skip-link:focus { transform: translateY(0); color: var(--paper); }
 
+/* Body-Scroll-Lock (Modal / Menü offen) */
+.no-scroll { overflow: hidden; }
+
 /* ---------------------------------------------------------------------------
-   Reduced motion - disable smooth scroll & any transform-based animation
+   Reduced motion
    --------------------------------------------------------------------------- */
 @media (prefers-reduced-motion: reduce) {
   html { scroll-behavior: auto; }

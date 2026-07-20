@@ -29,8 +29,30 @@ function renderSpan(span: RichSpan, markDefs: RichLink[], key: string): ReactNod
   return <Fragment key={key}>{node}</Fragment>;
 }
 
-export default function RichText({ value }: { value?: RichTextValue }) {
+export default function RichText({
+  value,
+  paragraphs = false,
+}: {
+  value?: RichTextValue;
+  /** true: jeder Block wird ein eigener <p> (Absatz-Abstände statt <br>). */
+  paragraphs?: boolean;
+}) {
   if (!Array.isArray(value)) return null;
+  if (paragraphs) {
+    return (
+      <>
+        {value.map((block, bi) => {
+          if (block?._type !== 'block' || !Array.isArray(block.children)) return null;
+          const markDefs = block.markDefs ?? [];
+          return (
+            <p key={block._key ?? bi}>
+              {block.children.map((span, si) => renderSpan(span, markDefs, span._key ?? String(si)))}
+            </p>
+          );
+        })}
+      </>
+    );
+  }
   return (
     <>
       {value.map((block, bi) => {
