@@ -10,6 +10,9 @@
   //
   // Pro Projekt umbenennen (Platzhalter):
   "name": "tristanweithaler-preview",
+  // Fest gepinnt auf TRISTANS Cloudflare-Konto (Tristanweithaler@gmail.com) -
+  // verhindert versehentliche Deploys in Julians upgreight-Konto.
+  "account_id": "ee216d2fdff2e29b5093ae6287b5eb8f",
   "compatibility_date": "2025-05-05",
   "compatibility_flags": ["nodejs_compat"],
   "observability": {

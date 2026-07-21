@@ -20,6 +20,9 @@
   //
   // Pro Projekt umbenennen (Platzhalter, wird von scripts/init.mjs ersetzt):
   "name": "tristanweithaler-prod",
+  // Fest gepinnt auf TRISTANS Cloudflare-Konto (Tristanweithaler@gmail.com) -
+  // verhindert versehentliche Deploys in Julians upgreight-Konto.
+  "account_id": "ee216d2fdff2e29b5093ae6287b5eb8f",
   "compatibility_date": "2025-05-05",
   "assets": {
     "directory": "./dist",
