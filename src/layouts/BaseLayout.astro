@@ -3,6 +3,9 @@ import '../styles/global.css';
 import SEO from '../components/SEO.astro';
 import Header from '../components/Header.astro';
 import Footer from '../components/Footer.astro';
+import CookieConsent from '../components/CookieConsent.astro';
+import CtaModal from '../components/CtaModal.astro';
+import AioModal from '../components/AioModal.astro';
 // In Produktion eine leere Komponente (No-op); nur der Vorschau-Build biegt
 // diesen Subpath auf die Visual-Editing-Brücke um (History/Overlay/Refresh).
 import PreviewExtras from '#preview-extras';
@@ -16,18 +19,8 @@ interface Props {
   noindex?: boolean;
   type?: 'website' | 'article';
   jsonLd?: Record<string, any> | Record<string, any>[];
-  /** Header starts transparent with light text (for pages with a dark full-bleed hero). */
-  transparentHeader?: boolean;
 }
-const {
-  title,
-  description,
-  image,
-  noindex,
-  type,
-  jsonLd,
-  transparentHeader = false,
-} = Astro.props;
+const { title, description, image, noindex, type, jsonLd } = Astro.props;
 const settings = await getSiteSettings();
 
 // Organization auf jeder Seite: macht die Marke für Google/AI zur eindeutigen
@@ -52,20 +45,20 @@ const jsonLdArray = [orgJsonLd, ...pageJsonLd];
   <head>
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1" />
-    <meta name="theme-color" content="#ffffff" />
-    <meta name="color-scheme" content="light" />
-    <link rel="icon" href="/favicon.svg" type="image/svg+xml" />
+    <meta name="theme-color" content="#0C0C0C" />
+    <meta name="color-scheme" content="dark" />
+    <link rel="icon" href="/favicon.png" type="image/png" />
     <link rel="apple-touch-icon" href="/apple-touch-icon.png" />
     <link
       rel="preload"
-      href="/fonts/InstrumentSerif-Regular.woff2"
+      href="/fonts/poppins-light.woff2"
       as="font"
       type="font/woff2"
       crossorigin
     />
     <link
       rel="preload"
-      href="/fonts/hanken-grotesk-variable.woff2"
+      href="/fonts/poppins-regular.woff2"
       as="font"
       type="font/woff2"
       crossorigin
@@ -94,17 +87,27 @@ const jsonLdArray = [orgJsonLd, ...pageJsonLd];
   </head>
   <body>
     <a href="#main" class="skip-link">{UI.skipToContent}</a>
-    <Header transparent={transparentHeader} />
+    <Header />
     {/* tabindex=-1: macht das Sprung-Ziel per Skip-Link fokussierbar (sonst
         setzen manche Browser/AT den Fokus nicht zuverlässig auf <main>). */}
     <main id="main" tabindex="-1">
       <slot />
     </main>
     <Footer />
+    {/* Direkte Body-Kinder: die inert-Logik der Modals erwartet Top-Level. */}
+    <CookieConsent />
+    <CtaModal />
+    <AioModal />
     <script>
-      // GSAP/ScrollTrigger nur laden, wenn die Seite animierte Elemente hat.
-      // Auf Seiten ohne Reveal/Parallax wird das Motion-Bundle nie geholt.
-      if (document.querySelector('[data-reveal], [data-reveal-stagger], [data-parallax]')) {
+      // Interaktive Widgets (FAQ, Tabs, Read-More, Load-More, Vimeo-Gate)
+      // laufen auf jeder Seite; das GSAP-Motion-Bundle lädt nur, wenn die
+      // Seite Animations-Hooks trägt (der Glow-CTA im Header zählt dazu).
+      import('../scripts/widgets.ts');
+      if (
+        document.querySelector(
+          '[data-anim], [data-reveal], [data-hero-scroll], [data-results], [data-gallery], [data-banner], [data-timeline], [data-line-draw], [data-wipe], [data-glow-circle]',
+        )
+      ) {
         import('../scripts/motion.ts');
       }
     </script>

@@ -2,6 +2,7 @@ import type { SectionBonuses } from '../../lib/content/types';
 import type { EditAttr } from './SectionsList';
 import Img from './Img';
 import GlowButton from './GlowButton';
+import { contentShell } from './shell';
 
 /** Bonus-Karten (3er-Reihe, Gold-Tag) + Bewerbungs-CTA. */
 export default function BonusesSection({
@@ -13,12 +14,13 @@ export default function BonusesSection({
 }) {
   const { _key, anchor, heading, intro, cards, ctaLabel } = section;
   const path = `sections[_key=="${_key}"]`;
+  const shell = contentShell(section, { top: 'large', bottom: 'large' });
 
   return (
     <section
       id={anchor || undefined}
-      className="bonus section"
-      style={{ paddingBlock: 'var(--section-pad-large)' }}
+      className={`bonus ${shell.className}`}
+      style={shell.style}
       data-section-key={edit ? _key : undefined}
       {...edit?.(path)}
     >

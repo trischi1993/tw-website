@@ -53,10 +53,10 @@ export const toneField = defineField({
   initialValue: 'light',
   options: {
     list: tOptions([
-      { en: 'Light', de: 'Hell', value: 'light', description: { en: 'Default: light ground, dark text.', de: 'Standard: heller Grund, dunkler Text.' } },
-      { en: 'Light (alt)', de: 'Hell (alt.)', value: 'alt', description: { en: 'Slightly offset light ground — gentle rhythm between two light sections.', de: 'Leicht abgesetzter heller Grund — sanfter Rhythmus zwischen zwei hellen Abschnitten.' } },
-      { en: 'Dark', de: 'Dunkel', value: 'dark', description: { en: 'Accent section: dark ground, light text. Content follows automatically.', de: 'Akzent-Abschnitt: dunkler Grund, heller Text. Inhalte folgen automatisch.' } },
-      { en: 'Brand', de: 'Marke', value: 'brand', description: { en: 'Section in the brand colour: coloured ground, light text.', de: 'Abschnitt in der Markenfarbe: farbige Fläche, heller Text.' } },
+      { en: 'Default (dark)', de: 'Standard (dunkel)', value: 'light', description: { en: 'Default: near-black ground, light text.', de: 'Standard: fast schwarzer Grund, heller Text.' } },
+      { en: 'Dark grey', de: 'Dunkelgrau', value: 'alt', description: { en: 'Slightly lifted dark ground — gentle rhythm between two dark sections.', de: 'Leicht abgesetzter dunkelgrauer Grund — sanfter Rhythmus zwischen zwei dunklen Abschnitten.' } },
+      { en: 'Light (inverted)', de: 'Hell (invertiert)', value: 'dark', description: { en: 'Inverted accent: light ground, dark text. Content follows automatically.', de: 'Invertierter Akzent: heller Grund, dunkler Text. Inhalte folgen automatisch.' } },
+      { en: 'Gold', de: 'Gold', value: 'brand', description: { en: 'Section in the gold brand colour.', de: 'Abschnitt in der goldenen Markenfarbe.' } },
     ]) as SegmentedOption[],
   },
   components: { input: SegmentedInput },
@@ -163,10 +163,10 @@ export const sectionStyleFields = [
 ];
 
 const TONE_LABEL: Record<string, string> = {
-  light: t({ en: 'Light', de: 'Hell' }),
-  alt: t({ en: 'Light (alt)', de: 'Hell (alt.)' }),
-  dark: t({ en: 'Dark', de: 'Dunkel' }),
-  brand: t({ en: 'Brand', de: 'Marke' }),
+  light: t({ en: 'Default (dark)', de: 'Standard (dunkel)' }),
+  alt: t({ en: 'Dark grey', de: 'Dunkelgrau' }),
+  dark: t({ en: 'Light (inverted)', de: 'Hell (invertiert)' }),
+  brand: t({ en: 'Gold', de: 'Gold' }),
 };
 
 /** Hilfstext für die Vorschau: Abschnittstyp + ggf. Farbton. */

@@ -1,197 +1,251 @@
 ---
-import Logo from './Logo.astro';
-import Icon from './Icon.astro';
+import dolomites from '../assets/images/footer-dolomiten.avif';
+import logoTw from '../assets/images/logo-tw.avif';
+import emailIcon from '../assets/images/icon-email.svg';
 import { getSiteSettings } from '../lib/content';
 import { safeHref } from '../lib/safe-href';
-import { UI as t } from '../lib/i18n';
 
+/**
+ * Footer (Webflow section_footer, global-chrome.md §6): Dolomiten-Band auf
+ * #1D1D1D, Logo + Claim + Lottie-Socials links, Nav + E-Mail-Block rechts,
+ * Legal-Zeile mit upgreight-Credit (Hausregel). Lottie-Icons laden lazy
+ * (lottie-web light), spielen 1× beim Sichtbarwerden, Hover startet neu.
+ */
 const settings = await getSiteSettings();
 const { contact } = settings;
-const year = new Date().getFullYear();
-const socialIcon: Record<string, 'instagram' | 'mail'> = { Instagram: 'instagram' };
-const homeHref = '/';
+const isExternal = (href: string) => /^https?:\/\//.test(href);
+
+/** Label → Lottie-Datei + Größe (global-chrome.md §6). */
+function lottieFor(label: string): { path: string; size: string } | null {
+  const l = label.toLowerCase();
+  if (l.includes('insta')) return { path: '/lottie/instagram.json', size: '2rem' };
+  if (l.includes('linked')) return { path: '/lottie/linkedin.json', size: '1.75rem' };
+  return null;
+}
+
+const footerNav = [{ label: 'Startseite', href: '/' }, ...settings.nav];
+const mailHref = `mailto:${contact.email}?subject=Hey%20Tristan`;
 ---
-<footer class="site-footer">
-  <div class="container container--wide">
-    <div class="footer-grid">
-      <div class="footer-brand">
-        <a href={homeHref} aria-label={`${settings.siteName}, ${t.toStart}`} class="footer-brand__logo">
-          <Logo width={150} alt={settings.siteName} />
-        </a>
-        {settings.footerNote && <p class="footer-brand__note">{settings.footerNote}</p>}
-        {
-          settings.social.length > 0 && (
-            <ul role="list" class="footer-social">
-              {settings.social.map((s) => (
-                <li>
-                  <a href={safeHref(s.href)} target="_blank" rel="noopener noreferrer" aria-label={s.label}>
-                    <Icon name={socialIcon[s.label] ?? 'arrow-up-right'} />
-                  </a>
-                </li>
-              ))}
-            </ul>
-          )
-        }
-      </div>
+<footer class="footer">
+  <img
+    class="footer__dolomites"
+    src={dolomites.src}
+    width={dolomites.width}
+    height={dolomites.height}
+    alt=""
+    loading="lazy"
+    decoding="async"
+  />
+  <div class="footer__body">
+    <div class="container">
+      <div class="footer__grid">
+        <div class="footer__first">
+          <a href="/" class="footer__logo-link" aria-label={`${settings.siteName}, zur Startseite`}>
+            <img
+              class="footer__logo"
+              src={logoTw.src}
+              width={logoTw.width}
+              height={logoTw.height}
+              alt=""
+              loading="lazy"
+              decoding="async"
+            />
+          </a>
+          {settings.tagline && <p class="footer__claim">{settings.tagline}</p>}
+          {
+            settings.social.length > 0 && (
+              <ul role="list" class="footer__social-list" data-lottie-root>
+                {settings.social.map((s) => {
+                  const lottie = lottieFor(s.label);
+                  return (
+                    <li>
+                      <a
+                        class="footer__social"
+                        href={safeHref(s.href)}
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        aria-label={s.label}
+                      >
+                        {lottie ? (
+                          <span
+                            class="footer__social-icon"
+                            data-lottie={lottie.path}
+                            style={`width:${lottie.size};height:${lottie.size}`}
+                            aria-hidden="true"
+                          />
+                        ) : (
+                          s.label
+                        )}
+                      </a>
+                    </li>
+                  );
+                })}
+              </ul>
+            )
+          }
+        </div>
 
-      <nav class="footer-col" aria-label={t.footerDiscover}>
-        <h2 class="footer-col__title">{t.footerDiscover}</h2>
-        <ul role="list">
-          {settings.nav.map((item) => <li><a href={safeHref(item.href)}>{item.label}</a></li>)}
-        </ul>
-      </nav>
-
-      {
-        settings.legalLinks.length > 0 && (
-          <nav class="footer-col" aria-label={t.footerLegal}>
-            <h2 class="footer-col__title">{t.footerLegal}</h2>
+        <div class="footer__second">
+          <nav class="footer__nav" aria-label="Footer-Navigation">
             <ul role="list">
-              {settings.legalLinks.map((item) => (
-                <li>
-                  <a href={safeHref(item.href)}>{item.label}</a>
-                </li>
-              ))}
+              {
+                footerNav.map((item) => (
+                  <li>
+                    <a
+                      class="footer__nav-link"
+                      href={safeHref(item.href)}
+                      target={isExternal(item.href) ? '_blank' : undefined}
+                      rel={isExternal(item.href) ? 'noopener noreferrer' : undefined}
+                    >
+                      {item.label}
+                    </a>
+                  </li>
+                ))
+              }
             </ul>
           </nav>
-        )
-      }
 
-      <div class="footer-col footer-contact">
-        <h2 class="footer-col__title">{t.footerContact}</h2>
-        <address>
-          <p class="footer-contact__owner">{contact.ownerName}</p>
-          <p>
-            {contact.addressLines.join(', ')}<br />
-            {contact.postalCode} {contact.locality}, {contact.country}
-          </p>
-          <p>
-            <a href={`mailto:${contact.email}`}>{contact.email}</a><br />
-            <a href={safeHref(contact.phoneHref)}>{contact.phone}</a>
-          </p>
-        </address>
+          <div class="footer__contact">
+            <img class="footer__contact-icon" src={emailIcon.src} alt="" width="28" height="28" loading="lazy" />
+            <p class="footer__contact-title">Email</p>
+            <a class="footer__mail" href={mailHref}>{contact.email}</a>
+          </div>
+        </div>
       </div>
-    </div>
 
-    <div class="footer-bottom">
-      <p>© {year} {settings.siteName}. {t.rightsReserved}</p>
-      <p class="footer-credit">
-        Created by{' '}
-        <a href="https://upgreight.com" target="_blank" rel="noopener noreferrer">upgreight</a>
-      </p>
+      <div class="footer__legal">
+        <p class="footer__legal-links">
+          {
+            settings.legalLinks.map((item, i) => (
+              <>
+                {i > 0 && <span aria-hidden="true"> • </span>}
+                <a href={safeHref(item.href)}>{item.label}</a>
+              </>
+            ))
+          }
+        </p>
+        <p class="footer__credit">
+          Created by <a href="https://upgreight.com" target="_blank" rel="noopener noreferrer">upgreight</a>
+        </p>
+      </div>
     </div>
   </div>
 </footer>
 
 <style>
-  .site-footer {
-    background: var(--paper-2);
-    border-top: var(--hairline);
-    padding-block: clamp(3.5rem, 2.5rem + 4vw, 6rem) var(--space-lg);
-  }
+  .footer { background: var(--paper); }
+  .footer__dolomites { width: 100%; height: auto; display: block; }
+  .footer__body { background: var(--paper-2); padding-block: 3rem 2rem; }
 
-  .footer-grid {
-    display: grid;
-    grid-template-columns: 1.6fr 1fr 1fr 1.4fr;
-    gap: var(--space-xl) var(--space-lg);
-    padding-block: var(--space-2xl) var(--space-xl);
-  }
-  .footer-brand__logo { display: inline-block; line-height: 0; }
-  .footer-brand__note {
-    margin-top: var(--space-md);
-    max-width: 30ch;
-    color: var(--ink-2);
-    font-size: var(--text-sm);
-    line-height: 1.55;
-  }
-  .footer-social {
+  .footer__grid {
     display: flex;
-    gap: 0.6rem;
-    margin-top: var(--space-md);
+    justify-content: space-between;
+    gap: 3rem;
   }
-  .footer-social a {
-    display: grid;
-    place-items: center;
-    width: 2.75rem; /* 44px – WCAG 2.5.5 Ziel-Trefferfläche */
-    height: 2.75rem;
-    font-size: 1.1rem;
-    color: var(--ink);
-    border: 1px solid var(--neutral-line);
-    border-radius: var(--radius-pill);
-    transition: background var(--dur-fast) var(--ease-out), color var(--dur-fast) var(--ease-out),
-      border-color var(--dur-fast) var(--ease-out);
-  }
-  .footer-social a:hover {
-    background: var(--ink);
-    color: var(--paper);
-    border-color: var(--ink);
+  .footer__first { width: 34%; }
+  .footer__second {
+    width: 55%;
+    display: flex;
+    justify-content: space-between;
+    gap: 3rem;
   }
 
-  .footer-col__title {
-    font-family: var(--font-mono);
-    font-weight: 500;
-    font-size: var(--text-xs);
-    letter-spacing: var(--tracking-label);
-    text-transform: uppercase;
-    color: var(--ink-3);
-    margin-bottom: var(--space-md);
+  .footer__logo-link { display: inline-block; line-height: 0; }
+  .footer__logo { width: 9rem; height: auto; }
+  .footer__claim {
+    margin-top: 1.5rem;
+    color: #d6d6d6;
+    max-width: 24ch;
   }
-  .footer-col ul {
-    list-style: none;
-    margin: 0;
-    padding: 0;
+  .footer__social-list {
+    display: flex;
+    align-items: center;
+    gap: 2rem;
+    margin-top: 2rem;
+  }
+  .footer__social {
+    display: inline-flex;
+    align-items: center;
+    color: var(--ink);
+  }
+  .footer__social-icon { display: inline-block; }
+
+  .footer__nav ul {
     display: flex;
     flex-direction: column;
-    gap: 0.7rem;
+    gap: 1rem;
   }
-  .footer-col a {
-    color: var(--ink-2);
-    text-decoration: none;
-    font-size: 0.95rem;
-    transition: color var(--dur-fast) var(--ease-out);
+  .footer__nav-link {
+    color: var(--ink);
+    font-size: 1.25rem;
+    font-weight: 300;
   }
-  .footer-col a:hover { color: var(--brand-strong); }
-  .footer-contact address { font-style: normal; display: flex; flex-direction: column; gap: var(--space-sm); }
-  .footer-contact p { color: var(--ink-2); font-size: 0.95rem; line-height: 1.6; }
-  .footer-contact__owner { color: var(--ink); font-weight: 600; }
+  .footer__nav-link:hover { color: var(--brand-cream); }
 
-  .footer-bottom {
+  .footer__contact-icon { width: 1.75rem; height: 1.75rem; }
+  .footer__contact-title {
+    margin-top: 0.75rem;
+    color: var(--ink);
+    font-size: 2.25rem;
+    font-weight: 500;
+    line-height: 1.1875;
+  }
+  .footer__mail {
+    display: inline-block;
+    margin-top: 0.5rem;
+    color: var(--brand);
+    font-size: 1.125rem;
+  }
+  .footer__mail:hover { color: var(--brand-cream); }
+
+  .footer__legal {
     display: flex;
     flex-wrap: wrap;
-    gap: var(--space-sm) var(--space-lg);
     justify-content: space-between;
-    align-items: center;
-    padding-top: var(--space-lg);
-    border-top: var(--hairline);
-    font-size: var(--text-sm);
-    color: var(--ink-3);
+    gap: 0.75rem 2rem;
+    margin-top: 4rem;
+    color: var(--ink-4);
+    font-size: 0.825rem;
   }
-  .footer-credit a {
-    position: relative;
-    color: var(--ink);
-    font-weight: 600;
-    text-decoration: none;
-    transition: color var(--dur-fast) var(--ease-out);
-  }
-  .footer-credit a::after {
-    content: '';
-    position: absolute;
-    left: 0;
-    bottom: -1px;
-    width: 100%;
-    height: 1px;
-    background: var(--brand);
-    transform: scaleX(0);
-    transform-origin: left;
-    transition: transform var(--dur) var(--ease-out);
-  }
-  .footer-credit a:hover { color: var(--brand-strong); }
-  .footer-credit a:hover::after { transform: scaleX(1); }
+  .footer__legal a { color: inherit; }
+  .footer__legal a:hover { color: var(--ink-2); }
 
-  @media (max-width: 880px) {
-    .footer-grid { grid-template-columns: 1fr 1fr; }
-    .footer-brand { grid-column: 1 / -1; }
+  @media (max-width: 991px) {
+    .footer__grid { gap: 4rem; }
   }
-  @media (max-width: 560px) {
-    .footer-grid { grid-template-columns: 1fr; }
+  @media (max-width: 767px) {
+    .footer__grid { flex-flow: column; }
+    .footer__first, .footer__second { width: 100%; }
+    .footer__second { flex-flow: column; }
+  }
+  @media (max-width: 479px) {
+    .footer__contact-title { font-size: 2rem; }
   }
 </style>
+
+<script>
+  // Lottie-Socials: erst beim Sichtbarwerden des Footers laden (lazy, light
+  // build ohne Expressions), 1× abspielen, Hover startet die Animation neu.
+  const root = document.querySelector<HTMLElement>('[data-lottie-root]');
+  if (root) {
+    const io = new IntersectionObserver(
+      async (entries) => {
+        if (!entries.some((e) => e.isIntersecting)) return;
+        io.disconnect();
+        const lottie = (await import('lottie-web/build/player/lottie_light')).default;
+        root.querySelectorAll<HTMLElement>('[data-lottie]').forEach((el) => {
+          const anim = lottie.loadAnimation({
+            container: el,
+            renderer: 'svg',
+            loop: false,
+            autoplay: true,
+            path: el.dataset.lottie!,
+          });
+          el.closest('a')?.addEventListener('mouseenter', () => anim.goToAndPlay(0, true));
+        });
+      },
+      { rootMargin: '200px' },
+    );
+    io.observe(root);
+  }
+</script>

@@ -1,6 +1,5 @@
 ---
 import BaseLayout from '../layouts/BaseLayout.astro';
-import PageHeader from '../components/PageHeader.astro';
 // In Produktion der statische Host; nur der Vorschau-Build biegt diesen
 // Subpath auf den Live-Island-Host um (package.json "imports" + Alias).
 import SectionsHost from '#sections-host';
@@ -40,7 +39,6 @@ if (!page) return Astro.rewrite('/404');
   image={ogImageUrl(page.seo.image)}
   noindex={page.seo.noindex}
 >
-  <PageHeader title={page.title} />
   <SectionsHost
     sections={page.sections}
     document={{ id: page.documentId, type: 'page', slug: page.slug }}

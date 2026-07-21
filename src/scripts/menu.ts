@@ -1,45 +1,45 @@
 /**
- * Header-Verhalten: Mobile-Menü (echter modaler Layer via `inert` + Fokus-Trap)
- * und der Scroll-Zustand des Headers.
- *
- * Als eigenes Modul (Lesbarkeit/Testbarkeit). Astro inlinet diesen kleinen,
- * importlosen Chunk ins HTML; die strikte CSP `script-src 'self'`
- * (public/_headers) deckt ihn per sha256-Hash ab — den trägt der Build-Hook
- * `injectCspScriptHashes` (astro.config.mjs) nach dem Build ein, statt
- * 'unsafe-inline' zu erlauben.
+ * Burger-/Fullscreen-Menü (Header.astro): echter modaler Layer via `inert`
+ * + Fokus-Trap, Body-Scroll-Lock, ESC schließt. Das Overlay (`.menu`, z 99)
+ * liegt UNTER der Navbar (z 499) — Burger bleibt sichtbar und wird zum X
+ * (global-chrome.md §5).
  */
 const header = document.querySelector<HTMLElement>('[data-site-header]');
 const toggle = document.querySelector<HTMLButtonElement>('[data-nav-toggle]');
-const menu = document.querySelector<HTMLElement>('[data-mobile-menu]');
+const menu = document.querySelector<HTMLElement>('[data-site-menu]');
 
 if (header && toggle && menu) {
-  // Everything in <body> except the header (which holds the toggle + the menu)
-  // becomes inert while open, so the overlay is a real modal layer: no focus
-  // and no AT access reaches the page behind it.
+  // Alles außer Header + Menü wird inert, solange offen — kein Fokus/AT-Zugriff
+  // auf die Seite dahinter.
   const backdrop = () =>
-    (Array.from(document.body.children) as HTMLElement[]).filter((el) => el !== header);
-  // Visible, tabbable controls inside the header while open (brand, toggle,
-  // menu links) - the focus trap loops within this set.
-  const trapStops = () =>
-    Array.from(header.querySelectorAll<HTMLElement>('a[href], button:not([disabled])')).filter(
-      (el) => el.getClientRects().length > 0,
+    (Array.from(document.body.children) as HTMLElement[]).filter(
+      (el) => el !== header && el !== menu,
     );
+  const trapStops = () =>
+    [
+      ...Array.from(header.querySelectorAll<HTMLElement>('a[href], button:not([disabled])')),
+      ...Array.from(menu.querySelectorAll<HTMLElement>('a[href], button:not([disabled])')),
+    ].filter((el) => el.getClientRects().length > 0);
 
   let lastFocused: HTMLElement | null = null;
+  let hideTimer: number | undefined;
 
   const setOpen = (open: boolean) => {
+    window.clearTimeout(hideTimer);
     header.classList.toggle('is-menu-open', open);
     toggle.setAttribute('aria-expanded', String(open));
-    document.documentElement.style.overflow = open ? 'hidden' : '';
+    document.body.classList.toggle('no-scroll', open);
     backdrop().forEach((el) =>
       open ? el.setAttribute('inert', '') : el.removeAttribute('inert'),
     );
     if (open) {
       lastFocused = document.activeElement as HTMLElement;
       menu.removeAttribute('hidden');
-      menu.querySelector<HTMLElement>('a[href], button')?.focus();
+      // Erst sichtbar machen, dann Panel einfahren (Transition braucht 2 Frames).
+      requestAnimationFrame(() => menu.classList.add('is-open'));
     } else {
-      window.setTimeout(() => menu.setAttribute('hidden', ''), 450);
+      menu.classList.remove('is-open');
+      hideTimer = window.setTimeout(() => menu.setAttribute('hidden', ''), 600);
       (lastFocused ?? toggle).focus();
     }
   };
@@ -47,7 +47,12 @@ if (header && toggle && menu) {
   toggle.addEventListener('click', () => {
     setOpen(toggle.getAttribute('aria-expanded') !== 'true');
   });
+  // Link-Klick schließt; Klick auf die freie Fläche neben dem Panel ebenso.
   menu.querySelectorAll('a').forEach((a) => a.addEventListener('click', () => setOpen(false)));
+  menu.addEventListener('click', (e) => {
+    if (e.target === menu) setOpen(false);
+  });
+
   window.addEventListener('keydown', (e) => {
     if (!header.classList.contains('is-menu-open')) return;
     if (e.key === 'Escape') {
@@ -69,11 +74,3 @@ if (header && toggle && menu) {
     }
   });
 }
-
-// Header background state on scroll
-const onScroll = () => {
-  if (!header) return;
-  header.classList.toggle('is-scrolled', window.scrollY > 24);
-};
-onScroll();
-window.addEventListener('scroll', onScroll, { passive: true });

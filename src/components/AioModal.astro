@@ -1,0 +1,267 @@
+---
+/**
+ * AIO-Bewerbungs-Modal (Webflow .aiocoaching-modal, all-in-one-coaching.md §19):
+ * die EINFACHE Bewerbung ohne Radio-Logik/Choices. Öffnen über
+ * [data-modal-open="aio"]; Logik/Validierung: src/scripts/modals.ts.
+ * Formular-Ziel ist ein Form.Taxi-PLATZHALTER — vor Go-Live ersetzen.
+ */
+const FORM_ACTION = 'https://form.taxi/s/FORM_TAXI_ENDPOINT_PLATZHALTER';
+---
+<div class="modal" data-modal="aio" role="dialog" aria-modal="true" aria-labelledby="aio-modal-title" hidden>
+  <div class="modal__overlay" aria-hidden="true"></div>
+  <div class="modal__scroll" data-modal-backdrop>
+    <div class="modal__container">
+      <div class="modal__content">
+        <button type="button" class="modal__close" data-modal-close aria-label="Schließen">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true">
+            <path d="M12 4v16M4 12h16" />
+          </svg>
+        </button>
+        <h3 class="modal__heading" id="aio-modal-title">Bewerbung ALL-IN-ONE Coaching</h3>
+
+        <form class="modal__form" data-aio-form method="POST" action={FORM_ACTION} novalidate>
+          <div class="modal__field">
+            <label class="modal__label" for="aio-name">Name</label>
+            <input
+              class="modal-input"
+              id="aio-name"
+              name="Name"
+              type="text"
+              maxlength="256"
+              placeholder="Max Mustermann"
+              required
+            />
+          </div>
+          <div class="modal__field">
+            <label class="modal__label" for="aio-email">E-Mail-Adresse</label>
+            <input
+              class="modal-input"
+              id="aio-email"
+              name="E-Mail-Adresse"
+              type="email"
+              maxlength="256"
+              placeholder="max@mustermann.com"
+              required
+            />
+          </div>
+          <div class="modal__field">
+            <label class="modal__label" for="aio-job">Berufsbezeichnung oder Unternehmen</label>
+            <input
+              class="modal-input"
+              id="aio-job"
+              name="Berufsbezeichnung-Oder-Unternehmen"
+              type="text"
+              maxlength="256"
+              placeholder="CEO bei Muster GmbH"
+            />
+          </div>
+          <div class="modal__field">
+            <label class="modal__label" for="aio-social">Social Media Link (falls vorhanden)</label>
+            <input
+              class="modal-input"
+              id="aio-social"
+              name="Social-Media-Link-Falls-Vorhanden"
+              type="text"
+              maxlength="256"
+              placeholder="@Instagram…"
+            />
+          </div>
+          <div class="modal__field">
+            <label class="modal__label" for="aio-info">Weitere Informationen</label>
+            <textarea
+              class="modal-input is-text-area"
+              id="aio-info"
+              name="Weitere-Infos"
+              maxlength="5000"
+              placeholder="Erzähl mir gerne mehr von dir, deinem Projekt bzw. Unternehmen…"></textarea>
+          </div>
+
+          <div class="modal__field">
+            <label class="modal-checkbox">
+              <input type="checkbox" name="GDPR" required />
+              <span class="modal-checkbox__box" aria-hidden="true">
+                <svg viewBox="0 0 12 10" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true">
+                  <path d="M1 5.5 4.2 8.5 11 1.5" />
+                </svg>
+              </span>
+              <span>Ich akzeptiere die <a href="/datenschutz/" target="_blank">Datenschutzerklärung</a></span>
+            </label>
+          </div>
+
+          <div class="modal__submit-row">
+            <button type="submit" class="btn-glow" data-wait="Bitte warten...">
+              <span class="btn-glow__circle" aria-hidden="true"></span>
+              <span class="btn-glow__wrapper">
+                <span class="btn-glow__content">
+                  <span class="btn-glow__label" data-submit-label>Senden</span>
+                </span>
+              </span>
+            </button>
+          </div>
+        </form>
+
+        <div class="modal__success" data-form-success hidden tabindex="-1">
+          <h4>Vielen Dank!</h4>
+          <p>
+            Ich melde mich in Kürze bei dir. Bitte überprüfe auch deinen Spam-Ordner, falls meine
+            Nachricht dort gelandet ist.
+          </p>
+        </div>
+        <div class="modal__fail" data-form-fail hidden>
+          <p>Ups! Etwas ist schief gelaufen - bitte versuche es nochmal.</p>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<style>
+  /* Gerüst identisch zum CTA-Modal (all-in-one-coaching.md §19 == §8-Layout). */
+  .modal {
+    position: fixed;
+    inset: 0;
+    z-index: 610;
+    -webkit-backdrop-filter: blur(1.5rem);
+    backdrop-filter: blur(1.5rem);
+    opacity: 0;
+    transition: opacity 0.3s;
+  }
+  .modal.is-visible { opacity: 1; }
+  .modal__overlay {
+    position: fixed;
+    inset: 0;
+    z-index: 510;
+    background: var(--overlay-modal);
+  }
+  .modal__scroll {
+    position: fixed;
+    inset: 0;
+    z-index: 560;
+    overflow: auto;
+    padding: 10vh 5% 5vh;
+  }
+  .modal__container {
+    max-width: 35rem;
+    margin-inline: auto;
+  }
+  .modal__content {
+    position: relative;
+    background: var(--paper);
+    border-radius: var(--radius-card);
+    padding: 12% 10%;
+    overflow: clip;
+  }
+  @media (max-width: 479px) {
+    .modal__content { padding: 15% 5% 20%; }
+  }
+  .modal__close {
+    position: absolute;
+    top: 1.5rem;
+    right: 1.5rem;
+    display: grid;
+    place-items: center;
+    width: 2.25rem;
+    height: 2.25rem;
+    color: var(--ink);
+    border-radius: 999rem;
+    transform: rotate(45deg);
+  }
+  .modal__close svg { width: 1.5rem; height: 1.5rem; }
+  @media (max-width: 767px) {
+    .modal__close { top: 1rem; right: 1rem; }
+  }
+  @media (max-width: 479px) {
+    .modal__close { top: 0.75rem; right: 0.75rem; }
+  }
+  .modal__heading {
+    font-size: 2.5rem;
+    font-weight: 700;
+    line-height: 1.175;
+  }
+  @media (max-width: 991px) {
+    .modal__heading { font-size: 1.75rem; }
+  }
+  @media (max-width: 767px) {
+    .modal__heading { font-size: 1.5rem; }
+  }
+
+  .modal__field { margin-top: 1.5rem; }
+  .modal__label {
+    display: block;
+    margin-bottom: 0.5rem;
+    font-weight: 400;
+    color: var(--ink);
+  }
+  .modal-input {
+    width: 100%;
+    min-height: 2.75rem;
+    padding: 0.5rem 0.75rem;
+    background: var(--paper-2);
+    border: 1px solid var(--form-line);
+    border-radius: var(--radius-input);
+    color: var(--ink);
+    font-size: 16px;
+    font-weight: 300;
+  }
+  .modal-input::placeholder { color: var(--ink-3); }
+  .modal-input.is-text-area { min-height: 11.25rem; resize: vertical; }
+
+  .modal-checkbox {
+    display: flex;
+    align-items: flex-start;
+    gap: 0.75rem;
+    cursor: pointer;
+    color: var(--ink-2);
+    font-size: var(--text-sm);
+  }
+  .modal-checkbox input {
+    position: absolute;
+    opacity: 0;
+    width: 1px;
+    height: 1px;
+  }
+  .modal-checkbox__box {
+    width: 1.125rem;
+    height: 1.125rem;
+    margin-top: 0.1rem;
+    border: 1px solid var(--form-line);
+    border-radius: 0.25rem;
+    flex: none;
+    display: grid;
+    place-items: center;
+    color: transparent;
+    transition: all var(--dur-fast) var(--ease-smooth);
+  }
+  .modal-checkbox input:checked + .modal-checkbox__box {
+    background: var(--brand);
+    border-color: var(--brand);
+    color: var(--ink);
+  }
+  .modal-checkbox input:focus-visible + .modal-checkbox__box {
+    outline: 2px solid var(--brand);
+    outline-offset: 3px;
+  }
+  .modal-checkbox__box svg { width: 0.7rem; height: 0.6rem; }
+  .modal-checkbox a {
+    color: var(--ink);
+    text-decoration: underline;
+    text-underline-offset: 0.15em;
+  }
+
+  .modal__submit-row {
+    display: flex;
+    justify-content: flex-end;
+    margin-top: 2rem;
+  }
+
+  .modal__success { color: var(--ink); }
+  .modal__success h4 { margin-bottom: 0.5rem; }
+  .modal__success p { color: var(--ink-2); }
+  .modal__fail {
+    margin-top: 1.5rem;
+    padding: 0.75rem 1rem;
+    background: var(--error-bg);
+    border-radius: var(--radius-input);
+  }
+  .modal__fail p { color: var(--error-fg); font-size: var(--text-sm); }
+</style>

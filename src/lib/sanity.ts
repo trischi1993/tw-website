@@ -2,7 +2,7 @@ import { createClient, type SanityClient } from '@sanity/client';
 import imageUrlBuilder from '@sanity/image-url';
 import { getPreviewContext } from './preview-context';
 import { SECTIONS_PROJECTION, baseIdOf, mapSections } from './content/sections';
-import type { SiteSettings, HomeContent, SitePage, SiteImage } from './content/types';
+import type { SiteSettings, HomeContent, SitePage, SiteImage, ServiceItem } from './content/types';
 
 /* ---------------------------------------------------------------------------
    Sanity adapter - DORMANT until env vars are set.
@@ -101,7 +101,8 @@ export function resolveImage(source?: RawImage, fallbackAlt = ''): SiteImage | u
 /* --- Queries -------------------------------------------------------------- */
 const SETTINGS_QUERY = `*[_type == "siteSettings"][0]{
   siteName, tagline,
-  contact, nav[]{label, href}, legalLinks[]{label, href}, social[]{label, href},
+  contact, nav[]{label, href}, headerCta{label, href},
+  legalLinks[]{label, href}, social[]{label, href},
   footerNote
 }`;
 
@@ -136,6 +137,7 @@ export async function fetchSiteSettings(): Promise<SiteSettings> {
     tagline: d.tagline,
     contact: d.contact,
     nav: d.nav ?? [],
+    headerCta: d.headerCta ?? undefined,
     legalLinks: d.legalLinks ?? [],
     social: d.social ?? [],
     footerNote: d.footerNote,
@@ -149,6 +151,25 @@ export async function fetchHome(): Promise<HomeContent> {
     seo: mapSeo(d?.seo),
     sections: mapSections(d?.sections),
   };
+}
+
+/* Standalone-Liste fürs Anfrage-Modal (die Sections betten ihre Services über
+   die Subquery in SECTIONS_PROJECTION selbst ein). */
+const SERVICES_QUERY = `*[_type == "service"] | order(order asc){
+  "id": _id, name, formName, category, description,
+  image{ alt, caption, asset->{ url, metadata{ dimensions, lqip } } }
+}`;
+
+export async function fetchServices(): Promise<ServiceItem[]> {
+  const docs = await activeClient().fetch(SERVICES_QUERY);
+  return (docs ?? []).map((d: any): ServiceItem => ({
+    id: String(d.id),
+    name: d.name ?? '',
+    formName: d.formName ?? d.name ?? '',
+    category: d.category === 'business' ? 'business' : 'personal',
+    description: d.description ?? '',
+    image: resolveImage(d.image, d.name ?? ''),
+  }));
 }
 
 export async function fetchAllPages(): Promise<SitePage[]> {

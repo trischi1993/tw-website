@@ -1,6 +1,7 @@
 import type { SectionFinalCta } from '../../lib/content/types';
 import type { EditAttr } from './SectionsList';
 import GlowButton from './GlowButton';
+import { contentShell } from './shell';
 
 /** Abschluss-CTA: schmale Spalte mit Überschrift, optionalem Text und Glow-CTA. */
 export default function FinalCtaSection({
@@ -12,11 +13,14 @@ export default function FinalCtaSection({
 }) {
   const { _key, anchor, heading, text, ctaLabel, ctaAction = 'link', ctaHref, ctaNewTab } = section;
   const path = `sections[_key=="${_key}"]`;
+  // Bisher ohne Inline-Padding (`.section`-Default medium) → keine Pad-Fallbacks.
+  const shell = contentShell(section);
 
   return (
     <section
       id={anchor || undefined}
-      className="final-cta section"
+      className={`final-cta ${shell.className}`}
+      style={shell.style}
       data-section-key={edit ? _key : undefined}
       {...edit?.(path)}
     >

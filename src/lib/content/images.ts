@@ -1,21 +1,31 @@
+import type { ImageMetadata } from 'astro';
 import type { SiteImage } from './types';
-import placeholder from '../../assets/images/placeholder.svg';
 
 /* ---------------------------------------------------------------------------
-   Local image registry.
+   Lokale Bild-Registry für den Seed.
 
-   The starter ships a SINGLE neutral placeholder (src/assets/images/placeholder.svg)
-   so the site builds and renders with zero real photos. The seed refers to images
-   through `img()`, which always returns this placeholder; drop real files into
-   src/assets/images and extend this helper (or connect Sanity) to use them.
-
-   When Sanity is connected, images arrive as remote URLs instead (see
-   src/lib/sanity.ts). Components consume the unified `SiteImage` type either way.
+   Alle Dateien unter src/assets/images/** werden per import.meta.glob
+   registriert; `img('services/xyz.avif', alt)` löst sie zu astro:assets-
+   Metadaten auf (Optimierung im Build). Der Pfad ist derselbe, den
+   shared/site-content.mjs an den img()-Callback übergibt - eine Quelle,
+   zwei Konsumenten (hier lokal, in make-seed.mjs als Sanity-Upload).
    --------------------------------------------------------------------------- */
 
-/** Build a local SiteImage for the seed. Returns the shared placeholder. */
-export function img(_key: string, alt: string, caption?: string): SiteImage {
-  return { kind: 'local', asset: placeholder, alt, caption };
+const modules = import.meta.glob<{ default: ImageMetadata }>(
+  '../../assets/images/**/*.{avif,webp,png,jpg,jpeg,svg}',
+  { eager: true },
+);
+
+const REGISTRY: Record<string, ImageMetadata> = {};
+for (const [key, mod] of Object.entries(modules)) {
+  REGISTRY[key.replace('../../assets/images/', '')] = mod.default;
+}
+
+/** Lokales SiteImage aus der Registry; unbekannter Pfad bricht den Build ab. */
+export function img(path: string, alt: string, caption?: string): SiteImage {
+  const asset = REGISTRY[path];
+  if (!asset) throw new Error(`[images] Unbekanntes Bild im Seed: src/assets/images/${path}`);
+  return { kind: 'local', asset, alt, caption };
 }
 
 /**

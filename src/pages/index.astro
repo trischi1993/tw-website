@@ -1,6 +1,5 @@
 ---
 import BaseLayout from '../layouts/BaseLayout.astro';
-import PageHeader from '../components/PageHeader.astro';
 // In Produktion der statische Host; nur der Vorschau-Build biegt diesen
 // Subpath auf den Live-Island-Host um (package.json "imports" + Alias).
 import SectionsHost from '#sections-host';
@@ -11,14 +10,24 @@ import { HTML_LANG } from '../lib/i18n';
 const home = await getHome();
 const settings = await getSiteSettings();
 
-// Minimal, generic structured data. Extend per project as needed.
-const jsonLd = {
-  '@context': 'https://schema.org',
-  '@type': 'WebSite',
-  name: settings.siteName,
-  url: Astro.site?.href,
-  inLanguage: HTML_LANG,
-};
+const sameAs = settings.social.map((s) => s.href).filter((href) => /^https?:\/\//.test(href));
+const jsonLd = [
+  {
+    '@context': 'https://schema.org',
+    '@type': 'WebSite',
+    name: settings.siteName,
+    url: Astro.site?.href,
+    inLanguage: HTML_LANG,
+  },
+  {
+    '@context': 'https://schema.org',
+    '@type': 'Person',
+    name: settings.contact.ownerName,
+    url: Astro.site?.href,
+    jobTitle: settings.tagline,
+    ...(sameAs.length ? { sameAs } : {}),
+  },
+];
 ---
 <BaseLayout
   title={home.seo.title}
@@ -26,6 +35,5 @@ const jsonLd = {
   image={ogImageUrl(home.seo.image)}
   jsonLd={jsonLd}
 >
-  <PageHeader title={settings.siteName} intro={settings.tagline} />
   <SectionsHost sections={home.sections} document={{ id: home.documentId, type: 'homePage' }} />
 </BaseLayout>

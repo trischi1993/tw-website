@@ -2,6 +2,7 @@ import type { SectionServicesTabs } from '../../lib/content/types';
 import type { EditAttr } from './SectionsList';
 import Img from './Img';
 import GlowButton from './GlowButton';
+import { contentShell } from './shell';
 
 /**
  * „Spezifische Coachings": Tabs je Zielgruppe, Karten aus der Service-
@@ -44,11 +45,13 @@ export default function ServicesTabsSection({
       </div>
     ));
 
+  const shell = contentShell(section, { top: 'large', bottom: 'large' });
+
   return (
     <section
       id={anchor || undefined}
-      className="services section"
-      style={{ paddingBlock: 'var(--section-pad-large)' }}
+      className={`services ${shell.className}`}
+      style={shell.style}
       data-section-key={edit ? _key : undefined}
       {...edit?.(path)}
     >

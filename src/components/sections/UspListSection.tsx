@@ -1,5 +1,6 @@
 import type { SectionUspList } from '../../lib/content/types';
 import type { EditAttr } from './SectionsList';
+import { contentShell } from './shell';
 
 /**
  * USP-Liste („Warum mit mir zusammenarbeiten" / „Das Besondere"): 2-spaltige
@@ -15,12 +16,13 @@ export default function UspListSection({
 }) {
   const { _key, anchor, heading, items } = section;
   const path = `sections[_key=="${_key}"]`;
+  const shell = contentShell(section, { top: 'large', bottom: 'large' });
 
   return (
     <section
       id={anchor || undefined}
-      className="usp section"
-      style={{ paddingBlock: 'var(--section-pad-large)', overflow: 'hidden' }}
+      className={`usp ${shell.className}`}
+      style={{ ...shell.style, overflow: 'hidden' }}
       data-section-key={edit ? _key : undefined}
       {...edit?.(path)}
     >

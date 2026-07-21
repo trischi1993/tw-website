@@ -233,7 +233,7 @@ export default defineConfig({
     sitemap({
       // Keep noindex / utility pages out of the sitemap. Add project-specific
       // noindex pages here so they stay in sync.
-      filter: (page) => !page.includes('/404'),
+      filter: (page) => !page.includes('/404') && !page.includes('/danke'),
     }),
     // Entfernt Seiten mit <meta robots noindex> aus der Sitemap (muss NACH
     // sitemap() laufen). Fängt CMS-getriebenes noindex, das der statische

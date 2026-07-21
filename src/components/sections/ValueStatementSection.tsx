@@ -1,5 +1,6 @@
 import type { SectionValueStatement } from '../../lib/content/types';
 import type { EditAttr } from './SectionsList';
+import { contentShell } from './shell';
 
 /** Großes Statement unter dem Hero — Zeilen-Reveal (data-anim="lines"). */
 export default function ValueStatementSection({
@@ -11,11 +12,14 @@ export default function ValueStatementSection({
 }) {
   const { _key, anchor, text } = section;
   const path = `sections[_key=="${_key}"]`;
+  // Padding-Default lebt im CSS (.value-stmt, responsiv) → base: false, keine Fallbacks.
+  const shell = contentShell(section, { base: false });
 
   return (
     <section
       id={anchor || undefined}
-      className="value-stmt"
+      className={`value-stmt ${shell.className}`.trim()}
+      style={shell.style}
       data-section-key={edit ? _key : undefined}
       {...edit?.(path)}
     >

@@ -1,22 +1,62 @@
 ---
 import BaseLayout from '../layouts/BaseLayout.astro';
-import Icon from '../components/Icon.astro';
-import { UI } from '../lib/i18n';
+import arrowIcon from '../assets/images/icon-arrow-topright.svg';
+
+/* Gebrandete 404 (bewusste Abweichung: die Live-404 war ein ungebrandetes
+   Webflow-Default). noindex + nicht in der Sitemap. */
 ---
-<BaseLayout title={UI.notFoundMetaTitle} description={UI.notFoundMetaDescription} noindex={true}>
+<BaseLayout
+  title="Seite nicht gefunden"
+  description="Diese Seite gibt es nicht. Zurück zur Startseite von Tristan Weithaler."
+  noindex={true}
+>
   <section class="section error-404">
     <div class="container error-404__inner">
-      <h1 class="display-lg">{UI.notFoundTitle}</h1>
-      <p class="lede">{UI.notFoundBody}</p>
+      <p class="error-404__code">404</p>
+      <h1>Diese Seite gibt es nicht.</h1>
+      <p class="error-404__body">
+        Vielleicht wurde sie verschoben oder der Link ist veraltet. Von der Startseite aus findest
+        du alles Wichtige.
+      </p>
       <div class="error-404__links">
-        <a href="/" class="btn btn--primary">{UI.notFoundCta} <Icon name="arrow-right" /></a>
+        <a class="btn-glow" href="/">
+          <span class="btn-glow__circle" aria-hidden="true" data-glow-circle=""></span>
+          <span class="btn-glow__wrapper">
+            <span class="btn-glow__content">
+              <span class="btn-glow__label">Zur Startseite</span>
+              <span class="btn-arrows" aria-hidden="true">
+                <img src={arrowIcon.src} alt="" loading="lazy" />
+                <img src={arrowIcon.src} alt="" loading="lazy" />
+              </span>
+            </span>
+          </span>
+        </a>
       </div>
     </div>
   </section>
 </BaseLayout>
 
 <style>
-  .error-404 { padding-top: calc(var(--header-h) + clamp(4rem, 3rem + 6vw, 8rem)); }
-  .error-404__inner { max-width: 44rem; display: flex; flex-direction: column; gap: var(--space-md); }
-  .error-404__links { display: flex; flex-wrap: wrap; gap: var(--space-sm); margin-top: var(--space-md); }
+  .error-404 {
+    min-height: 100svh;
+    display: flex;
+    align-items: center;
+    padding-top: var(--section-pad-page-top);
+  }
+  .error-404__inner {
+    max-width: 44rem;
+    display: flex;
+    flex-direction: column;
+    gap: var(--space-md);
+    text-align: center;
+    align-items: center;
+  }
+  .error-404__code {
+    font-size: clamp(5rem, 12vw, 9rem);
+    font-weight: 300;
+    line-height: 1;
+    color: var(--brand);
+  }
+  .error-404__body { color: var(--on-surface-muted, var(--ink)); max-width: 34rem; }
+  .error-404__links { margin-top: var(--space-sm); }
 </style>

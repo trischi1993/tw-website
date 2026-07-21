@@ -3,6 +3,8 @@ import type {
   SectionResults,
   ContentEl,
   RichText,
+  ServiceItem,
+  TestimonialItem,
   SiteImage,
   ToneToken,
   AlignToken,
@@ -301,34 +303,40 @@ function mapContent(raw: unknown): ContentEl[] {
 }
 
 /** Eingebettete Service-Items einer Section (Seed und GROQ liefern dieselbe Form). */
-function mapServices(raw: unknown) {
-  return keyed(raw, (r) => {
-    const name = str(r?.name);
-    if (!r?.id || !name) return null;
-    return {
-      id: String(r.id),
-      name,
-      formName: str(r.formName) ?? name,
-      category: r.category === 'business' ? ('business' as const) : ('personal' as const),
-      description: str(r.description) ?? '',
-      image: mapImage(r.image, name),
-    };
-  });
+function mapServices(raw: unknown): ServiceItem[] {
+  if (!Array.isArray(raw)) return [];
+  return raw
+    .map((r): ServiceItem | null => {
+      const name = str(r?.name);
+      if (!r?.id || !name) return null;
+      return {
+        id: String(r.id),
+        name,
+        formName: str(r.formName) ?? name,
+        category: r.category === 'business' ? 'business' : 'personal',
+        description: str(r.description) ?? '',
+        image: mapImage(r.image, name),
+      };
+    })
+    .filter((s): s is ServiceItem => s !== null);
 }
 
-function mapTestimonials(raw: unknown) {
-  return keyed(raw, (r) => {
-    const name = str(r?.name);
-    const text = str(r?.text);
-    if (!r?.id || !name || !text) return null;
-    return {
-      id: String(r.id),
-      name,
-      role: str(r.role),
-      text,
-      image: mapImage(r.image, name),
-    };
-  });
+function mapTestimonials(raw: unknown): TestimonialItem[] {
+  if (!Array.isArray(raw)) return [];
+  return raw
+    .map((r): TestimonialItem | null => {
+      const name = str(r?.name);
+      const text = str(r?.text);
+      if (!r?.id || !name || !text) return null;
+      return {
+        id: String(r.id),
+        name,
+        role: str(r.role),
+        text,
+        image: mapImage(r.image, name),
+      };
+    })
+    .filter((t): t is TestimonialItem => t !== null);
 }
 
 /** Rohe Sanity-Section → Komponenten-Typ. Unbekannte Typen fallen weg.

@@ -3,6 +3,8 @@ import type { StructureResolver } from 'sanity/structure';
 import { HomeIcon } from '@sanity/icons/Home';
 import { DocumentsIcon } from '@sanity/icons/Documents';
 import { CogIcon } from '@sanity/icons/Cog';
+import { CaseIcon } from '@sanity/icons/Case';
+import { DoubleQuoteIcon } from '@sanity/icons/DoubleQuote';
 
 /**
  * Die IDs der Singleton-Dokumente. Diese Dokumente existieren genau einmal und
@@ -34,6 +36,28 @@ export const structure: StructureResolver = (S) =>
         .child(S.document().schemaType('homePage').documentId('homePage').title('Startseite')),
 
       S.documentTypeListItem('page').title('Weitere Seiten').icon(DocumentsIcon),
+
+      S.divider(),
+
+      S.listItem()
+        .title('Coachings')
+        .id('services')
+        .icon(CaseIcon)
+        .child(
+          S.documentTypeList('service')
+            .title('Coachings')
+            .defaultOrdering([{ field: 'order', direction: 'asc' }]),
+        ),
+
+      S.listItem()
+        .title('Testimonials')
+        .id('testimonials')
+        .icon(DoubleQuoteIcon)
+        .child(
+          S.documentTypeList('testimonial')
+            .title('Testimonials')
+            .defaultOrdering([{ field: 'order', direction: 'asc' }]),
+        ),
 
       S.divider(),
 

@@ -34,8 +34,10 @@ const {
 
 const site = Astro.site;
 const canonicalURL = canonical ?? new URL(Astro.url.pathname, site).href;
-// Title-Vorlage „Seite | Marke“. Die Startseite (title === Marke) bleibt ohne Suffix.
-const fullTitle = title === siteName ? title : `${title} | ${siteName}`;
+// Title-Vorlage „Seite | Marke“. Kein Suffix, wenn der Title die Marke schon
+// enthält (Original-Titles wie „Tristan Weithaler - Über mich" blieben sonst
+// doppelt gebrandet).
+const fullTitle = title.includes(siteName) ? title : `${title} | ${siteName}`;
 // Immer ein OG-Bild: seitenspezifisches, sonst das Default-Share-Bild.
 const imageURL = new URL(image ?? DEFAULT_OG_IMAGE, site).href;
 ---

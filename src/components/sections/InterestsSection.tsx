@@ -1,5 +1,6 @@
 import type { SectionInterests } from '../../lib/content/types';
 import type { EditAttr } from './SectionsList';
+import { contentShell } from './shell';
 
 const ReisenIcon = () => (
   <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" aria-hidden="true">
@@ -38,11 +39,13 @@ export default function InterestsSection({
     </div>
   );
 
+  const shell = contentShell(section, { top: 'large', bottom: 'large' });
+
   return (
     <section
       id={anchor || undefined}
-      className="interests section"
-      style={{ paddingBlock: 'var(--section-pad-large)' }}
+      className={`interests ${shell.className}`}
+      style={shell.style}
       data-section-key={edit ? _key : undefined}
       {...edit?.(path)}
     >

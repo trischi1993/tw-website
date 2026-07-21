@@ -3,6 +3,7 @@ import type { EditAttr } from './SectionsList';
 import Img from './Img';
 import GlowButton from './GlowButton';
 import RichText from './RichText';
+import { contentShell } from './shell';
 
 /**
  * Text links + Bild rechts + Glow-CTA. layout 'glow' = Gold-Blur-Fleck hinter
@@ -29,11 +30,14 @@ export default function SplitCtaSection({
   } = section;
   const path = `sections[_key=="${_key}"]`;
   const plain = layout === 'plain';
+  // Padding kommt vom inneren Grid (`split-cta__grid section` im plain-Fall) → base: false.
+  const shell = contentShell(section, { base: false });
 
   return (
     <section
       id={anchor || undefined}
-      className={`split-cta ${plain ? 'is-plain' : 'is-glow'}`}
+      className={`split-cta ${plain ? 'is-plain' : 'is-glow'} ${shell.className}`.trim()}
+      style={shell.style}
       data-section-key={edit ? _key : undefined}
       {...edit?.(path)}
     >

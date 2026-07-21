@@ -4,9 +4,15 @@
    Referenz: docs/webflow-spec/*.md. Breakpoints: 991 / 767 / 479.
    --------------------------------------------------------------------------- */
 
-/* ======================== Home-Hero (Scroll-Reveal) ======================== */
+/* ======================== Home-Hero (Scroll-Reveal) ========================
+   Die 300vh-Scroll-Strecke und die Wipe-Fläche existieren nur mit aktiver
+   Animation (html.has-motion, gesetzt von motion.ts) - ohne JS/Reduced-Motion
+   rendert der Hero statisch, das Bild ist sofort sichtbar. */
 .hhero { position: relative; }
-.hhero__track { position: relative; height: 300vh; }
+.hhero__track { position: relative; }
+@media (min-width: 992px) {
+  html.has-motion .hhero__track { height: 300vh; }
+}
 .hhero__sticky {
   position: sticky;
   top: 0;
@@ -45,10 +51,14 @@
   object-position: 50% 100%;
 }
 .hhero__wipe {
+  display: none;
   position: absolute;
   inset: 0;
   background: var(--paper);
   pointer-events: none;
+}
+@media (min-width: 992px) {
+  html.has-motion .hhero__wipe { display: block; }
 }
 .hhero__scroll {
   position: relative;
@@ -102,8 +112,11 @@
 @media (max-width: 767px) { .value-stmt { padding-top: 7rem; padding-bottom: 0; } .value-stmt__text { width: 100%; } }
 @media (max-width: 479px) { .value-stmt { margin-bottom: -15%; } }
 
-/* ===================== Zahlen & Fakten (Karten-Fächer) ===================== */
-.results__track { position: relative; height: 200vh; }
+/* ===================== Zahlen & Fakten (Karten-Fächer) =====================
+   200vh-Scroll-Strecke nur mit aktiver Animation; statisch zeigt das CSS die
+   Karten leicht gefächert (nth-child-Rotationen). */
+.results__track { position: relative; }
+html.has-motion .results__track { height: 200vh; }
 .results__sticky {
   position: sticky;
   top: 0;
@@ -648,7 +661,7 @@
   white-space: nowrap;
 }
 .module__line-wrapper { flex: 1; overflow: hidden; }
-.module__line { height: 1px; background: var(--paper-2); transform: translateX(-101%); }
+.module__line { height: 1px; background: var(--paper-2); }
 .module__banner { width: 100vw; overflow: hidden; }
 .module__banner-track {
   display: flex;
@@ -811,7 +824,9 @@
   height: 100%;
   object-fit: cover;
 }
-.ahero__wipe { position: absolute; inset: 0; background: var(--paper); pointer-events: none; }
+/* Wipe-Fläche nur mit aktiver Animation - ohne JS ist das Portrait sichtbar. */
+.ahero__wipe { display: none; position: absolute; inset: 0; background: var(--paper); pointer-events: none; }
+html.has-motion .ahero__wipe { display: block; }
 @media (max-width: 991px) {
   .ahero__inner { min-height: auto; padding-block: 6rem; }
   .ahero__grid { grid-template-columns: 1.5fr 1fr; column-gap: 3rem; }
@@ -827,51 +842,41 @@
   .ahero__content { max-width: 20rem; }
 }
 
-/* ==================== Werdegang-Timeline (Pin-Scroll) ====================== */
+/* ==================== Werdegang-Timeline (Pin-Scroll) ======================
+   BASIS = vertikal gestapelte Liste (Mobile Portrait, ohne JS und bei
+   Reduced-Motion identisch). Die Pin-/Horizontal-Mechanik (1200vh-Strecke,
+   45vw-Fenster, 9 Stationen à 100vw) aktiviert erst html.has-motion ab 480px
+   - motion.ts deaktiviert die Animation ≤479 ohnehin. */
 .tl__head { padding-top: 6rem; }
 .tl__head h2 { margin-bottom: 1rem; }
-.tl__track { width: 100%; height: 1200vh; }
-.tl__sticky {
-  position: sticky;
-  top: 0;
-  height: 100vh;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  overflow: clip;
-}
-.tl__window {
-  width: 45vw;
-  height: 55vh;
-  overflow: clip;
-}
+.tl__track { width: 100%; }
+.tl__sticky { position: relative; }
+.tl__window { width: 100%; }
 .tl__list {
   display: flex;
-  align-items: center;
-  width: 900vw;
-  height: 100%;
+  flex-direction: column;
+  align-items: stretch;
+  gap: 2rem;
 }
 .tl__item {
   position: relative;
   width: 100%;
-  height: 100%;
   overflow: hidden;
   flex: none;
 }
 .tl__content {
-  position: absolute;
-  inset: 0;
+  position: relative;
   z-index: 1;
   display: flex;
-  align-items: center;
-  justify-content: center;
+  flex-direction: column;
+  align-items: flex-start;
   gap: 2rem;
 }
 .tl__left {
   display: flex;
   flex-direction: column;
-  align-items: flex-end;
-  max-width: 34vw;
+  align-items: flex-start;
+  width: 90%;
   overflow: hidden;
 }
 .tl__year {
@@ -879,50 +884,71 @@
   font-size: var(--display-year);
   line-height: 1.1;
   letter-spacing: -0.06em;
-  padding-inline: 0.5rem;
+  padding-right: 0.5rem;
   white-space: nowrap;
 }
 .tl__title {
   color: var(--white);
-  text-align: right;
+  text-align: left;
   font-size: 1.75rem;
   font-weight: 500;
   line-height: 1.1;
-  padding: 0 0.75rem 3px 0.5rem;
+  padding: 0 0.75rem 3px 0;
 }
 .tl__title.is-small { font-size: 1.5rem; }
 .tl__right {
   display: flex;
   flex-direction: column;
-  align-items: flex-end;
-  max-width: 24rem;
+  align-items: flex-start;
+  width: 90%;
   overflow: hidden;
+  margin-bottom: 1rem;
 }
 .tl__desc { color: var(--ink-2); }
 .tl__desc a { color: var(--brand-cream); text-decoration: underline; }
-.tl__media { position: relative; width: 100%; height: 100%; }
+.tl__media { position: relative; width: 100%; aspect-ratio: 3 / 2; }
 .tl__media img { width: 100%; height: 100%; object-fit: cover; }
 .tl__media::after { content: ''; position: absolute; inset: 0; background: var(--overlay-image); }
+@media (min-width: 480px) {
+  html.has-motion .tl__track { height: 1200vh; }
+  html.has-motion .tl__sticky {
+    position: sticky;
+    top: 0;
+    height: 100vh;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    overflow: clip;
+  }
+  html.has-motion .tl__window { width: 45vw; height: 55vh; overflow: clip; }
+  html.has-motion .tl__list {
+    flex-direction: row;
+    align-items: center;
+    width: max-content;
+    height: 100%;
+    gap: 0;
+  }
+  html.has-motion .tl__item { width: 100vw; height: 100%; }
+  html.has-motion .tl__content {
+    position: absolute;
+    inset: 0;
+    flex-direction: row;
+    align-items: center;
+    justify-content: center;
+    gap: 2rem;
+  }
+  html.has-motion .tl__left { align-items: flex-end; width: auto; max-width: 34vw; }
+  html.has-motion .tl__year { padding-inline: 0.5rem; }
+  html.has-motion .tl__title { text-align: right; padding-left: 0.5rem; }
+  html.has-motion .tl__right { align-items: flex-end; width: auto; max-width: 24rem; margin-bottom: 0; }
+  html.has-motion .tl__media { height: 100%; aspect-ratio: auto; }
+}
 @media (max-width: 767px) {
   .tl__year { font-size: var(--display-year); }
   .tl__title { font-size: 1.25rem; }
   .tl__title.is-small { font-size: 1.125rem; }
-  .tl__right { max-width: 21rem; }
   .tl__content { gap: 1.5rem; }
-}
-/* Mobile Portrait: Pin-Mechanik aus, vertikale Liste */
-@media (max-width: 479px) {
-  .tl__track { height: auto; }
-  .tl__sticky { position: relative; height: auto; overflow: visible; }
-  .tl__window { width: 100%; height: auto; overflow: visible; }
-  .tl__list { flex-direction: column; width: auto; height: auto; align-items: stretch; gap: 2rem; }
-  .tl__item { height: auto; }
-  .tl__content { position: relative; flex-direction: column; align-items: flex-start; }
-  .tl__left { align-items: flex-start; width: 90%; max-width: none; }
-  .tl__year { padding-left: 0; }
-  .tl__title { text-align: left; padding-left: 0; }
-  .tl__right { width: 90%; max-width: none; align-items: flex-start; margin-bottom: 1rem; }
-  .tl__media { aspect-ratio: 3 / 2; height: auto; }
+  html.has-motion .tl__right { max-width: 21rem; }
 }
 
 /* ======================= Interessen + Wort-Marquee ========================= */
@@ -968,6 +994,9 @@
 @keyframes marquee-scroll {
   from { transform: translateX(0); }
   to { transform: translateX(-100%); }
+}
+@media (prefers-reduced-motion: reduce) {
+  .marquee__row { animation: none; }
 }
 @media (max-width: 991px) {
   .interests__grid { column-gap: 3rem; row-gap: 2rem; }

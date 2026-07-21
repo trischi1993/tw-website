@@ -153,6 +153,29 @@ export default defineType({
       validation: (R) => R.required().min(1),
     }),
     defineField({
+      name: 'headerCta',
+      title: 'Button in der Kopfzeile',
+      description:
+        'Der goldene Button rechts in der Kopfzeile (z. B. „0 € Angebot" mit Link auf den Angebots-Abschnitt).',
+      type: 'object',
+      group: 'navigation',
+      fields: [
+        defineField({
+          name: 'label',
+          title: 'Beschriftung',
+          type: 'string',
+          validation: (R) => R.required(),
+        }),
+        defineField({
+          name: 'href',
+          title: 'Ziel',
+          description: 'Pfad oder Anker, z. B. „/#0-Euro-Angebot".',
+          type: 'string',
+          validation: (R) => R.required(),
+        }),
+      ],
+    }),
+    defineField({
       name: 'legalLinks',
       title: 'Rechtliche Links (Footer)',
       description: 'Links wie Impressum und Datenschutz, ganz unten im Footer.',

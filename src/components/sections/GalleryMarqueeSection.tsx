@@ -1,6 +1,7 @@
 import type { SectionGalleryMarquee } from '../../lib/content/types';
 import type { EditAttr } from './SectionsList';
 import Img from './Img';
+import { contentShell } from './shell';
 
 /**
  * Horizontale Bild-Galerie („Bekannt aus" / ALL-IN-ONE-Säulen): 180% breite
@@ -16,12 +17,13 @@ export default function GalleryMarqueeSection({
 }) {
   const { _key, anchor, heading, items, titlesVisible, ctaLabel, ctaHref } = section;
   const path = `sections[_key=="${_key}"]`;
+  const shell = contentShell(section, { top: 'large', bottom: 'large' });
 
   return (
     <section
       id={anchor || undefined}
-      className="gallery section"
-      style={{ paddingBlock: 'var(--section-pad-large)' }}
+      className={`gallery ${shell.className}`}
+      style={shell.style}
       data-section-key={edit ? _key : undefined}
       {...edit?.(path)}
     >

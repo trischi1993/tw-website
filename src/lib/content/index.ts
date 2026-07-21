@@ -1,4 +1,4 @@
-import type { SiteSettings, HomeContent, SitePage } from './types';
+import type { SiteSettings, HomeContent, SitePage, ServiceItem } from './types';
 import * as seed from './seed';
 
 /* ---------------------------------------------------------------------------
@@ -38,6 +38,15 @@ export async function getAllPages(): Promise<SitePage[]> {
     return fetchAllPages();
   }
   return seed.pages;
+}
+
+/** Alle Coachings (fürs Anfrage-Modal; Sections betten sie selbst ein). */
+export async function getServices(): Promise<ServiceItem[]> {
+  if (CONTENT_SOURCE === 'sanity') {
+    const { fetchServices } = await import('../sanity');
+    return fetchServices();
+  }
+  return seed.services;
 }
 
 export async function getPageBySlug(slug: string): Promise<SitePage | undefined> {

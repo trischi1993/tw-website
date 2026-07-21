@@ -1,6 +1,7 @@
 import type { SectionTestimonials } from '../../lib/content/types';
 import type { EditAttr } from './SectionsList';
 import Img from './Img';
+import { contentShell } from './shell';
 
 const Star = () => (
   <svg viewBox="0 0 24 24" aria-hidden="true">
@@ -26,12 +27,13 @@ export default function TestimonialsSection({
 }) {
   const { _key, anchor, heading, loadMoreLabel, initialCount = 3, testimonials } = section;
   const path = `sections[_key=="${_key}"]`;
+  const shell = contentShell(section, { top: 'large', bottom: 'large' });
 
   return (
     <section
       id={anchor || undefined}
-      className="reviews section"
-      style={{ paddingBlock: 'var(--section-pad-large)' }}
+      className={`reviews ${shell.className}`}
+      style={shell.style}
       data-section-key={edit ? _key : undefined}
       {...edit?.(path)}
     >

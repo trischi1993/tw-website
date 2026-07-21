@@ -1,0 +1,400 @@
+---
+/**
+ * Cookie-Consent (Nachbau von Finsweet fs-cc, Mode opt-in — global-chrome.md §9):
+ * Banner unten + persistentes Manager-Icon + Preferences-Modal mit 4 Kategorien.
+ * Zustand/Events: src/scripts/consent.ts (localStorage, `tw:consent`).
+ * Ohne Zustimmung wird nichts gesetzt/geladen (Vimeo-Gate via widgets.ts).
+ */
+const categories = [
+  {
+    key: 'marketing',
+    label: 'Marketing',
+    text: 'Diese Elemente werden verwendet, um Werbung anzuzeigen, die für Sie und Ihre Interessen relevanter ist. Sie können auch dazu verwendet werden, die Anzahl der Anzeigenaufrufe zu begrenzen und die Wirksamkeit von Werbekampagnen zu messen.',
+  },
+  {
+    key: 'personalization',
+    label: 'Personalisierung',
+    text: 'Diese Elemente ermöglichen es der Website, sich an Ihre Auswahl zu erinnern (z. B. Ihre Sprache oder die Region, in der Sie sich befinden) und erweiterte, persönlichere Funktionen bereitzustellen.',
+  },
+  {
+    key: 'analytics',
+    label: 'Analysen',
+    text: 'Diese Elemente helfen dem Website-Betreiber zu verstehen, wie seine Website funktioniert, wie Besucher mit der Website interagieren und ob es möglicherweise technische Probleme gibt.',
+  },
+];
+---
+<!-- Banner -->
+<div class="cc-banner" data-cc-banner hidden role="region" aria-label="Cookie-Hinweis">
+  <div class="cc-banner__container">
+    <p class="cc-banner__text">
+      Wenn Sie auf <strong>„Alle Cookies akzeptieren"</strong> klicken, stimmen Sie der Speicherung
+      von Cookies auf Ihrem Gerät zu, um die Navigation auf der Website zu verbessern, die Nutzung
+      der Website zu analysieren und unsere Marketingaktivitäten zu unterstützen. Weitere
+      Informationen finden Sie in unserer <a href="/datenschutz/">Datenschutzrichtlinie</a>.
+    </p>
+    <div class="cc-banner__buttons">
+      <button type="button" class="btn-glow" data-cc="allow">
+        <span class="btn-glow__circle" aria-hidden="true"></span>
+        <span class="btn-glow__wrapper">
+          <span class="btn-glow__content"><span class="btn-glow__label">Alle akzeptieren</span></span>
+        </span>
+      </button>
+      <button type="button" class="button is-tertiary" data-cc="deny">Ablehnen</button>
+      <button type="button" class="cc-banner__prefs-link" data-cc-open-prefs>
+        Cookie Einstellungen bearbeiten
+      </button>
+    </div>
+  </div>
+</div>
+
+<!-- Manager-Icon (persistent, unten links) -->
+<button type="button" class="cc-manager" data-cc-open-prefs aria-label="Cookie-Einstellungen öffnen">
+  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" aria-hidden="true">
+    <path
+      d="M21.5 12.5a9.5 9.5 0 1 1-9.8-9.99 3.6 3.6 0 0 0 3.6 4.39 3.6 3.6 0 0 0 3.7 3.7c.9-.05 1.8.3 2.5 1.9Z"
+    />
+    <circle cx="8.5" cy="10" r="1" fill="currentColor" stroke="none" />
+    <circle cx="12" cy="15.5" r="1" fill="currentColor" stroke="none" />
+    <circle cx="15.5" cy="11.5" r="1" fill="currentColor" stroke="none" />
+    <circle cx="9" cy="18" r="1" fill="currentColor" stroke="none" />
+  </svg>
+</button>
+
+<!-- Preferences-Modal -->
+<div
+  class="cc-prefs"
+  data-cc-prefs
+  hidden
+  role="dialog"
+  aria-modal="true"
+  aria-labelledby="cc-prefs-title"
+>
+  <div class="cc-prefs__form">
+    <button type="button" class="cc-prefs__close" data-cc-close aria-label="Schließen">
+      <svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2.5" aria-hidden="true">
+        <path d="M5 5l14 14M19 5L5 19" />
+      </svg>
+    </button>
+    <div class="cc-prefs__content">
+      <h2 class="cc-prefs__title" id="cc-prefs-title">Datenschutzpräferenzen</h2>
+      <p class="cc-prefs__text">
+        Wenn Sie Websites besuchen, können diese Daten in Ihrem Browser speichern oder abrufen.
+        Diese Speicherung ist oft für die Grundfunktionen der Website erforderlich. Die Speicherung
+        kann für Marketing, Analysen und Personalisierung der Website verwendet werden, z. B. zum
+        Speichern Ihrer Präferenzen. Der Datenschutz ist uns wichtig, daher haben Sie die
+        Möglichkeit, bestimmte Arten der Speicherung zu deaktivieren, die für die Grundfunktionen
+        der Website nicht erforderlich sind. Das Blockieren von Kategorien kann Ihre Erfahrung auf
+        der Website beeinträchtigen.
+      </p>
+      <div class="cc-prefs__actions">
+        <button type="button" class="button is-tertiary" data-cc="deny">Alle Cookies ablehnen</button>
+        <button type="button" class="btn-glow" data-cc="allow">
+          <span class="btn-glow__circle" aria-hidden="true"></span>
+          <span class="btn-glow__wrapper">
+            <span class="btn-glow__content">
+              <span class="btn-glow__label">Alle Cookies akzeptieren</span>
+            </span>
+          </span>
+        </button>
+      </div>
+      <p class="cc-prefs__subtitle">Zustimmungspräferenzen nach Kategorie verwalten</p>
+
+      <div class="cc-prefs__option">
+        <div class="cc-prefs__option-head">
+          <p class="cc-prefs__option-label">Essentiell</p>
+          <p class="cc-prefs__always">Immer aktiv</p>
+        </div>
+        <p class="cc-prefs__option-text">
+          Diese Elemente sind erforderlich, um die Grundfunktionen der Website zu ermöglichen.
+        </p>
+      </div>
+
+      {
+        categories.map((cat) => (
+          <div class="cc-prefs__option">
+            <div class="cc-prefs__option-head">
+              <p class="cc-prefs__option-label">{cat.label}</p>
+              <label class="cc-toggle">
+                <input type="checkbox" data-cc-cat={cat.key} />
+                <span class="cc-toggle__track" aria-hidden="true">
+                  <span class="cc-toggle__knob" />
+                </span>
+                <span class="visually-hidden">{cat.label} erlauben</span>
+              </label>
+            </div>
+            <p class="cc-prefs__option-text">{cat.text}</p>
+          </div>
+        ))
+      }
+
+      <div class="cc-prefs__submit">
+        <button type="button" class="btn-glow" data-cc="submit">
+          <span class="btn-glow__circle" aria-hidden="true"></span>
+          <span class="btn-glow__wrapper">
+            <span class="btn-glow__content">
+              <span class="btn-glow__label">Einstellungen bestätigen</span>
+            </span>
+          </span>
+        </button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<style>
+  /* --- Banner (unten fixiert) ---------------------------------------------- */
+  .cc-banner {
+    position: fixed;
+    inset: auto 0 0;
+    z-index: 999;
+    margin: 0 2rem 2rem;
+    padding: 1.5rem 2rem;
+    background: var(--paper);
+    border: 1px solid var(--paper-2);
+    border-radius: var(--radius-card);
+  }
+  .cc-banner__container {
+    display: grid;
+    grid-template-columns: 1.5fr 1fr;
+    align-items: center;
+    gap: 1.5rem;
+    max-width: 102rem;
+    margin-inline: auto;
+  }
+  .cc-banner__text {
+    color: var(--ink-2);
+    font-size: var(--text-sm);
+  }
+  .cc-banner__text a {
+    color: var(--ink);
+    text-decoration: underline;
+    text-underline-offset: 0.15em;
+  }
+  .cc-banner__buttons {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    justify-content: flex-end;
+    gap: 1rem;
+  }
+  .cc-banner__prefs-link {
+    color: var(--ink-2);
+    font-size: var(--text-sm);
+    text-decoration: underline;
+    text-underline-offset: 0.15em;
+    padding: 0;
+  }
+  .cc-banner__prefs-link:hover { color: var(--ink); }
+  @media (max-width: 767px) {
+    .cc-banner { margin: 0 1rem 1rem; padding: 1.25rem 1.5rem; }
+    .cc-banner__container { grid-template-columns: 1fr; }
+    .cc-banner__buttons { justify-content: flex-start; }
+  }
+
+  /* --- Manager-Icon (unten links) ------------------------------------------ */
+  .cc-manager {
+    position: fixed;
+    inset: auto auto 1rem 1rem;
+    z-index: 998;
+    display: grid;
+    place-items: center;
+    padding: 0.5rem;
+    background: var(--paper-2);
+    border-radius: 999rem;
+    color: var(--brand);
+  }
+  .cc-manager svg { width: 2rem; height: 2rem; }
+  .cc-manager:hover { color: var(--brand-cream); }
+
+  /* --- Preferences-Modal ---------------------------------------------------- */
+  .cc-prefs {
+    position: fixed;
+    inset: 0;
+    z-index: 1200;
+    display: grid;
+    place-items: center;
+    padding: 2rem;
+    background: var(--overlay-modal);
+    -webkit-backdrop-filter: blur(0.5rem);
+    backdrop-filter: blur(0.5rem);
+  }
+  .cc-prefs__form {
+    position: relative;
+    width: 100%;
+    max-width: 40rem;
+    max-height: 80vh;
+    background: var(--paper);
+    border-radius: 1.25rem;
+  }
+  .cc-prefs__content {
+    max-height: 80vh;
+    overflow: auto;
+    padding: 2.5rem 2rem;
+  }
+  .cc-prefs__close {
+    position: absolute;
+    top: -0.75rem;
+    right: -0.75rem;
+    z-index: 1;
+    display: grid;
+    place-items: center;
+    width: 2.5rem;
+    height: 2.5rem;
+    background: #f5f6ff;
+    color: #021a7c;
+    border-radius: 999rem;
+    box-shadow: var(--shadow);
+  }
+  .cc-prefs__title { font-size: 1.5rem; font-weight: 700; }
+  .cc-prefs__text {
+    margin-top: 0.75rem;
+    color: var(--ink-2);
+    font-size: 0.85rem;
+  }
+  .cc-prefs__actions {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 1rem;
+    margin-top: 1.5rem;
+  }
+  .cc-prefs__subtitle {
+    margin-top: 2rem;
+    font-weight: 700;
+  }
+  .cc-prefs__option {
+    padding-block: 1.25rem;
+    border-bottom: 1px solid #33333326;
+  }
+  .cc-prefs__option-head {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 1rem;
+  }
+  .cc-prefs__option-label { font-weight: 700; }
+  .cc-prefs__always { color: var(--ink-3); font-size: 0.85rem; }
+  .cc-prefs__option-text {
+    margin-top: 0.35rem;
+    color: var(--ink-3);
+    font-size: 0.85rem;
+  }
+  .cc-prefs__submit {
+    display: flex;
+    justify-content: flex-end;
+    margin-top: 1.5rem;
+  }
+
+  /* --- Toggle (Pille 2.75×1.5rem, checked → Gold + Knopf rechts) ----------- */
+  .cc-toggle {
+    position: relative;
+    display: inline-flex;
+    cursor: pointer;
+    flex: none;
+  }
+  .cc-toggle input {
+    position: absolute;
+    inset: 0;
+    opacity: 0;
+    cursor: pointer;
+  }
+  .cc-toggle__track {
+    display: inline-flex;
+    align-items: center;
+    width: 2.75rem;
+    height: 1.5rem;
+    padding: 0.125rem;
+    background: #ccc;
+    border-radius: 999rem;
+    transition: background var(--dur-fast) var(--ease-smooth);
+  }
+  .cc-toggle__knob {
+    width: 1.25rem;
+    height: 1.25rem;
+    background: var(--white);
+    border-radius: 999rem;
+    transition: transform var(--dur-fast) var(--ease-smooth);
+  }
+  .cc-toggle input:checked + .cc-toggle__track { background: var(--brand); }
+  .cc-toggle input:checked + .cc-toggle__track .cc-toggle__knob { transform: translateX(20px); }
+  .cc-toggle input:focus-visible + .cc-toggle__track {
+    outline: 2px solid var(--brand);
+    outline-offset: 3px;
+  }
+</style>
+
+<script>
+  import {
+    getConsent,
+    setConsent,
+    acceptAll,
+    rejectAll,
+    type ConsentCategory,
+  } from '../scripts/consent';
+
+  const banner = document.querySelector<HTMLElement>('[data-cc-banner]');
+  const prefs = document.querySelector<HTMLElement>('[data-cc-prefs]');
+  const toggles = Array.from(
+    document.querySelectorAll<HTMLInputElement>('[data-cc-cat]'),
+  );
+
+  let lastFocused: HTMLElement | null = null;
+
+  const hideBanner = () => banner?.setAttribute('hidden', '');
+
+  const openPrefs = () => {
+    if (!prefs) return;
+    const state = getConsent();
+    toggles.forEach((t) => {
+      t.checked = state?.[t.dataset.ccCat as ConsentCategory] === true;
+    });
+    lastFocused = document.activeElement as HTMLElement;
+    prefs.removeAttribute('hidden');
+    document.body.classList.add('no-scroll');
+    prefs.querySelector<HTMLElement>('[data-cc-close]')?.focus();
+  };
+
+  const closePrefs = () => {
+    if (!prefs || prefs.hidden) return;
+    prefs.setAttribute('hidden', '');
+    document.body.classList.remove('no-scroll');
+    lastFocused?.focus();
+  };
+
+  document.addEventListener('click', (e) => {
+    const el = (e.target as HTMLElement).closest<HTMLElement>(
+      '[data-cc], [data-cc-open-prefs], [data-cc-close]',
+    );
+    if (!el) return;
+    if (el.hasAttribute('data-cc-open-prefs')) {
+      openPrefs();
+      return;
+    }
+    if (el.hasAttribute('data-cc-close')) {
+      closePrefs();
+      return;
+    }
+    const action = el.getAttribute('data-cc');
+    if (action === 'allow') acceptAll();
+    if (action === 'deny') rejectAll();
+    if (action === 'submit') {
+      const state: Partial<Record<ConsentCategory, boolean>> = {};
+      toggles.forEach((t) => {
+        state[t.dataset.ccCat as ConsentCategory] = t.checked;
+      });
+      setConsent(state);
+    }
+    hideBanner();
+    closePrefs();
+  });
+
+  // Backdrop-Klick + ESC schließen die Preferences.
+  prefs?.addEventListener('click', (e) => {
+    if (e.target === prefs) closePrefs();
+  });
+  window.addEventListener('keydown', (e) => {
+    if (e.key === 'Escape') closePrefs();
+  });
+
+  // Banner nur zeigen, solange keine Entscheidung getroffen wurde.
+  if (getConsent() === null) banner?.removeAttribute('hidden');
+</script>

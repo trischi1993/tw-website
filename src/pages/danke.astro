@@ -1,0 +1,55 @@
+---
+import BaseLayout from '../layouts/BaseLayout.astro';
+import arrowIcon from '../assets/images/icon-arrow-topright.svg';
+
+/* Danke-Seite: Redirect-Fallback für Form.Taxi (die Formulare bestätigen
+   primär inline per fetch). noindex + nicht in der Sitemap. */
+---
+<BaseLayout
+  title="Vielen Dank"
+  description="Deine Nachricht ist angekommen. Ich melde mich in Kürze bei dir."
+  noindex={true}
+>
+  <section class="section danke">
+    <div class="container danke__inner">
+      <h1>Vielen Dank!</h1>
+      <p class="danke__body">
+        Deine Nachricht ist angekommen. Ich schaue sie mir persönlich an und melde mich in Kürze
+        bei dir.
+      </p>
+      <div class="danke__links">
+        <a class="btn-glow" href="/">
+          <span class="btn-glow__circle" aria-hidden="true" data-glow-circle=""></span>
+          <span class="btn-glow__wrapper">
+            <span class="btn-glow__content">
+              <span class="btn-glow__label">Zur Startseite</span>
+              <span class="btn-arrows" aria-hidden="true">
+                <img src={arrowIcon.src} alt="" loading="lazy" />
+                <img src={arrowIcon.src} alt="" loading="lazy" />
+              </span>
+            </span>
+          </span>
+        </a>
+      </div>
+    </div>
+  </section>
+</BaseLayout>
+
+<style>
+  .danke {
+    min-height: 100svh;
+    display: flex;
+    align-items: center;
+    padding-top: var(--section-pad-page-top);
+  }
+  .danke__inner {
+    max-width: 44rem;
+    display: flex;
+    flex-direction: column;
+    gap: var(--space-md);
+    text-align: center;
+    align-items: center;
+  }
+  .danke__body { color: var(--on-surface-muted, var(--ink)); max-width: 34rem; }
+  .danke__links { margin-top: var(--space-sm); }
+</style>

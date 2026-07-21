@@ -1,6 +1,7 @@
 import type { SectionFaq } from '../../lib/content/types';
 import type { EditAttr } from './SectionsList';
 import RichText from './RichText';
+import { contentShell } from './shell';
 
 /**
  * FAQ-Accordion: Frage-Zeile mit weißem Plus-Quadrat, Antwort auf dunkler
@@ -10,12 +11,13 @@ import RichText from './RichText';
 export default function FaqSection({ section, edit }: { section: SectionFaq; edit?: EditAttr }) {
   const { _key, anchor, heading, items } = section;
   const path = `sections[_key=="${_key}"]`;
+  const shell = contentShell(section, { top: 'large', bottom: 'large' });
 
   return (
     <section
       id={anchor || undefined}
-      className="faq section"
-      style={{ paddingBlock: 'var(--section-pad-large)' }}
+      className={`faq ${shell.className}`}
+      style={shell.style}
       data-section-key={edit ? _key : undefined}
       {...edit?.(path)}
     >

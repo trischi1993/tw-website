@@ -46,6 +46,8 @@ export interface SiteSettings {
     geo?: { lat: number; lng: number };
   };
   nav: NavItem[];
+  /** Glow-CTA rechts in der Kopfzeile (z. B. Anker auf das 0-€-Angebot). */
+  headerCta?: NavItem;
   legalLinks: NavItem[];
   social: NavItem[];
   footerNote?: string;
