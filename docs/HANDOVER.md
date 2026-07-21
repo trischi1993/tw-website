@@ -1,5 +1,9 @@
 # HANDOVER — Webflow→Astro-Migration tristanweithaler.com
 
+**Stand: 2026-07-21, Session 2 (Fable): Schritte 1-9 + 11 der Restliste sind ERLEDIGT (Build/Checks grün, committed — siehe README.md für den finalen Stand). OFFEN: Schritt 10 Provisioning/Deploy (`npm run provision -- … --execute` wurde von der Berechtigungs-Freigabe blockiert; braucht Julians Ausführung) + die im README gelisteten Platzhalter (Form.Taxi-Endpunkt, Vimeo-Poster, Datenschutztext, DNS). Der Rest dieses Dokuments ist die historische Übergabe aus Session 1.**
+
+---
+
 **Stand: 2026-07-20, Session 1 (Fable). Status: MITTEN IM UMBAU — Build aktuell ROT (bewusst, siehe „Roter Zustand"). Dieses Dokument ist die vollständige Übergabe an die nächste Session.**
 
 ## Auftrag (Julian, Original-Anforderungen)
