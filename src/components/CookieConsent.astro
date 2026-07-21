@@ -207,6 +207,10 @@ const categories = [
   .cc-manager:hover { color: var(--brand-cream); }
 
   /* --- Preferences-Modal ---------------------------------------------------- */
+  /* MUSS vor/über der display:grid-Regel gewinnen: das UA-`display:none` des
+     `hidden`-Attributs verliert sonst gegen die Author-Regel und das Modal wäre
+     dauerhaft sichtbar (nicht schließbar, kein Scroll-Lock). */
+  .cc-prefs[hidden] { display: none; }
   .cc-prefs {
     position: fixed;
     inset: 0;
