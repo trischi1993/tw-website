@@ -243,11 +243,13 @@ function wireSubmit(form: HTMLFormElement) {
     if (!validate(form)) return;
 
     // Gewählte Coaching-Bereiche (sichtbares Multiselect) → Hidden-Feld.
+    // Beide Selects liegen INNERHALB des äußeren data-conditional-Blocks -
+    // sichtbar ist nur das ohne [hidden]-Vorfahren (closest prüft alle Ebenen).
     const syncInput = form.querySelector<HTMLInputElement>('[data-choices-sync]');
     if (syncInput) {
-      const visibleSelect = form.querySelector<HTMLSelectElement>(
-        '[data-conditional]:not([hidden]) select[data-choices]',
-      );
+      const visibleSelect = Array.from(
+        form.querySelectorAll<HTMLSelectElement>('select[data-choices]'),
+      ).find((sel) => !sel.closest('[hidden]'));
       syncInput.value = visibleSelect
         ? Array.from(visibleSelect.selectedOptions).map((o) => o.value).join(', ')
         : '';

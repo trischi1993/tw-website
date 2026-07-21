@@ -3,6 +3,7 @@ import type { EditAttr } from './SectionsList';
 import Img from './Img';
 import GlowButton from './GlowButton';
 import { contentShell } from './shell';
+import { safeHref } from '../../lib/safe-href';
 
 /**
  * „Spezifische Coachings": Tabs je Zielgruppe, Karten aus der Service-
@@ -114,7 +115,7 @@ export default function ServicesTabsSection({
         <div className="services__footer button-group is-center">
           <GlowButton label={ctaModalLabel} action="modal" />
           {calendlyLabel && calendlyUrl && (
-            <a className="link-underline" href={calendlyUrl} target="_blank" rel="noopener noreferrer">
+            <a className="link-underline" href={safeHref(calendlyUrl)} target="_blank" rel="noopener noreferrer">
               {calendlyLabel}
               <span className="link-underline__line" aria-hidden="true" />
             </a>

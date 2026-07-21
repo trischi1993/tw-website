@@ -2,6 +2,7 @@ import type { SectionGalleryMarquee } from '../../lib/content/types';
 import type { EditAttr } from './SectionsList';
 import Img from './Img';
 import { contentShell } from './shell';
+import { safeHref } from '../../lib/safe-href';
 
 /**
  * Horizontale Bild-Galerie („Bekannt aus" / ALL-IN-ONE-Säulen): 180% breite
@@ -49,7 +50,7 @@ export default function GalleryMarqueeSection({
       </div>
       {ctaLabel && ctaHref && (
         <div className="gallery__footer">
-          <a className="link-underline" href={ctaHref}>
+          <a className="link-underline" href={safeHref(ctaHref)}>
             {ctaLabel}
             <span className="link-underline__line" aria-hidden="true" />
           </a>
