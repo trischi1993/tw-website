@@ -1,4 +1,4 @@
-import { defineType, defineField } from 'sanity';
+import { defineType, defineField, type Rule } from 'sanity';
 import { CogIcon } from '@sanity/icons/Cog';
 
 /**
@@ -171,7 +171,10 @@ export default defineType({
           title: 'Ziel',
           description: 'Pfad oder Anker, z. B. „/#0-Euro-Angebot".',
           type: 'string',
-          validation: (R) => R.required(),
+          // Scheme-Allowlist gegen javascript:/data:-XSS – gleiche Härtung wie
+          // navItem/cta (zweite Ebene: safeHref im Renderer, src/lib/safe-href.ts).
+          validation: (R) =>
+            (R as unknown as Rule).required().uri({ scheme: ['http', 'https', 'mailto', 'tel'], allowRelative: true }),
         }),
       ],
     }),

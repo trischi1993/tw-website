@@ -9,14 +9,15 @@ import { richTextField } from '../text/richText';
 
    Konvention (siehe HANDOVER): Layout-Sections (Heroes, Timeline, Results,
    Module) tragen NUR nameField + anchorField - ihr Layout ist fest verdrahtet.
-   Content-Sections bekommen toneField + styleFields() mit großzügigerem
-   Default-Padding als das Template ('large' statt 'medium').
+   Content-Sections bekommen toneField + styleFields(). Default-Padding = 'medium',
+   damit eine NEU im Studio angelegte Section optisch zum migrierten Seed passt
+   (der Seed lässt die Style-Tokens weg → Renderer-Default DEFAULT_PAD = 'medium').
    --------------------------------------------------------------------------- */
 
 /** Geteilte Style-Felder mit projektspezifischen Padding-Initialwerten. */
 export function styleFields(
-  top: 'none' | 'even' | 'small' | 'medium' | 'large' | 'pageTop' = 'large',
-  bottom: 'none' | 'even' | 'small' | 'medium' | 'large' = 'large',
+  top: 'none' | 'even' | 'small' | 'medium' | 'large' | 'pageTop' = 'medium',
+  bottom: 'none' | 'even' | 'small' | 'medium' | 'large' = 'medium',
 ): FieldDefinition[] {
   return [
     { ...paddingTopField, initialValue: top },
