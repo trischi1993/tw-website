@@ -44,7 +44,8 @@ export default function SplitCtaSection({
       <div className={plain ? 'container container--md' : 'container'}>
         <div className={`split-cta__grid${plain ? ' section' : ''}`}>
           <div className="split-cta__content">
-            <h2 data-anim="reveal-up" {...edit?.(`${path}.heading`)}>
+            {/* IX2: glow (section_cta, e-901) Offset 0, plain (standard-layout, e-516) Offset 16 */}
+            <h2 data-anim="reveal" data-offset={plain ? undefined : '0'} {...edit?.(`${path}.heading`)}>
               {heading}
             </h2>
             {body && body.length > 0 && (
@@ -52,7 +53,7 @@ export default function SplitCtaSection({
                 <RichText value={body} paragraphs />
               </div>
             )}
-            <div className="split-cta__buttons button-group" data-anim="reveal-x">
+            <div className="split-cta__buttons button-group">
               <GlowButton label={ctaLabel} action={ctaAction} href={ctaHref} newTab={ctaNewTab} />
             </div>
           </div>

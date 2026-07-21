@@ -9,7 +9,12 @@ import { safeHref } from '../lib/safe-href';
  * Footer (Webflow section_footer, global-chrome.md §6): Dolomiten-Band auf
  * #1D1D1D, Logo + Claim + Lottie-Socials links, Nav + E-Mail-Block rechts,
  * Legal-Zeile mit upgreight-Credit (Hausregel). Lottie-Icons laden lazy
- * (lottie-web light), spielen 1× beim Sichtbarwerden, Hover startet neu.
+ * (lottie-web light), spielen 1× beim Sichtbarwerden (Webflow data-autoplay);
+ * Hover spielt in 600 ms neu ab (IX2 a-78). Reveal-Choreo + Geschwister-Dim:
+ * src/scripts/motion/footer.ts (IX2 a-87, a-123/a-124); die data-footer-*-
+ * Hooks hier sind deren Anker. Overflow-Masken wie im Original:
+ * .footer__first (Logo/Claim/Socials) und .footer__contact gesamt, je
+ * Nav-Link ein eigener Mask-Wrapper (li).
  */
 const settings = await getSiteSettings();
 const { contact } = settings;
@@ -36,7 +41,7 @@ const mailHref = `mailto:${contact.email}?subject=Hey%20Tristan`;
     loading="lazy"
     decoding="async"
   />
-  <div class="footer__body">
+  <div class="footer__body" data-footer>
     <div class="container">
       <div class="footer__grid">
         <div class="footer__first">
@@ -49,16 +54,17 @@ const mailHref = `mailto:${contact.email}?subject=Hey%20Tristan`;
               alt=""
               loading="lazy"
               decoding="async"
+              data-footer-logo
             />
           </a>
-          {settings.tagline && <p class="footer__claim">{settings.tagline}</p>}
+          {settings.tagline && <p class="footer__claim" data-footer-claim>{settings.tagline}</p>}
           {
             settings.social.length > 0 && (
-              <ul role="list" class="footer__social-list" data-lottie-root>
+              <ul role="list" class="footer__social-list" data-lottie-root data-dim-group>
                 {settings.social.map((s) => {
                   const lottie = lottieFor(s.label);
                   return (
-                    <li>
+                    <li data-footer-social data-dim-item>
                       <a
                         class="footer__social"
                         href={safeHref(s.href)}
@@ -86,77 +92,111 @@ const mailHref = `mailto:${contact.email}?subject=Hey%20Tristan`;
         </div>
 
         <div class="footer__second">
-          <nav class="footer__nav" aria-label="Footer-Navigation">
-            <ul role="list">
+          <div class="footer__second-top">
+            <nav class="footer__nav" aria-label="Footer-Navigation">
+              <ul role="list" data-dim-group>
+                {
+                  footerNav.map((item) => (
+                    <li class="footer__nav-mask" data-dim-item>
+                      <a
+                        class="footer__nav-link"
+                        href={safeHref(item.href)}
+                        target={isExternal(item.href) ? '_blank' : undefined}
+                        rel={isExternal(item.href) ? 'noopener noreferrer' : undefined}
+                        data-footer-nav-link
+                      >
+                        {item.label}
+                      </a>
+                    </li>
+                  ))
+                }
+              </ul>
+            </nav>
+
+            <div class="footer__contact">
+              <img
+                class="footer__contact-icon"
+                src={emailIcon.src}
+                alt=""
+                width="43"
+                height="27"
+                loading="lazy"
+                data-footer-contact-icon
+              />
+              <p class="footer__contact-title" data-footer-contact-title>Email</p>
+              <a class="footer__mail" href={mailHref} data-footer-mail>{contact.email}</a>
+            </div>
+          </div>
+
+          {/* Original: Legal-Zeile sitzt UNTEN in der rechten Spalte
+              (.footer_second-wrapper-bootmo, margin-top 2rem). */}
+          <div class="footer__legal" data-footer-legal>
+            <p class="footer__legal-links">
               {
-                footerNav.map((item) => (
-                  <li>
-                    <a
-                      class="footer__nav-link"
-                      href={safeHref(item.href)}
-                      target={isExternal(item.href) ? '_blank' : undefined}
-                      rel={isExternal(item.href) ? 'noopener noreferrer' : undefined}
-                    >
-                      {item.label}
-                    </a>
-                  </li>
+                settings.legalLinks.map((item, i) => (
+                  <>
+                    {i > 0 && <span aria-hidden="true"> • </span>}
+                    <a href={safeHref(item.href)}>{item.label}</a>
+                  </>
                 ))
               }
-            </ul>
-          </nav>
-
-          <div class="footer__contact">
-            <img class="footer__contact-icon" src={emailIcon.src} alt="" width="28" height="28" loading="lazy" />
-            <p class="footer__contact-title">Email</p>
-            <a class="footer__mail" href={mailHref}>{contact.email}</a>
+            </p>
+            <p class="footer__credit">
+              Created by <a href="https://upgreight.com" target="_blank" rel="noopener noreferrer">upgreight</a>
+            </p>
           </div>
         </div>
-      </div>
-
-      <div class="footer__legal">
-        <p class="footer__legal-links">
-          {
-            settings.legalLinks.map((item, i) => (
-              <>
-                {i > 0 && <span aria-hidden="true"> • </span>}
-                <a href={safeHref(item.href)}>{item.label}</a>
-              </>
-            ))
-          }
-        </p>
-        <p class="footer__credit">
-          Created by <a href="https://upgreight.com" target="_blank" rel="noopener noreferrer">upgreight</a>
-        </p>
       </div>
     </div>
   </div>
 </footer>
 
 <style>
-  .footer { background: var(--paper); }
-  .footer__dolomites { width: 100%; height: auto; display: block; }
-  .footer__body { background: var(--paper-2); padding-block: 3rem 2rem; }
+  /* Werte 1:1 aus dem Export: section_footer (padding-top 3rem, @991 2rem),
+     Dolomiten-Band, dann .background-color-secondary + .padding-global +
+     .container-large + .padding-section-xxlarge (11rem, @991 10rem, @767 6rem). */
+  .footer { background: var(--paper); padding-top: 3rem; }
+  .footer__dolomites {
+    width: 100%;
+    height: auto;
+    display: block;
+    margin-bottom: -2px;
+  }
+  .footer__body { background: var(--paper-2); padding-block: 11rem; }
 
   .footer__grid {
     display: flex;
     justify-content: space-between;
-    gap: 3rem;
   }
-  .footer__first { width: 34%; }
+  /* Mask für Logo- (y -125 %), Claim- (x 5rem) und Social-Slides (y 130 %) —
+     Original .footer_first-wrapper hat overflow: hidden. */
+  .footer__first {
+    width: 34%;
+    display: flex;
+    flex-direction: column;
+    align-items: flex-start;
+    overflow: hidden;
+  }
   .footer__second {
     width: 55%;
     display: flex;
+    flex-direction: column;
     justify-content: space-between;
-    gap: 3rem;
+  }
+  .footer__second-top {
+    display: flex;
+    justify-content: space-between;
   }
 
-  .footer__logo-link { display: inline-block; line-height: 0; }
-  .footer__logo { width: 9rem; height: auto; }
-  .footer__claim {
-    margin-top: 1.5rem;
-    color: #d6d6d6;
-    max-width: 24ch;
+  /* Logo wie im Original: 9rem mit Negativ-Margins (@991 6rem). */
+  .footer__logo-link { display: inline-block; line-height: 0; margin-bottom: 1rem; }
+  .footer__logo {
+    width: 9rem;
+    height: auto;
+    margin-top: -1rem;
+    margin-left: -0.5rem;
   }
+  .footer__claim { color: #d6d6d6; }
   .footer__social-list {
     display: flex;
     align-items: center;
@@ -173,61 +213,80 @@ const mailHref = `mailto:${contact.email}?subject=Hey%20Tristan`;
   .footer__nav ul {
     display: flex;
     flex-direction: column;
+    align-items: flex-start;
     gap: 1rem;
   }
+  /* Mask je Link (Original: .overflow-hidden-Wrapper, Slide y -100 %).
+     Kein CSS-Hover — der Original-Hover ist das Geschwister-Dimmen (a-123). */
+  .footer__nav-mask { overflow: hidden; }
   .footer__nav-link {
+    display: inline-block;
     color: var(--ink);
     font-size: 1.25rem;
     font-weight: 300;
   }
-  .footer__nav-link:hover { color: var(--brand-cream); }
 
-  .footer__contact-icon { width: 1.75rem; height: 1.75rem; }
+  /* Mask für den Mail-Slide (y 110 %) — Original .footer_contact-item;
+     Innen ohne Abstände (Original stapelt icon/title/link direkt). */
+  .footer__contact { overflow: hidden; margin-right: 2rem; }
+  .footer__contact-icon { width: 2.6875rem; height: auto; }
   .footer__contact-title {
-    margin-top: 0.75rem;
     color: var(--ink);
     font-size: 2.25rem;
-    font-weight: 500;
-    line-height: 1.1875;
+    font-weight: 300;
   }
   .footer__mail {
     display: inline-block;
-    margin-top: 0.5rem;
     color: var(--brand);
-    font-size: 1.125rem;
   }
-  .footer__mail:hover { color: var(--brand-cream); }
 
+  /* Original .footer_second-wrapper-bootmo: margin-top 2rem, in der rechten
+     Spalte; Text .825rem auf #525252 (Credit = Hausregel-Ergänzung). */
   .footer__legal {
     display: flex;
     flex-wrap: wrap;
     justify-content: space-between;
     gap: 0.75rem 2rem;
-    margin-top: 4rem;
+    margin-top: 2rem;
+    overflow: hidden;
     color: var(--ink-4);
     font-size: 0.825rem;
   }
   .footer__legal a { color: inherit; }
-  .footer__legal a:hover { color: var(--ink-2); }
 
   @media (max-width: 991px) {
+    .footer { padding-top: 2rem; }
+    .footer__body { padding-block: 10rem; }
     .footer__grid { gap: 4rem; }
+    .footer__logo { width: 6rem; }
+    .footer__second { flex: 1; }
+    .footer__second-top { gap: 3rem; }
+    .footer__contact { margin-right: 0; }
   }
   @media (max-width: 767px) {
-    .footer__grid { flex-flow: column; }
-    .footer__first, .footer__second { width: 100%; }
-    .footer__second { flex-flow: column; }
+    .footer__body { padding-block: 6rem; }
+    .footer__grid { flex-flow: column; gap: 3rem; }
+    .footer__first { width: 100%; }
+    .footer__second-top { flex-flow: column; }
   }
   @media (max-width: 479px) {
-    .footer__contact-title { font-size: 2rem; }
+    .footer__logo-link { margin-bottom: 2rem; }
+    .footer__social-list { margin-top: 3.5rem; }
+    .footer__second { width: 100%; }
+    .footer__contact-title { font-size: 2rem; line-height: 1.2; }
+    .footer__mail { overflow-wrap: anywhere; }
   }
 </style>
 
 <script>
   // Lottie-Socials: erst beim Sichtbarwerden des Footers laden (lazy, light
-  // build ohne Expressions), 1× abspielen, Hover startet die Animation neu.
+  // build ohne Expressions). Wie im Original: 1× Autoplay beim Laden (Webflow-
+  // Embed data-autoplay="1"), Hover spielt von vorn in 600 ms bis zum Ende
+  // (IX2 a-78: 0 → 99.8 % in 600 ms → Speed = Dauer / 0.6).
+  // prefers-reduced-motion: kein Autoplay/Hover, stattdessen Endframe zeigen.
   const root = document.querySelector<HTMLElement>('[data-lottie-root]');
   if (root) {
+    const reduceMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
     const io = new IntersectionObserver(
       async (entries) => {
         if (!entries.some((e) => e.isIntersecting)) return;
@@ -238,10 +297,19 @@ const mailHref = `mailto:${contact.email}?subject=Hey%20Tristan`;
             container: el,
             renderer: 'svg',
             loop: false,
-            autoplay: true,
+            autoplay: !reduceMotion,
             path: el.dataset.lottie!,
           });
-          el.closest('a')?.addEventListener('mouseenter', () => anim.goToAndPlay(0, true));
+          if (reduceMotion) {
+            anim.addEventListener('DOMLoaded', () => {
+              anim.goToAndStop(Math.max(0, anim.totalFrames - 1), true);
+            });
+            return;
+          }
+          el.closest('a')?.addEventListener('mouseenter', () => {
+            anim.setSpeed(anim.getDuration(false) / 0.6);
+            anim.goToAndPlay(0, true);
+          });
         });
       },
       { rootMargin: '200px' },

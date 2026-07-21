@@ -5,10 +5,13 @@ import { safeHref } from '../lib/safe-href';
 import { UI as t } from '../lib/i18n';
 
 /**
- * Fixe Navbar (Webflow .navbar, global-chrome.md §5): Blur-Hintergrund,
- * Split-Wortmarke mit Goldlinie, Desktop-Links mit Underline-Wipe, Glow-CTA
- * aus settings.headerCta, Burger ≤991px mit Fullscreen-Overlay-Menü (#121212).
- * Logik in src/scripts/menu.ts.
+ * Fixe Navbar (Webflow .navbar, global-chrome.md §5) — Struktur 1:1 nach dem
+ * Export: Split-Wortmarke mit Overflow-Masken (Load-Anim schiebt die Texte
+ * aus ±140 % ein, motion/home-load u. a. via data-nav-logo-text), Goldlinie,
+ * Desktop-Links mit Underline-Wipe (motion/buttons.ts), Glow-CTA, Burger NUR
+ * ≤991 (im Original ist .navbar_menu-button auf Desktop display:none — das
+ * Fullscreen-Menü existiert nur auf Tablet/Mobile, IX2 a-121/a-122).
+ * Menü-Logik + exakte IX2-Choreografie in src/scripts/menu.ts.
  */
 const settings = await getSiteSettings();
 const isExternal = (href: string) => /^https?:\/\//.test(href);
@@ -17,81 +20,106 @@ const isExternal = (href: string) => /^https?:\/\//.test(href);
 const menuItems = [{ label: 'Startseite', href: '/' }, ...settings.nav];
 ---
 <header class="navbar" data-site-header>
-  <a href="/" class="navbar__logo" aria-label={`${settings.siteName}, ${t.toStart}`}>
-    <span class="navbar__logo-split is-desktop" aria-hidden="true">
-      <span class="navbar__logo-text">Tristan</span>
-      <span class="navbar__logo-line"></span>
-      <span class="navbar__logo-text">Weithaler</span>
+  <a href="/" class="navbar__logo is-desktop" aria-label={`${settings.siteName}, ${t.toStart}`}>
+    <span class="navbar__logo-word is-1" aria-hidden="true">
+      <span class="navbar__logo-text" data-nav-logo-text="1">Tristan</span>
     </span>
-    <span class="navbar__logo-split is-mobile" aria-hidden="true">
-      <span class="navbar__logo-text">T</span>
-      <span class="navbar__logo-line is-gold-alt"></span>
-      <span class="navbar__logo-text">W</span>
+    <span class="navbar__logo-line" data-nav-logo-line aria-hidden="true"></span>
+    <span class="navbar__logo-word is-2" aria-hidden="true">
+      <span class="navbar__logo-text" data-nav-logo-text="2">Weithaler</span>
+    </span>
+  </a>
+  <a href="/" class="navbar__logo is-mobile" aria-label={`${settings.siteName}, ${t.toStart}`}>
+    <span class="navbar__logo-word is-1" aria-hidden="true">
+      <span class="navbar__logo-text" data-nav-logo-text="1">T</span>
+    </span>
+    <span class="navbar__logo-line" data-nav-logo-line aria-hidden="true"></span>
+    <span class="navbar__logo-word is-2" aria-hidden="true">
+      <span class="navbar__logo-text" data-nav-logo-text="2">W</span>
     </span>
   </a>
 
-  <div class="navbar__right">
-    <nav class="navbar__menu" aria-label={t.mainNav}>
-      <ul role="list" class="navbar__list">
-        {
-          settings.nav.map((item) => (
-            <li>
-              <a
-                href={safeHref(item.href)}
-                class="navbar__link link-underline"
-                target={isExternal(item.href) ? '_blank' : undefined}
-                rel={isExternal(item.href) ? 'noopener noreferrer' : undefined}
-              >
-                {item.label}
-                <span class="link-underline__line" aria-hidden="true"></span>
-              </a>
-            </li>
-          ))
-        }
-      </ul>
-    </nav>
+  <div class="navbar__right" data-nav-right>
+    <div class="navbar__right-inner" data-nav-right-inner>
+      <nav class="navbar__menu" aria-label={t.mainNav}>
+        <ul role="list" class="navbar__list">
+          {
+            settings.nav.map((item) => (
+              <li>
+                <a
+                  href={safeHref(item.href)}
+                  class="navbar__link link-underline"
+                  data-underline
+                  target={isExternal(item.href) ? '_blank' : undefined}
+                  rel={isExternal(item.href) ? 'noopener noreferrer' : undefined}
+                >
+                  {item.label}
+                  <span class="link-underline__line" aria-hidden="true"></span>
+                </a>
+              </li>
+            ))
+          }
+        </ul>
+      </nav>
 
-    {
-      settings.headerCta && (
-        <a class="btn-glow navbar__cta" href={safeHref(settings.headerCta.href)} rel="nofollow">
-          <span class="btn-glow__circle" aria-hidden="true" data-glow-circle="" />
-          <span class="btn-glow__wrapper">
-            <span class="btn-glow__content">
-              <span class="btn-glow__label">{settings.headerCta.label}</span>
+      <button
+        class="navbar__burger"
+        type="button"
+        aria-expanded="false"
+        aria-controls="site-menu"
+        data-nav-toggle
+      >
+        <span class="visually-hidden">{t.menu}</span>
+        <span class="navbar__burger-line is-top" data-burger-top aria-hidden="true"></span>
+        <span class="navbar__burger-line is-middle" data-burger-middle aria-hidden="true"></span>
+        <span class="navbar__burger-line is-bottom" data-burger-bottom aria-hidden="true"></span>
+      </button>
+
+      {
+        settings.headerCta && (
+          <a
+            class="btn-glow navbar__cta"
+            href={safeHref(settings.headerCta.href)}
+            rel="nofollow"
+            data-glow
+          >
+            <span class="btn-glow__circle" aria-hidden="true" data-glow-circle="" />
+            <span class="btn-glow__wrapper">
+              <span class="btn-glow__content">
+                <span class="btn-glow__label">{settings.headerCta.label}</span>
+              </span>
             </span>
-          </span>
-        </a>
-      )
-    }
-
-    <button
-      class="navbar__burger"
-      type="button"
-      aria-expanded="false"
-      aria-controls="site-menu"
-      data-nav-toggle
-    >
-      <span class="visually-hidden">{t.menu}</span>
-      <span class="navbar__burger-line" aria-hidden="true"></span>
-      <span class="navbar__burger-line" aria-hidden="true"></span>
-      <span class="navbar__burger-line" aria-hidden="true"></span>
-    </button>
+          </a>
+        )
+      }
+    </div>
   </div>
 </header>
 
 <div class="menu" id="site-menu" data-site-menu hidden>
-  <nav class="menu__panel" aria-label={t.menu}>
+  <nav class="menu__panel" aria-label={t.menu} data-menu-panel>
+    <div class="menu__spacer" aria-hidden="true"></div>
     {
       menuItems.map((item) => (
         <a
           href={safeHref(item.href)}
           class="menu__link"
+          data-menu-link
           target={isExternal(item.href) ? '_blank' : undefined}
           rel={isExternal(item.href) ? 'noopener noreferrer' : undefined}
         >
-          <span class="menu__wipe" aria-hidden="true"></span>
-          <span class="menu__text">{item.label}</span>
-          <img class="menu__arrow" src={arrowWhite.src} alt="" width="36" height="36" loading="lazy" />
+          <span class="menu__wipe" data-menu-wipe aria-hidden="true"></span>
+          <span class="menu__click-wipe" data-menu-click-wipe aria-hidden="true"></span>
+          <span class="menu__text" data-menu-text>{item.label}</span>
+          <img
+            class="menu__arrow"
+            data-menu-arrow
+            src={arrowWhite.src}
+            alt=""
+            width="36"
+            height="36"
+            loading="lazy"
+          />
         </a>
       ))
     }
@@ -99,7 +127,8 @@ const menuItems = [{ label: 'Startseite', href: '/' }, ...settings.nav];
 </div>
 
 <style>
-  /* --- Navbar (fix, Blur, dunkel-transluzent) ------------------------------ */
+  /* --- Navbar (fix, Blur; BG-Farbe getrennt vom Verlauf, weil IX2 beim
+         Menü-Öffnen NUR die background-color animiert) ------------------- */
   .navbar {
     position: fixed;
     inset: 0 0 auto 0;
@@ -109,18 +138,21 @@ const menuItems = [{ label: 'Startseite', href: '/' }, ...settings.nav];
     justify-content: space-between;
     gap: 1rem;
     height: var(--header-h);
+    max-height: 80px;
     padding: 0.125rem 5vw;
-    background:
-      linear-gradient(var(--overlay-navbar-tint), var(--overlay-navbar-tint)),
-      var(--overlay-navbar);
+    background-color: var(--overlay-navbar);
+    background-image: linear-gradient(var(--overlay-navbar-tint), var(--overlay-navbar-tint));
     -webkit-backdrop-filter: blur(0.5rem);
     backdrop-filter: blur(0.5rem);
   }
 
-  /* --- Split-Wortmarke ----------------------------------------------------- */
+  /* --- Split-Wortmarke (Word-Wrapper = Overflow-Masken der Load-Anim) ------ */
   .navbar__logo { display: inline-flex; align-items: center; text-decoration: none; }
-  .navbar__logo-split { display: inline-flex; align-items: center; gap: 0.75rem; }
+  .navbar__logo-word { display: inline-block; position: relative; overflow: hidden; }
+  .navbar__logo-word.is-1 { padding-right: 0.625rem; }
+  .navbar__logo-word.is-2 { padding-left: 0.75rem; }
   .navbar__logo-text {
+    display: inline-block;
     color: var(--ink);
     font-size: 1.5rem;
     font-weight: 500;
@@ -133,11 +165,11 @@ const menuItems = [{ label: 'Startseite', href: '/' }, ...settings.nav];
     background: var(--brand);
     flex: none;
   }
-  .navbar__logo-line.is-gold-alt { background: var(--logo-line); }
-  .navbar__logo-split.is-mobile { display: none; }
+  .navbar__logo.is-mobile { display: none; }
 
-  /* --- Desktop-Links ------------------------------------------------------- */
-  .navbar__right { display: flex; align-items: center; gap: 1.5rem; }
+  /* --- Rechte Seite: Overflow-Maske (Load-Anim + 9.2rem-Menü-Shift) -------- */
+  .navbar__right { display: flex; align-items: center; position: relative; overflow: hidden; }
+  .navbar__right-inner { display: flex; align-items: center; gap: 2rem; position: relative; }
   .navbar__list { display: flex; align-items: center; gap: 1.5rem; margin: 0; padding: 0; }
   .navbar__link {
     color: var(--ink-2);
@@ -146,114 +178,122 @@ const menuItems = [{ label: 'Startseite', href: '/' }, ...settings.nav];
   }
   .navbar__link:hover { color: var(--ink); }
 
-  /* --- Burger (≤991) ------------------------------------------------------- */
+  /* --- Burger (nur ≤991, wie im Original; Linien-Morph macht menu.ts) ------ */
   .navbar__burger {
     display: none;
     position: relative;
     flex-direction: column;
     align-items: center;
     justify-content: center;
-    gap: 0.4375rem;
+    gap: 2px;
     width: 3rem;
     height: 3rem;
+    padding: 0.375rem 0.5rem;
     background: var(--paper-2);
+    border: 0;
     border-radius: 100%;
+    cursor: pointer;
     flex: none;
+    overflow: hidden;
   }
   .navbar__burger-line {
     display: block;
-    width: 1.25rem;
+    width: 100%;
     height: 1.5px;
     background: var(--ink);
-    transition: transform var(--dur-fast) var(--ease-smooth), opacity var(--dur-fast) var(--ease-smooth);
-  }
-  .navbar.is-menu-open .navbar__burger-line:nth-child(2) {
-    transform: translateY(0.296875rem) rotate(45deg);
-  }
-  .navbar.is-menu-open .navbar__burger-line:nth-child(3) { opacity: 0; }
-  .navbar.is-menu-open .navbar__burger-line:nth-child(4) {
-    transform: translateY(-0.296875rem) rotate(-45deg);
+    flex: none;
   }
 
-  /* --- Fullscreen-Menü (unter der Navbar, Panel #121212) ------------------- */
+  /* --- Fullscreen-Menü (nur ≤991 erreichbar; Panel #121212 von links) ------ */
   .menu {
     position: fixed;
     inset: 0;
     z-index: 99;
-    visibility: hidden;
-    pointer-events: none;
-    transition: visibility 0s 0.55s;
+    display: flex;
+    width: 100%;
+    height: 100vh;
   }
-  .menu.is-open {
-    visibility: visible;
-    pointer-events: auto;
-    transition-delay: 0s;
-  }
+  .menu[hidden] { display: none; }
   .menu__panel {
+    z-index: 1;
     display: flex;
     flex-direction: column;
-    width: 50%;
+    justify-content: flex-start;
+    align-items: center;
+    width: 100%;
     height: 100%;
-    margin-left: auto;
-    padding-top: var(--header-h);
     background: var(--panel);
-    transform: translateX(101%);
-    transition: transform 0.55s var(--ease-smooth);
     overflow-y: auto;
   }
-  .menu.is-open .menu__panel { transform: translateX(0); }
+  .menu__spacer { width: 100%; height: 15%; flex: none; }
 
   .menu__link {
     position: relative;
     display: flex;
     align-items: center;
     justify-content: space-between;
-    gap: 1.5rem;
-    flex: 1 1 0;
-    min-height: 5.5rem;
-    padding: 3.5rem;
+    gap: 1rem;
+    width: 100%;
+    min-height: 15.34%;
+    padding: 0.75rem 4.5rem 0.75rem 3.5rem;
     border-bottom: 1.5px solid var(--line-strong);
+    color: var(--ink);
     text-decoration: none;
-    overflow: hidden;
   }
+  /* Hover-/Klick-Wipes: Höhe animiert menu.ts (IX2 a-56/a-57/a-74);
+     Basis 0, damit sie ohne JS nie Inhalte überdecken. */
   .menu__wipe {
     position: absolute;
-    inset: auto 0 0 0;
+    inset: 0 auto auto 0;
+    width: 100%;
     height: 0;
-    background: var(--line-strong);
-    transition: height 0.45s var(--ease-smooth);
+    background: var(--paper);
     pointer-events: none;
   }
-  .menu__link:hover .menu__wipe { height: 100%; }
-  .menu__link:active .menu__wipe { background: var(--ink-3); }
+  .menu__click-wipe {
+    position: absolute;
+    inset: 0 auto auto 0;
+    width: 100%;
+    height: 0;
+    background: var(--paper-2);
+    pointer-events: none;
+  }
   .menu__text {
     position: relative;
-    color: var(--ink);
-    font-size: var(--menu-link-size);
+    z-index: 1;
+    font-size: 3.25rem;
     font-weight: 300;
-    line-height: 1.1;
+    line-height: 1.15;
     letter-spacing: -0.02em;
   }
   .menu__arrow {
     position: relative;
-    width: 2.25rem;
+    z-index: 1;
+    width: auto;
     height: 2.25rem;
     flex: none;
-    transition: transform 0.45s var(--ease-smooth);
   }
-  .menu__link:hover .menu__arrow { transform: translate(0.35rem, -0.35rem); }
 
-  /* --- Breakpoints --------------------------------------------------------- */
+  /* --- Breakpoints (1:1 Export) -------------------------------------------- */
   @media (max-width: 991px) {
     .navbar__menu { display: none; }
     .navbar__burger { display: inline-flex; }
-    .menu__panel { width: 100%; }
-    .menu__link { padding: 0 4.5rem; }
+    .navbar__right-inner { gap: 0.75rem; }
   }
   @media (max-width: 767px) {
-    .navbar__logo-split.is-desktop { display: none; }
-    .navbar__logo-split.is-mobile { display: inline-flex; }
-    .menu__link { padding: 0 2rem; }
+    .navbar__logo.is-desktop { display: none; }
+    .navbar__logo.is-mobile { display: inline-flex; }
+    .navbar__logo-word.is-1 { padding-right: 0.25rem; }
+    .navbar__logo-word.is-2 { padding-left: 0.25rem; }
+    /* Original .navbar_logo-line.black: helleres Bronze für die T|W-Marke. */
+    .navbar__logo.is-mobile .navbar__logo-line { background: var(--logo-line); }
+  }
+  @media (max-width: 479px) {
+    /* Original: ≤479 ist die Wortmarke komplett ausgeblendet. */
+    .navbar__logo { display: none; }
+    .menu__link { padding-left: 6vw; padding-right: 6vw; }
+    .menu__text { font-size: 2.75rem; letter-spacing: -0.03em; }
+    .menu__arrow { height: 2rem; }
   }
 </style>
 

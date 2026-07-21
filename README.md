@@ -70,8 +70,8 @@ Live-Island identisch); das Anfrage-Modal zieht seine Multiselect-Optionen aus
   (Poster + „Video laden"-Button vorher).
 - **Modals:** `CtaModal.astro` (Anfrage, choices.js 11.2.3 lazy, bedingte
   Radio-Logik, Coaching-Multiselect) + `AioModal.astro` (Bewerbung). Beide
-  posten per fetch an **Form.Taxi - der Endpunkt ist noch der PLATZHALTER
-  `FORM_TAXI_ENDPOINT_PLATZHALTER`** (in beiden Komponenten ersetzen!).
+  posten per fetch an Form.Taxi (Endpunkt `https://form.taxi/s/vvg9bvd4`,
+  von Julian am 2026-07-21 geliefert).
 - Kein Lenis/Smooth-Scroll, keine Seiten-Transition, kein jQuery/Typekit (auf
   der Live-Site tot). Fonts: selbst gehostetes Poppins (woff2, preloaded).
 

@@ -37,7 +37,7 @@ export default function ServicesTabsSection({
 
   const cards = (items: typeof services) =>
     items.map((s) => (
-      <div className="services__card" key={s.id} data-anim="reveal-up" data-delay="0.3">
+      <div className="services__card" key={s.id} data-anim="reveal" data-delay="0.3" data-offset="0">
         <Img image={s.image} sizes="(max-width: 767px) 45vw, 12rem" />
         <div className="services__card-content">
           <h4>{s.name}</h4>
@@ -59,7 +59,7 @@ export default function ServicesTabsSection({
       <div className="container container--md">
         <div className="services__head">
           <div className="max-w-lg align-center">
-            <h2 data-anim="reveal-up" {...edit?.(`${path}.heading`)}>
+            <h2 data-anim="reveal" data-offset="0" {...edit?.(`${path}.heading`)}>
               {heading}
             </h2>
             {subtext && <p {...edit?.(`${path}.subtext`)}>{subtext}</p>}
@@ -115,7 +115,13 @@ export default function ServicesTabsSection({
         <div className="services__footer button-group is-center">
           <GlowButton label={ctaModalLabel} action="modal" />
           {calendlyLabel && calendlyUrl && (
-            <a className="link-underline" href={safeHref(calendlyUrl)} target="_blank" rel="noopener noreferrer">
+            <a
+              className="link-underline"
+              data-underline="main"
+              href={safeHref(calendlyUrl)}
+              target="_blank"
+              rel="noopener noreferrer"
+            >
               {calendlyLabel}
               <span className="link-underline__line" aria-hidden="true" />
             </a>

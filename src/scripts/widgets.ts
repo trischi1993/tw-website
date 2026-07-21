@@ -11,11 +11,18 @@ import { hasConsent, grantCategory, onConsentChange, VIMEO_CATEGORY } from './co
 const reduced = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
 const dur = (seconds: number) => (reduced ? 0 : seconds);
 
-/* --- FAQ-Accordion ([data-faq-*]) ------------------------------------------ */
+/* --- FAQ-Accordion ([data-faq-*]) ------------------------------------------
+   IX2 a-54/a-55 (Desktop ≥992): Antwort-Höhe 0 ↔ auto, 0.8 s power3.out.
+   IX2 a-101/a-102 (≤991): zusätzlich fährt die Whipe-Fläche hinter der Frage
+   ein (yPercent 101 → 0, 0.8 s power3.out) bzw. beim Schließen linear in
+   0.5 s zurück und wird danach versteckt. Bei prefers-reduced-motion sofort. */
+
+const faqMobile = window.matchMedia('(max-width: 991px)');
 
 function toggleFaq(btn: HTMLElement): void {
   const item = btn.closest<HTMLElement>('[data-faq-item]');
   const panel = item?.querySelector<HTMLElement>('[data-faq-panel]');
+  const whipe = item?.querySelector<HTMLElement>('[data-faq-whipe]');
   if (!item || !panel) return;
 
   if (item.classList.contains('is-open')) {
@@ -23,17 +30,35 @@ function toggleFaq(btn: HTMLElement): void {
     btn.setAttribute('aria-expanded', 'false');
     gsap.to(panel, {
       height: 0,
-      duration: dur(0.5),
-      ease: 'power3.inOut',
+      duration: dur(0.8),
+      ease: 'power3.out',
       onComplete: () => {
         panel.hidden = true;
       },
     });
+    if (whipe && faqMobile.matches) {
+      gsap.to(whipe, {
+        yPercent: 101,
+        duration: dur(0.5),
+        ease: 'none',
+        onComplete: () => {
+          whipe.hidden = true;
+        },
+      });
+    }
   } else {
     item.classList.add('is-open');
     btn.setAttribute('aria-expanded', 'true');
     panel.hidden = false;
-    gsap.fromTo(panel, { height: 0 }, { height: 'auto', duration: dur(0.5), ease: 'power3.inOut' });
+    gsap.fromTo(panel, { height: 0 }, { height: 'auto', duration: dur(0.8), ease: 'power3.out' });
+    if (whipe && faqMobile.matches) {
+      whipe.hidden = false;
+      gsap.fromTo(
+        whipe,
+        { yPercent: 101 },
+        { yPercent: 0, duration: dur(0.8), ease: 'power3.out' },
+      );
+    }
   }
 }
 

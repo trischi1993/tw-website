@@ -26,11 +26,11 @@ export default function FinalCtaSection({
     >
       <div className="container">
         <div className="final-cta__content max-w-lg">
-          <h2 data-anim="reveal-up" {...edit?.(`${path}.heading`)}>
+          <h2 data-anim="reveal" {...edit?.(`${path}.heading`)}>
             {heading}
           </h2>
           {text && (
-            <p data-anim="reveal-up" data-delay="0.1" {...edit?.(`${path}.text`)}>
+            <p data-anim="reveal" {...edit?.(`${path}.text`)}>
               {text}
             </p>
           )}

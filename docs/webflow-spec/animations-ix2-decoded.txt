@@ -1,0 +1,1103 @@
+
+####################################################################################################
+# CLUSTER HOME-LOAD
+####################################################################################################
+
+================================================================================
+## ActionList a-105  [group0 = INITIAL STATE, applied immediately on page render]
+  EVENT e-765 PAGE_FINISH mq=[main,medium,small,tiny] target=PAGE autoStopEventId=e-764
+  GROUP 0 (INITIAL STATE)
+    S_OPACITY {delay=0 duration=500 value=0} → SEL .button-group
+    S_SIZE {delay=0 duration=500 heightValue=0 widthUnit="PX" heightUnit="%"} → SEL .navbar_logo-line
+    T_MOVE {delay=0 duration=500 xValue=40 xUnit="px" yUnit="PX" zUnit="PX"} → SEL .button-group
+    S_SIZE {delay=0 duration=500 widthValue=100 heightValue=100 widthUnit="%" heightUnit="%"} → SEL .home-hero_content-whipe.bg-shade
+    S_OPACITY {delay=0 duration=500 value=0} → SEL .navbar_right-wrapper
+    T_MOVE {delay=0 duration=500 xValue=2.5 xUnit="rem" yUnit="PX" zUnit="PX"} → SEL .navbar_right-wrapper
+    T_MOVE {delay=0 duration=500 xValue=-140 xUnit="%" yUnit="PX" zUnit="PX"} → SEL .navbar_logo-text.is-2
+    T_MOVE {delay=0 duration=500 xValue=140 xUnit="%" yUnit="PX" zUnit="PX"} → SEL .navbar_logo-text.is-1
+    S_OPACITY {delay=0 duration=700 easing="outQuart" value=0} → SEL .home-hero_scoll-wrapper
+  GROUP 1
+    S_SIZE {delay=0 duration=500 easing="outQuart" widthUnit="PX" heightUnit="AUTO"} → SEL .navbar_logo-line
+    T_MOVE {delay=200 duration=1000 easing="outQuart" xValue=0 xUnit="%" yUnit="PX" zUnit="PX"} → SEL .navbar_logo-text.is-1
+    T_MOVE {delay=200 duration=1000 easing="outQuart" xValue=0 xUnit="%" yUnit="PX" zUnit="PX"} → SEL .navbar_logo-text.is-2
+    S_OPACITY {delay=200 duration=1200 easing="ease" value=1} → SEL .navbar_right-wrapper
+    T_MOVE {delay=200 duration=1000 easing="outQuart" xValue=0 xUnit="rem" yUnit="PX" zUnit="PX"} → SEL .navbar_right-wrapper
+    S_OPACITY {delay=1000 duration=1100 easing="ease" value=1} → SEL .button-group
+    T_MOVE {delay=1000 duration=1000 easing="outQuart" xValue=0 xUnit="px" yUnit="PX" zUnit="PX"} → SEL .button-group
+    S_SIZE {delay=1300 duration=2000 easing="outQuart" widthValue=100 heightValue=0 widthUnit="%" heightUnit="%"} → SEL .home-hero_content-whipe.bg-shade
+    S_OPACITY {delay=2000 duration=700 easing="outQuart" value=1} → SEL .home-hero_scoll-wrapper
+
+####################################################################################################
+# CLUSTER HOME-HERO-SCROLL
+####################################################################################################
+
+================================================================================
+## ActionList a-108
+  EVENT e-456 SCROLLING_IN_VIEW mq=[main] target=EL index:<div .home-hero_ix-trigger> "Ich habe Brands mit bis zu 200.000 Followern " 
+  CONTINUOUS type=SCROLL_PROGRESS
+    @0%
+      S_SIZE {delay=0 duration=500 widthValue=40 widthUnit="%" heightUnit="PX"} → SEL .home-hero_content-right
+    @60%
+      S_SIZE {delay=0 duration=500 widthValue=100 widthUnit="%" heightUnit="PX"} → SEL .home-hero_content-right
+
+================================================================================
+## ActionList a-109
+  EVENT e-459 SCROLL_INTO_VIEW mq=[main,medium,small,tiny] target=EL index:<div .home-hero_scoll-wrapper> "<img src="images/Titelbild-93-1_1.avif" loadi" autoStopEventId=e-460 ev.loop=true ev.scrollOffsetValue=0 ev.scrollOffsetUnit=%
+  GROUP 0
+    S_SIZE {delay=0 duration=1000 easing="outQuart" widthValue=100 heightValue=0 widthUnit="%" heightUnit="%"} → EVENT_TARGET(CHILDREN) .home-hero_scoll-line
+    T_MOVE {delay=0 duration=1000 easing="outQuart" yValue=0 xUnit="PX" yUnit="rem" zUnit="PX"} → EVENT_TARGET(CHILDREN) .home-hero_scoll-line
+  GROUP 1
+    S_SIZE {delay=0 duration=1000 easing="outQuart" widthValue=100 heightValue=50 widthUnit="%" heightUnit="%"} → EVENT_TARGET(CHILDREN) .home-hero_scoll-line
+    T_MOVE {delay=0 duration=1000 easing="outQuart" yValue=5 xUnit="PX" yUnit="rem" zUnit="PX"} → EVENT_TARGET(CHILDREN) .home-hero_scoll-line
+  GROUP 2
+    S_SIZE {delay=0 duration=1000 easing="outQuart" widthValue=100 heightValue=0 widthUnit="%" heightUnit="%"} → EVENT_TARGET(CHILDREN) .home-hero_scoll-line
+    T_MOVE {delay=0 duration=1000 easing="outQuart" yValue=10 xUnit="PX" yUnit="rem" zUnit="PX"} → EVENT_TARGET(CHILDREN) .home-hero_scoll-line
+
+####################################################################################################
+# CLUSTER HOME-RESULTS
+####################################################################################################
+
+================================================================================
+## ActionList a-139
+  EVENT e-835 SCROLLING_IN_VIEW mq=[main,medium] target=EL index:<div .results_ix-trigger> in[section_results] "<h2 data-w-id="10d94104-7b3a-3d67-f2eb-c6caf4" 
+  CONTINUOUS type=SCROLL_PROGRESS
+    @0%
+      T_ROTATE {delay=0 duration=500 zValue=0 xUnit="DEG" yUnit="DEG" zUnit="deg"} → SEL .results_card.card-1
+      T_MOVE {delay=0 duration=500 xValue=0 yValue=0 xUnit="vw" yUnit="vh" zUnit="PX"} → SEL .results_card.card-1
+    @15%
+      T_ROTATE {delay=0 duration=500 zValue=-30 xUnit="DEG" yUnit="DEG" zUnit="deg"} → SEL .results_card.card-1
+      T_MOVE {delay=0 duration=500 xValue=-10 yValue=-100 xUnit="vw" yUnit="vh" zUnit="PX"} → SEL .results_card.card-1
+      T_MOVE {delay=0 duration=500 xValue=0 yValue=0 xUnit="vw" yUnit="vh" zUnit="px"} → SEL .results_card.card-2
+      T_ROTATE {delay=0 duration=500 zValue=3 xUnit="DEG" yUnit="DEG" zUnit="deg"} → SEL .results_card.card-2
+    @35%
+      T_ROTATE {delay=0 duration=500 zValue=40 xUnit="DEG" yUnit="DEG" zUnit="deg"} → SEL .results_card.card-2
+      T_MOVE {delay=0 duration=500 xValue=15 yValue=-100 xUnit="vw" yUnit="vh" zUnit="vh"} → SEL .results_card.card-2
+      T_ROTATE {delay=0 duration=500 zValue=6 xUnit="DEG" yUnit="DEG" zUnit="deg"} → SEL .results_card.card-3
+      T_MOVE {delay=0 duration=500 xValue=0 yValue=0 xUnit="vw" yUnit="vh" zUnit="PX"} → SEL .results_card.card-3
+    @50%
+      T_MOVE {delay=0 duration=500 xValue=-10 yValue=-100 xUnit="vw" yUnit="vh" zUnit="PX"} → SEL .results_card.card-3
+      T_ROTATE {delay=0 duration=500 zValue=-30 xUnit="DEG" yUnit="DEG" zUnit="deg"} → SEL .results_card.card-3
+      T_MOVE {delay=0 duration=500 xValue=0 yValue=0 xUnit="vw" yUnit="vh" zUnit="PX"} → SEL .results_card.card-4
+      T_ROTATE {delay=0 duration=500 zValue=9 xUnit="DEG" yUnit="DEG" zUnit="deg"} → SEL .results_card.card-4
+    @70%
+      T_MOVE {delay=0 duration=500 xValue=15 yValue=-100 xUnit="vw" yUnit="vh" zUnit="PX"} → SEL .results_card.card-4
+      T_ROTATE {delay=0 duration=500 zValue=40 xUnit="DEG" yUnit="DEG" zUnit="deg"} → SEL .results_card.card-4
+
+================================================================================
+## ActionList a-140
+  EVENT e-836 SCROLLING_IN_VIEW mq=[small,tiny] target=EL index:<div .results_ix-trigger> in[section_results] "<h2 data-w-id="10d94104-7b3a-3d67-f2eb-c6caf4" 
+  CONTINUOUS type=SCROLL_PROGRESS
+    @0%
+      T_ROTATE {delay=0 duration=500 zValue=0 xUnit="DEG" yUnit="DEG" zUnit="deg"} → SEL .results_card.card-1
+      T_MOVE {delay=0 duration=500 yValue=0 xUnit="PX" yUnit="vh" zUnit="PX"} → SEL .results_card.card-1
+    @15%
+      T_ROTATE {delay=0 duration=500 zValue=-10 xUnit="DEG" yUnit="DEG" zUnit="deg"} → SEL .results_card.card-1
+      T_MOVE {delay=0 duration=500 yValue=-120 xUnit="PX" yUnit="vh" zUnit="PX"} → SEL .results_card.card-1
+      T_ROTATE {delay=0 duration=500 zValue=3 xUnit="DEG" yUnit="DEG" zUnit="deg"} → SEL .results_card.card-2
+      T_MOVE {delay=0 duration=500 yValue=0 xUnit="PX" yUnit="vh" zUnit="px"} → SEL .results_card.card-2
+    @30%
+      T_ROTATE {delay=0 duration=500 zValue=20 xUnit="DEG" yUnit="DEG" zUnit="deg"} → SEL .results_card.card-2
+      T_MOVE {delay=0 duration=500 yValue=-120 xUnit="PX" yUnit="vh" zUnit="vh"} → SEL .results_card.card-2
+      T_ROTATE {delay=0 duration=500 zValue=6 xUnit="DEG" yUnit="DEG" zUnit="deg"} → SEL .results_card.card-3
+      T_MOVE {delay=0 duration=500 yValue=0 xUnit="PX" yUnit="vh" zUnit="PX"} → SEL .results_card.card-3
+    @45%
+      T_ROTATE {delay=0 duration=500 zValue=-10 xUnit="DEG" yUnit="DEG" zUnit="deg"} → SEL .results_card.card-3
+      T_MOVE {delay=0 duration=500 yValue=-120 xUnit="PX" yUnit="vh" zUnit="PX"} → SEL .results_card.card-3
+      T_ROTATE {delay=0 duration=500 zValue=9 xUnit="DEG" yUnit="DEG" zUnit="deg"} → SEL .results_card.card-4
+      T_MOVE {delay=0 duration=500 yValue=0 xUnit="PX" yUnit="vh" zUnit="PX"} → SEL .results_card.card-4
+    @60%
+      T_ROTATE {delay=0 duration=500 zValue=20 xUnit="DEG" yUnit="DEG" zUnit="deg"} → SEL .results_card.card-4
+      T_MOVE {delay=0 duration=500 yValue=-120 xUnit="PX" yUnit="vh" zUnit="PX"} → SEL .results_card.card-4
+
+####################################################################################################
+# CLUSTER HOME-WORK-BEKANNT-AUS
+####################################################################################################
+
+================================================================================
+## ActionList a-43
+  EVENT e-105 MOUSE_MOVE mq=[main] target=EL index:<div .home_work_component> in[section_home-work] "Zett am Sonntag <img loading="lazy" src="imag" 
+  CONTINUOUS type=MOUSE_X
+    @5%
+      T_MOVE {delay=0 duration=500 xValue=22 xUnit="%" yUnit="PX" zUnit="PX"} → EVENT_TARGET(CHILDREN) .home_work_scroll-wrapper
+      T_MOVE {delay=0 duration=500 yValue=-40 xUnit="PX" yUnit="px" zUnit="PX"} → EVENT_TARGET(CHILDREN) .home_work_item.is-1
+      T_MOVE {delay=0 duration=500 yValue=40 xUnit="PX" yUnit="px" zUnit="PX"} → EVENT_TARGET(CHILDREN) .home_work_item.is-2
+      T_MOVE {delay=0 duration=500 yValue=-40 xUnit="PX" yUnit="px" zUnit="PX"} → EVENT_TARGET(CHILDREN) .home_work_item.is-3
+      T_MOVE {delay=0 duration=500 yValue=40 xUnit="PX" yUnit="px" zUnit="PX"} → EVENT_TARGET(CHILDREN) .home_work_item.is-4
+      T_MOVE {delay=0 duration=500 yValue=-40 xUnit="PX" yUnit="px" zUnit="PX"} → EVENT_TARGET(CHILDREN) .home_work_item.is-5
+    @50%
+      T_MOVE {delay=0 duration=500 yValue=0 xUnit="PX" yUnit="px" zUnit="PX"} → EVENT_TARGET(CHILDREN) .home_work_item.is-1
+      T_MOVE {delay=0 duration=500 yValue=0 xUnit="PX" yUnit="px" zUnit="PX"} → EVENT_TARGET(CHILDREN) .home_work_item.is-2
+      T_MOVE {delay=0 duration=500 yValue=0 xUnit="PX" yUnit="px" zUnit="PX"} → EVENT_TARGET(CHILDREN) .home_work_item.is-3
+      T_MOVE {delay=0 duration=500 yValue=0 xUnit="PX" yUnit="px" zUnit="PX"} → EVENT_TARGET(CHILDREN) .home_work_item.is-4
+      T_MOVE {delay=0 duration=500 yValue=0 xUnit="PX" yUnit="px" zUnit="PX"} → EVENT_TARGET(CHILDREN) .home_work_item.is-5
+    @95%
+      T_MOVE {delay=0 duration=500 xValue=-22 xUnit="%" yUnit="PX" zUnit="PX"} → EVENT_TARGET(CHILDREN) .home_work_scroll-wrapper
+      T_MOVE {delay=0 duration=500 yValue=40 xUnit="PX" yUnit="px" zUnit="PX"} → EVENT_TARGET(CHILDREN) .home_work_item.is-1
+      T_MOVE {delay=0 duration=500 yValue=-40 xUnit="PX" yUnit="px" zUnit="PX"} → EVENT_TARGET(CHILDREN) .home_work_item.is-2
+      T_MOVE {delay=0 duration=500 yValue=40 xUnit="PX" yUnit="px" zUnit="PX"} → EVENT_TARGET(CHILDREN) .home_work_item.is-3
+      T_MOVE {delay=0 duration=500 yValue=-40 xUnit="PX" yUnit="px" zUnit="PX"} → EVENT_TARGET(CHILDREN) .home_work_item.is-4
+      T_MOVE {delay=0 duration=500 yValue=40 xUnit="PX" yUnit="px" zUnit="PX"} → EVENT_TARGET(CHILDREN) .home_work_item.is-5
+  CONTINUOUS type=MOUSE_Y
+
+================================================================================
+## ActionList a-45  [group0 = INITIAL STATE, applied immediately on page render]
+  EVENT e-106 MOUSE_OVER mq=[main] target=SEL .home_work_item [CLASS] autoStopEventId=e-107
+  GROUP 0 (INITIAL STATE)
+    T_MOVE {delay=0 duration=500 yValue=101 xUnit="PX" yUnit="%" zUnit="PX"} → EVENT_TARGET(CHILDREN) .home-work_work-title
+    T_SCALE {delay=0 duration=500 xValue=1 yValue=1 locked=true} → EVENT_TARGET(CHILDREN) .home_work_image
+    S_FILTER {delay=0 duration=500 filters="blur:0px"} → EVENT_TARGET(CHILDREN) .home_work_image
+    S_OPACITY {delay=0 duration=500 value=0} → EVENT_TARGET(CHILDREN) .home-work_work-title
+  GROUP 1
+    T_MOVE {delay=0 duration=800 easing="outQuart" yValue=0 xUnit="PX" yUnit="%" zUnit="PX"} → EVENT_TARGET(CHILDREN) .home-work_work-title
+    S_OPACITY {delay=0 duration=600 easing="ease" value=1} → EVENT_TARGET(CHILDREN) .home-work_work-title
+    S_FILTER {delay=0 duration=750 easing="ease" filters="blur:6px"} → EVENT_TARGET(CHILDREN) .home_work_image
+    T_SCALE {delay=0 duration=750 easing="outQuart" xValue=1.05 yValue=1.05 locked=true} → EVENT_TARGET(CHILDREN) .home_work_image
+
+================================================================================
+## ActionList a-46
+  EVENT e-107 MOUSE_OUT mq=[main] target=SEL .home_work_item [CLASS] autoStopEventId=e-106
+  GROUP 0
+    S_FILTER {delay=0 duration=650 easing="ease" filters="blur:0px"} → EVENT_TARGET(CHILDREN) .home_work_image
+    T_SCALE {delay=0 duration=650 easing="outQuart" xValue=1 yValue=1 locked=true} → EVENT_TARGET(CHILDREN) .home_work_image
+    T_MOVE {delay=0 duration=670 easing="outQuart" yValue=101 xUnit="PX" yUnit="%" zUnit="PX"} → {}
+    S_OPACITY {delay=0 duration=670 easing="ease" value=0} → {}
+    T_MOVE {delay=80 duration=670 easing="outQuart" yValue=101 xUnit="PX" yUnit="%" zUnit="PX"} → EVENT_TARGET(CHILDREN) .home-work_work-title
+    S_OPACITY {delay=80 duration=670 easing="ease" value=0} → EVENT_TARGET(CHILDREN) .home-work_work-title
+
+================================================================================
+## ActionList a-18
+  EVENT e-54 MOUSE_MOVE mq=[main] target=SEL .link-block [CLASS] 
+  CONTINUOUS type=MOUSE_X
+    @0%
+      T_ROTATE {delay=0 duration=500 yValue=-5 xUnit="DEG" yUnit="deg" zUnit="DEG"} → EVENT_TARGET(self)
+    @100%
+      T_ROTATE {delay=0 duration=500 yValue=5 xUnit="DEG" yUnit="deg" zUnit="DEG"} → EVENT_TARGET(self)
+  CONTINUOUS type=MOUSE_Y
+    @0%
+      T_ROTATE {delay=0 duration=500 xValue=5 xUnit="deg" yUnit="DEG" zUnit="DEG"} → EVENT_TARGET(self)
+    @100%
+      T_ROTATE {delay=0 duration=500 xValue=-5 xUnit="deg" yUnit="DEG" zUnit="DEG"} → EVENT_TARGET(self)
+
+================================================================================
+## ActionList a-22  [group0 = INITIAL STATE, applied immediately on page render]
+  EVENT e-59 MOUSE_OVER mq=[main,medium,small,tiny] target=SEL .splide__slide [CLASS] autoStopEventId=e-60
+  GROUP 0 (INITIAL STATE)
+    S_OPACITY {delay=0 duration=500 value=0} → {}
+    S_BACKGROUND_COLOR {delay=0 duration=500} → {}
+    T_MOVE {delay=0 duration=500 yValue=0.5 xUnit="PX" yUnit="em" zUnit="PX"} → {}
+    G_DISPLAY {delay=0 duration=0 value="none"} → {}
+  GROUP 1
+    S_OPACITY {delay=0 duration=500 easing="outQuart" value=1} → {}
+    G_DISPLAY {delay=0 duration=0 value="block"} → {}
+    T_MOVE {delay=0 duration=400 easing="outQuart" yValue=0 xUnit="PX" yUnit="em" zUnit="PX"} → {}
+    S_BACKGROUND_COLOR {delay=0 duration=500 easing="outQuart"} → {}
+
+================================================================================
+## ActionList a-23
+  EVENT e-60 MOUSE_OUT mq=[main,medium,small,tiny] target=SEL .splide__slide [CLASS] autoStopEventId=e-59
+  GROUP 0
+    S_OPACITY {delay=0 duration=500 easing="outQuart" value=0} → {}
+    S_BACKGROUND_COLOR {delay=0 duration=500 easing="outQuart"} → {}
+    T_MOVE {delay=0 duration=400 easing="outQuart" yValue=0.5 xUnit="PX" yUnit="em" zUnit="PX"} → {}
+    G_DISPLAY {delay=600 duration=0 value="none"} → {}
+
+####################################################################################################
+# CLUSTER HOME-SECTIONS
+####################################################################################################
+
+================================================================================
+## ActionList a-106  [group0 = INITIAL STATE, applied immediately on page render]
+  EVENT e-27 SCROLL_INTO_VIEW mq=[main,medium,small,tiny] target=SEL .heading-2 [CLASS] autoStopEventId=e-28 ev.scrollOffsetValue=15 ev.scrollOffsetUnit=%
+  GROUP 0 (INITIAL STATE)
+    T_MOVE {delay=0 duration=500 yValue=20 xUnit="PX" yUnit="px" zUnit="PX"} → EVENT_TARGET(self)
+    S_OPACITY {delay=0 duration=500 value=0} → EVENT_TARGET(self)
+  GROUP 1
+    T_MOVE {delay=0 duration=750 easing="outQuart" yValue=0 xUnit="PX" yUnit="px" zUnit="PX"} → EVENT_TARGET(self)
+    S_OPACITY {delay=0 duration=750 easing="ease" value=1} → EVENT_TARGET(self)
+
+================================================================================
+## ActionList a-50  [group0 = INITIAL STATE, applied immediately on page render]
+  EVENT e-118 SCROLL_INTO_VIEW mq=[main,medium,small,tiny] target=SEL .home-list_text-wrapper [CLASS] autoStopEventId=e-119 ev.scrollOffsetValue=15 ev.scrollOffsetUnit=%
+  GROUP 0 (INITIAL STATE)
+    T_MOVE {delay=0 duration=500 xValue=-1 xUnit="rem" yUnit="PX" zUnit="PX"} → EVENT_TARGET(CHILDREN) .home-list_icon-embed
+    S_OPACITY {delay=0 duration=500 value=0} → EVENT_TARGET(CHILDREN) .home-list_text
+    T_MOVE {delay=0 duration=500 xValue=1.5 xUnit="rem" yUnit="PX" zUnit="PX"} → EVENT_TARGET(CHILDREN) .home-list_text
+    S_OPACITY {delay=0 duration=500 value=0} → EVENT_TARGET(CHILDREN) .home-list_icon-embed
+  GROUP 1
+    T_MOVE {delay=0 duration=1150 easing="outQuart" xValue=0 xUnit="rem" yUnit="PX" zUnit="PX"} → EVENT_TARGET(CHILDREN) .home-list_icon-embed
+    S_OPACITY {delay=0 duration=1150 easing="ease" value=1} → EVENT_TARGET(CHILDREN) .home-list_icon-embed
+    S_OPACITY {delay=0 duration=1150 easing="ease" value=1} → EVENT_TARGET(CHILDREN) .home-list_text
+    T_MOVE {delay=0 duration=1150 easing="outQuart" xValue=0 xUnit="rem" yUnit="PX" zUnit="PX"} → EVENT_TARGET(CHILDREN) .home-list_text
+
+================================================================================
+## ActionList a-41  [group0 = INITIAL STATE, applied immediately on page render]
+  EVENT e-485 SCROLL_INTO_VIEW mq=[main,medium,small,tiny] target=EL index+all-in-one-coaching:<div .home-line> in[section_home-list] "Internationale Kurse im" autoStopEventId=e-486 ev.scrollOffsetValue=10 ev.scrollOffsetUnit=%
+  EVENT e-487 SCROLL_INTO_VIEW mq=[main,medium,small,tiny] target=EL index+all-in-one-coaching:<div .home-line> in[section_home-list] "Eigene Marken und Projek" autoStopEventId=e-488 ev.scrollOffsetValue=10 ev.scrollOffsetUnit=%
+  EVENT e-493 SCROLL_INTO_VIEW mq=[main,medium,small,tiny] target=EL index+all-in-one-coaching:<div .home-line> in[section_home-list] "Nette Worte von aktuellen Kunden Nette Worte " autoStopEventId=e-494 ev.scrollOffsetValue=10 ev.scrollOffsetUnit=%
+  EVENT e-495 SCROLL_INTO_VIEW mq=[main,medium,small,tiny] target=EL index+all-in-one-coaching:<div .home-line> in[section_home-list] "Persönliche Betreuung je" autoStopEventId=e-496 ev.scrollOffsetValue=10 ev.scrollOffsetUnit=%
+  EVENT e-497 SCROLL_INTO_VIEW mq=[main,medium,small,tiny] target=EL index+all-in-one-coaching:<div .home-line> in[section_home-list] "Über 100 Menschen und Un" autoStopEventId=e-498 ev.scrollOffsetValue=10 ev.scrollOffsetUnit=%
+  EVENT e-499 SCROLL_INTO_VIEW mq=[main,medium,small,tiny] target=EL index+all-in-one-coaching:<div .home-line> in[section_home-list] "Exclusives Insiderwissen" autoStopEventId=e-500 ev.scrollOffsetValue=10 ev.scrollOffsetUnit=%
+  GROUP 0 (INITIAL STATE)
+    S_SIZE {delay=0 duration=500 widthValue=0 widthUnit="%" heightUnit="PX"} → EVENT_TARGET(self)
+  GROUP 1
+    S_SIZE {delay=0 duration=2000 easing="outQuart" widthValue=100 widthUnit="%" heightUnit="PX"} → EVENT_TARGET(self)
+
+================================================================================
+## ActionList a-119  [group0 = INITIAL STATE, applied immediately on page render]
+  EVENT e-856 SCROLL_INTO_VIEW mq=[main,medium,small,tiny] target=SEL .services_card [CLASS] autoStopEventId=e-857 ev.scrollOffsetValue=0 ev.scrollOffsetUnit=%
+  GROUP 0 (INITIAL STATE)
+    S_OPACITY {delay=0 duration=500 value=0} → EVENT_TARGET(self)
+    S_FILTER {delay=0 duration=500 filters="blur:5px"} → EVENT_TARGET(self)
+    T_MOVE {delay=0 duration=500 yValue=1 xUnit="PX" yUnit="rem" zUnit="PX"} → EVENT_TARGET(self)
+  GROUP 1
+    S_FILTER {delay=300 duration=800 easing="ease" filters="blur:0px"} → EVENT_TARGET(self)
+    S_OPACITY {delay=300 duration=800 easing="ease" value=1} → EVENT_TARGET(self)
+    T_MOVE {delay=300 duration=800 easing="outQuart" yValue=0 xUnit="PX" yUnit="rem" zUnit="PX"} → EVENT_TARGET(self)
+
+================================================================================
+## ActionList a-120
+  EVENT e-503 SCROLLING_IN_VIEW mq=[main,medium,small,tiny] target=EL index+all-in-one-coaching:<section .section_reviews> in[section_home-list] "Nette Worte von aktuellen Kunden Nette Worte " 
+  CONTINUOUS type=SCROLL_PROGRESS
+    @0%
+      T_MOVE {delay=0 duration=500 xValue=10 xUnit="%" yUnit="PX" zUnit="PX"} → EVENT_TARGET(CHILDREN) .banner-heading-top
+      T_MOVE {delay=0 duration=500 xValue=-6 xUnit="%" yUnit="PX" zUnit="PX"} → EVENT_TARGET(CHILDREN) .banner-heading-bottom
+    @95%
+      T_MOVE {delay=0 duration=500 xValue=-12 xUnit="%" yUnit="PX" zUnit="PX"} → EVENT_TARGET(CHILDREN) .banner-heading-top
+      T_MOVE {delay=0 duration=500 xValue=11 xUnit="%" yUnit="PX" zUnit="PX"} → EVENT_TARGET(CHILDREN) .banner-heading-bottom
+
+================================================================================
+## ActionList a-110  [group0 = INITIAL STATE, applied immediately on page render]
+  EVENT e-483 SCROLL_INTO_VIEW mq=[main,medium,small,tiny] target=EL index+all-in-one-coaching:<h2 .> in[section_home-list] "Warum mit mir zusammenarbeiten" autoStopEventId=e-484 ev.scrollOffsetValue=16 ev.scrollOffsetUnit=%
+  EVENT e-501 SCROLL_INTO_VIEW mq=[main,medium,small,tiny] target=EL index:<h2 .heading-style-h2> in[section_home-work] "Bekannt aus Zett am" autoStopEventId=e-502 ev.scrollOffsetValue=16 ev.scrollOffsetUnit=%
+  EVENT e-506 SCROLL_INTO_VIEW mq=[main,medium,small,tiny] target=EL index+all-in-one-coaching:<h2 .heading-style-h2> in[section_faq] "FAQs Was unterscheidet das ALL-IN-ONE Coachin" autoStopEventId=e-507 ev.scrollOffsetValue=16 ev.scrollOffsetUnit=%
+  EVENT e-516 SCROLL_INTO_VIEW mq=[main,medium,small,tiny] target=EL index:<h2 .heading-style-h2> in[section_standard-layout] "Finde in 5 Min. heraus, wo dein Instagram noc" autoStopEventId=e-517 ev.scrollOffsetValue=16 ev.scrollOffsetUnit=%
+  EVENT e-550 SCROLL_INTO_VIEW mq=[main,medium,small,tiny] target=EL ueber-mich:<div .w-layout-grid.interest-banner_component> in[section_interest-banner] "" autoStopEventId=e-551 ev.scrollOffsetValue=12 ev.scrollOffsetUnit=%
+  EVENT e-556 SCROLL_INTO_VIEW mq=[main,medium,small,tiny] target=EL ueber-mich:<h2 .> in[section_final-cta] "Genug von mir. Jetzt bist du dran <p data-w-i" autoStopEventId=e-557 ev.scrollOffsetValue=16 ev.scrollOffsetUnit=%
+  EVENT e-558 SCROLL_INTO_VIEW mq=[main,medium,small,tiny] target=EL ueber-mich:<p .text-size-medium.text-color-tertiary> in[section_final-cta] "Erzähl mir von dir, deinen Zielen und Visione" autoStopEventId=e-559 ev.scrollOffsetValue=16 ev.scrollOffsetUnit=%
+  EVENT e-598 SCROLL_INTO_VIEW mq=[main,medium,small,tiny] target=EL all-in-one-coaching:<div .process-step_right-content> in[section_process-step] "" autoStopEventId=e-599 ev.scrollOffsetValue=12 ev.scrollOffsetUnit=%
+  EVENT e-609 SCROLL_INTO_VIEW mq=[main,medium,small,tiny] target=EL all-in-one-coaching:<h2 .> in[section_final-cta] "Investiere in dich und deine Vision und bewir" autoStopEventId=e-610 ev.scrollOffsetValue=16 ev.scrollOffsetUnit=%
+  EVENT e-617 SCROLL_INTO_VIEW mq=[main,medium,small,tiny] target=EL all-in-one-coaching:<div .process-step_right-content> in[section_process-step] "" autoStopEventId=e-618 ev.scrollOffsetValue=10 ev.scrollOffsetUnit=%
+  EVENT e-631 SCROLL_INTO_VIEW mq=[main,medium,small,tiny] target=EL-OFFSITE autoStopEventId=e-632 ev.scrollOffsetValue=16 ev.scrollOffsetUnit=%
+  EVENT e-633 SCROLL_INTO_VIEW mq=[main,medium,small,tiny] target=EL-OFFSITE autoStopEventId=e-634 ev.scrollOffsetValue=16 ev.scrollOffsetUnit=%
+  EVENT e-641 SCROLL_INTO_VIEW mq=[main,medium,small,tiny] target=EL-OFFSITE autoStopEventId=e-642 ev.scrollOffsetValue=16 ev.scrollOffsetUnit=%
+  EVENT e-643 SCROLL_INTO_VIEW mq=[main,medium,small,tiny] target=EL-OFFSITE autoStopEventId=e-644 ev.scrollOffsetValue=16 ev.scrollOffsetUnit=%
+  EVENT e-694 SCROLL_INTO_VIEW mq=[main,medium,small,tiny] target=EL-OFFSITE autoStopEventId=e-695 ev.scrollOffsetValue=16 ev.scrollOffsetUnit=%
+  EVENT e-696 SCROLL_INTO_VIEW mq=[main,medium,small,tiny] target=EL-OFFSITE autoStopEventId=e-697 ev.scrollOffsetValue=16 ev.scrollOffsetUnit=%
+  EVENT e-700 SCROLL_INTO_VIEW mq=[main,medium,small,tiny] target=EL-OFFSITE autoStopEventId=e-701 ev.scrollOffsetValue=16 ev.scrollOffsetUnit=%
+  EVENT e-720 SCROLL_INTO_VIEW mq=[main,medium,small,tiny] target=EL-OFFSITE autoStopEventId=e-721 ev.scrollOffsetValue=16 ev.scrollOffsetUnit=%
+  EVENT e-722 SCROLL_INTO_VIEW mq=[main,medium,small,tiny] target=EL-OFFSITE autoStopEventId=e-723 ev.scrollOffsetValue=16 ev.scrollOffsetUnit=%
+  EVENT e-734 SCROLL_INTO_VIEW mq=[main,medium,small,tiny] target=EL-OFFSITE autoStopEventId=e-735 ev.scrollOffsetValue=16 ev.scrollOffsetUnit=%
+  EVENT e-740 SCROLL_INTO_VIEW mq=[main,medium,small,tiny] target=EL-OFFSITE autoStopEventId=e-741 ev.scrollOffsetValue=0 ev.scrollOffsetUnit=%
+  EVENT e-746 SCROLL_INTO_VIEW mq=[main,medium,small,tiny] target=EL-OFFSITE autoStopEventId=e-747 ev.scrollOffsetValue=16 ev.scrollOffsetUnit=%
+  EVENT e-750 SCROLL_INTO_VIEW mq=[main,medium,small,tiny] target=EL-OFFSITE autoStopEventId=e-751 ev.scrollOffsetValue=16 ev.scrollOffsetUnit=%
+  EVENT e-754 SCROLL_INTO_VIEW mq=[main,medium,small,tiny] target=EL-OFFSITE autoStopEventId=e-755 ev.scrollOffsetValue=16 ev.scrollOffsetUnit=%
+  EVENT e-756 SCROLL_INTO_VIEW mq=[main,medium,small,tiny] target=EL-OFFSITE autoStopEventId=e-757 ev.scrollOffsetValue=0 ev.scrollOffsetUnit=%
+  EVENT e-812 SCROLL_INTO_VIEW mq=[main,medium,small,tiny] target=EL index:<h2 .heading-style-h2> in[section_services] "Spezifische Coachings" autoStopEventId=e-813 ev.scrollOffsetValue=0 ev.scrollOffsetUnit=%
+  EVENT e-867 SCROLL_INTO_VIEW mq=[main,medium,small,tiny] target=EL all-in-one-coaching:<div .process-step_right-content> in[section_process-step] "" autoStopEventId=e-868 ev.scrollOffsetValue=10 ev.scrollOffsetUnit=%
+  EVENT e-901 SCROLL_INTO_VIEW mq=[main,medium,small,tiny] target=EL index:<h2 .> in[section_cta] "ALL-IN-ONE Social Media Coaching <p class" autoStopEventId=e-902 ev.scrollOffsetValue=0 ev.scrollOffsetUnit=%
+  GROUP 0 (INITIAL STATE)
+    S_OPACITY {delay=0 duration=500 value=0} → EVENT_TARGET(self)
+    S_FILTER {delay=0 duration=500 filters="blur:5px"} → EVENT_TARGET(self)
+    T_MOVE {delay=0 duration=500 yValue=1 xUnit="PX" yUnit="rem" zUnit="PX"} → EVENT_TARGET(self)
+  GROUP 1
+    S_OPACITY {delay=0 duration=800 easing="ease" value=1} → EVENT_TARGET(self)
+    T_MOVE {delay=0 duration=800 easing="outQuart" yValue=0 xUnit="PX" yUnit="rem" zUnit="PX"} → EVENT_TARGET(self)
+    S_FILTER {delay=0 duration=800 easing="ease" filters="blur:0px"} → EVENT_TARGET(self)
+
+================================================================================
+## ActionList a-117  [group0 = INITIAL STATE, applied immediately on page render]
+  EVENT e-576 SCROLL_INTO_VIEW mq=[main,medium,small,tiny] target=EL all-in-one-coaching:<div .process-step_banner> in[section_process-step] "Videolektionen Videolektionen <div class="pro" autoStopEventId=e-577 ev.scrollOffsetValue=16 ev.scrollOffsetUnit=%
+  EVENT e-592 SCROLL_INTO_VIEW mq=[main,medium,small,tiny] target=EL all-in-one-coaching:<div .process-step_right-content> in[section_process-step] "" autoStopEventId=e-593 ev.scrollOffsetValue=10 ev.scrollOffsetUnit=%
+  EVENT e-635 SCROLL_INTO_VIEW mq=[main,medium,small,tiny] target=EL-OFFSITE autoStopEventId=e-636 ev.scrollOffsetValue=16 ev.scrollOffsetUnit=%
+  EVENT e-645 SCROLL_INTO_VIEW mq=[main,medium,small,tiny] target=EL-OFFSITE autoStopEventId=e-646 ev.scrollOffsetValue=16 ev.scrollOffsetUnit=%
+  EVENT e-647 SCROLL_INTO_VIEW mq=[main,medium,small,tiny] target=EL-OFFSITE autoStopEventId=e-648 ev.scrollOffsetValue=16 ev.scrollOffsetUnit=%
+  EVENT e-649 SCROLL_INTO_VIEW mq=[main,medium,small,tiny] target=EL-OFFSITE autoStopEventId=e-650 ev.scrollOffsetValue=16 ev.scrollOffsetUnit=%
+  EVENT e-651 SCROLL_INTO_VIEW mq=[main,medium,small,tiny] target=EL-OFFSITE autoStopEventId=e-652 ev.scrollOffsetValue=16 ev.scrollOffsetUnit=%
+  EVENT e-653 SCROLL_INTO_VIEW mq=[main,medium,small,tiny] target=EL-OFFSITE autoStopEventId=e-654 ev.scrollOffsetValue=16 ev.scrollOffsetUnit=%
+  EVENT e-742 SCROLL_INTO_VIEW mq=[main,medium,small,tiny] target=EL-OFFSITE autoStopEventId=e-743 ev.scrollOffsetValue=0 ev.scrollOffsetUnit=%
+  EVENT e-748 SCROLL_INTO_VIEW mq=[main,medium,small,tiny] target=EL-OFFSITE autoStopEventId=e-749 ev.scrollOffsetValue=16 ev.scrollOffsetUnit=%
+  EVENT e-752 SCROLL_INTO_VIEW mq=[main,medium,small,tiny] target=EL-OFFSITE autoStopEventId=e-753 ev.scrollOffsetValue=16 ev.scrollOffsetUnit=%
+  EVENT e-758 SCROLL_INTO_VIEW mq=[main,medium,small,tiny] target=EL-OFFSITE autoStopEventId=e-759 ev.scrollOffsetValue=0 ev.scrollOffsetUnit=%
+  EVENT e-879 SCROLL_INTO_VIEW mq=[main,medium,small,tiny] target=EL all-in-one-coaching:<ul .process-step_list> in[section_process-step] "Optimale Handy-Ei" autoStopEventId=e-880 ev.scrollOffsetValue=0 ev.scrollOffsetUnit=%
+  EVENT e-881 SCROLL_INTO_VIEW mq=[main,medium,small,tiny] target=EL all-in-one-coaching:<ul .process-step_list.is-no-wrap-above-mobile-landscape> in[section_process-step] "<li class="process" autoStopEventId=e-882 ev.scrollOffsetValue=0 ev.scrollOffsetUnit=%
+  EVENT e-883 SCROLL_INTO_VIEW mq=[main,medium,small,tiny] target=EL all-in-one-coaching:<ul .process-step_list> in[section_process-step] "Account Insights" autoStopEventId=e-884 ev.scrollOffsetValue=0 ev.scrollOffsetUnit=%
+  EVENT e-885 SCROLL_INTO_VIEW mq=[main,medium,small,tiny] target=EL all-in-one-coaching:<ul .process-step_list> in[section_process-step] "Den Algorithmus v" autoStopEventId=e-886 ev.scrollOffsetValue=0 ev.scrollOffsetUnit=%
+  EVENT e-887 SCROLL_INTO_VIEW mq=[main,medium,small,tiny] target=EL all-in-one-coaching:<ul .process-step_list> in[section_process-step] "Werte, Vision &am" autoStopEventId=e-888 ev.scrollOffsetValue=0 ev.scrollOffsetUnit=%
+  EVENT e-889 SCROLL_INTO_VIEW mq=[main,medium,small,tiny] target=EL ueber-mich:<div .interests_content-wrapper> in[section_interest-banner] "<div class" autoStopEventId=e-890 ev.scrollOffsetValue=0 ev.scrollOffsetUnit=%
+  EVENT e-891 SCROLL_INTO_VIEW mq=[main,medium,small,tiny] target=EL ueber-mich:<div .interests_content-wrapper> in[section_interest-banner] "<d" autoStopEventId=e-892 ev.scrollOffsetValue=0 ev.scrollOffsetUnit=%
+  GROUP 0 (INITIAL STATE)
+    S_OPACITY {delay=0 duration=500 value=0} → EVENT_TARGET(self)
+    S_FILTER {delay=0 duration=500 filters="blur:5px"} → EVENT_TARGET(self)
+    T_MOVE {delay=0 duration=500 yValue=1 xUnit="PX" yUnit="rem" zUnit="PX"} → EVENT_TARGET(self)
+  GROUP 1
+    S_FILTER {delay=150 duration=800 easing="ease" filters="blur:0px"} → EVENT_TARGET(self)
+    S_OPACITY {delay=150 duration=800 easing="ease" value=1} → EVENT_TARGET(self)
+    T_MOVE {delay=150 duration=800 easing="outQuart" yValue=0 xUnit="PX" yUnit="rem" zUnit="PX"} → EVENT_TARGET(self)
+
+####################################################################################################
+# CLUSTER ABOUT
+####################################################################################################
+
+================================================================================
+## ActionList a-125  [group0 = INITIAL STATE, applied immediately on page render]
+  EVENT e-341 PAGE_START mq=[main,medium,small,tiny] target=PAGE autoStopEventId=e-342
+  GROUP 0 (INITIAL STATE)
+    S_OPACITY {delay=0 duration=500 value=0} → EL ueber-mich+all-in-one-coaching:<h1 .heading-style-h1> "Hallo! Ich bin Tristan. Ich komme aus einem k"
+    T_MOVE {delay=0 duration=500 xValue=2 xUnit="rem" yUnit="PX" zUnit="PX"} → EL ueber-mich+all-in-one-coaching:<h1 .heading-style-h1> "Hallo! Ich bin Tristan. Ich komme aus einem k"
+    S_SIZE {delay=0 duration=500 heightValue=0 widthUnit="PX" heightUnit="%"} → SEL .navbar_logo-line
+    S_SIZE {delay=0 duration=500 widthValue=100 heightValue=100 widthUnit="%" heightUnit="%"} → SEL .home-hero_content-whipe
+    S_OPACITY {delay=0 duration=500 value=0} → SEL .navbar_right-wrapper
+    T_MOVE {delay=0 duration=500 xValue=2.5 xUnit="rem" yUnit="PX" zUnit="PX"} → SEL .navbar_right-wrapper
+    S_OPACITY {delay=0 duration=500 value=0} → EL ueber-mich+all-in-one-coaching:<p .text-size-medium.text-color-tertiary> "Ich komme aus einem kleinen Dorf in Südtirol "
+    T_MOVE {delay=0 duration=500 xValue=2 xUnit="rem" yUnit="PX" zUnit="PX"} → EL ueber-mich+all-in-one-coaching:<p .text-size-medium.text-color-tertiary> "Ich komme aus einem kleinen Dorf in Südtirol "
+    S_OPACITY {delay=0 duration=500 value=0} → EL all-in-one-coaching:<div .hero_button-group> ".gradient-btn { background-image: conic-gradi"
+  GROUP 1
+    S_SIZE {delay=100 duration=500 easing="outQuart" widthUnit="PX" heightUnit="AUTO"} → SEL .navbar_logo-line
+    S_OPACITY {delay=300 duration=1200 easing="ease" value=1} → SEL .navbar_right-wrapper
+    T_MOVE {delay=300 duration=1000 easing="outQuart" xValue=0 xUnit="rem" yUnit="PX" zUnit="PX"} → SEL .navbar_right-wrapper
+    S_OPACITY {delay=400 duration=750 easing="ease" value=1} → EL ueber-mich+all-in-one-coaching:<h1 .heading-style-h1> "Hallo! Ich bin Tristan. Ich komme aus einem k"
+    T_MOVE {delay=400 duration=750 easing="outQuart" xValue=0 xUnit="rem" yUnit="PX" zUnit="PX"} → EL ueber-mich+all-in-one-coaching:<h1 .heading-style-h1> "Hallo! Ich bin Tristan. Ich komme aus einem k"
+    T_MOVE {delay=600 duration=750 easing="outQuart" xValue=0 xUnit="rem" yUnit="PX" zUnit="PX"} → EL ueber-mich+all-in-one-coaching:<p .text-size-medium.text-color-tertiary> "Ich komme aus einem kleinen Dorf in Südtirol "
+    S_OPACITY {delay=600 duration=750 easing="ease" value=1} → EL ueber-mich+all-in-one-coaching:<p .text-size-medium.text-color-tertiary> "Ich komme aus einem kleinen Dorf in Südtirol "
+    S_OPACITY {delay=600 duration=500 easing="ease" value=1} → EL all-in-one-coaching:<div .hero_button-group> ".gradient-btn { background-image: conic-gradi"
+    S_SIZE {delay=1200 duration=2000 easing="outQuart" widthValue=100 heightValue=0 widthUnit="%" heightUnit="%"} → SEL .home-hero_content-whipe
+
+================================================================================
+## ActionList a-126
+  EVENT e-536 SCROLL_INTO_VIEW mq=[main,medium] target=EL ueber-mich:<section .section_interest-banner> in[section_about-timeline] "<div data-w-id="c75a8f83-fa7c-75da-adaa-1cb60" autoStopEventId=e-537 ev.loop=true ev.scrollOffsetValue=0 ev.scrollOffsetUnit=%
+  GROUP 0
+    T_MOVE {delay=0 duration=25000 xValue=-100 xUnit="%" yUnit="PX" zUnit="PX"} → EVENT_TARGET(CHILDREN) .process-step_marquee
+  GROUP 1
+    T_MOVE {delay=0 duration=0 xValue=0 xUnit="%" yUnit="PX" zUnit="PX"} → EVENT_TARGET(CHILDREN) .process-step_marquee
+
+================================================================================
+## ActionList a-127
+  EVENT e-538 SCROLL_INTO_VIEW mq=[small,tiny] target=EL ueber-mich:<section .section_interest-banner> in[section_about-timeline] "<div data-w-id="c75a8f83-fa7c-75da-adaa-1cb60" autoStopEventId=e-539 ev.loop=true ev.scrollOffsetValue=0 ev.scrollOffsetUnit=%
+  GROUP 0
+    T_MOVE {delay=0 duration=10000 xValue=-100 xUnit="%" yUnit="PX" zUnit="PX"} → EVENT_TARGET(CHILDREN) .process-step_marquee
+  GROUP 1
+    T_MOVE {delay=0 duration=0 xValue=0 xUnit="%" yUnit="PX" zUnit="PX"} → EVENT_TARGET(CHILDREN) .process-step_marquee
+
+================================================================================
+## ActionList a-128
+  EVENT e-544 SCROLL_INTO_VIEW mq=[main,medium] target=EL ueber-mich:<section .section_interest-banner> in[section_about-timeline] "<div data-w-id="c75a8f83-fa7c-75da-adaa-1cb60" autoStopEventId=e-545 ev.loop=true ev.scrollOffsetValue=0 ev.scrollOffsetUnit=%
+  GROUP 0
+    T_MOVE {delay=0 duration=25000 xValue=100 xUnit="%" yUnit="PX" zUnit="PX"} → {}
+  GROUP 1
+    T_MOVE {delay=0 duration=0 xValue=0 xUnit="%" yUnit="PX" zUnit="PX"} → {}
+
+================================================================================
+## ActionList a-129
+  EVENT e-546 SCROLL_INTO_VIEW mq=[small,tiny] target=EL ueber-mich:<section .section_interest-banner> in[section_about-timeline] "<div data-w-id="c75a8f83-fa7c-75da-adaa-1cb60" autoStopEventId=e-547 ev.loop=true ev.scrollOffsetValue=0 ev.scrollOffsetUnit=%
+  GROUP 0
+    T_MOVE {delay=0 duration=10000 xValue=100 xUnit="%" yUnit="PX" zUnit="PX"} → {}
+  GROUP 1
+    T_MOVE {delay=0 duration=0 xValue=0 xUnit="%" yUnit="PX" zUnit="PX"} → {}
+
+================================================================================
+## ActionList a-78
+  EVENT e-276 MOUSE_OVER mq=[main,medium,small,tiny] target=SEL .social-lottie-animation [CLASS] autoStopEventId=e-277 ev.delay=0
+  GROUP 0
+    PLUGIN_LOTTIE {delay=0 duration=0 value=0} → EVENT_TARGET(CHILDREN) .social-lottie-animation
+  GROUP 1
+    PLUGIN_LOTTIE {delay=0 duration=600 value=99.8} → EVENT_TARGET(CHILDREN) .social-lottie-animation
+
+####################################################################################################
+# CLUSTER AIO
+####################################################################################################
+
+================================================================================
+## ActionList a-142  [group0 = INITIAL STATE, applied immediately on page render]
+  EVENT e-858 PAGE_START mq=[main,medium,small,tiny] target=PAGE autoStopEventId=e-859
+  GROUP 0 (INITIAL STATE)
+    S_OPACITY {delay=0 duration=500 value=0} → EL ueber-mich+all-in-one-coaching:<h1 .heading-style-h1> "Hallo! Ich bin Tristan. Ich komme aus einem k"
+    T_MOVE {delay=0 duration=500 xValue=2 xUnit="rem" yUnit="PX" zUnit="PX"} → EL ueber-mich+all-in-one-coaching:<h1 .heading-style-h1> "Hallo! Ich bin Tristan. Ich komme aus einem k"
+    S_SIZE {delay=0 duration=500 heightValue=0 widthUnit="PX" heightUnit="%"} → SEL .navbar_logo-line
+    S_OPACITY {delay=0 duration=500 value=0} → SEL .navbar_right-wrapper
+    T_MOVE {delay=0 duration=500 xValue=2.5 xUnit="rem" yUnit="PX" zUnit="PX"} → SEL .navbar_right-wrapper
+    S_OPACITY {delay=0 duration=500 value=0} → EL ueber-mich+all-in-one-coaching:<p .text-size-medium.text-color-tertiary> "Ich komme aus einem kleinen Dorf in Südtirol "
+    T_MOVE {delay=0 duration=500 xValue=2 xUnit="rem" yUnit="PX" zUnit="PX"} → EL ueber-mich+all-in-one-coaching:<p .text-size-medium.text-color-tertiary> "Ich komme aus einem kleinen Dorf in Südtirol "
+    S_OPACITY {delay=0 duration=500 value=0} → EL all-in-one-coaching:<div .hero_video-wrapper> "<iframe id="video-1" src="https://player.vime"
+    S_OPACITY {delay=0 duration=500 value=0} → EL all-in-one-coaching:<div .hero_button-group> ".gradient-btn { background-image: conic-gradi"
+    T_MOVE {delay=0 duration=500 xValue=2 xUnit="rem" yUnit="PX" zUnit="PX"} → EL all-in-one-coaching:<div .hero_button-group> ".gradient-btn { background-image: conic-gradi"
+  GROUP 1
+    S_SIZE {delay=100 duration=500 easing="outQuart" widthUnit="PX" heightUnit="AUTO"} → SEL .navbar_logo-line
+    S_OPACITY {delay=300 duration=1200 easing="ease" value=1} → SEL .navbar_right-wrapper
+    T_MOVE {delay=300 duration=1000 easing="outQuart" xValue=0 xUnit="rem" yUnit="PX" zUnit="PX"} → SEL .navbar_right-wrapper
+    S_OPACITY {delay=400 duration=750 easing="ease" value=1} → EL ueber-mich+all-in-one-coaching:<h1 .heading-style-h1> "Hallo! Ich bin Tristan. Ich komme aus einem k"
+    T_MOVE {delay=400 duration=750 easing="outQuart" xValue=0 xUnit="rem" yUnit="PX" zUnit="PX"} → EL ueber-mich+all-in-one-coaching:<h1 .heading-style-h1> "Hallo! Ich bin Tristan. Ich komme aus einem k"
+    T_MOVE {delay=600 duration=750 easing="outQuart" xValue=0 xUnit="rem" yUnit="PX" zUnit="PX"} → EL ueber-mich+all-in-one-coaching:<p .text-size-medium.text-color-tertiary> "Ich komme aus einem kleinen Dorf in Südtirol "
+    S_OPACITY {delay=600 duration=750 easing="ease" value=1} → EL ueber-mich+all-in-one-coaching:<p .text-size-medium.text-color-tertiary> "Ich komme aus einem kleinen Dorf in Südtirol "
+    T_MOVE {delay=1000 duration=750 easing="outQuart" xValue=0 xUnit="rem" yUnit="PX" zUnit="PX"} → EL all-in-one-coaching:<div .hero_button-group> ".gradient-btn { background-image: conic-gradi"
+    S_OPACITY {delay=1000 duration=500 easing="ease" value=1} → EL all-in-one-coaching:<div .hero_button-group> ".gradient-btn { background-image: conic-gradi"
+    S_OPACITY {delay=1300 duration=500 easing="ease" value=1} → EL all-in-one-coaching:<div .hero_video-wrapper> "<iframe id="video-1" src="https://player.vime"
+
+================================================================================
+## ActionList a-71
+  EVENT e-580 SCROLLING_IN_VIEW mq=[main,medium,small,tiny] target=EL all-in-one-coaching:<section .section_process-step> in[section_intro-aio] "Modul <div style="-webkit-transform:translate" 
+  EVENT e-581 SCROLLING_IN_VIEW mq=[main,medium,small,tiny] target=EL all-in-one-coaching:<section .section_process-step> in[section_layout38] "Modul <div style="-webkit-transform:translate" 
+  EVENT e-600 SCROLLING_IN_VIEW mq=[main,medium,small,tiny] target=EL all-in-one-coaching:<section .section_process-step> in[section_layout38] "Modul <div style="-webkit-transform:translate" 
+  EVENT e-820 SCROLLING_IN_VIEW mq=[main,medium,small,tiny] target=EL all-in-one-coaching:<section .section_process-step> in[section_layout38] "Modul <div style="-webkit-transform:translate" 
+  EVENT e-860 SCROLLING_IN_VIEW mq=[main,medium,small,tiny] target=EL all-in-one-coaching:<section .section_process-step> in[section_layout395] "Deine Resultate <div style="-webkit-transform" 
+  EVENT e-903 SCROLLING_IN_VIEW mq=[main,medium,small,tiny] target=EL all-in-one-coaching:<div .section_process-step> in[section_layout38] "Modul <div style="-webkit-transform:translate" 
+  CONTINUOUS type=SCROLL_PROGRESS
+    @0%
+      T_MOVE {delay=0 duration=500 xValue=0 xUnit="rem" yUnit="PX" zUnit="PX"} → EVENT_TARGET(CHILDREN) .process-step_banner-wrapper
+    @100%
+      T_MOVE {delay=0 duration=500 xValue=-20 xUnit="rem" yUnit="PX" zUnit="PX"} → EVENT_TARGET(CHILDREN) .process-step_banner-wrapper
+
+================================================================================
+## ActionList a-75  [group0 = INITIAL STATE, applied immediately on page render]
+  EVENT e-578 SCROLL_INTO_VIEW mq=[main,medium,small,tiny] target=EL all-in-one-coaching:<div .process-step_title-wrapper> in[section_process-step] "Modul <div style="-webkit-transform:translate" autoStopEventId=e-579 ev.scrollOffsetValue=16 ev.scrollOffsetUnit=%
+  EVENT e-582 SCROLL_INTO_VIEW mq=[main,medium,small,tiny] target=EL all-in-one-coaching:<div .process-step_title-wrapper> in[section_process-step] "Modul <div style="-webkit-transform:translate" autoStopEventId=e-583 ev.scrollOffsetValue=16 ev.scrollOffsetUnit=%
+  EVENT e-601 SCROLL_INTO_VIEW mq=[main,medium,small,tiny] target=EL all-in-one-coaching:<div .process-step_title-wrapper> in[section_process-step] "Modul <div style="-webkit-transform:translate" autoStopEventId=e-602 ev.scrollOffsetValue=16 ev.scrollOffsetUnit=%
+  EVENT e-821 SCROLL_INTO_VIEW mq=[main,medium,small,tiny] target=EL all-in-one-coaching:<div .process-step_title-wrapper> in[section_process-step] "Modul <div style="-webkit-transform:translate" autoStopEventId=e-822 ev.scrollOffsetValue=16 ev.scrollOffsetUnit=%
+  EVENT e-861 SCROLL_INTO_VIEW mq=[main,medium,small,tiny] target=EL all-in-one-coaching:<div .process-step_title-wrapper> in[section_process-step] "Deine Resultate <div style="-webkit-transform" autoStopEventId=e-862 ev.scrollOffsetValue=16 ev.scrollOffsetUnit=%
+  EVENT e-904 SCROLL_INTO_VIEW mq=[main,medium,small,tiny] target=EL all-in-one-coaching:<div .process-step_title-wrapper> in[section_layout38] "Modul <div style="-webkit-transform:translate" autoStopEventId=e-905 ev.scrollOffsetValue=0 ev.scrollOffsetUnit=%
+  EVENT e-920 SCROLL_INTO_VIEW mq=[main,medium,small,tiny] target=EL-OFFSITE autoStopEventId=e-921 ev.scrollOffsetValue=16 ev.scrollOffsetUnit=%
+  GROUP 0 (INITIAL STATE)
+    T_MOVE {delay=0 duration=500 yValue=101 xUnit="PX" yUnit="%" zUnit="PX"} → EVENT_TARGET(CHILDREN) .process-step_title-text
+    T_MOVE {delay=0 duration=500 xValue=101 xUnit="%" yUnit="PX" zUnit="PX"} → EVENT_TARGET(CHILDREN) .process-step_title-number-text
+    T_MOVE {delay=0 duration=500 xValue=-101 xUnit="%" yUnit="PX" zUnit="PX"} → EVENT_TARGET(CHILDREN) .process-step_title-line
+  GROUP 1
+    T_MOVE {delay=0 duration=850 easing="inOutQuart" yValue=0 xUnit="PX" yUnit="%" zUnit="PX"} → EVENT_TARGET(CHILDREN) .process-step_title-text
+    T_MOVE {delay=250 duration=750 easing="outQuart" xValue=0 xUnit="%" yUnit="PX" zUnit="PX"} → EVENT_TARGET(CHILDREN) .process-step_title-line
+    T_MOVE {delay=600 duration=600 easing="inOutQuart" xValue=0 xUnit="%" yUnit="PX" zUnit="PX"} → EVENT_TARGET(CHILDREN) .process-step_title-number-text
+
+================================================================================
+## ActionList a-130  [group0 = INITIAL STATE, applied immediately on page render]
+  EVENT e-629 MOUSE_OVER mq=[main] target=SEL .grid_item-link [CLASS] autoStopEventId=e-630
+  GROUP 0 (INITIAL STATE)
+    T_MOVE {delay=0 duration=500 yValue=101 xUnit="PX" yUnit="%" zUnit="PX"} → EVENT_TARGET(CHILDREN) .heading-style-h5
+    S_OPACITY {delay=0 duration=500 value=0} → EVENT_TARGET(CHILDREN) .grid_image-overlay
+    T_SCALE {delay=0 duration=500 xValue=1 yValue=1 locked=true} → EVENT_TARGET(CHILDREN) .grid_image
+    S_FILTER {delay=0 duration=500 filters="blur:0px"} → EVENT_TARGET(CHILDREN) .grid_image
+    S_OPACITY {delay=0 duration=500 value=0} → EVENT_TARGET(CHILDREN) .text-size-small
+    T_MOVE {delay=0 duration=500 yValue=101 xUnit="PX" yUnit="%" zUnit="PX"} → EVENT_TARGET(CHILDREN) .text-size-small
+    S_OPACITY {delay=0 duration=500 value=0} → EVENT_TARGET(CHILDREN) .heading-style-h5
+  GROUP 1
+    T_MOVE {delay=0 duration=800 easing="outQuart" yValue=0 xUnit="PX" yUnit="%" zUnit="PX"} → EVENT_TARGET(CHILDREN) .heading-style-h5
+    S_OPACITY {delay=0 duration=600 easing="ease" value=1} → EVENT_TARGET(CHILDREN) .heading-style-h5
+    S_FILTER {delay=0 duration=750 easing="ease" filters="blur:6px"} → EVENT_TARGET(CHILDREN) .grid_image
+    T_SCALE {delay=0 duration=750 easing="outQuart" xValue=1.05 yValue=1.05 locked=true} → EVENT_TARGET(CHILDREN) .grid_image
+    S_OPACITY {delay=0 duration=750 easing="ease" value=1} → EVENT_TARGET(CHILDREN) .grid_image-overlay
+    S_OPACITY {delay=80 duration=600 easing="ease" value=1} → EVENT_TARGET(CHILDREN) .text-size-small
+    T_MOVE {delay=80 duration=800 easing="outQuart" yValue=0 xUnit="PX" yUnit="%" zUnit="PX"} → EVENT_TARGET(CHILDREN) .text-size-small
+
+================================================================================
+## ActionList a-131
+  EVENT e-630 MOUSE_OUT mq=[main] target=SEL .grid_item-link [CLASS] autoStopEventId=e-629
+  GROUP 0
+    T_SCALE {delay=0 duration=650 easing="outQuart" xValue=1 yValue=1 locked=true} → EVENT_TARGET(CHILDREN) .grid_image
+    S_OPACITY {delay=0 duration=650 easing="ease" value=0} → EVENT_TARGET(CHILDREN) .grid_image-overlay
+    S_FILTER {delay=0 duration=650 easing="ease" filters="blur:0px"} → EVENT_TARGET(CHILDREN) .grid_image
+    S_OPACITY {delay=0 duration=670 easing="ease" value=0} → EVENT_TARGET(CHILDREN) .text-size-small
+    T_MOVE {delay=0 duration=670 easing="outQuart" yValue=101 xUnit="PX" yUnit="%" zUnit="PX"} → EVENT_TARGET(CHILDREN) .text-size-small
+    T_MOVE {delay=80 duration=670 easing="outQuart" yValue=101 xUnit="PX" yUnit="%" zUnit="PX"} → EVENT_TARGET(CHILDREN) .heading-style-h5
+    S_OPACITY {delay=80 duration=670 easing="ease" value=0} → EVENT_TARGET(CHILDREN) .heading-style-h5
+
+================================================================================
+## ActionList a-159  [group0 = INITIAL STATE, applied immediately on page render]
+  EVENT e-927 SCROLL_INTO_VIEW mq=[main,medium,small,tiny] target=EL all-in-one-coaching:<h2 .heading-style-h2> in[section_intro-aio] "ALL-IN-ONE <h3 class="home-work_work-title sc" autoStopEventId=e-928 ev.scrollOffsetValue=16 ev.scrollOffsetUnit=%
+  GROUP 0 (INITIAL STATE)
+    S_OPACITY {delay=0 duration=500 value=0} → EVENT_TARGET(self)
+    S_FILTER {delay=0 duration=500 filters="blur:5px"} → EVENT_TARGET(self)
+    T_MOVE {delay=0 duration=500 yValue=1 xUnit="PX" yUnit="rem" zUnit="PX"} → EVENT_TARGET(self)
+  GROUP 1
+    S_OPACITY {delay=0 duration=800 easing="ease" value=1} → EVENT_TARGET(self)
+    T_MOVE {delay=0 duration=800 easing="outQuart" yValue=0 xUnit="PX" yUnit="rem" zUnit="PX"} → EVENT_TARGET(self)
+    S_FILTER {delay=0 duration=800 easing="ease" filters="blur:0px"} → EVENT_TARGET(self)
+
+================================================================================
+## ActionList a-160
+  EVENT e-929 MOUSE_MOVE mq=[main] target=EL all-in-one-coaching:<h3 .home-work_work-title.screenreader-only> in[section_intro-aio] "KI Assistent <h3 data-w-id="5586bace-0568-71a" 
+  EVENT e-930 MOUSE_MOVE mq=[main] target=EL all-in-one-coaching:<h3 .home-work_work-title.screenreader-only> in[section_intro-aio] "Extras <div class="process-s" 
+  CONTINUOUS type=MOUSE_X
+    @0%
+      T_MOVE {delay=0 duration=500 xValue=-50 xUnit="%" yUnit="PX" zUnit="PX"} → EVENT_TARGET(CHILDREN) .button-glow-circle
+    @100%
+      T_MOVE {delay=0 duration=500 xValue=50 xUnit="%" yUnit="PX" zUnit="PX"} → EVENT_TARGET(CHILDREN) .button-glow-circle
+  CONTINUOUS type=MOUSE_Y
+    @0%
+      T_MOVE {delay=0 duration=500 yValue=-50 xUnit="PX" yUnit="%" zUnit="PX"} → EVENT_TARGET(CHILDREN) .button-glow-circle
+    @100%
+      T_MOVE {delay=0 duration=500 yValue=50 xUnit="PX" yUnit="%" zUnit="PX"} → EVENT_TARGET(CHILDREN) .button-glow-circle
+
+================================================================================
+## ActionList a-161
+  EVENT e-931 MOUSE_MOVE mq=[main] target=EL all-in-one-coaching:<div .intro-aio_component> in[section_intro-aio] "Videolektionen <img src="images/Videolektione" 
+  CONTINUOUS type=MOUSE_X
+    @5%
+      T_MOVE {delay=0 duration=500 xValue=22 xUnit="%" yUnit="PX" zUnit="PX"} → EVENT_TARGET(CHILDREN) .intro-aio_scroll-wrapper
+      T_MOVE {delay=0 duration=500 yValue=-40 xUnit="PX" yUnit="px" zUnit="PX"} → EVENT_TARGET(CHILDREN) .intro-aio_item.is-1
+      T_MOVE {delay=0 duration=500 yValue=40 xUnit="PX" yUnit="px" zUnit="PX"} → EVENT_TARGET(CHILDREN) .intro-aio_item.is-2
+      T_MOVE {delay=0 duration=500 yValue=-40 xUnit="PX" yUnit="px" zUnit="PX"} → EVENT_TARGET(CHILDREN) .intro-aio_item.is-3
+      T_MOVE {delay=0 duration=500 yValue=40 xUnit="PX" yUnit="px" zUnit="PX"} → EVENT_TARGET(CHILDREN) .intro-aio_item.is-4
+      T_MOVE {delay=0 duration=500 yValue=-40 xUnit="PX" yUnit="px" zUnit="PX"} → EVENT_TARGET(CHILDREN) .intro-aio_item.is-5
+      T_MOVE {delay=0 duration=500 yValue=40 xUnit="PX" yUnit="px" zUnit="PX"} → EVENT_TARGET(CHILDREN) .intro-aio_item.is-6
+    @50%
+      T_MOVE {delay=0 duration=500 yValue=0 xUnit="PX" yUnit="px" zUnit="PX"} → EVENT_TARGET(CHILDREN) .intro-aio_item.is-1
+      T_MOVE {delay=0 duration=500 yValue=0 xUnit="PX" yUnit="px" zUnit="PX"} → EVENT_TARGET(CHILDREN) .intro-aio_item.is-2
+      T_MOVE {delay=0 duration=500 yValue=0 xUnit="PX" yUnit="px" zUnit="PX"} → EVENT_TARGET(CHILDREN) .intro-aio_item.is-3
+      T_MOVE {delay=0 duration=500 yValue=0 xUnit="PX" yUnit="px" zUnit="PX"} → EVENT_TARGET(CHILDREN) .intro-aio_item.is-4
+      T_MOVE {delay=0 duration=500 yValue=0 xUnit="PX" yUnit="px" zUnit="PX"} → EVENT_TARGET(CHILDREN) .intro-aio_item.is-5
+      T_MOVE {delay=0 duration=500 yValue=0 xUnit="PX" yUnit="px" zUnit="PX"} → EVENT_TARGET(CHILDREN) .intro-aio_item.is-6
+    @95%
+      T_MOVE {delay=0 duration=500 xValue=-22 xUnit="%" yUnit="PX" zUnit="PX"} → EVENT_TARGET(CHILDREN) .intro-aio_scroll-wrapper
+      T_MOVE {delay=0 duration=500 yValue=40 xUnit="PX" yUnit="px" zUnit="PX"} → EVENT_TARGET(CHILDREN) .intro-aio_item.is-1
+      T_MOVE {delay=0 duration=500 yValue=-40 xUnit="PX" yUnit="px" zUnit="PX"} → EVENT_TARGET(CHILDREN) .intro-aio_item.is-2
+      T_MOVE {delay=0 duration=500 yValue=40 xUnit="PX" yUnit="px" zUnit="PX"} → EVENT_TARGET(CHILDREN) .intro-aio_item.is-3
+      T_MOVE {delay=0 duration=500 yValue=-40 xUnit="PX" yUnit="px" zUnit="PX"} → EVENT_TARGET(CHILDREN) .intro-aio_item.is-4
+      T_MOVE {delay=0 duration=500 yValue=40 xUnit="PX" yUnit="px" zUnit="PX"} → EVENT_TARGET(CHILDREN) .intro-aio_item.is-5
+      T_MOVE {delay=0 duration=500 yValue=-40 xUnit="PX" yUnit="px" zUnit="PX"} → EVENT_TARGET(CHILDREN) .intro-aio_item.is-6
+  CONTINUOUS type=MOUSE_Y
+
+####################################################################################################
+# CLUSTER FAQ
+####################################################################################################
+
+================================================================================
+## ActionList a-52  [group0 = INITIAL STATE, applied immediately on page render]
+  EVENT e-123 MOUSE_OVER mq=[main] target=EL index+all-in-one-coaching:<div .faq_item> in[section_faq] "Was unterscheidet das ALL-IN-ONE Coaching von" autoStopEventId=e-124
+  GROUP 0 (INITIAL STATE)
+    T_MOVE {delay=0 duration=500 yValue=101 xUnit="PX" yUnit="%" zUnit="PX"} → EVENT_TARGET(CHILDREN) .faq_whipe
+    G_DISPLAY {delay=0 duration=0 value="none"} → SEL .faq_whipe
+    T_MOVE {delay=0 duration=500 xValue=0 xUnit="em" yUnit="PX" zUnit="PX"} → EVENT_TARGET(CHILDREN) .faq_plus-icon-wrapper
+    T_MOVE {delay=0 duration=500 xValue=0 xUnit="%" yUnit="PX" zUnit="PX"} → EVENT_TARGET(CHILDREN) .faq_question-wrapper
+  GROUP 1
+    T_MOVE {delay=0 duration=600 easing="outQuart" yValue=0 xUnit="PX" yUnit="%" zUnit="PX"} → EVENT_TARGET(CHILDREN) .faq_whipe
+    T_MOVE {delay=0 duration=800 easing="outQuart" xValue=-4 xUnit="em" yUnit="PX" zUnit="PX"} → EVENT_TARGET(CHILDREN) .faq_plus-icon-wrapper
+    T_MOVE {delay=0 duration=800 easing="outQuart" xValue=4 xUnit="em" yUnit="PX" zUnit="PX"} → EVENT_TARGET(CHILDREN) .faq_question-wrapper
+    G_DISPLAY {delay=0 duration=0 value="block"} → SEL .faq_whipe
+
+================================================================================
+## ActionList a-53
+  EVENT e-124 MOUSE_OUT mq=[main] target=EL index+all-in-one-coaching:<div .faq_item> in[section_faq] "Was unterscheidet das ALL-IN-ONE Coaching von" autoStopEventId=e-123
+  GROUP 0
+    T_MOVE {delay=0 duration=600 easing="outQuart" yValue=101 xUnit="PX" yUnit="%" zUnit="PX"} → EVENT_TARGET(CHILDREN) .faq_whipe
+    T_MOVE {delay=0 duration=800 easing="outQuart" xValue=0 xUnit="em" yUnit="PX" zUnit="PX"} → EVENT_TARGET(CHILDREN) .faq_plus-icon-wrapper
+    T_MOVE {delay=0 duration=800 easing="outQuart" xValue=0 xUnit="em" yUnit="PX" zUnit="PX"} → EVENT_TARGET(CHILDREN) .faq_question-wrapper
+    G_DISPLAY {delay=600 duration=0 value="none"} → EVENT_TARGET(CHILDREN) .faq_whipe
+
+================================================================================
+## ActionList a-54  [group0 = INITIAL STATE, applied immediately on page render]
+  EVENT e-125 MOUSE_CLICK mq=[main] target=EL index+all-in-one-coaching:<div .faq_item> in[section_faq] "Was unterscheidet das ALL-IN-ONE Coaching von" autoStopEventId=e-126
+  GROUP 0 (INITIAL STATE)
+    S_SIZE {delay=0 duration=500 heightValue=0 widthUnit="PX" heightUnit="px"} → EVENT_TARGET(CHILDREN) .faq_bottom
+  GROUP 1
+    S_SIZE {delay=0 duration=800 easing="outQuart" widthUnit="PX" heightUnit="AUTO"} → EVENT_TARGET(CHILDREN) .faq_bottom
+
+================================================================================
+## ActionList a-55
+  EVENT e-126 MOUSE_SECOND_CLICK mq=[main] target=EL index+all-in-one-coaching:<div .faq_item> in[section_faq] "Was unterscheidet das ALL-IN-ONE Coaching von" autoStopEventId=e-125
+  GROUP 0
+    S_SIZE {delay=0 duration=800 easing="outQuart" heightValue=0 widthUnit="PX" heightUnit="px"} → EVENT_TARGET(CHILDREN) .faq_bottom
+
+================================================================================
+## ActionList a-101  [group0 = INITIAL STATE, applied immediately on page render]
+  EVENT e-415 MOUSE_CLICK mq=[medium,small,tiny] target=EL index+all-in-one-coaching:<div .faq_item> in[section_faq] "Was unterscheidet das ALL-IN-ONE Coaching von" autoStopEventId=e-416
+  GROUP 0 (INITIAL STATE)
+    S_SIZE {delay=0 duration=500 heightValue=0 widthUnit="PX" heightUnit="px"} → EVENT_TARGET(CHILDREN) .faq_bottom
+    G_DISPLAY {delay=0 duration=0 value="none"} → EVENT_TARGET(CHILDREN) .faq_whipe
+    T_MOVE {delay=0 duration=500 yValue=101 xUnit="PX" yUnit="%" zUnit="PX"} → EVENT_TARGET(CHILDREN) .faq_whipe
+  GROUP 1
+    S_SIZE {delay=0 duration=800 easing="outQuart" widthUnit="PX" heightUnit="AUTO"} → EVENT_TARGET(CHILDREN) .faq_bottom
+    G_DISPLAY {delay=0 duration=0 value="block"} → EVENT_TARGET(CHILDREN) .faq_whipe
+    T_MOVE {delay=0 duration=800 easing="outQuart" yValue=0 xUnit="PX" yUnit="%" zUnit="PX"} → EVENT_TARGET(CHILDREN) .faq_whipe
+
+================================================================================
+## ActionList a-102
+  EVENT e-416 MOUSE_SECOND_CLICK mq=[medium,small,tiny] target=EL index+all-in-one-coaching:<div .faq_item> in[section_faq] "Was unterscheidet das ALL-IN-ONE Coaching von" autoStopEventId=e-415
+  GROUP 0
+    S_SIZE {delay=0 duration=800 easing="outQuart" heightValue=0 widthUnit="PX" heightUnit="px"} → EVENT_TARGET(CHILDREN) .faq_bottom
+    T_MOVE {delay=0 duration=500 yValue=101 xUnit="PX" yUnit="%" zUnit="PX"} → EVENT_TARGET(CHILDREN) .faq_whipe
+  GROUP 1
+    G_DISPLAY {delay=0 duration=0 value="none"} → EVENT_TARGET(CHILDREN) .faq_whipe
+
+================================================================================
+## ActionList a-107  [group0 = INITIAL STATE, applied immediately on page render]
+  EVENT e-431 SCROLL_INTO_VIEW mq=[main,medium,small,tiny] target=SEL .faq_item [CLASS] autoStopEventId=e-432 ev.scrollOffsetValue=15 ev.scrollOffsetUnit=%
+  GROUP 0 (INITIAL STATE)
+    T_MOVE {delay=0 duration=500 xValue=-100 xUnit="%" yUnit="PX" zUnit="PX"} → {}
+    S_OPACITY {delay=0 duration=500 value=0} → EVENT_TARGET(CHILDREN) .faq_top
+  GROUP 1
+    T_MOVE {delay=0 duration=1500 easing="outQuart" xValue=0 xUnit="%" yUnit="PX" zUnit="PX"} → {}
+    S_OPACITY {delay=0 duration=1500 easing="ease" value=1} → EVENT_TARGET(CHILDREN) .faq_top
+
+####################################################################################################
+# CLUSTER MENU-NAVBAR
+####################################################################################################
+
+================================================================================
+## ActionList a-26  [group0 = INITIAL STATE, applied immediately on page render]
+  EVENT e-63 MOUSE_CLICK mq=[main] target=EL index+ueber-mich+all-in-one-coaching+datenschutz+impressum:<div .navbar_menu-button> ".gradient-btn { background-image: conic-gradi" autoStopEventId=e-893
+  GROUP 0 (INITIAL STATE)
+    G_DISPLAY {delay=0 duration=0 value="none"} → SEL .menu_parent
+    S_BACKGROUND_COLOR {delay=0 duration=500} → EVENT_TARGET(PARENT) .navbar
+    S_SIZE {delay=0 duration=500 widthValue=100 widthUnit="%" heightUnit="PX"} → EVENT_TARGET(PARENT) .navbar
+    T_MOVE {delay=0 duration=500 xValue=0 xUnit="rem" yUnit="PX" zUnit="PX"} → EVENT_TARGET(PARENT) .navbar_right-inner-wrapper
+    T_ROTATE {delay=0 duration=500 zValue=0 xUnit="DEG" yUnit="DEG" zUnit="deg"} → EVENT_TARGET(CHILDREN) .navbar_menu-line-top
+    T_ROTATE {delay=0 duration=500 zValue=0 xUnit="DEG" yUnit="DEG" zUnit="deg"} → EVENT_TARGET(CHILDREN) .navbar_menu-line-bottom
+    T_MOVE {delay=0 duration=500 yValue=0 xUnit="PX" yUnit="%" zUnit="PX"} → EVENT_TARGET(CHILDREN) .navbar_menu-line-middle
+    T_MOVE {delay=0 duration=500 yValue=0 xUnit="PX" yUnit="px" zUnit="PX"} → EVENT_TARGET(CHILDREN) .navbar_menu-line-bottom
+    T_MOVE {delay=0 duration=500 yValue=0 xUnit="PX" yUnit="px" zUnit="PX"} → EVENT_TARGET(CHILDREN) .navbar_menu-line-top
+    S_OPACITY {delay=0 duration=500 value=0} → SEL .menu_icon-image
+    S_OPACITY {delay=0 duration=500 value=0} → SEL .menu_text-link.is-1
+    T_MOVE {delay=0 duration=500 xValue=-80 xUnit="px" yUnit="PX" zUnit="PX"} → SEL .menu_text-link.is-1
+    T_MOVE {delay=0 duration=500 xValue=-100 xUnit="%" yUnit="PX" zUnit="PX"} → SEL .menu_right-panel
+    T_MOVE {delay=0 duration=500 xValue=100 xUnit="%" yUnit="PX" zUnit="PX"} → {}
+    S_OPACITY {delay=0 duration=500 value=0} → SEL .menu_text-link.is-2
+    T_MOVE {delay=0 duration=500 xValue=-80 xUnit="px" yUnit="PX" zUnit="PX"} → SEL .menu_text-link.is-2
+    S_OPACITY {delay=0 duration=500 value=0} → SEL .menu_text-link.is-3
+    T_MOVE {delay=0 duration=500 xValue=-80 xUnit="px" yUnit="PX" zUnit="PX"} → SEL .menu_text-link.is-3
+    S_OPACITY {delay=0 duration=500 value=0} → SEL .menu_text-link.is-4
+    T_MOVE {delay=0 duration=500 xValue=-80 xUnit="px" yUnit="PX" zUnit="PX"} → SEL .menu_text-link.is-4
+    S_OPACITY {delay=0 duration=500 value=0} → {}
+    T_MOVE {delay=0 duration=500 xValue=-80 xUnit="px" yUnit="PX" zUnit="PX"} → {}
+    S_OPACITY {delay=0 duration=500 value=0} → {}
+    T_MOVE {delay=0 duration=500 xValue=-80 xUnit="px" yUnit="PX" zUnit="PX"} → {}
+    S_SIZE {delay=0 duration=400 easing="inOutQuart" heightValue=50 widthUnit="px" heightUnit="%"} → SEL .navbar_logo-line
+  GROUP 1
+    G_DISPLAY {delay=0 duration=0 value="flex"} → SEL .menu_parent
+    S_BACKGROUND_COLOR {delay=0 duration=200 easing="ease"} → EVENT_TARGET(PARENT) .navbar
+    T_MOVE {delay=0 duration=500 easing="outQuart" xValue=9 xUnit="rem" yUnit="PX" zUnit="PX"} → EVENT_TARGET(PARENT) .navbar_right-inner-wrapper
+    T_MOVE {delay=0 duration=1500 easing="inOutQuart" xValue=0 xUnit="%" yUnit="PX" zUnit="PX"} → SEL .menu_right-panel
+    T_MOVE {delay=0 duration=1500 easing="inOutQuart" xValue=0 xUnit="%" yUnit="PX" zUnit="PX"} → {}
+    S_OPACITY {delay=0 duration=300 easing="easeInOut" value=0} → SEL .navbar_logo-wrapper.is-desktop
+    T_MOVE {delay=100 duration=500 easing="outQuart" xValue=200 xUnit="%" yUnit="PX" zUnit="PX"} → EVENT_TARGET(CHILDREN) .navbar_menu-line-middle
+    T_ROTATE {delay=200 duration=300 easing="outQuart" zValue=45 xUnit="DEG" yUnit="DEG" zUnit="deg"} → EVENT_TARGET(CHILDREN) .navbar_menu-line-top
+    T_ROTATE {delay=200 duration=300 easing="outQuart" zValue=-45 xUnit="DEG" yUnit="DEG" zUnit="deg"} → EVENT_TARGET(CHILDREN) .navbar_menu-line-bottom
+    T_MOVE {delay=200 duration=300 easing="outQuart" yValue=3.5 xUnit="PX" yUnit="px" zUnit="PX"} → EVENT_TARGET(CHILDREN) .navbar_menu-line-top
+    T_MOVE {delay=200 duration=300 easing="outQuart" yValue=-3.5 xUnit="PX" yUnit="px" zUnit="PX"} → EVENT_TARGET(CHILDREN) .navbar_menu-line-bottom
+    S_SIZE {delay=550 duration=400 easing="inOutQuart" heightValue=0 widthUnit="px" heightUnit="%"} → SEL .navbar_logo-line
+    T_MOVE {delay=1000 duration=600 easing="outQuart" xValue=0 xUnit="px" yUnit="PX" zUnit="PX"} → SEL .menu_text-link.is-1
+    S_OPACITY {delay=1000 duration=400 easing="ease" value=1} → SEL .menu_text-link.is-1
+    S_SIZE {delay=1000 duration=0 widthValue=50 widthUnit="%" heightUnit="PX"} → EVENT_TARGET(PARENT) .navbar
+    T_MOVE {delay=1100 duration=600 easing="outQuart" xValue=0 xUnit="px" yUnit="PX" zUnit="PX"} → SEL .menu_text-link.is-2
+    S_OPACITY {delay=1100 duration=400 easing="ease" value=1} → SEL .menu_text-link.is-2
+    T_MOVE {delay=1200 duration=600 easing="outQuart" xValue=0 xUnit="px" yUnit="PX" zUnit="PX"} → SEL .menu_text-link.is-3
+    S_OPACITY {delay=1200 duration=400 easing="ease" value=1} → SEL .menu_text-link.is-3
+    T_MOVE {delay=1300 duration=600 easing="outQuart" xValue=0 xUnit="px" yUnit="PX" zUnit="PX"} → SEL .menu_text-link.is-4
+    S_OPACITY {delay=1300 duration=400 easing="ease" value=1} → SEL .menu_text-link.is-4
+    T_MOVE {delay=1400 duration=600 easing="outQuart" xValue=0 xUnit="px" yUnit="PX" zUnit="PX"} → {}
+    S_OPACITY {delay=1400 duration=400 easing="ease" value=1} → {}
+    T_MOVE {delay=1500 duration=600 easing="outQuart" xValue=0 xUnit="px" yUnit="PX" zUnit="PX"} → {}
+    S_OPACITY {delay=1500 duration=400 easing="ease" value=1} → {}
+    S_OPACITY {delay=1500 duration=500 easing="ease" value=1} → SEL .menu_icon-image
+
+================================================================================
+## ActionList a-58
+  EVENT e-64 MOUSE_SECOND_CLICK mq=[main] target=EL index+ueber-mich+all-in-one-coaching+datenschutz+impressum:<div .navbar_menu-button> ".gradient-btn { background-image: conic-gradi" autoStopEventId=e-896
+  GROUP 0
+    S_OPACITY {delay=0 duration=500 easing="ease" value=0} → SEL .menu_text-link.is-1
+    S_SIZE {delay=0 duration=0 widthValue=100 widthUnit="%" heightUnit="PX"} → EVENT_TARGET(PARENT) .navbar
+    S_OPACITY {delay=0 duration=500 easing="ease" value=0} → SEL .menu_text-link.is-2
+    S_OPACITY {delay=0 duration=500 easing="ease" value=0} → SEL .menu_text-link.is-3
+    S_OPACITY {delay=0 duration=500 easing="ease" value=0} → SEL .menu_text-link.is-4
+    S_OPACITY {delay=0 duration=500 easing="ease" value=0} → {}
+    S_OPACITY {delay=0 duration=500 easing="ease" value=0} → {}
+    T_ROTATE {delay=0 duration=300 easing="outQuart" zValue=0 xUnit="DEG" yUnit="DEG" zUnit="deg"} → EVENT_TARGET(CHILDREN) .navbar_menu-line-top
+    T_ROTATE {delay=0 duration=300 easing="outQuart" zValue=0 xUnit="DEG" yUnit="DEG" zUnit="deg"} → EVENT_TARGET(CHILDREN) .navbar_menu-line-bottom
+    S_OPACITY {delay=0 duration=500 easing="ease" value=0} → SEL .menu_icon-image
+    T_MOVE {delay=200 duration=1100 easing="inOutQuart" xValue=100 xUnit="%" yUnit="PX" zUnit="PX"} → {}
+    T_MOVE {delay=200 duration=1100 easing="inOutQuart" xValue=-100 xUnit="%" yUnit="PX" zUnit="PX"} → SEL .menu_right-panel
+    T_MOVE {delay=200 duration=300 easing="outQuart" yValue=0 xUnit="PX" yUnit="px" zUnit="PX"} → EVENT_TARGET(CHILDREN) .navbar_menu-line-top
+    T_MOVE {delay=200 duration=300 easing="outQuart" yValue=0 xUnit="PX" yUnit="px" zUnit="PX"} → EVENT_TARGET(CHILDREN) .navbar_menu-line-bottom
+    T_MOVE {delay=200 duration=500 easing="outQuart" xValue=0 xUnit="rem" yUnit="PX" zUnit="PX"} → EVENT_TARGET(PARENT) .navbar_right-inner-wrapper
+    T_MOVE {delay=400 duration=300 easing="outQuart" xValue=0 xUnit="%" yUnit="PX" zUnit="PX"} → EVENT_TARGET(CHILDREN) .navbar_menu-line-middle
+    S_SIZE {delay=600 duration=400 easing="inOutQuart" heightValue=50 widthUnit="px" heightUnit="%"} → SEL .navbar_logo-line
+    S_BACKGROUND_COLOR {delay=600 duration=500 easing="ease"} → EVENT_TARGET(PARENT) .navbar
+    S_OPACITY {delay=600 duration=500 easing="ease" value=1} → SEL .navbar_logo-wrapper.is-desktop
+  GROUP 1
+    T_MOVE {delay=0 duration=0 easing="outQuart" xValue=-70 xUnit="px" yUnit="PX" zUnit="PX"} → SEL .menu_text-link.is-1
+    T_MOVE {delay=0 duration=0 easing="outQuart" xValue=-70 xUnit="px" yUnit="PX" zUnit="PX"} → {}
+    T_MOVE {delay=0 duration=0 easing="outQuart" xValue=-70 xUnit="px" yUnit="PX" zUnit="PX"} → {}
+    T_MOVE {delay=0 duration=0 easing="outQuart" xValue=-70 xUnit="px" yUnit="PX" zUnit="PX"} → SEL .menu_text-link.is-4
+    T_MOVE {delay=0 duration=0 easing="outQuart" xValue=-70 xUnit="px" yUnit="PX" zUnit="PX"} → SEL .menu_text-link.is-3
+    T_MOVE {delay=0 duration=0 easing="outQuart" xValue=-70 xUnit="px" yUnit="PX" zUnit="PX"} → SEL .menu_text-link.is-2
+    G_DISPLAY {delay=0 duration=0 value="none"} → SEL .menu_parent
+
+================================================================================
+## ActionList a-121  [group0 = INITIAL STATE, applied immediately on page render]
+  EVENT e-508 MOUSE_CLICK mq=[medium,small,tiny] target=EL index+ueber-mich+all-in-one-coaching+datenschutz+impressum:<div .navbar_menu-button> ".gradient-btn { background-image: conic-gradi" autoStopEventId=e-509
+  GROUP 0 (INITIAL STATE)
+    G_DISPLAY {delay=0 duration=0 value="none"} → SEL .menu_parent
+    S_BACKGROUND_COLOR {delay=0 duration=500} → EVENT_TARGET(PARENT) .navbar
+    T_MOVE {delay=0 duration=500 xValue=0 xUnit="rem" yUnit="PX" zUnit="PX"} → EVENT_TARGET(PARENT) .navbar_right-inner-wrapper
+    T_ROTATE {delay=0 duration=500 zValue=0 xUnit="DEG" yUnit="DEG" zUnit="deg"} → EVENT_TARGET(CHILDREN) .navbar_menu-line-top
+    T_ROTATE {delay=0 duration=500 zValue=0 xUnit="DEG" yUnit="DEG" zUnit="deg"} → EVENT_TARGET(CHILDREN) .navbar_menu-line-bottom
+    T_MOVE {delay=0 duration=500 yValue=0 xUnit="PX" yUnit="%" zUnit="PX"} → EVENT_TARGET(CHILDREN) .navbar_menu-line-middle
+    T_MOVE {delay=0 duration=500 yValue=0 xUnit="PX" yUnit="px" zUnit="PX"} → EVENT_TARGET(CHILDREN) .navbar_menu-line-bottom
+    T_MOVE {delay=0 duration=500 yValue=0 xUnit="PX" yUnit="px" zUnit="PX"} → EVENT_TARGET(CHILDREN) .navbar_menu-line-top
+    S_OPACITY {delay=0 duration=500 value=0} → SEL .menu_icon-image
+    S_OPACITY {delay=0 duration=500 value=0} → SEL .menu_text-link.is-1
+    T_MOVE {delay=0 duration=500 xValue=-80 xUnit="px" yUnit="PX" zUnit="PX"} → SEL .menu_text-link.is-1
+    T_MOVE {delay=0 duration=500 xValue=-100 xUnit="%" yUnit="PX" zUnit="PX"} → SEL .menu_right-panel
+    S_OPACITY {delay=0 duration=500 value=0} → SEL .menu_text-link.is-2
+    T_MOVE {delay=0 duration=500 xValue=-80 xUnit="px" yUnit="PX" zUnit="PX"} → SEL .menu_text-link.is-2
+    S_OPACITY {delay=0 duration=500 value=0} → SEL .menu_text-link.is-3
+    T_MOVE {delay=0 duration=500 xValue=-80 xUnit="px" yUnit="PX" zUnit="PX"} → SEL .menu_text-link.is-3
+    S_OPACITY {delay=0 duration=500 value=0} → SEL .menu_text-link.is-4
+    T_MOVE {delay=0 duration=500 xValue=-80 xUnit="px" yUnit="PX" zUnit="PX"} → SEL .menu_text-link.is-4
+    S_OPACITY {delay=0 duration=500 value=0} → {}
+    T_MOVE {delay=0 duration=500 xValue=-80 xUnit="px" yUnit="PX" zUnit="PX"} → {}
+    S_OPACITY {delay=0 duration=500 value=0} → {}
+    T_MOVE {delay=0 duration=500 xValue=-80 xUnit="px" yUnit="PX" zUnit="PX"} → {}
+  GROUP 1
+    G_DISPLAY {delay=0 duration=0 value="flex"} → SEL .menu_parent
+    S_BACKGROUND_COLOR {delay=0 duration=200 easing="ease"} → EVENT_TARGET(PARENT) .navbar
+    T_MOVE {delay=0 duration=500 easing="outQuart" xValue=9.2 xUnit="rem" yUnit="PX" zUnit="PX"} → EVENT_TARGET(PARENT) .navbar_right-inner-wrapper
+    T_MOVE {delay=0 duration=1500 easing="inOutQuart" xValue=0 xUnit="%" yUnit="PX" zUnit="PX"} → SEL .menu_right-panel
+    T_MOVE {delay=100 duration=500 easing="outQuart" xValue=200 xUnit="%" yUnit="PX" zUnit="PX"} → EVENT_TARGET(CHILDREN) .navbar_menu-line-middle
+    T_ROTATE {delay=200 duration=300 easing="outQuart" zValue=45 xUnit="DEG" yUnit="DEG" zUnit="deg"} → EVENT_TARGET(CHILDREN) .navbar_menu-line-top
+    T_ROTATE {delay=200 duration=300 easing="outQuart" zValue=-45 xUnit="DEG" yUnit="DEG" zUnit="deg"} → EVENT_TARGET(CHILDREN) .navbar_menu-line-bottom
+    T_MOVE {delay=200 duration=300 easing="outQuart" yValue=3.5 xUnit="PX" yUnit="px" zUnit="PX"} → EVENT_TARGET(CHILDREN) .navbar_menu-line-top
+    T_MOVE {delay=200 duration=300 easing="outQuart" yValue=-3.5 xUnit="PX" yUnit="px" zUnit="PX"} → EVENT_TARGET(CHILDREN) .navbar_menu-line-bottom
+    T_MOVE {delay=1000 duration=600 easing="outQuart" xValue=0 xUnit="px" yUnit="PX" zUnit="PX"} → SEL .menu_text-link.is-1
+    S_OPACITY {delay=1000 duration=400 easing="ease" value=1} → SEL .menu_text-link.is-1
+    T_MOVE {delay=1100 duration=600 easing="outQuart" xValue=0 xUnit="px" yUnit="PX" zUnit="PX"} → SEL .menu_text-link.is-2
+    S_OPACITY {delay=1100 duration=400 easing="ease" value=1} → SEL .menu_text-link.is-2
+    T_MOVE {delay=1200 duration=600 easing="outQuart" xValue=0 xUnit="px" yUnit="PX" zUnit="PX"} → SEL .menu_text-link.is-3
+    S_OPACITY {delay=1200 duration=400 easing="ease" value=1} → SEL .menu_text-link.is-3
+    T_MOVE {delay=1300 duration=600 easing="outQuart" xValue=0 xUnit="px" yUnit="PX" zUnit="PX"} → SEL .menu_text-link.is-4
+    S_OPACITY {delay=1300 duration=400 easing="ease" value=1} → SEL .menu_text-link.is-4
+    T_MOVE {delay=1400 duration=600 easing="outQuart" xValue=0 xUnit="px" yUnit="PX" zUnit="PX"} → {}
+    S_OPACITY {delay=1400 duration=400 easing="ease" value=1} → {}
+    T_MOVE {delay=1500 duration=600 easing="outQuart" xValue=0 xUnit="px" yUnit="PX" zUnit="PX"} → {}
+    S_OPACITY {delay=1500 duration=400 easing="ease" value=1} → {}
+    S_OPACITY {delay=1500 duration=500 easing="ease" value=1} → SEL .menu_icon-image
+
+================================================================================
+## ActionList a-122
+  EVENT e-509 MOUSE_SECOND_CLICK mq=[medium,small,tiny] target=EL index+ueber-mich+all-in-one-coaching+datenschutz+impressum:<div .navbar_menu-button> ".gradient-btn { background-image: conic-gradi" autoStopEventId=e-508
+  GROUP 0
+    S_OPACITY {delay=0 duration=500 easing="ease" value=0} → SEL .menu_text-link.is-1
+    S_OPACITY {delay=0 duration=500 easing="ease" value=0} → SEL .menu_text-link.is-2
+    S_OPACITY {delay=0 duration=500 easing="ease" value=0} → SEL .menu_text-link.is-3
+    S_OPACITY {delay=0 duration=500 easing="ease" value=0} → SEL .menu_text-link.is-4
+    S_OPACITY {delay=0 duration=500 easing="ease" value=0} → {}
+    S_OPACITY {delay=0 duration=500 easing="ease" value=0} → {}
+    T_ROTATE {delay=0 duration=300 easing="outQuart" zValue=0 xUnit="DEG" yUnit="DEG" zUnit="deg"} → EVENT_TARGET(CHILDREN) .navbar_menu-line-top
+    T_ROTATE {delay=0 duration=300 easing="outQuart" zValue=0 xUnit="DEG" yUnit="DEG" zUnit="deg"} → EVENT_TARGET(CHILDREN) .navbar_menu-line-bottom
+    S_OPACITY {delay=0 duration=500 easing="ease" value=0} → SEL .menu_icon-image
+    T_MOVE {delay=200 duration=1100 easing="inOutQuart" xValue=-100 xUnit="%" yUnit="PX" zUnit="PX"} → SEL .menu_right-panel
+    T_MOVE {delay=200 duration=300 easing="outQuart" yValue=0 xUnit="PX" yUnit="px" zUnit="PX"} → EVENT_TARGET(CHILDREN) .navbar_menu-line-top
+    T_MOVE {delay=200 duration=300 easing="outQuart" yValue=0 xUnit="PX" yUnit="px" zUnit="PX"} → EVENT_TARGET(CHILDREN) .navbar_menu-line-bottom
+    T_MOVE {delay=200 duration=500 easing="outQuart" xValue=0 xUnit="rem" yUnit="PX" zUnit="PX"} → EVENT_TARGET(PARENT) .navbar_right-inner-wrapper
+    T_MOVE {delay=400 duration=300 easing="outQuart" xValue=0 xUnit="%" yUnit="PX" zUnit="PX"} → EVENT_TARGET(CHILDREN) .navbar_menu-line-middle
+    S_BACKGROUND_COLOR {delay=600 duration=500 easing="ease"} → EVENT_TARGET(PARENT) .navbar
+  GROUP 1
+    T_MOVE {delay=0 duration=0 easing="outQuart" xValue=-70 xUnit="px" yUnit="PX" zUnit="PX"} → SEL .menu_text-link.is-1
+    T_MOVE {delay=0 duration=0 easing="outQuart" xValue=-70 xUnit="px" yUnit="PX" zUnit="PX"} → {}
+    T_MOVE {delay=0 duration=0 easing="outQuart" xValue=-70 xUnit="px" yUnit="PX" zUnit="PX"} → {}
+    T_MOVE {delay=0 duration=0 easing="outQuart" xValue=-70 xUnit="px" yUnit="PX" zUnit="PX"} → SEL .menu_text-link.is-4
+    T_MOVE {delay=0 duration=0 easing="outQuart" xValue=-70 xUnit="px" yUnit="PX" zUnit="PX"} → SEL .menu_text-link.is-3
+    T_MOVE {delay=0 duration=0 easing="outQuart" xValue=-70 xUnit="px" yUnit="PX" zUnit="PX"} → SEL .menu_text-link.is-2
+    G_DISPLAY {delay=0 duration=0 value="none"} → SEL .menu_parent
+
+================================================================================
+## ActionList a-56  [group0 = INITIAL STATE, applied immediately on page render]
+  EVENT e-139 MOUSE_OVER mq=[main,medium,small,tiny] target=EL index+ueber-mich+all-in-one-coaching+datenschutz+impressum:<a .menu-link-parent.w-inline-block.w--current> "Startseite <div class="menu_card-whipe" autoStopEventId=e-140
+  EVENT e-141 MOUSE_OVER mq=[main,medium,small,tiny] target=EL index+ueber-mich+all-in-one-coaching+datenschutz+impressum:<a .menu-link-parent.w-inline-block> "Über mich <a data-w-id="d83f3f7d-e7f3-5d3f-e7" autoStopEventId=e-142
+  EVENT e-143 MOUSE_OVER mq=[main,medium,small,tiny] target=EL index+ueber-mich+all-in-one-coaching+datenschutz+impressum:<a .menu-link-parent.w-inline-block> "ALL-IN-ONE Coaching <div class="menu_click-" autoStopEventId=e-144
+  EVENT e-147 MOUSE_OVER mq=[main,medium,small,tiny] target=EL index+ueber-mich+all-in-one-coaching+datenschutz+impressum:<a .menu-link-parent.w-inline-block> "Zum E-Book" autoStopEventId=e-148
+  GROUP 0 (INITIAL STATE)
+    S_SIZE {delay=0 duration=500 widthValue=100 heightValue=0 widthUnit="%" heightUnit="%"} → EVENT_TARGET(CHILDREN) .menu_card-whipe
+    T_ROTATE {delay=0 duration=500 zValue=0 xUnit="DEG" yUnit="DEG" zUnit="deg"} → EVENT_TARGET(CHILDREN) .menu_icon-image
+    S_SIZE {delay=0 duration=500 widthValue=0 heightValue=100 widthUnit="%" heightUnit="%"} → {}
+    T_MOVE {delay=0 duration=500 xValue=0 xUnit="px" yUnit="PX" zUnit="PX"} → EVENT_TARGET(CHILDREN) .menu_text-link
+  GROUP 1
+    S_SIZE {delay=0 duration=500 easing="inOutQuart" widthValue=100 heightValue=100 widthUnit="%" heightUnit="%"} → EVENT_TARGET(CHILDREN) .menu_card-whipe
+    T_ROTATE {delay=0 duration=500 easing="outQuart" zValue=90 xUnit="DEG" yUnit="DEG" zUnit="deg"} → EVENT_TARGET(CHILDREN) .menu_icon-image
+    S_SIZE {delay=0 duration=700 easing="inOutQuart" widthValue=40 heightValue=100 widthUnit="%" heightUnit="%"} → {}
+    T_MOVE {delay=0 duration=500 easing="outQuart" xValue=40 xUnit="px" yUnit="PX" zUnit="PX"} → EVENT_TARGET(CHILDREN) .menu_text-link
+
+================================================================================
+## ActionList a-57
+  EVENT e-140 MOUSE_OUT mq=[main,medium,small,tiny] target=EL index+ueber-mich+all-in-one-coaching+datenschutz+impressum:<a .menu-link-parent.w-inline-block.w--current> "Startseite <div class="menu_card-whipe" autoStopEventId=e-139
+  EVENT e-142 MOUSE_OUT mq=[main,medium,small,tiny] target=EL index+ueber-mich+all-in-one-coaching+datenschutz+impressum:<a .menu-link-parent.w-inline-block> "Über mich <a data-w-id="d83f3f7d-e7f3-5d3f-e7" autoStopEventId=e-141
+  EVENT e-144 MOUSE_OUT mq=[main,medium,small,tiny] target=EL index+ueber-mich+all-in-one-coaching+datenschutz+impressum:<a .menu-link-parent.w-inline-block> "ALL-IN-ONE Coaching <div class="menu_click-" autoStopEventId=e-143
+  EVENT e-148 MOUSE_OUT mq=[main,medium,small,tiny] target=EL index+ueber-mich+all-in-one-coaching+datenschutz+impressum:<a .menu-link-parent.w-inline-block> "Zum E-Book" autoStopEventId=e-147
+  GROUP 0
+    S_SIZE {delay=0 duration=500 easing="inOutQuart" widthValue=100 heightValue=0 widthUnit="%" heightUnit="%"} → EVENT_TARGET(CHILDREN) .menu_card-whipe
+    T_ROTATE {delay=0 duration=500 easing="outQuart" zValue=0 xUnit="DEG" yUnit="DEG" zUnit="deg"} → EVENT_TARGET(CHILDREN) .menu_icon-image
+    S_SIZE {delay=0 duration=600 easing="inOutQuart" widthValue=0 heightValue=100 widthUnit="%" heightUnit="%"} → {}
+    T_MOVE {delay=0 duration=500 easing="outQuart" xValue=0 xUnit="px" yUnit="PX" zUnit="PX"} → EVENT_TARGET(CHILDREN) .menu_text-link
+
+================================================================================
+## ActionList a-74  [group0 = INITIAL STATE, applied immediately on page render]
+  EVENT e-393 MOUSE_CLICK mq=[main,medium,small,tiny] target=SEL .menu-link-parent [CLASS] autoStopEventId=e-394
+  GROUP 0 (INITIAL STATE)
+    S_SIZE {delay=0 duration=0 widthValue=100 heightValue=0 widthUnit="%" heightUnit="%"} → EVENT_TARGET(CHILDREN) .menu_click-whipe
+  GROUP 1
+    T_ROTATE {delay=0 duration=300 easing="outQuart" zValue=45 xUnit="DEG" yUnit="DEG" zUnit="deg"} → EVENT_TARGET(CHILDREN) .menu_icon-image
+    S_SIZE {delay=0 duration=300 easing="outQuart" widthValue=100 heightValue=100 widthUnit="%" heightUnit="%"} → EVENT_TARGET(CHILDREN) .menu_click-whipe
+
+================================================================================
+## ActionList a-91
+  EVENT e-366 MOUSE_OVER mq=[main,medium,small,tiny] target=SEL .secondary-button [CLASS] autoStopEventId=e-367
+  EVENT e-454 MOUSE_OVER mq=[main] target=SEL .button.is-secondary [CLASS] autoStopEventId=e-455
+  EVENT e-854 MOUSE_OVER mq=[main,medium,small,tiny] target=EL index+all-in-one-coaching:<a .w-pagination-next.reviews_load-more> in[section_reviews] "Mehr Testimonials laden" autoStopEventId=e-855
+  EVENT e-869 MOUSE_OVER mq=[main,medium,small,tiny] target=SEL .navbar_menu-link [CLASS] autoStopEventId=e-870
+  EVENT e-871 MOUSE_OVER mq=[main,medium,small,tiny] target=EL index+ueber-mich+all-in-one-coaching+datenschutz+impressum:<a .navbar_menu-link.hide.w-inline-block> "Partner <a data-w-id="adf01002-fd69-c74f-3f47" autoStopEventId=e-872
+  EVENT e-873 MOUSE_OVER mq=[main,medium,small,tiny] target=EL index+ueber-mich+all-in-one-coaching+datenschutz+impressum:<a .navbar_menu-link.w-inline-block> "Über mich Partner <div class="na" autoStopEventId=e-874
+  EVENT e-908 MOUSE_OVER mq=[main,medium,small,tiny] target=SEL .navbar_menu-link [CLASS] autoStopEventId=e-909
+  GROUP 0
+    T_MOVE {delay=0 duration=0 xValue=-101 xUnit="%" yUnit="PX" zUnit="PX"} → EVENT_TARGET(CHILDREN) .link-underline-line
+  GROUP 1
+    T_MOVE {delay=0 duration=300 easing="outSine" xValue=0 xUnit="%" yUnit="PX" zUnit="PX"} → EVENT_TARGET(CHILDREN) .link-underline-line
+
+================================================================================
+## ActionList a-92
+  EVENT e-367 MOUSE_OUT mq=[main,medium,small,tiny] target=SEL .secondary-button [CLASS] autoStopEventId=e-366
+  EVENT e-455 MOUSE_OUT mq=[main] target=SEL .button.is-secondary [CLASS] autoStopEventId=e-454
+  EVENT e-855 MOUSE_OUT mq=[main,medium,small,tiny] target=EL index+all-in-one-coaching:<a .w-pagination-next.reviews_load-more> in[section_reviews] "Mehr Testimonials laden" autoStopEventId=e-854
+  EVENT e-870 MOUSE_OUT mq=[main,medium,small,tiny] target=SEL .navbar_menu-link [CLASS] autoStopEventId=e-869
+  EVENT e-872 MOUSE_OUT mq=[main,medium,small,tiny] target=EL index+ueber-mich+all-in-one-coaching+datenschutz+impressum:<a .navbar_menu-link.hide.w-inline-block> "Partner <a data-w-id="adf01002-fd69-c74f-3f47" autoStopEventId=e-871
+  EVENT e-874 MOUSE_OUT mq=[main,medium,small,tiny] target=EL index+ueber-mich+all-in-one-coaching+datenschutz+impressum:<a .navbar_menu-link.w-inline-block> "Über mich Partner <div class="na" autoStopEventId=e-873
+  EVENT e-909 MOUSE_OUT mq=[main,medium,small,tiny] target=SEL .navbar_menu-link [CLASS] autoStopEventId=e-908
+  GROUP 0
+    T_MOVE {delay=0 duration=200 easing="outSine" xValue=101 xUnit="%" yUnit="PX" zUnit="PX"} → EVENT_TARGET(CHILDREN) .link-underline-line
+
+####################################################################################################
+# CLUSTER FOOTER
+####################################################################################################
+
+================================================================================
+## ActionList a-87  [group0 = INITIAL STATE, applied immediately on page render]
+  EVENT e-347 SCROLL_INTO_VIEW mq=[main,medium] target=EL index+ueber-mich+all-in-one-coaching+datenschutz+impressum:<div .footer_component> in[section_faq] "<p class="footer_paragraph text-color-gra" autoStopEventId=e-348 ev.scrollOffsetValue=5 ev.scrollOffsetUnit=%
+  GROUP 0 (INITIAL STATE)
+    T_MOVE {delay=0 duration=500 yValue=-125 xUnit="PX" yUnit="%" zUnit="PX"} → EVENT_TARGET(CHILDREN) .footer-logo-image
+    S_OPACITY {delay=0 duration=500 value=0} → EVENT_TARGET(CHILDREN) .footer_legal-paragraph
+    S_OPACITY {delay=0 duration=500 value=0} → {}
+    S_OPACITY {delay=0 duration=500 value=0} → {}
+    S_OPACITY {delay=0 duration=500 value=0} → EVENT_TARGET(CHILDREN) .footer_large-icon.is-1
+    S_OPACITY {delay=0 duration=500 value=0} → EVENT_TARGET(CHILDREN) .footer_contact-title.is-1
+    T_MOVE {delay=0 duration=500 yValue=110 xUnit="PX" yUnit="%" zUnit="PX"} → EVENT_TARGET(CHILDREN) .footer_orange-link.is-1
+    T_MOVE {delay=0 duration=500 xValue=2 xUnit="rem" yUnit="PX" zUnit="PX"} → EVENT_TARGET(CHILDREN) .footer_contact-title.is-1
+    T_MOVE {delay=0 duration=500 xValue=3.5 xUnit="rem" yUnit="PX" zUnit="PX"} → EVENT_TARGET(CHILDREN) .footer_large-icon.is-1
+    T_MOVE {delay=0 duration=500 yValue=-100 xUnit="PX" yUnit="%" zUnit="PX"} → EVENT_TARGET(CHILDREN) .footer_nav-link.is-1
+    T_MOVE {delay=0 duration=500 yValue=130 xUnit="PX" yUnit="%" zUnit="PX"} → EVENT_TARGET(CHILDREN) .social-lottie-animation.is-1
+    S_OPACITY {delay=0 duration=500 value=0} → {}
+    T_MOVE {delay=0 duration=500 xValue=5 xUnit="rem" yUnit="PX" zUnit="PX"} → {}
+    S_OPACITY {delay=0 duration=500 value=0} → SEL .footer_paragraph
+    T_MOVE {delay=0 duration=500 xValue=5 xUnit="rem" yUnit="PX" zUnit="PX"} → SEL .footer_paragraph
+    T_MOVE {delay=0 duration=500 yValue=130 xUnit="PX" yUnit="%" zUnit="PX"} → {}
+    T_MOVE {delay=0 duration=500 yValue=130 xUnit="PX" yUnit="%" zUnit="PX"} → EVENT_TARGET(CHILDREN) .social-lottie-animation.is-3
+    T_MOVE {delay=0 duration=500 yValue=-100 xUnit="PX" yUnit="%" zUnit="PX"} → EVENT_TARGET(CHILDREN) .footer_nav-link.is-2
+    T_MOVE {delay=0 duration=500 yValue=-100 xUnit="PX" yUnit="%" zUnit="PX"} → EVENT_TARGET(CHILDREN) .footer_nav-link.is-3
+    T_MOVE {delay=0 duration=500 yValue=-100 xUnit="PX" yUnit="%" zUnit="PX"} → EVENT_TARGET(CHILDREN) .footer_nav-link.is-4
+    T_MOVE {delay=0 duration=500 yValue=-100 xUnit="PX" yUnit="%" zUnit="PX"} → {}
+    T_MOVE {delay=0 duration=500 yValue=-100 xUnit="PX" yUnit="%" zUnit="PX"} → {}
+    T_MOVE {delay=0 duration=500 yValue=100 xUnit="PX" yUnit="%" zUnit="PX"} → {}
+    T_MOVE {delay=0 duration=500 xValue=3.5 xUnit="rem" yUnit="PX" zUnit="PX"} → {}
+    T_MOVE {delay=0 duration=500 xValue=2 xUnit="rem" yUnit="PX" zUnit="PX"} → {}
+  GROUP 1
+    T_MOVE {delay=0 duration=700 easing="outQuart" yValue=0 xUnit="PX" yUnit="%" zUnit="PX"} → EVENT_TARGET(CHILDREN) .footer-logo-image
+    T_MOVE {delay=200 duration=700 easing="outQuart" xValue=0 xUnit="em" yUnit="PX" zUnit="PX"} → SEL .footer_paragraph
+    S_OPACITY {delay=200 duration=700 easing="outQuart" value=1} → SEL .footer_paragraph
+    T_MOVE {delay=300 duration=700 easing="outQuart" xValue=0 xUnit="em" yUnit="PX" zUnit="PX"} → {}
+    S_OPACITY {delay=300 duration=700 easing="outQuart" value=1} → {}
+    T_MOVE {delay=300 duration=400 easing="outQuart" yValue=0 xUnit="PX" yUnit="%" zUnit="PX"} → EVENT_TARGET(CHILDREN) .social-lottie-animation.is-1
+    T_MOVE {delay=400 duration=400 easing="outQuart" yValue=0 xUnit="PX" yUnit="%" zUnit="PX"} → {}
+    T_MOVE {delay=500 duration=400 easing="outQuart" yValue=0 xUnit="PX" yUnit="%" zUnit="PX"} → EVENT_TARGET(CHILDREN) .social-lottie-animation.is-3
+    T_MOVE {delay=600 duration=400 easing="outQuart" yValue=0 xUnit="PX" yUnit="%" zUnit="PX"} → EVENT_TARGET(CHILDREN) .footer_nav-link.is-1
+    T_MOVE {delay=700 duration=400 easing="outQuart" yValue=0 xUnit="PX" yUnit="%" zUnit="PX"} → EVENT_TARGET(CHILDREN) .footer_nav-link.is-2
+    T_MOVE {delay=800 duration=400 easing="outQuart" yValue=0 xUnit="PX" yUnit="%" zUnit="PX"} → EVENT_TARGET(CHILDREN) .footer_nav-link.is-3
+    T_MOVE {delay=900 duration=400 easing="outQuart" yValue=0 xUnit="PX" yUnit="%" zUnit="PX"} → EVENT_TARGET(CHILDREN) .footer_nav-link.is-4
+    T_MOVE {delay=1000 duration=400 easing="outQuart" yValue=0 xUnit="PX" yUnit="%" zUnit="PX"} → {}
+    S_OPACITY {delay=1000 duration=700 easing="outQuart" value=1} → EVENT_TARGET(CHILDREN) .footer_large-icon.is-1
+    T_MOVE {delay=1000 duration=700 easing="outQuart" xValue=0 xUnit="em" yUnit="PX" zUnit="PX"} → EVENT_TARGET(CHILDREN) .footer_large-icon.is-1
+    T_MOVE {delay=1100 duration=400 easing="outQuart" yValue=0 xUnit="PX" yUnit="%" zUnit="PX"} → {}
+    T_MOVE {delay=1100 duration=700 easing="outQuart" xValue=0 xUnit="em" yUnit="PX" zUnit="PX"} → EVENT_TARGET(CHILDREN) .footer_contact-title.is-1
+    S_OPACITY {delay=1100 duration=700 easing="outQuart" value=1} → EVENT_TARGET(CHILDREN) .footer_contact-title.is-1
+    S_OPACITY {delay=1200 duration=2000 easing="outQuart" value=1} → EVENT_TARGET(CHILDREN) .footer_legal-paragraph
+    T_MOVE {delay=1200 duration=700 easing="outQuart" yValue=0 xUnit="PX" yUnit="%" zUnit="PX"} → EVENT_TARGET(CHILDREN) .footer_orange-link.is-1
+    S_OPACITY {delay=1400 duration=700 easing="outQuart" value=1} → {}
+    T_MOVE {delay=1400 duration=700 easing="outQuart" xValue=0 xUnit="em" yUnit="PX" zUnit="PX"} → {}
+    S_OPACITY {delay=1500 duration=700 easing="outQuart" value=1} → {}
+    T_MOVE {delay=1500 duration=700 easing="outQuart" xValue=0 xUnit="em" yUnit="PX" zUnit="PX"} → {}
+    T_MOVE {delay=1600 duration=700 easing="outQuart" yValue=0 xUnit="PX" yUnit="%" zUnit="PX"} → {}
+
+================================================================================
+## ActionList a-123  [group0 = INITIAL STATE, applied immediately on page render]
+  EVENT e-522 MOUSE_OVER mq=[main] target=SEL .footer_social-link [CLASS] autoStopEventId=e-523
+  EVENT e-524 MOUSE_OVER mq=[main] target=EL index+ueber-mich+all-in-one-coaching+datenschutz+impressum:<div .overflow-hidden> in[section_faq] "Startseite Zum E-Book <" autoStopEventId=e-525
+  EVENT e-526 MOUSE_OVER mq=[main] target=EL index+ueber-mich+all-in-one-coaching+datenschutz+impressum:<div .overflow-hidden> in[section_faq] "Über mich Work Partner" autoStopEventId=e-527
+  EVENT e-528 MOUSE_OVER mq=[main] target=EL index+ueber-mich+all-in-one-coaching+datenschutz+impressum:<div .overflow-hidden> in[section_faq] "ALL-IN-ONE Coaching Über mich <a href="work.h" autoStopEventId=e-529
+  EVENT e-530 MOUSE_OVER mq=[main] target=EL index+ueber-mich+all-in-one-coaching+datenschutz+impressum:<div .overflow-hidden.hide> in[section_faq] "Work Partner <img src="images/email-icon-whit" autoStopEventId=e-531
+  EVENT e-534 MOUSE_OVER mq=[main] target=EL index+ueber-mich+all-in-one-coaching+datenschutz+impressum:<div .overflow-hidden.hide> in[section_faq] "Partner Email i" autoStopEventId=e-535
+  EVENT e-910 MOUSE_OVER mq=[main] target=EL index+ueber-mich+all-in-one-coaching+datenschutz+impressum:<div .overflow-hidden> in[section_faq] "Zum E-Book ALL-IN-ONE Coaching <a href="" autoStopEventId=e-911
+  GROUP 0 (INITIAL STATE)
+    S_OPACITY {delay=0 duration=500 value=1} → EVENT_TARGET(SIBLINGS) .footer_social-link
+    S_FILTER {delay=0 duration=500 filters="blur:0px"} → EVENT_TARGET(SIBLINGS) .footer_social-link
+    S_OPACITY {delay=0 duration=500 value=1} → EVENT_TARGET(SIBLINGS) .overflow-hidden
+    S_FILTER {delay=0 duration=500 filters="blur:0px"} → EVENT_TARGET(SIBLINGS) .overflow-hidden
+  GROUP 1
+    S_OPACITY {delay=0 duration=380 value=0.6} → EVENT_TARGET(SIBLINGS) .footer_social-link
+    S_FILTER {delay=0 duration=380 filters="blur:2px"} → EVENT_TARGET(SIBLINGS) .footer_social-link
+    S_OPACITY {delay=0 duration=380 value=0.6} → EVENT_TARGET(SIBLINGS) .overflow-hidden
+    S_FILTER {delay=0 duration=380 filters="blur:2px"} → EVENT_TARGET(SIBLINGS) .overflow-hidden
+
+================================================================================
+## ActionList a-124
+  EVENT e-523 MOUSE_OUT mq=[main] target=SEL .footer_social-link [CLASS] autoStopEventId=e-522
+  EVENT e-525 MOUSE_OUT mq=[main] target=EL index+ueber-mich+all-in-one-coaching+datenschutz+impressum:<div .overflow-hidden> in[section_faq] "Startseite Zum E-Book <" autoStopEventId=e-524
+  EVENT e-527 MOUSE_OUT mq=[main] target=EL index+ueber-mich+all-in-one-coaching+datenschutz+impressum:<div .overflow-hidden> in[section_faq] "Über mich Work Partner" autoStopEventId=e-526
+  EVENT e-529 MOUSE_OUT mq=[main] target=EL index+ueber-mich+all-in-one-coaching+datenschutz+impressum:<div .overflow-hidden> in[section_faq] "ALL-IN-ONE Coaching Über mich <a href="work.h" autoStopEventId=e-528
+  EVENT e-531 MOUSE_OUT mq=[main] target=EL index+ueber-mich+all-in-one-coaching+datenschutz+impressum:<div .overflow-hidden.hide> in[section_faq] "Work Partner <img src="images/email-icon-whit" autoStopEventId=e-530
+  EVENT e-535 MOUSE_OUT mq=[main] target=EL index+ueber-mich+all-in-one-coaching+datenschutz+impressum:<div .overflow-hidden.hide> in[section_faq] "Partner Email i" autoStopEventId=e-534
+  EVENT e-911 MOUSE_OUT mq=[main] target=EL index+ueber-mich+all-in-one-coaching+datenschutz+impressum:<div .overflow-hidden> in[section_faq] "Zum E-Book ALL-IN-ONE Coaching <a href="" autoStopEventId=e-910
+  GROUP 0
+    S_OPACITY {delay=0 duration=340 easing="ease" value=1} → EVENT_TARGET(SIBLINGS) .footer_social-link
+    S_FILTER {delay=0 duration=340 easing="ease" filters="blur:0px"} → EVENT_TARGET(SIBLINGS) .footer_social-link
+    S_OPACITY {delay=0 duration=340 easing="ease" value=1} → EVENT_TARGET(SIBLINGS) .overflow-hidden
+    S_FILTER {delay=0 duration=340 easing="ease" filters="blur:0px"} → EVENT_TARGET(SIBLINGS) .overflow-hidden
+
+####################################################################################################
+# CLUSTER BUTTONS-GLOW
+####################################################################################################
+
+================================================================================
+## ActionList a-93  [group0 = INITIAL STATE, applied immediately on page render]
+  EVENT e-698 MOUSE_OVER mq=[main,medium,small,tiny] target=EL-OFFSITE autoStopEventId=e-699
+  EVENT e-724 MOUSE_OVER mq=[main,medium,small,tiny] target=EL-OFFSITE autoStopEventId=e-725
+  EVENT e-770 MOUSE_OVER mq=[main,medium,small,tiny] target=EL-OFFSITE autoStopEventId=e-771
+  EVENT e-786 MOUSE_OVER mq=[main,medium,small,tiny] target=EL-OFFSITE autoStopEventId=e-787
+  EVENT e-788 MOUSE_OVER mq=[main,medium,small,tiny] target=EL-OFFSITE autoStopEventId=e-789
+  EVENT e-790 MOUSE_OVER mq=[main,medium,small,tiny] target=EL-OFFSITE autoStopEventId=e-791
+  EVENT e-792 MOUSE_OVER mq=[main,medium,small,tiny] target=EL-OFFSITE autoStopEventId=e-793
+  EVENT e-844 MOUSE_OVER mq=[main,medium,small,tiny] target=EL index+ueber-mich+all-in-one-coaching+datenschutz+impressum:<a .button-glow> ".gradient-btn { background-image: conic-gradi" autoStopEventId=e-845
+  GROUP 0 (INITIAL STATE)
+    S_TEXT_COLOR {delay=0 duration=500} → EVENT_TARGET(CHILDREN) .button-text
+    T_MOVE {delay=0 duration=0 xValue=0 xUnit="%" yUnit="PX" zUnit="PX"} → EVENT_TARGET(CHILDREN) .button-icon-2
+    T_MOVE {delay=0 duration=0 xValue=-131 xUnit="%" yUnit="PX" zUnit="PX"} → EVENT_TARGET(CHILDREN) .button_icon-1
+  GROUP 1
+    T_MOVE {delay=0 duration=400 easing="outSine" xValue=131 xUnit="%" yUnit="PX" zUnit="PX"} → EVENT_TARGET(CHILDREN) .button-icon-2
+    S_TEXT_COLOR {delay=0 duration=350 easing="outSine"} → EVENT_TARGET(CHILDREN) .button-text
+    T_MOVE {delay=0 duration=400 easing="outSine" xValue=0 xUnit="%" yUnit="PX" zUnit="PX"} → EVENT_TARGET(CHILDREN) .button_icon-1
+
+================================================================================
+## ActionList a-98
+  EVENT e-699 MOUSE_OUT mq=[main,medium,small,tiny] target=EL-OFFSITE autoStopEventId=e-698
+  EVENT e-725 MOUSE_OUT mq=[main,medium,small,tiny] target=EL-OFFSITE autoStopEventId=e-724
+  EVENT e-771 MOUSE_OUT mq=[main,medium,small,tiny] target=EL-OFFSITE autoStopEventId=e-770
+  EVENT e-787 MOUSE_OUT mq=[main,medium,small,tiny] target=EL-OFFSITE autoStopEventId=e-786
+  EVENT e-789 MOUSE_OUT mq=[main,medium,small,tiny] target=EL-OFFSITE autoStopEventId=e-788
+  EVENT e-791 MOUSE_OUT mq=[main,medium,small,tiny] target=EL-OFFSITE autoStopEventId=e-790
+  EVENT e-793 MOUSE_OUT mq=[main,medium,small,tiny] target=EL-OFFSITE autoStopEventId=e-792
+  EVENT e-845 MOUSE_OUT mq=[main,medium,small,tiny] target=EL index+ueber-mich+all-in-one-coaching+datenschutz+impressum:<a .button-glow> ".gradient-btn { background-image: conic-gradi" autoStopEventId=e-844
+  GROUP 0
+    S_TEXT_COLOR {delay=0 duration=400 easing="outSine"} → EVENT_TARGET(CHILDREN) .button-text
+    T_MOVE {delay=0 duration=400 easing="outSine" xValue=0 xUnit="%" yUnit="PX" zUnit="PX"} → EVENT_TARGET(CHILDREN) .button-icon-2
+    T_MOVE {delay=0 duration=400 easing="outSine" xValue=-131 xUnit="%" yUnit="PX" zUnit="PX"} → EVENT_TARGET(CHILDREN) .button_icon-1
+
+================================================================================
+## ActionList a-141
+  EVENT e-839 MOUSE_MOVE mq=[main] target=EL-OFFSITE 
+  EVENT e-842 MOUSE_MOVE mq=[main] target=EL-OFFSITE 
+  EVENT e-843 MOUSE_MOVE mq=[main] target=SEL .button-glow [CLASS] 
+  CONTINUOUS type=MOUSE_X
+    @0%
+      T_MOVE {delay=0 duration=500 xValue=-50 xUnit="%" yUnit="PX" zUnit="PX"} → EVENT_TARGET(CHILDREN) .button-glow-circle
+    @100%
+      T_MOVE {delay=0 duration=500 xValue=50 xUnit="%" yUnit="PX" zUnit="PX"} → EVENT_TARGET(CHILDREN) .button-glow-circle
+  CONTINUOUS type=MOUSE_Y
+    @0%
+      T_MOVE {delay=0 duration=500 yValue=-50 xUnit="PX" yUnit="%" zUnit="PX"} → EVENT_TARGET(CHILDREN) .button-glow-circle
+    @100%
+      T_MOVE {delay=0 duration=500 yValue=50 xUnit="PX" yUnit="%" zUnit="PX"} → EVENT_TARGET(CHILDREN) .button-glow-circle
+
+================================================================================
+## ActionList a-143
+  EVENT e-875 MOUSE_MOVE mq=[main] target=SEL .button [CLASS] 
+  EVENT e-876 MOUSE_MOVE mq=[main] target=SEL .button [CLASS] 
+  CONTINUOUS type=MOUSE_X
+    @0%
+      T_MOVE {delay=0 duration=500 xValue=-50 xUnit="%" yUnit="PX" zUnit="PX"} → {}
+    @100%
+      T_MOVE {delay=0 duration=500 xValue=50 xUnit="%" yUnit="PX" zUnit="PX"} → {}
+  CONTINUOUS type=MOUSE_Y
+    @0%
+      T_MOVE {delay=0 duration=500 yValue=-50 xUnit="PX" yUnit="%" zUnit="PX"} → {}
+    @100%
+      T_MOVE {delay=0 duration=500 yValue=50 xUnit="PX" yUnit="%" zUnit="PX"} → {}
+
+####################################################################################################
+# CLUSTER COOKIE
+####################################################################################################
+
+================================================================================
+## ActionList a-146  [group0 = INITIAL STATE, applied immediately on page render]
+  EVENT e-900 MOUSE_CLICK mq=[main,medium,small,tiny] target=SEL .fs-cc-banner_trigger [CLASS] autoStopEventId=e-893
+  GROUP 0 (INITIAL STATE)
+    G_DISPLAY {delay=0 duration=0 value="none"} → EVENT_TARGET(PARENT) .fs-cc-banner_component
+    T_MOVE {delay=0 duration=500 yValue=100 xUnit="PX" yUnit="%" zUnit="PX"} → EVENT_TARGET(PARENT) .fs-cc-banner_component
+  GROUP 1
+    G_DISPLAY {delay=0 duration=0 value="flex"} → EVENT_TARGET(PARENT) .fs-cc-banner_component
+    T_MOVE {delay=0 duration=300 easing="ease" yValue=0 xUnit="PX" yUnit="px" zUnit="PX"} → EVENT_TARGET(PARENT) .fs-cc-banner_component
+
+================================================================================
+## ActionList a-147
+  EVENT e-898 MOUSE_SECOND_CLICK mq=[main,medium,small,tiny] target=SEL .fs-cc-manager_trigger [CLASS] autoStopEventId=e-896
+  GROUP 0
+    S_OPACITY {delay=0 duration=300 easing="ease" value=0} → EVENT_TARGET(PARENT) .fs-cc-manager_component
+    T_MOVE {delay=0 duration=300 easing="ease" yValue=100 xUnit="PX" yUnit="%" zUnit="PX"} → EVENT_TARGET(PARENT) .fs-cc-manager_component
+  GROUP 1
+    G_DISPLAY {delay=0 duration=0 value="none"} → EVENT_TARGET(PARENT) .fs-cc-manager_component
+
+================================================================================
+## ActionList a-148  [group0 = INITIAL STATE, applied immediately on page render]
+  EVENT e-896 MOUSE_CLICK mq=[main,medium,small,tiny] target=SEL .fs-cc-manager_trigger [CLASS] autoStopEventId=e-898
+  GROUP 0 (INITIAL STATE)
+    S_OPACITY {delay=0 duration=500 value=0} → EVENT_TARGET(PARENT) .fs-cc-manager_component
+    T_MOVE {delay=0 duration=500 yValue=100 xUnit="PX" yUnit="%" zUnit="PX"} → EVENT_TARGET(PARENT) .fs-cc-manager_component
+    G_DISPLAY {delay=0 duration=0 value="none"} → EVENT_TARGET(PARENT) .fs-cc-manager_component
+  GROUP 1
+    G_DISPLAY {delay=0 duration=0 value="block"} → EVENT_TARGET(PARENT) .fs-cc-manager_component
+    T_MOVE {delay=0 duration=300 easing="ease" yValue=0 xUnit="PX" yUnit="px" zUnit="PX"} → EVENT_TARGET(PARENT) .fs-cc-manager_component
+    S_OPACITY {delay=0 duration=300 easing="ease" value=1} → EVENT_TARGET(PARENT) .fs-cc-manager_component
+
+================================================================================
+## ActionList a-149
+  EVENT e-899 MOUSE_SECOND_CLICK mq=[main,medium,small,tiny] target=SEL .fs-cc-prefs_trigger [CLASS] autoStopEventId=e-897
+  GROUP 0
+    S_OPACITY {delay=0 duration=500 easing="ease" value=0} → EVENT_TARGET(PARENT) .fs-cc-prefs_component
+    T_MOVE {delay=0 duration=300 easing="ease" yValue=20 xUnit="PX" yUnit="px" zUnit="PX"} → EVENT_TARGET(PARENT) .fs-cc-prefs_component
+  GROUP 1
+    G_DISPLAY {delay=0 duration=0 value="none"} → EVENT_TARGET(PARENT) .fs-cc-prefs_component
+
+================================================================================
+## ActionList a-150
+  EVENT e-893 MOUSE_SECOND_CLICK mq=[main,medium,small,tiny] target=SEL .fs-cc-banner_trigger [CLASS] autoStopEventId=e-900
+  GROUP 0
+    T_MOVE {delay=0 duration=300 easing="ease" yValue=100 xUnit="PX" yUnit="%" zUnit="PX"} → EVENT_TARGET(PARENT) .fs-cc-banner_component
+  GROUP 1
+    G_DISPLAY {delay=0 duration=0 value="none"} → EVENT_TARGET(PARENT) .fs-cc-banner_component
+
+================================================================================
+## ActionList a-151  [group0 = INITIAL STATE, applied immediately on page render]
+  EVENT e-897 MOUSE_CLICK mq=[main,medium,small,tiny] target=SEL .fs-cc-prefs_trigger [CLASS] autoStopEventId=e-899
+  GROUP 0 (INITIAL STATE)
+    G_DISPLAY {delay=0 duration=0 value="none"} → EVENT_TARGET(PARENT) .fs-cc-prefs_component
+    T_MOVE {delay=0 duration=500 yValue=20 xUnit="PX" yUnit="px" zUnit="PX"} → EVENT_TARGET(PARENT) .fs-cc-prefs_component
+    S_OPACITY {delay=0 duration=500 value=0} → EVENT_TARGET(PARENT) .fs-cc-prefs_component
+  GROUP 1
+    G_DISPLAY {delay=0 duration=0 value="flex"} → EVENT_TARGET(PARENT) .fs-cc-prefs_component
+  GROUP 2
+    S_OPACITY {delay=0 duration=300 easing="ease" value=1} → EVENT_TARGET(PARENT) .fs-cc-prefs_component
+    T_MOVE {delay=0 duration=300 easing="ease" yValue=0 xUnit="PX" yUnit="px" zUnit="PX"} → EVENT_TARGET(PARENT) .fs-cc-prefs_component
+
+================================================================================
+## ActionList a-152
+  EVENT e-895 MOUSE_SECOND_CLICK mq=[main,medium,small,tiny] target=SEL .fs-cc-prefs_checkbox [CLASS] autoStopEventId=e-894
+  GROUP 0
+    T_MOVE {delay=0 duration=250 easing="ease" xValue=0 xUnit="px" yUnit="PX" zUnit="PX"} → EVENT_TARGET(SIBLINGS) .fs-cc-prefs_toggle
+    S_BACKGROUND_COLOR {delay=0 duration=200 easing="ease"} → EVENT_TARGET(PARENT) .fs-cc-prefs_checkbox-field
+
+================================================================================
+## ActionList a-153
+  EVENT e-894 MOUSE_CLICK mq=[main,medium,small,tiny] target=SEL .fs-cc-prefs_checkbox [CLASS] autoStopEventId=e-895
+  GROUP 0
+    T_MOVE {delay=0 duration=250 easing="ease" xValue=20 xUnit="px" yUnit="PX" zUnit="PX"} → EVENT_TARGET(SIBLINGS) .fs-cc-prefs_toggle
+    S_BACKGROUND_COLOR {delay=0 duration=200 easing="ease"} → EVENT_TARGET(PARENT) .fs-cc-prefs_checkbox-field

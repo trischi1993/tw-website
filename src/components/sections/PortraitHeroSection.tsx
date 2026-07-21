@@ -17,8 +17,11 @@ const LinkedinIcon = () => (
 );
 
 /**
- * Über-mich-Hero: H1 + Vorstellung + Social-Icons links, Portrait (2:3) rechts
- * mit Wipe-Reveal (motion.ts, [data-wipe]).
+ * Über-mich-Hero: H1 + Vorstellung + Social-Icons links, Portrait (2:3) rechts.
+ * Die Load-Choreografie (IX2 a-125: H1/Intro/Navbar einfahren, Whipe-Fläche
+ * kollabiert per Höhe) lebt in motion/about-load.ts und greift über
+ * [data-about-hero]/.ahero__intro/[data-ahero-wipe]. Die Social-Icons
+ * animieren im Original nicht (statisch).
  */
 export default function PortraitHeroSection({
   section,
@@ -34,6 +37,7 @@ export default function PortraitHeroSection({
     <section
       id={anchor || undefined}
       className="ahero"
+      data-about-hero=""
       data-section-key={edit ? _key : undefined}
       {...edit?.(path)}
     >
@@ -41,18 +45,17 @@ export default function PortraitHeroSection({
         <div className="ahero__inner">
           <div className="ahero__grid">
             <header className="ahero__content">
-              <h1 data-anim="lines" data-delay="0.4" {...edit?.(`${path}.heading`)}>
-                {heading}
-              </h1>
-              <p data-anim="reveal-up" data-delay="0.6" {...edit?.(`${path}.intro`)}>
+              <h1 {...edit?.(`${path}.heading`)}>{heading}</h1>
+              <p className="ahero__intro" {...edit?.(`${path}.intro`)}>
                 {intro}
               </p>
               {socials.length > 0 && (
-                <div className="ahero__socials" data-anim="reveal-x" data-delay="0.8">
+                <div className="ahero__socials">
                   {socials.map((s) => (
                     <a
                       key={s._key}
                       href={safeHref(s.href)}
+                      className={s.platform === 'linkedin' ? 'is-linkedin' : 'is-instagram'}
                       target="_blank"
                       rel="noopener noreferrer"
                       aria-label={s.platform === 'linkedin' ? 'LinkedIn' : 'Instagram'}
@@ -65,7 +68,7 @@ export default function PortraitHeroSection({
             </header>
             <div className="ahero__media">
               <Img image={image} loading="eager" sizes="(max-width: 991px) 100vw, 40vw" />
-              <div className="ahero__wipe" data-wipe="" aria-hidden="true" />
+              <div className="ahero__wipe" data-ahero-wipe="" aria-hidden="true" />
             </div>
           </div>
         </div>

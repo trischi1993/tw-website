@@ -28,7 +28,6 @@ export default function RichTextSection({
         <div {...edit?.(`${path}.body`)}>
           <ProseText value={body} />
         </div>
-        <div className="legal-text__spacer" aria-hidden="true" />
       </div>
     </section>
   );

@@ -34,7 +34,7 @@ export default function TextSection({
       {...edit?.(path)}
     >
       <div className="container">
-        <div className="section__content" data-reveal="">
+        <div className="section__content">
           {content.map((el) => {
             const elPath = `${path}.content[_key=="${el._key}"]`;
             switch (el._type) {

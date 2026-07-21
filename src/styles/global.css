@@ -53,10 +53,10 @@ h4 { font-size: var(--h4-size); font-weight: var(--h4-weight); line-height: var(
 h5 { font-size: var(--h5-size); font-weight: var(--h5-weight); line-height: var(--h5-lh); letter-spacing: var(--h5-ls); }
 h6 { font-size: var(--h6-size); font-weight: var(--h6-weight); line-height: var(--h6-lh); }
 
+/* Wie im Original: keine globale Link-Transition (Hover-Farbwechsel instant). */
 a {
   color: inherit;
   text-decoration: none;
-  transition: color var(--dur-fast) var(--ease-smooth);
 }
 
 strong, b { font-weight: 600; }
@@ -117,12 +117,16 @@ em, i { font-style: italic; }
   text-decoration: none;
 }
 .btn-glow__circle {
+  /* Original: DUNKLE Blur-Ellipse (#1d1d1d) unter dem Wrapper - sie dimmt
+     den 1px-Glow-Rand und folgt der Maus (motion/glow.ts). */
   position: absolute;
-  inset: -0.25rem;
-  background: var(--ink);
+  top: 0;
+  left: 0;
+  width: calc(100% + 0.5rem);
+  height: calc(100% + 0.5rem);
+  background: var(--paper-2);
   border-radius: 100%;
   filter: blur(20px);
-  opacity: 0.55;
   pointer-events: none;
 }
 .btn-glow__wrapper {
@@ -154,13 +158,17 @@ em, i { font-style: italic; }
 }
 @media (max-width: 991px) {
   .btn-glow__circle { display: none; }
+  /* Original: ohne Glow-Kreis hellerer Ring (#ffffff4d statt #ffffff0d). */
+  .btn-glow { background: #ffffff4d; }
 }
 
-/* Pfeil-Icon mit Hover-Swap (zwei Pfeile, der zweite schiebt nach) */
+/* Pfeil-Icon-Maske (IX2 a-93/a-98): Pfeil 1 wartet links (-131 %), Pfeil 2
+   ist sichtbar; den Hover-Swap animiert motion/buttons.ts (kein CSS-Hover,
+   sonst konkurriert die Transition mit den GSAP-Inline-Transforms). */
 .btn-arrows {
   position: relative;
-  width: 1em;
-  height: 1em;
+  width: 1rem;
+  height: 1rem;
   overflow: hidden;
   flex: none;
 }
@@ -169,15 +177,9 @@ em, i { font-style: italic; }
   inset: 0;
   width: 100%;
   height: 100%;
-  transition: transform 0.4s var(--ease-smooth);
+  padding: 1px;
 }
-.btn-arrows img + img { transform: translate(-120%, 120%); }
-a:hover > * .btn-arrows img:first-child,
-.btn-glow:hover .btn-arrows img:first-child,
-.button:hover .btn-arrows img:first-child { transform: translate(120%, -120%); }
-a:hover > * .btn-arrows img + img,
-.btn-glow:hover .btn-arrows img + img,
-.button:hover .btn-arrows img + img { transform: translate(0, 0); }
+.btn-arrows img:first-child { transform: translateX(-131%); }
 
 /* 2) Outline-Button (.button) — Rahmen creme, Hover füllt beige */
 .button {
@@ -195,32 +197,29 @@ a:hover > * .btn-arrows img + img,
   cursor: pointer;
   transition: all 0.5s var(--ease-smooth);
 }
-.button:hover { background-color: var(--brand-cream); color: var(--paper); }
-.button:active { background-color: var(--brand); border-color: var(--brand); color: var(--ink); }
-.button.is-tertiary { border-color: var(--brand-cream); background: transparent; }
-.button.is-tertiary:hover { background-color: var(--brand-cream); color: var(--paper); }
+/* Original: Hover füllt NUR den Hintergrund (Textfarbe bleibt whitesmoke). */
+.button:hover { background-color: var(--brand-cream); }
+.button:active { background-color: var(--brand); border-color: var(--brand); }
+.button.is-tertiary { background: transparent; }
 
 /* 3) Sekundär: Text-Link mit Underline-Wipe */
 .link-underline {
   position: relative;
   display: inline-block;
-  padding-bottom: 0.2em;
   color: var(--ink-2);
   text-decoration: none;
   overflow: hidden;
 }
 .link-underline:hover { color: var(--ink); }
+/* Wipe-Linie (IX2 a-91/a-92): IM FLUSS unter dem Text (Original-Box, hält
+   die Nav-Links vertikal mittig); animiert von motion/buttons.ts. */
 .link-underline__line {
-  position: absolute;
-  left: 0;
-  bottom: 0;
+  display: block;
   width: 100%;
   height: 1.15px;
   background: var(--ink);
   transform: translateX(-101%);
-  transition: transform 0.3s ease-out;
 }
-.link-underline:hover .link-underline__line { transform: translateX(0); }
 
 .button-group {
   display: flex;
@@ -229,6 +228,9 @@ a:hover > * .btn-arrows img + img,
   gap: 1rem 1.5rem;
 }
 .button-group.is-center { justify-content: center; }
+@media (max-width: 991px) {
+  .button-group.is-center { align-self: center; }
+}
 
 /* ---------------------------------------------------------------------------
    Prose (Rechtstexte / Rich Text aus dem CMS)

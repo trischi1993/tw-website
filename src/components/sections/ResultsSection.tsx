@@ -3,9 +3,10 @@ import type { EditAttr } from './SectionsList';
 import Img from './Img';
 
 /**
- * „Zahlen & Fakten": geprägter Doppel-Titel (gefüllt + Outline) und vier
- * gestapelte Beweis-Karten, die beim Scrollen auffächern (200vh-Strecke,
- * Sticky-Content; Scrub-Animation in motion.ts über [data-results]).
+ * „Zahlen & Fakten": geprägter Doppel-Titel (gefüllt + Outline, statisch) und
+ * vier gestapelte Karten, die beim Scrollen nacheinander nach oben
+ * herausfliegen (IX2 a-139/a-140; 200vh-Strecke, Sticky-Content, Scrub über
+ * [data-results-trigger] in motion/results.ts).
  */
 export default function ResultsSection({
   section,
@@ -29,14 +30,10 @@ export default function ResultsSection({
         <div className="results__track">
           <div className="results__sticky">
             <div className="results__title-wrapper" aria-hidden="true">
-              <h2 className="results__title" data-results-title-1="">
-                {title}
-              </h2>
+              <h2 className="results__title">{title}</h2>
             </div>
             <div className="results__title-wrapper is-outline" aria-hidden="true">
-              <h2 className="results__title is-outline" data-results-title-2="">
-                {title}
-              </h2>
+              <h2 className="results__title is-outline">{title}</h2>
             </div>
             <h2 className="visually-hidden" {...edit?.(`${path}.title`)}>
               {title}
@@ -49,6 +46,7 @@ export default function ResultsSection({
               ))}
             </div>
           </div>
+          <div className="results__trigger" data-results-trigger="" aria-hidden="true"></div>
         </div>
       </div>
     </section>

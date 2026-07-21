@@ -100,16 +100,11 @@ const jsonLdArray = [orgJsonLd, ...pageJsonLd];
     <AioModal />
     <script>
       // Interaktive Widgets (FAQ, Tabs, Read-More, Load-More, Vimeo-Gate)
-      // laufen auf jeder Seite; das GSAP-Motion-Bundle lädt nur, wenn die
-      // Seite Animations-Hooks trägt (der Glow-CTA im Header zählt dazu).
+      // laufen auf jeder Seite. Das GSAP-Motion-Bundle ebenso: Footer-Reveal,
+      // Underline-Wipes und der Glow-CTA im Header animieren auf jeder Seite
+      // (IX2 a-87/a-91/a-141); eine Hook-Bedingung wäre immer wahr.
       import('../scripts/widgets.ts');
-      if (
-        document.querySelector(
-          '[data-anim], [data-reveal], [data-hero-scroll], [data-results], [data-gallery], [data-banner], [data-timeline], [data-line-draw], [data-wipe], [data-glow-circle]',
-        )
-      ) {
-        import('../scripts/motion.ts');
-      }
+      import('../scripts/motion.ts');
     </script>
     <PreviewExtras />
   </body>

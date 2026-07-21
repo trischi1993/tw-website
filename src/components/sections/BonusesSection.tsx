@@ -4,7 +4,12 @@ import Img from './Img';
 import GlowButton from './GlowButton';
 import { contentShell } from './shell';
 
-/** Bonus-Karten (3er-Reihe, Gold-Tag) + Bewerbungs-CTA. */
+/**
+ * Bonus-Karten (3er-Reihe, Gold-Tag) + Bewerbungs-CTA. Bewusst OHNE
+ * Animationen: Die Live-Karten (.layout395_card) haben im Webflow-Export
+ * weder data-w-id noch Events; der IX2-Hover a-130/131 zielt auf die dort
+ * nicht existierende Klasse .grid_item-link (Altlast) und ist damit tot.
+ */
 export default function BonusesSection({
   section,
   edit,
@@ -27,7 +32,7 @@ export default function BonusesSection({
       <div className="container">
         <div className="bonus__head">
           <div className="max-w-lg align-center">
-            <h2 data-anim="reveal-up" {...edit?.(`${path}.heading`)}>
+            <h2 {...edit?.(`${path}.heading`)}>
               {heading}
             </h2>
             {intro && <p {...edit?.(`${path}.intro`)}>{intro}</p>}
@@ -35,7 +40,7 @@ export default function BonusesSection({
         </div>
         <div className="bonus__grid">
           {cards.map((card) => (
-            <div className="bonus__card" key={card._key} data-anim="reveal-up" data-delay="0.2">
+            <div className="bonus__card" key={card._key}>
               <Img image={card.image} sizes="(max-width: 991px) 90vw, 26rem" />
               <div className="bonus__card-content">
                 <span className="bonus__tag">{card.tag}</span>

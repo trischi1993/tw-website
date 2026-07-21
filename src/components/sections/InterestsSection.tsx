@@ -17,7 +17,9 @@ const WeiterbildungIcon = () => (
 
 /**
  * Interessen: H2 links, 2 Highlight-Items rechts, darunter zwei endlose
- * CSS-Wort-Marquees (22s linear, Reihe 2 rückwärts — 1:1 wie das Original).
+ * CSS-Wort-Marquees (22s linear, Reihe 2 rückwärts — 1:1 wie das Original,
+ * dort ebenfalls ein CSS-Embed; die IX2-Marquee-Listen sind tote Verweise).
+ * Reveals: Grid a-110 (offset 12), Marquee-Blöcke a-117 (delay 0.15, offset 0).
  */
 export default function InterestsSection({
   section,
@@ -50,9 +52,9 @@ export default function InterestsSection({
       {...edit?.(path)}
     >
       <div className="container">
-        <div className="interests__grid" data-anim="reveal-up">
+        <div className="interests__grid" data-anim="reveal" data-offset="12">
           <h2 {...edit?.(`${path}.heading`)}>{heading}</h2>
-          <div>
+          <div className="interests__right">
             {introLine && (
               <p className="interests__intro" {...edit?.(`${path}.introLine`)}>
                 {introLine}
@@ -75,13 +77,19 @@ export default function InterestsSection({
         </div>
       </div>
       {marquee1.length > 0 && (
-        <div className="marquee" data-anim="reveal-up" aria-hidden="true">
+        <div className="marquee" data-anim="reveal" data-delay="0.15" data-offset="0" aria-hidden="true">
           {row(marquee1)}
           {row(marquee1)}
         </div>
       )}
       {marquee2.length > 0 && (
-        <div className="marquee is-reverse" data-anim="reveal-up" aria-hidden="true">
+        <div
+          className="marquee is-reverse"
+          data-anim="reveal"
+          data-delay="0.15"
+          data-offset="0"
+          aria-hidden="true"
+        >
           {row(marquee2)}
           {row(marquee2)}
         </div>

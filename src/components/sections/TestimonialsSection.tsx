@@ -35,9 +35,10 @@ export default function TestimonialsSection({
       className={`reviews ${shell.className}`}
       style={shell.style}
       data-section-key={edit ? _key : undefined}
+      data-banner=""
       {...edit?.(path)}
     >
-      <div className="reviews__banner" aria-hidden="true" data-banner="">
+      <div className="reviews__banner" aria-hidden="true">
         <span className="reviews__banner-line" data-banner-top="">
           {heading}
         </span>
@@ -76,7 +77,7 @@ export default function TestimonialsSection({
         </div>
         {testimonials.length > initialCount && (
           <div className="reviews__more">
-            <button type="button" className="link-underline" data-load-more="">
+            <button type="button" className="link-underline" data-load-more="" data-underline="">
               {loadMoreLabel}
               <span className="link-underline__line" aria-hidden="true" />
             </button>

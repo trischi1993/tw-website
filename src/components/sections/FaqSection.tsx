@@ -7,6 +7,9 @@ import { contentShell } from './shell';
  * FAQ-Accordion: Frage-Zeile mit weißem Plus-Quadrat, Antwort auf dunkler
  * Fläche. Toggle: delegiertes Script (widgets.ts, [data-faq-toggle]) mit
  * GSAP-Höhenanimation; Items unabhängig aufklappbar (wie das Original).
+ * Animationen 1:1 nach IX2: Entrance = [data-anim="faq-item"] (nur der
+ * .faq__top-Fade, a-107), Desktop-Hover mit Whipe/Icon/Frage-Verschiebung
+ * (motion/faq-hover.ts, a-52/53), Mobile-Klick-Whipe in widgets.ts (a-101/102).
  */
 export default function FaqSection({ section, edit }: { section: SectionFaq; edit?: EditAttr }) {
   const { _key, anchor, heading, items } = section;
@@ -23,22 +26,25 @@ export default function FaqSection({ section, edit }: { section: SectionFaq; edi
     >
       <div className="container">
         <div className="faq__head max-w-lg">
-          <h2 data-anim="reveal-up" {...edit?.(`${path}.heading`)}>
+          <h2 data-anim="reveal" {...edit?.(`${path}.heading`)}>
             {heading}
           </h2>
         </div>
         <div className="faq__list">
           {items.map((item, i) => (
-            <div className="faq__item" key={item._key} data-anim="reveal-left" data-faq-item="">
+            <div className="faq__item" key={item._key} data-anim="faq-item" data-faq-item="">
               <button
                 type="button"
                 className="faq__top"
                 data-faq-toggle=""
+                data-faq-top=""
                 aria-expanded="false"
                 aria-controls={`faq-${_key}-${i}`}
               >
-                <span className="faq__question">{item.question}</span>
-                <span className="faq__icon" aria-hidden="true" />
+                <span className="faq__question" data-faq-question="">
+                  {item.question}
+                </span>
+                <span className="faq__icon" aria-hidden="true" data-faq-icon="" />
               </button>
               <span className="faq__line" aria-hidden="true" />
               <div className="faq__bottom" id={`faq-${_key}-${i}`} data-faq-panel="" hidden>
@@ -46,6 +52,7 @@ export default function FaqSection({ section, edit }: { section: SectionFaq; edi
                   <RichText value={item.answer} paragraphs />
                 </div>
               </div>
+              <span className="faq__whipe" data-faq-whipe="" aria-hidden="true" hidden />
             </div>
           ))}
         </div>

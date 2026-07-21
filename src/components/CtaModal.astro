@@ -5,8 +5,8 @@ import { getServices } from '../lib/content';
  * Globales Anfrage-Modal (Webflow .cta-modal, global-chrome.md §8):
  * Formular mit bedingter Radio-Logik (Service-Typ → Unternehmens-Typ →
  * Choices.js-Multiselect aus der Coaching-Collection). Öffnen/Schließen,
- * Validierung und Submit: src/scripts/modals.ts. Formular-Ziel ist ein
- * Form.Taxi-PLATZHALTER — vor Go-Live durch den echten Endpunkt ersetzen.
+ * Validierung und Submit: src/scripts/modals.ts. Formular-Ziel: Form.Taxi
+ * (Endpunkt von Julian, 2026-07-21).
  */
 const services = await getServices();
 const dedupe = (values: string[]) => [...new Set(values.filter(Boolean))];
@@ -17,7 +17,7 @@ const businessOptions = dedupe(
   services.filter((s) => s.category === 'business').map((s) => s.formName),
 );
 
-const FORM_ACTION = 'https://form.taxi/s/FORM_TAXI_ENDPOINT_PLATZHALTER';
+const FORM_ACTION = 'https://form.taxi/s/vvg9bvd4';
 ---
 <div class="modal" data-modal="cta" role="dialog" aria-modal="true" aria-labelledby="cta-modal-title" hidden>
   <div class="modal__overlay" aria-hidden="true"></div>
@@ -86,32 +86,36 @@ const FORM_ACTION = 'https://form.taxi/s/FORM_TAXI_ENDPOINT_PLATZHALTER';
           </div>
 
           <fieldset class="modal__field modal__radios" data-radio-group>
-            <legend class="modal__label">Coaching-Kategorie</legend>
-            <label class="modal-radio">
-              <input type="radio" name="Service-Typ" value="ALL-IN-ONE Coaching" data-target="isAIO" required checked />
-              <span class="modal-radio__icon" aria-hidden="true"></span>
-              <span>ALL-IN-ONE Coaching</span>
-            </label>
-            <label class="modal-radio">
-              <input type="radio" name="Service-Typ" value="Spezifische Coachings" data-target="isSpecificCoaching" required />
-              <span class="modal-radio__icon" aria-hidden="true"></span>
-              <span>Spezifische Coachings</span>
-            </label>
+            <legend class="modal__label">Wähle deine gewünschte Coaching-Kategorie aus</legend>
+            <div class="modal__radio-row">
+              <label class="modal-radio">
+                <input type="radio" name="Service-Typ" value="ALL-IN-ONE Coaching" data-target="isAIO" required />
+                <span class="modal-radio__icon" aria-hidden="true"></span>
+                <span class="modal-radio__text">ALL-IN-ONE Coaching</span>
+              </label>
+              <label class="modal-radio">
+                <input type="radio" name="Service-Typ" value="Spezifische Coachings" data-target="isSpecificCoaching" required />
+                <span class="modal-radio__icon" aria-hidden="true"></span>
+                <span class="modal-radio__text">Spezifische Coachings</span>
+              </label>
+            </div>
           </fieldset>
 
           <div id="isSpecificCoaching" data-conditional hidden>
             <fieldset class="modal__field modal__radios" data-radio-group>
-              <legend class="modal__label">Für wen ist das Coaching?</legend>
-              <label class="modal-radio">
-                <input type="radio" name="Unternehmens-Typ" value="Personal Brand / Selbstständig" data-target="isPersonalBrand" disabled />
-                <span class="modal-radio__icon" aria-hidden="true"></span>
-                <span>Personal Brand / Selbstständig</span>
-              </label>
-              <label class="modal-radio">
-                <input type="radio" name="Unternehmens-Typ" value="Startup / Unternehmen" data-target="isUnternehmen" disabled />
-                <span class="modal-radio__icon" aria-hidden="true"></span>
-                <span>Startup / Unternehmen</span>
-              </label>
+              <legend class="modal__label">Was trifft am besten auf dich zu?</legend>
+              <div class="modal__radio-row">
+                <label class="modal-radio">
+                  <input type="radio" name="Unternehmens-Typ" value="Personal Brand / Selbstständig" data-target="isPersonalBrand" disabled />
+                  <span class="modal-radio__icon" aria-hidden="true"></span>
+                  <span class="modal-radio__text">Personal Brand / Selbstständig</span>
+                </label>
+                <label class="modal-radio">
+                  <input type="radio" name="Unternehmens-Typ" value="Startup / Unternehmen" data-target="isUnternehmen" disabled />
+                  <span class="modal-radio__icon" aria-hidden="true"></span>
+                  <span class="modal-radio__text">Startup / Unternehmen</span>
+                </label>
+              </div>
             </fieldset>
 
             <div class="modal__field" id="isPersonalBrand" data-conditional hidden>
@@ -132,7 +136,7 @@ const FORM_ACTION = 'https://form.taxi/s/FORM_TAXI_ENDPOINT_PLATZHALTER';
 
             <div class="modal__field" id="isUnternehmen" data-conditional hidden>
               <label class="modal__label" for="select-multiple-unternehmen">
-                Welche Coaching-Bereiche interessieren euch?
+                Welche Coaching-Bereiche interessieren dich?
               </label>
               <p class="modal__label-info">(Mehrfachauswahl möglich)</p>
               <select
@@ -221,7 +225,8 @@ const FORM_ACTION = 'https://form.taxi/s/FORM_TAXI_ENDPOINT_PLATZHALTER';
     inset: 0;
     z-index: 560;
     overflow: auto;
-    padding: 10vh 5% 5vh;
+    /* Original: 10vh oben (Scroll-Container) + 10vh unten (padding-cta-modal) */
+    padding: 10vh 5%;
   }
   .modal__container {
     max-width: 35rem;
@@ -232,6 +237,7 @@ const FORM_ACTION = 'https://form.taxi/s/FORM_TAXI_ENDPOINT_PLATZHALTER';
     background: var(--paper);
     border-radius: var(--radius-card);
     padding: 12% 10%;
+    overflow: clip;
   }
   @media (max-width: 479px) {
     .modal__content { padding: 15% 5% 20%; }
@@ -252,19 +258,17 @@ const FORM_ACTION = 'https://form.taxi/s/FORM_TAXI_ENDPOINT_PLATZHALTER';
   @media (max-width: 767px) {
     .modal__close { top: 1rem; right: 1rem; }
   }
-  @media (max-width: 479px) {
-    .modal__close { top: 0.75rem; right: 0.75rem; }
-  }
   .modal__heading {
+    margin-bottom: 1.5rem;
     font-size: 2.5rem;
     font-weight: 700;
-    line-height: 1.175;
+    line-height: 1.2;
   }
   @media (max-width: 991px) {
     .modal__heading { font-size: 1.75rem; }
   }
   @media (max-width: 767px) {
-    .modal__heading { font-size: 1.5rem; }
+    .modal__heading { font-size: 1.5rem; line-height: 1.4; }
   }
 
   /* --- Felder --------------------------------------------------------------- */
@@ -277,7 +281,7 @@ const FORM_ACTION = 'https://form.taxi/s/FORM_TAXI_ENDPOINT_PLATZHALTER';
     padding: 0;
   }
   .modal__label-info {
-    margin: -0.35rem 0 0.5rem;
+    margin: 0 0 0.5rem;
     color: var(--ink-3);
     font-size: var(--text-sm);
   }
@@ -296,20 +300,30 @@ const FORM_ACTION = 'https://form.taxi/s/FORM_TAXI_ENDPOINT_PLATZHALTER';
   .modal-input::placeholder { color: var(--ink-3); }
   .modal-input.is-text-area { min-height: 11.25rem; resize: vertical; }
 
+  /* Radios als Pill-Buttons (Original .cta-radio-input/.quiz_radio-icon):
+     die „Icon"-Fläche ist der absolute Pill-Hintergrund, checked = Goldrahmen. */
   .modal__radios {
     border: 0;
     margin: 1.5rem 0 0;
     padding: 0;
+  }
+  .modal__radio-row {
     display: flex;
-    flex-direction: column;
-    gap: 0.75rem;
+    flex-wrap: wrap;
+    gap: 0.5rem;
   }
   .modal-radio {
+    position: relative;
+    flex: 1;
     display: flex;
     align-items: center;
-    gap: 0.75rem;
+    justify-content: center;
+    padding: 0.5rem 1rem;
+    border-radius: var(--radius-input);
     cursor: pointer;
-    color: var(--ink-2);
+    color: var(--ink-3);
+    font-size: 16px;
+    text-align: center;
   }
   .modal-radio input {
     position: absolute;
@@ -318,28 +332,24 @@ const FORM_ACTION = 'https://form.taxi/s/FORM_TAXI_ENDPOINT_PLATZHALTER';
     height: 1px;
   }
   .modal-radio__icon {
-    width: 1.125rem;
-    height: 1.125rem;
+    position: absolute;
+    inset: 0;
     border: 1px solid var(--form-line);
-    border-radius: 999rem;
-    flex: none;
-    display: grid;
-    place-items: center;
-    transition: border-color var(--dur-fast) var(--ease-smooth);
+    background: var(--paper-2);
+    border-radius: var(--radius-input);
+    transition: all 0.2s;
   }
+  .modal-radio__text { position: relative; z-index: 1; }
   .modal-radio input:checked + .modal-radio__icon {
     border: 2px solid var(--brand);
   }
-  .modal-radio input:checked + .modal-radio__icon::after {
-    content: '';
-    width: 0.5rem;
-    height: 0.5rem;
-    background: var(--brand);
-    border-radius: 999rem;
-  }
   .modal-radio input:focus-visible + .modal-radio__icon {
+    border: 2px solid var(--brand);
     outline: 2px solid var(--brand);
     outline-offset: 3px;
+  }
+  @media (max-width: 479px) {
+    .modal-radio { flex: 0 auto; }
   }
 
   .modal-checkbox {
@@ -348,7 +358,8 @@ const FORM_ACTION = 'https://form.taxi/s/FORM_TAXI_ENDPOINT_PLATZHALTER';
     gap: 0.75rem;
     cursor: pointer;
     color: var(--ink-2);
-    font-size: var(--text-sm);
+    font-size: 16px;
+    font-weight: 300;
   }
   .modal-checkbox input {
     position: absolute;
@@ -360,13 +371,13 @@ const FORM_ACTION = 'https://form.taxi/s/FORM_TAXI_ENDPOINT_PLATZHALTER';
     width: 1.125rem;
     height: 1.125rem;
     margin-top: 0.1rem;
-    border: 1px solid var(--form-line);
-    border-radius: 0.25rem;
+    border: 1px solid var(--ink);
+    border-radius: 0;
     flex: none;
     display: grid;
     place-items: center;
     color: transparent;
-    transition: all var(--dur-fast) var(--ease-smooth);
+    transition: all 0.2s;
   }
   .modal-checkbox input:checked + .modal-checkbox__box {
     background: var(--brand);
@@ -378,8 +389,10 @@ const FORM_ACTION = 'https://form.taxi/s/FORM_TAXI_ENDPOINT_PLATZHALTER';
     outline-offset: 3px;
   }
   .modal-checkbox__box svg { width: 0.7rem; height: 0.6rem; }
+  /* Link wie Original: erbt die Textfarbe, nur unterstrichen + weight 400. */
   .modal-checkbox a {
-    color: var(--ink);
+    color: inherit;
+    font-weight: 400;
     text-decoration: underline;
     text-underline-offset: 0.15em;
   }
@@ -411,52 +424,81 @@ const FORM_ACTION = 'https://form.taxi/s/FORM_TAXI_ENDPOINT_PLATZHALTER';
     font-size: 0.875rem;
   }
 
-  /* Choices.js-Overrides (global-chrome.md §8: Gold-Tags auf dunklem Grund) */
-  .choices { margin-bottom: 0; }
-  .choices__inner {
-    background: var(--paper-2);
+  /* Choices.js - 1:1-Port des Original-Embeds (.modal-select-multiple-css):
+     Rahmen/BG liegen auf .choices, __inner ist transparent; Dropdown auf
+     Seitengrund; Tags transparent mit Goldrahmen, Gold-Fläche bei Hover/
+     Auswahl. Fokus ändert die Rahmenfarbe NICHT (wie Original). */
+  .choices {
+    width: 100%;
+    margin-bottom: 0;
+    padding: 0.5rem 0.75rem;
     border: 1px solid var(--form-line);
     border-radius: var(--radius-input);
-    color: var(--ink);
-    min-height: 2.75rem;
-    padding: 0.4rem 0.75rem;
+    background: var(--paper-2);
     font-size: 16px;
+    font-family: inherit;
   }
-  .choices.is-focused .choices__inner,
-  .choices.is-open .choices__inner {
-    border-color: var(--brand);
+  .choices__inner {
+    display: inline-block;
+    vertical-align: top;
+    width: 100%;
+    background: transparent;
+    padding: 0;
+    border: none;
+    border-radius: 0;
+    font-size: 16px;
+    min-height: auto;
+    overflow: hidden;
   }
+  .choices__inner::before { color: var(--ink-3); }
+  .choices.is-focused .choices__inner {
+    border-color: var(--form-line);
+    color: var(--ink);
+  }
+  .choices__list--dropdown .choices__item--selectable {
+    background: var(--paper-2);
+    color: var(--ink-3);
+    padding: 0.5rem;
+  }
+  .choices__list--dropdown,
+  .choices__list[aria-expanded] {
+    border-radius: var(--radius-input);
+    background: var(--paper);
+  }
+  .choices__list--dropdown .choices__item--selectable.is-highlighted,
+  .choices__list[aria-expanded] .choices__item--selectable.is-highlighted {
+    background: var(--paper);
+    color: var(--ink);
+  }
+  .choices__input {
+    width: 100%;
+    padding: 0;
+    border: 0;
+    border-radius: 0;
+    font-size: 16px;
+    font-family: inherit;
+    background: transparent;
+    color: var(--ink);
+    margin-bottom: 0;
+  }
+  .choices__input::placeholder { color: var(--ink-3); }
   .choices__list--multiple .choices__item {
     background: transparent;
     border: 1px solid var(--brand);
     border-radius: var(--radius-input);
     color: var(--ink);
-    font-size: var(--text-sm);
   }
+  .choices__list--multiple .choices__item.is-selected,
+  .choices__list--multiple .choices__item:hover,
   .choices__list--multiple .choices__item.is-highlighted {
     background: var(--brand);
     border-color: var(--brand);
-  }
-  .choices__list--dropdown,
-  .choices__list[aria-expanded] {
-    background: var(--paper);
-    border: 1px solid var(--form-line);
-    border-radius: var(--radius-input);
-    color: var(--ink-2);
-  }
-  .choices__list--dropdown .choices__item--selectable.is-highlighted,
-  .choices__list[aria-expanded] .choices__item--selectable.is-highlighted {
-    background: var(--paper-2);
     color: var(--ink);
   }
-  .choices__input {
-    background: transparent;
-    color: var(--ink);
-    font-size: 16px;
-  }
-  .choices__input::placeholder { color: var(--ink-3); }
   .choices[data-type*='select-multiple'] .choices__button {
-    border-left: 1px solid var(--brand);
+    border-left: 1px solid var(--form-line);
+    /* Sichtbarkeits-Fix (bewusste Ergänzung): Choices' X-Icon ist dunkel,
+       auf dunklem Grund ohne Invert unsichtbar. */
     filter: invert(1);
   }
 </style>
