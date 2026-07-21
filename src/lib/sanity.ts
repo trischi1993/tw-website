@@ -155,7 +155,7 @@ export async function fetchHome(): Promise<HomeContent> {
 
 /* Standalone-Liste fürs Anfrage-Modal (die Sections betten ihre Services über
    die Subquery in SECTIONS_PROJECTION selbst ein). */
-const SERVICES_QUERY = `*[_type == "service"] | order(order asc){
+const SERVICES_QUERY = `*[_type == "service"] | order(coalesce(order, 9999) asc, _id asc){
   "id": _id, name, formName, category, description,
   image{ alt, caption, asset->{ url, metadata{ dimensions, lqip } } }
 }`;

@@ -32,8 +32,11 @@ const assetsRoot = path.resolve(studioRoot, '../src/assets/images');
 function img(relPath, alt, caption) {
   const abs = path.join(assetsRoot, relPath);
   if (!existsSync(abs)) throw new Error(`[make-seed] Bild fehlt: ${abs}`);
+  // _type == Schema-Typ 'imageWithAlt' (nicht 'image'), sonst zeigt das Studio
+  // in imageWithAlt-Arrays „Unknown type"; der _sanityAsset-Upload ist davon
+  // unabhaengig.
   return {
-    _type: 'image',
+    _type: 'imageWithAlt',
     _sanityAsset: `image@file://${abs}`,
     alt,
     ...(caption ? { caption } : {}),
@@ -45,7 +48,7 @@ const content = buildContent({ img });
 /* --- Sanity-Formalia ------------------------------------------------------- */
 
 const withKeys = (items = [], prefix = 'k') =>
-  items.map((it, i) => ({ _key: `${prefix}${i}`, ...it }));
+  items.map((it, i) => ({ _key: `${prefix}${i}`, _type: 'navItem', ...it }));
 
 /** _type der Array-Member je Section-Typ und Feld (== Studio-Schema). */
 const MEMBER_TYPE = {

@@ -43,8 +43,10 @@ const IMG = `{ alt, caption, asset->{ url, metadata{ dimensions, lqip } } }`;
 /* Eingebettete CMS-Collections: die Section liefert ihre Items gleich mit —
    eine Quelle für Build, SSR und Live-Island (Änderungen an Services/
    Testimonials erscheinen in der Vorschau live). */
-const SERVICES_SUB = `"services": *[_type == "service"] | order(order asc){ "id": _id, name, formName, category, description, image${IMG} }`;
-const TESTIMONIALS_SUB = `"testimonials": *[_type == "testimonial"] | order(coalesce(order, 9999) asc){ "id": _id, name, role, text, image${IMG} }`;
+/* _id als stabiler Zweitschluessel: bei gleichem order sortieren Build (Seed),
+   Live-Island (groq-js) und Content-Lake identisch. */
+const SERVICES_SUB = `"services": *[_type == "service"] | order(coalesce(order, 9999) asc, _id asc){ "id": _id, name, formName, category, description, image${IMG} }`;
+const TESTIMONIALS_SUB = `"testimonials": *[_type == "testimonial"] | order(coalesce(order, 9999) asc, _id asc){ "id": _id, name, role, text, image${IMG} }`;
 
 export const SECTIONS_PROJECTION = `sections[]{
   _type, _key, name, "anchor": anchor.current, tone, align, paddingTop, paddingBottom, gap, fullHeight,

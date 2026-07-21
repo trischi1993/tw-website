@@ -59,7 +59,10 @@ const APPLY_LABEL = "Für's Coaching bewerben";
 
 export function buildContent({ img }) {
   /* --- CMS-Collections (Reihenfolge: order asc, null ans Ende, stabil) ----- */
-  const byOrder = (a, b) => (a.order ?? 9999) - (b.order ?? 9999);
+  /* Slug als stabiler Zweitschluessel == _id-Reihenfolge der GROQ-Subqueries
+     (order(coalesce(order,9999) asc, _id asc)) - Seed und Sanity identisch. */
+  const byOrder = (a, b) =>
+    (a.order ?? 9999) - (b.order ?? 9999) || (a.slug < b.slug ? -1 : a.slug > b.slug ? 1 : 0);
 
   const services = [...servicesData].sort(byOrder).map((s) => ({
     id: `service-${s.slug}`,
