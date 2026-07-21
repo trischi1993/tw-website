@@ -210,7 +210,7 @@ em, i { font-style: italic; }
   text-decoration: none;
   overflow: hidden;
 }
-.link-underline:hover { color: var(--ink); }
+.link-underline__label { display: block; }
 /* Wipe-Linie (IX2 a-91/a-92): IM FLUSS unter dem Text (Original-Box, hält
    die Nav-Links vertikal mittig); animiert von motion/buttons.ts. */
 .link-underline__line {
@@ -219,6 +219,10 @@ em, i { font-style: italic; }
   height: 1.15px;
   background: var(--ink);
   transform: translateX(-101%);
+}
+@media (prefers-reduced-motion: reduce) {
+  .link-underline:hover .link-underline__line,
+  .link-underline:focus-visible .link-underline__line { transform: translateX(0); }
 }
 
 .button-group {

@@ -29,7 +29,10 @@ export function init(mm: gsap.MatchMedia): void {
           gsap.to(whipe, { yPercent: 0, duration: 0.6, ease: EASE.outQuart });
         }
         if (icon) gsap.to(icon, { x: '-4em', duration: 0.8, ease: EASE.outQuart });
-        if (question) gsap.to(question, { x: '4em', duration: 0.8, ease: EASE.outQuart });
+        /* Im Export bewegt sich der font-neutrale Wrapper um 4em (= 4rem).
+           Hier ist das Ziel selbst 1.75rem groß; 4em wären deshalb fälschlich
+           7rem. Der feste rem-Wert bildet die alte Wrapper-Geometrie ab. */
+        if (question) gsap.to(question, { x: '4rem', duration: 0.8, ease: EASE.outQuart });
       };
       const leave = () => {
         if (whipe) {

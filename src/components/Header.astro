@@ -53,7 +53,7 @@ const menuItems = [{ label: 'Startseite', href: '/' }, ...settings.nav];
                   target={isExternal(item.href) ? '_blank' : undefined}
                   rel={isExternal(item.href) ? 'noopener noreferrer' : undefined}
                 >
-                  {item.label}
+                  <span class="link-underline__label">{item.label}</span>
                   <span class="link-underline__line" aria-hidden="true"></span>
                 </a>
               </li>

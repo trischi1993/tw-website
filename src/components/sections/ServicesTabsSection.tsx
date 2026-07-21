@@ -122,7 +122,7 @@ export default function ServicesTabsSection({
               target="_blank"
               rel="noopener noreferrer"
             >
-              {calendlyLabel}
+              <span className="link-underline__label">{calendlyLabel}</span>
               <span className="link-underline__line" aria-hidden="true" />
             </a>
           )}

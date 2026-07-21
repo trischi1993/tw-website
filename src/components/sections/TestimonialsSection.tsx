@@ -6,8 +6,13 @@ import { contentShell } from './shell';
 const Star = () => (
   <svg viewBox="0 0 24 24" aria-hidden="true">
     <path
+      opacity=".3"
       fill="currentColor"
-      d="M12 2l2.9 6.26 6.85.63-5.17 4.56 1.53 6.7L12 16.6l-6.11 3.55 1.53-6.7L2.25 8.9l6.85-.63L12 2z"
+      d="M12 15.4l-3.76 2.27 1-4.28-3.32-2.88 4.38-.38L12 6.1l1.71 4.04 4.38.38-3.32 2.88 1 4.28L12 15.4z"
+    />
+    <path
+      fill="currentColor"
+      d="M22 9.24l-7.19-.62L12 2 9.19 8.63 2 9.24l5.46 4.73L5.82 21 12 17.27 18.18 21l-1.63-7.03L22 9.24zM12 15.4l-3.76 2.27 1-4.28-3.32-2.88 4.38-.38L12 6.1l1.71 4.04 4.38.38-3.32 2.88 1 4.28L12 15.4z"
     />
   </svg>
 );
@@ -78,7 +83,7 @@ export default function TestimonialsSection({
         {testimonials.length > initialCount && (
           <div className="reviews__more">
             <button type="button" className="link-underline" data-load-more="" data-underline="">
-              {loadMoreLabel}
+              <span className="link-underline__label">{loadMoreLabel}</span>
               <span className="link-underline__line" aria-hidden="true" />
             </button>
           </div>

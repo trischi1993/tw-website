@@ -5,8 +5,8 @@ import { BP, EASE, FINE_POINTER, gsap, onMouseProgress, piecewise } from './util
    Maus-Parallax NUR Desktop (mq main) - der 180%-Track folgt der Maus-X-
    Position (xPercent +22 → -22, Keyframes @5/50/95 %), die Items heben/senken
    sich gegenläufig (y ∓40px). 500 ms Glättung wie IX2 (quickTo). Beim
-   Verlassen bleibt der letzte Wert stehen (IX2-Verhalten). ≤991 nativer
-   Overflow-Scroll (CSS).
+   Verlassen fahren beide Varianten entsprechend dem IX2-restingState 50
+   zurück in die zentrierte Ausgangslage; ≤991 nativer Overflow-Scroll (CSS).
 
    Hover (a-45/a-46, nur Home-Variante mit sichtbaren Titeln, mq main):
    Titel-Overlay schiebt aus der Maske hoch, Bild blur(6px) + scale 1.05.
@@ -32,11 +32,18 @@ function initParallax(root: HTMLElement): (() => void) | void {
     .map((item) => ({ shift: parseFloat(item.dataset.shift ?? '0'), yTo: gsap.quickTo(item, 'y', { duration: 0.5, ease: 'power2.out' }) }))
     .filter((it) => it.shift !== 0);
 
-  return onMouseProgress(root, (x) => {
-    xTo(TRACK_X(x));
-    const f = ITEM_F(x);
-    items.forEach(({ shift, yTo }) => yTo(shift * f));
-  });
+  return onMouseProgress(
+    root,
+    (x) => {
+      xTo(TRACK_X(x));
+      const f = ITEM_F(x);
+      items.forEach(({ shift, yTo }) => yTo(shift * f));
+    },
+    () => {
+      xTo(0);
+      items.forEach(({ yTo }) => yTo(0));
+    },
+  );
 }
 
 function initHover(item: HTMLElement): () => void {

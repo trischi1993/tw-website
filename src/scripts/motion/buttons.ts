@@ -37,17 +37,31 @@ function bindUnderline(el: HTMLElement): () => void {
   const line = el.querySelector<HTMLElement>('.link-underline__line');
   if (!line) return () => {};
   const over = () => {
-    gsap.set(line, { xPercent: -101 });
-    gsap.to(line, { xPercent: 0, duration: 0.3, ease: EASE.outSine });
+    /* Die CSS-Ausgangstransformation wird von GSAP als px-x geparst. Ohne
+       Neutralisierung würde xPercent zusätzlich dazu addiert: beim Hover
+       bliebe die Linie links, beim Mouse-out landete sie fälschlich mittig. */
+    gsap.set(line, { x: 0, xPercent: -101 });
+    gsap.to(line, {
+      xPercent: 0,
+      duration: 0.3,
+      ease: EASE.outSine,
+      overwrite: 'auto',
+    });
   };
   const out = () => {
-    gsap.to(line, { xPercent: 101, duration: 0.2, ease: EASE.outSine });
+    gsap.to(line, {
+      xPercent: 101,
+      duration: 0.2,
+      ease: EASE.outSine,
+      overwrite: 'auto',
+    });
   };
   el.addEventListener('mouseenter', over);
   el.addEventListener('mouseleave', out);
   return () => {
     el.removeEventListener('mouseenter', over);
     el.removeEventListener('mouseleave', out);
+    gsap.killTweensOf(line);
     gsap.set(line, { clearProps: 'all' });
   };
 }

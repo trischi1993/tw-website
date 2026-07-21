@@ -23,7 +23,13 @@ export default function GalleryMarqueeSection({
 }) {
   const { _key, anchor, heading, items, titlesVisible, ctaLabel, ctaHref } = section;
   const path = `sections[_key=="${_key}"]`;
-  const shell = contentShell(section, { top: 'large', bottom: 'large' });
+  /* Die AIO-Variante hat im Original einen eigenen, asymmetrischen
+     Section-Abstand (6rem/1rem statt padding-section-large). Explizite
+     Editor-Tokens bleiben inline und haben weiterhin Vorrang. */
+  const shell = contentShell(
+    section,
+    titlesVisible ? { top: 'large', bottom: 'large' } : {},
+  );
 
   /* IX2-Hebe-Muster: ungerade Items +40px, gerade -40px (@5 % der Maus-X). */
   const shiftFor = (i: number) => {
@@ -34,17 +40,22 @@ export default function GalleryMarqueeSection({
   return (
     <section
       id={anchor || undefined}
-      className={`gallery ${shell.className}`}
+      className={`gallery${titlesVisible ? '' : ' is-aio'} ${shell.className}`}
       style={shell.style}
       data-section-key={edit ? _key : undefined}
       {...edit?.(path)}
     >
       <div className="container container--md gallery__head">
-        <h2 data-anim="reveal" {...edit?.(`${path}.heading`)}>
-          {heading}
-        </h2>
+        <div className="gallery__head-mask">
+          <h2 data-anim="reveal" {...edit?.(`${path}.heading`)}>
+            {heading}
+          </h2>
+        </div>
       </div>
-      <div className="gallery__row-wrapper" data-marquee-parallax="">
+      <div
+        className="gallery__row-wrapper"
+        data-marquee-parallax=""
+      >
         <div className="gallery__row" data-marquee-track="">
           {items.map((item, i) => (
             <div
@@ -72,8 +83,15 @@ export default function GalleryMarqueeSection({
       </div>
       {ctaLabel && ctaHref && (
         <div className="gallery__footer">
-          <a className="link-underline" href={safeHref(ctaHref)} data-underline="">
-            {ctaLabel}
+          <a className="link-underline" href={safeHref(ctaHref)} data-underline="main">
+            <span className="link-underline__label gallery__footer-label">
+              {ctaLabel}
+              {titlesVisible && (
+                <span className="gallery__footer-arrow" aria-hidden="true">
+                  →
+                </span>
+              )}
+            </span>
             <span className="link-underline__line" aria-hidden="true" />
           </a>
         </div>
