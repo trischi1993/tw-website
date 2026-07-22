@@ -21,7 +21,7 @@ const LinkedinIcon = () => (
  * Die Load-Choreografie (IX2 a-125: H1/Intro/Navbar einfahren, Whipe-Fläche
  * kollabiert per Höhe) lebt in motion/about-load.ts und greift über
  * [data-about-hero]/.ahero__intro/[data-ahero-wipe]. Die Social-Icons
- * animieren im Original nicht (statisch).
+ * (.ahero__socials) zieht about-load bewusst mit ein (im Original statisch).
  */
 export default function PortraitHeroSection({
   section,

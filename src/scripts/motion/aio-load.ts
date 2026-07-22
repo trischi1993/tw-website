@@ -18,6 +18,12 @@ export function init(_mm: gsap.MatchMedia): void {
   const logoLines = document.querySelectorAll<HTMLElement>('[data-nav-logo-line]');
   const navRight = document.querySelector('[data-nav-right]');
 
+  // Pre-Paint-Hide (global.css) VOR den gsap-Aufrufen abschalten - synchron,
+  // ohne Paint dazwischen. So misst line.offsetHeight die NATÜRLICHE Höhe (mit
+  // aktiver height:0-Regel wäre sie 0). Siehe home-load.ts.
+  [h1, intro, buttons, video, navRight].forEach((el) => el?.setAttribute('data-revealed', ''));
+  logoLines.forEach((el) => el.setAttribute('data-revealed', ''));
+
   // Initialzustände (IX2 GROUP 0)
   if (h1) gsap.set(h1, { opacity: 0, x: '2rem' });
   if (intro) gsap.set(intro, { opacity: 0, x: '2rem' });

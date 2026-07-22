@@ -5,7 +5,8 @@ import GlowButton from './GlowButton';
 
 /**
  * Startseiten-Hero, 1:1 nach Webflow-Export (.section_home-hero):
- * - H1 mit Zeilen-Reveal (Line-Script: data-anim="lines", speed 1, delay 1).
+ * - H1 mit Zeilen-Reveal (Line-Script: data-anim="lines", speed 0.9, delay 0.1
+ *   - startet früh/parallel zum Nav-Build; Reveal-Charakter bleibt).
  * - Buttons (.button-group) + Scroll-Indikator + Wipe-Fläche werden von der
  *   Load-Choreografie animiert (motion/home-load.ts, IX2 a-105).
  * - Desktop: 300vh-Strecke, Sticky-Content; die Bildspalte (40 % Breite)
@@ -34,7 +35,7 @@ export default function HomeHeroSection({
       <div className="hhero__track">
         <header className="hhero__sticky">
           <div className="hhero__content">
-            <h1 className="hhero__h1" data-anim="lines" data-speed="1" data-delay="1">
+            <h1 className="hhero__h1" data-anim="lines" data-speed="0.9" data-delay="0.1">
               <span className="hhero__h1-small" {...edit?.(`${path}.headingSmall`)}>
                 {headingSmall}
               </span>

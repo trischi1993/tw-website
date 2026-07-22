@@ -36,6 +36,9 @@ function init(): void {
   if (window.matchMedia('(prefers-reduced-motion: reduce)').matches) return;
 
   document.documentElement.classList.add('has-motion');
+  // Signal fürs Pre-Paint-Failsafe (BaseLayout-Inline-Script): das Motion-Bundle
+  // hat initialisiert und übernimmt die Reveals - Failsafe NICHT auslösen.
+  document.documentElement.classList.add('motion-ready');
   ScrollTrigger.config({ ignoreMobileResize: true });
 
   const mm = gsap.matchMedia();

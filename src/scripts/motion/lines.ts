@@ -13,7 +13,10 @@ gsap.registerPlugin(SplitText);
    data-replay !== "false" → bei jedem erneuten Eintritt Restart.
    --------------------------------------------------------------------------- */
 
-const DELAY_AFTER_DOM_MS = 700;
+// Kurzer Layout-Puffer nach DOMContentLoaded. Im Original 700 ms (Font-Puffer);
+// da wir zusätzlich auf fonts.ready warten (finale Umbrüche stehen dann fest),
+// reicht ein kleiner Rest - die Zeilen-Reveals starten dadurch sichtbar früher.
+const DELAY_AFTER_DOM_MS = 150;
 
 function split(el: HTMLElement): void {
   const speed = parseFloat(el.dataset.speed ?? '') || 0.7;
@@ -54,6 +57,10 @@ export function init(): void {
   if (!els.length) return;
   // Bis zum Split unsichtbar (nur per JS - ohne JS bleibt der Text stehen).
   gsap.set(els, { autoAlpha: 0 });
+  // Ab hier hält das Inline-autoAlpha den Zustand; die CSS-Pre-Paint-Regel
+  // (global.css, html.has-motion [data-anim="lines"]) per [data-revealed]
+  // deaktivieren, damit sie nach dem Reveal nicht erneut greift.
+  els.forEach((el) => el.setAttribute('data-revealed', ''));
 
   const domReady = new Promise<void>((resolve) => {
     if (document.readyState !== 'loading') resolve();

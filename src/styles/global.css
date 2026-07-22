@@ -412,6 +412,60 @@ em, i { font-style: italic; }
 .no-scroll { overflow: hidden; }
 
 /* ---------------------------------------------------------------------------
+   Pre-paint Motion-Ausgangszustände (FOUC-Schutz)
+
+   Die Pageload-Choreografien (motion/home-load, about-load, aio-load) + der
+   Zeilen-Reveal (lines) versteckten ihre Ziele bisher nur per gsap.set - das
+   läuft aber erst NACH dem Laden des Motion-Bundles, also nach dem First Paint:
+   Der Inhalt blitzt kurz auf, bevor JS ihn versteckt und einblendet (FOUC).
+   Dieselben Ausgangszustände stehen hier im CSS und greifen ab dem ersten Frame
+   - html.has-motion setzt ein Inline-Script im <head> (BaseLayout) VOR dem
+   Paint. Jede Choreo schaltet ihre CSS-Regeln zu Beginn ihres init() per
+   [data-revealed] ab (synchron, ohne Paint dazwischen) und übernimmt die
+   Zustände per Inline-Style - so liest GSAP saubere Ausgangswerte.
+
+   Scoping: Hero-interne Elemente (eindeutige data-Attribute/Klassen) begrenzen
+   sich selbst auf ihre Seite. Die GETEILTEN Navbar-Elemente (Logo, rechter
+   Block) gibt es auf jeder Seite - sie dürfen nur dort versteckt werden, wo
+   überhaupt eine Load-Choreo läuft, daher :has() auf das jeweilige Hero-Element.
+
+   Ohne JS / bei prefers-reduced-motion wird has-motion nie gesetzt → alles
+   sichtbar (unveränderte No-JS/A11y-Garantie).
+   --------------------------------------------------------------------------- */
+
+/* Zeilen-Reveal (Home-H1, Value-Statement) - motion/lines.ts, jede Seite. */
+html.has-motion [data-anim='lines']:not([data-revealed]) { visibility: hidden; }
+
+/* Geteilter Navbar-Build - nur auf Seiten mit Load-Choreo (Home/Über-mich/AIO). */
+html.has-motion:has([data-home-hero], [data-about-hero], [data-aio-hero]) [data-nav-logo-line]:not([data-revealed]) { height: 0; }
+html.has-motion:has([data-home-hero], [data-about-hero], [data-aio-hero]) [data-nav-right]:not([data-revealed]) {
+  opacity: 0;
+  transform: translateX(2.5rem);
+}
+
+/* Home: Logo-Text-Slides + Buttons sind seitenübergreifende Selektoren → :has;
+   Wipe/Scroll tragen Home-eigene Attribute und begrenzen sich selbst. */
+html.has-motion:has([data-home-hero]) [data-nav-logo-text='1']:not([data-revealed]) { transform: translateX(140%); }
+html.has-motion:has([data-home-hero]) [data-nav-logo-text='2']:not([data-revealed]) { transform: translateX(-140%); }
+html.has-motion:has([data-home-hero]) .button-group:not([data-revealed]) {
+  opacity: 0;
+  transform: translateX(40px);
+}
+html.has-motion [data-hero-wipe]:not([data-revealed]) { width: 100%; height: 100%; }
+html.has-motion [data-hero-scroll]:not([data-revealed]) { opacity: 0; }
+
+/* Über-mich (Hero-intern, self-scoped über [data-about-hero]). */
+html.has-motion [data-about-hero] h1:not([data-revealed]) { opacity: 0; transform: translateX(2rem); }
+html.has-motion [data-about-hero] .ahero__intro:not([data-revealed]) { opacity: 0; transform: translateX(2rem); }
+html.has-motion [data-about-hero] .ahero__socials:not([data-revealed]) { opacity: 0; transform: translateX(2rem); }
+
+/* AIO (Hero-intern, self-scoped über die data-aio-*-Attribute). */
+html.has-motion [data-aio-h1]:not([data-revealed]) { opacity: 0; transform: translateX(2rem); }
+html.has-motion [data-aio-intro]:not([data-revealed]) { opacity: 0; transform: translateX(2rem); }
+html.has-motion [data-aio-buttons]:not([data-revealed]) { opacity: 0; transform: translateX(2rem); }
+html.has-motion [data-aio-video]:not([data-revealed]) { opacity: 0; }
+
+/* ---------------------------------------------------------------------------
    Reduced motion
    --------------------------------------------------------------------------- */
 @media (prefers-reduced-motion: reduce) {

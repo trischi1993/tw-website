@@ -25,6 +25,16 @@ export function init(_mm: gsap.MatchMedia): void {
   const wipe = hero.querySelectorAll<HTMLElement>('[data-hero-wipe]');
   const scrollWrap = hero.querySelectorAll<HTMLElement>('[data-hero-scroll]');
 
+  // Pre-Paint-Hide (global.css) VOR den gsap.set an die Inline-States übergeben:
+  // [data-revealed] schaltet die CSS-Regeln ab, solange noch KEIN Paint erfolgt
+  // (synchron im selben Tick). So liest GSAP saubere Ausgangswerte - sonst parst
+  // es die CSS-translateX(±140%)-Basis der Logo-Texte als px-Offset (die Texte
+  // liefen doppelt aus der Maske und kämen nie zurück; vgl. buttons.ts), und
+  // logoLines' abschließendes clearProps fiele gegen die Hide-Regel.
+  [buttonGroups, logoLines, logoText1, logoText2, navRight, wipe, scrollWrap].forEach((nl) =>
+    nl.forEach((el) => el.setAttribute('data-revealed', '')),
+  );
+
   // GROUP 0 - Initialzustände (im Original als Inline-Styles gebacken)
   gsap.set(buttonGroups, { opacity: 0, x: 40 });
   gsap.set(logoLines, { height: 0 });
@@ -35,21 +45,30 @@ export function init(_mm: gsap.MatchMedia): void {
   gsap.set(scrollWrap, { opacity: 0 });
 
   const play = () => {
-    // GROUP 1 - Delays/Dauern/Easings exakt aus a-105
+    // GROUP 1 - Delays/Dauern/Easings aus a-105, global gestrafft: DELAY_SCALE
+    // zieht die Kette zeitlich zusammen - kleiner = der Rest (Buttons/Wipe/
+    // Scroll) startet früher und läuft PARALLELER zum Navbar-Build statt hinter
+    // ihm. DUR_SCALE kürzt die Dauern nur einen Hauch. Beide skalieren ALLE
+    // Werte gleich → Verhältnisse/Überlappungen bleiben erhalten. Zum Feintunen
+    // (nach visuellem Review) genügen diese zwei Zahlen; d()/t()-Arg = Original.
+    const DELAY_SCALE = 0.3;
+    const DUR_SCALE = 0.9;
+    const d = (s: number) => s * DELAY_SCALE;
+    const t = (s: number) => s * DUR_SCALE;
     gsap.to(logoLines, {
       height: LOGO_LINE_HEIGHT,
-      duration: 0.5,
+      duration: t(0.5),
       ease: EASE.outQuart,
       clearProps: 'height',
     });
-    gsap.to(logoText1, { xPercent: 0, delay: 0.2, duration: 1, ease: EASE.outQuart });
-    gsap.to(logoText2, { xPercent: 0, delay: 0.2, duration: 1, ease: EASE.outQuart });
-    gsap.to(navRight, { opacity: 1, delay: 0.2, duration: 1.2, ease: EASE.ease });
-    gsap.to(navRight, { x: 0, delay: 0.2, duration: 1, ease: EASE.outQuart });
-    gsap.to(buttonGroups, { opacity: 1, delay: 1, duration: 1.1, ease: EASE.ease });
-    gsap.to(buttonGroups, { x: 0, delay: 1, duration: 1, ease: EASE.outQuart });
-    gsap.to(wipe, { width: '100%', height: 0, delay: 1.3, duration: 2, ease: EASE.outQuart });
-    gsap.to(scrollWrap, { opacity: 1, delay: 2, duration: 0.7, ease: EASE.outQuart });
+    gsap.to(logoText1, { xPercent: 0, delay: d(0.2), duration: t(1), ease: EASE.outQuart });
+    gsap.to(logoText2, { xPercent: 0, delay: d(0.2), duration: t(1), ease: EASE.outQuart });
+    gsap.to(navRight, { opacity: 1, delay: d(0.2), duration: t(1.2), ease: EASE.ease });
+    gsap.to(navRight, { x: 0, delay: d(0.2), duration: t(1), ease: EASE.outQuart });
+    gsap.to(buttonGroups, { opacity: 1, delay: d(1), duration: t(1.1), ease: EASE.ease });
+    gsap.to(buttonGroups, { x: 0, delay: d(1), duration: t(1), ease: EASE.outQuart });
+    gsap.to(wipe, { width: '100%', height: 0, delay: d(1.3), duration: t(2), ease: EASE.outQuart });
+    gsap.to(scrollWrap, { opacity: 1, delay: d(2), duration: t(0.7), ease: EASE.outQuart });
   };
 
   if (document.readyState === 'complete') {

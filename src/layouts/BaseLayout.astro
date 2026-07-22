@@ -45,6 +45,24 @@ const jsonLdArray = [orgJsonLd, ...pageJsonLd];
   <head>
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <script is:inline>
+      /* Pre-Paint-Motion-Flag: setzt html.has-motion VOR dem First Paint, damit
+         die CSS-Ausgangszustände der Ladechoreo (global.css) schon im ersten
+         Frame stehen und nichts aufblitzt (FOUC). Bei prefers-reduced-motion /
+         ohne JS bleibt alles sichtbar. Failsafe: initialisiert das Motion-Bundle
+         nicht (JS-Fehler), wird has-motion nach kurzer Frist entfernt → Inhalt
+         sichtbar statt dauerhaft versteckt. */
+      (function () {
+        var el = document.documentElement;
+        if (window.matchMedia('(prefers-reduced-motion: reduce)').matches) return;
+        el.classList.add('has-motion');
+        window.addEventListener('load', function () {
+          setTimeout(function () {
+            if (!el.classList.contains('motion-ready')) el.classList.remove('has-motion');
+          }, 1500);
+        });
+      })();
+    </script>
     <meta name="theme-color" content="#0C0C0C" />
     <meta name="color-scheme" content="dark" />
     {/* Verbindung zum Sanity-Bild-CDN vorwaermen (DNS+TCP+TLS), damit das
