@@ -104,7 +104,9 @@ const jsonLdArray = [orgJsonLd, ...pageJsonLd];
       // Underline-Wipes und der Glow-CTA im Header animieren auf jeder Seite
       // (IX2 a-87/a-91/a-141); eine Hook-Bedingung wäre immer wahr.
       import('../scripts/widgets.ts');
-      import('../scripts/motion.ts');
+      // Fragmentziele erst nach dem Motion-Setup nachjustieren: ScrollTrigger
+      // erweitert auf der Startseite vor dem Ziel mehrere Scroll-Strecken.
+      import('../scripts/motion.ts').then(() => import('../scripts/hash-navigation.ts'));
     </script>
     <PreviewExtras />
   </body>

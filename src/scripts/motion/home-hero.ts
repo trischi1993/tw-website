@@ -1,4 +1,4 @@
-import { BP, EASE, gsap } from './util';
+import { BP, EASE, gsap, ScrollTrigger } from './util';
 
 /* ---------------------------------------------------------------------------
    Home-Hero:
@@ -6,9 +6,10 @@ import { BP, EASE, gsap } from './util';
      Breite, während der unsichtbare Trigger (100vh-300vh der Strecke) durch
      den Viewport wandert - IX2-Keyframes @0 % → @60 %, danach konstant
      (Timeline-Position 0-0.6 + Füll-Tween bis 1), Scrub-Glättung 0.5 s.
-   - a-109 (alle Breakpoints, loop): Scroll-Indikator - die Linie läuft in
-     drei Schritten durch ihr 10rem-Fenster (Höhe 0 → 50 % → 0, y 0 → 5rem →
-     10rem, je 1 s outQuart) und wiederholt endlos.
+   - a-109 (alle Breakpoints, SCROLL_INTO_VIEW + loop): Scroll-Indikator - die
+     Linie läuft in drei Schritten durch ihr 10rem-Fenster (Höhe 0 → 50 % → 0,
+     y 0 → 5rem → 10rem, je 1 s outQuart). Der Loop startet wie Webflow erst
+     nach PAGE_FINISH im sichtbaren Wrapper und pausiert außerhalb.
    --------------------------------------------------------------------------- */
 
 export function init(mm: gsap.MatchMedia): void {
@@ -32,13 +33,31 @@ export function init(mm: gsap.MatchMedia): void {
     };
   });
 
-  // a-109 - Scroll-Indikator-Loop
+  // a-109 - Scroll-Indikator-Loop (e-459: SCROLL_INTO_VIEW, loop=true)
+  const scrollWrap = hero.querySelector<HTMLElement>('[data-hero-scroll]');
   const line = hero.querySelector<HTMLElement>('[data-hero-scroll-line]');
-  if (line) {
-    gsap
-      .timeline({ repeat: -1 })
+  if (scrollWrap && line) {
+    const loop = gsap
+      .timeline({ repeat: -1, paused: true })
       .to(line, { height: '0%', y: 0, duration: 1, ease: EASE.outQuart }, 0)
       .to(line, { height: '50%', y: '5rem', duration: 1, ease: EASE.outQuart }, 1)
       .to(line, { height: '0%', y: '10rem', duration: 1, ease: EASE.outQuart }, 2);
+
+    const activate = () => {
+      ScrollTrigger.create({
+        trigger: scrollWrap,
+        start: 'top bottom',
+        end: 'bottom top',
+        onEnter: () => loop.restart(),
+        onEnterBack: () => loop.restart(),
+        onLeave: () => loop.pause(),
+        onLeaveBack: () => loop.pause(),
+      });
+    };
+
+    // Webflow initialisiert SCROLL_INTO_VIEW nach readyState "complete".
+    // Vorher zu starten verschiebt die Phase hinter dem 2-s-Load-Fade.
+    if (document.readyState === 'complete') activate();
+    else window.addEventListener('load', activate, { once: true });
   }
 }
