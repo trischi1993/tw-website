@@ -81,6 +81,8 @@ Live-Island identisch); das Anfrage-Modal zieht seine Multiselect-Optionen aus
 npm run dev              # Seed-Modus, kein Sanity noetig
 npm run build            # statisches Prod-Build (React-frei, verifiziert)
 npm run build:preview    # SSR-Preview-Worker-Build
+npm run deploy:prod      # vorher `npm run build`
+npm run deploy:preview   # vorher `npm run build:preview`
 npm run provision -- --name tristanweithaler --prod-domain tristanweithaler.com --studio-host tristanweithaler
                          # Dry-Run; mit --execute anlegen (Sanity + Worker)
 cd studio && npm run import-seed   # seed.ndjson bauen + importieren (Bilder inkl.)
@@ -101,7 +103,11 @@ b6a131… nicht verwenden). Git-Remote: `trischi1993/tw-website`.
 | Worker | Build | Config | Inhalt |
 |---|---|---|---|
 | `tristanweithaler-prod` | `npm run build` | `wrangler.prod.jsonc` | statisches `dist/`, published-only, kein Token |
-| `tristanweithaler-preview` | `npm run build:preview` | `wrangler.jsonc` | SSR, Drafts hinter Preview-Cookie |
+| `tristanweithaler-preview` | `npm run build:preview` | generiert: `dist/server/wrangler.json` | SSR, Drafts hinter Preview-Cookie |
+
+Beim manuellen Preview-Deploy muss die vom Astro-Adapter erzeugte Konfiguration
+verwendet werden: `npm run deploy:preview`. `wrangler.jsonc` enthält die
+Quell-Bindings, aber noch keinen Worker-Einstiegspunkt.
 
 Workers-Builds-Anbindung, Custom Domain (erst beim Go-Live/DNS-Umstieg) und der
 Sanity-Publish-Webhook → Prod-Deploy-Hook sind Dashboard-Schritte; `npm run

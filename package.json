@@ -12,6 +12,8 @@
     "astro": "astro",
     "dev:preview": "astro dev --config astro.config.preview.mjs",
     "build:preview": "PREVIEW_DEPLOY=1 astro build --config astro.config.preview.mjs",
+    "deploy:prod": "wrangler deploy -c wrangler.prod.jsonc",
+    "deploy:preview": "wrangler deploy -c dist/server/wrangler.json",
     "provision": "node scripts/provision.mjs",
     "postinstall": "patch-package --error-on-fail"
   },
