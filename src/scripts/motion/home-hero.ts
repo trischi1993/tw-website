@@ -39,7 +39,17 @@ export function init(mm: gsap.MatchMedia): void {
   if (scrollWrap && line) {
     const loop = gsap
       .timeline({ repeat: -1, paused: true })
-      .to(line, { height: '0%', y: 0, duration: 1, ease: EASE.outQuart }, 0)
+      // Webflow berechnet GROUP 0 bei jedem Loop neu aus dem vorherigen
+      // Endzustand (height: 0, y: 10rem): Der Rueckweg nach oben bleibt damit
+      // vollstaendig unsichtbar. Ein GSAP-repeat auf einem normalen `.to()`
+      // wuerde hier hingegen den gespeicherten Startwert height: 100%
+      // restaurieren und die Linie sichtbar nach oben schrumpfen lassen.
+      .fromTo(
+        line,
+        { height: '0%', y: '10rem' },
+        { height: '0%', y: 0, duration: 1, ease: EASE.outQuart },
+        0,
+      )
       .to(line, { height: '50%', y: '5rem', duration: 1, ease: EASE.outQuart }, 1)
       .to(line, { height: '0%', y: '10rem', duration: 1, ease: EASE.outQuart }, 2);
 
