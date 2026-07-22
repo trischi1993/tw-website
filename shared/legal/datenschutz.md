@@ -58,7 +58,7 @@ Die Website nutzt eine SSL- bzw. TLS-Verschlüsselung. Eine verschlüsselte Verb
 
 ## 4. Lokale Speicherung und Einwilligungen
 
-Die öffentliche Website setzt nach dem aktuellen technischen Stand keine Analyse- oder Werbe-Cookies. Ihre Auswahl im Einwilligungsbanner wird unter dem Schlüssel `tw:consent` lokal in Ihrem Browser gespeichert. Dadurch muss die Auswahl nicht bei jedem Seitenaufruf erneut abgefragt werden.
+Die öffentliche Website setzt nach dem aktuellen technischen Stand keine Analyse- oder Werbe-Cookies. Ihre Auswahl im Einwilligungsbanner wird unter dem Schlüssel `tw-consent-v1` lokal in Ihrem Browser gespeichert. Dadurch muss die Auswahl nicht bei jedem Seitenaufruf erneut abgefragt werden.
 
 Diese Speicherung ist für die von Ihnen gewünschte Einwilligungsverwaltung erforderlich. Rechtsgrundlage ist § 25 Abs. 2 Nr. 2 TDDDG. Sie können die gespeicherte Auswahl über die Cookie-Einstellungen der Website ändern oder über die Browser-Einstellungen löschen.
 

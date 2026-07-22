@@ -2,8 +2,8 @@
    Cookie-Consent-Zustand (opt-in, DSGVO): EINE Quelle für Banner/Prefs-Modal
    (CookieConsent.astro) und consent-gated Einbettungen (Vimeo, widgets.ts).
 
-   Kategorien 1:1 nach global-chrome.md §9c (Finsweet-Nachbau):
-   Essentiell (immer aktiv) · Marketing · Personalisierung · Analysen.
+   Der aktuelle optionale Dienst ist Vimeo (interne Kategorie `marketing`);
+   notwendige Speicherung umfasst nur die Einwilligungsauswahl selbst.
    Persistenz in localStorage; jede Änderung feuert das Event `tw:consent`
    mit `detail = { categories }`, damit Gates sofort reagieren können.
    --------------------------------------------------------------------------- */
@@ -53,14 +53,16 @@ export function setConsent(state: Partial<ConsentState>): void {
 }
 
 export function acceptAll(): void {
-  setConsent({ marketing: true, personalization: true, analytics: true });
+  // Aktuell ist Vimeo das einzige optionale Element. Nicht verwendete
+  // Kategorien bleiben aus, statt eine unnoetig breite Einwilligung abzulegen.
+  setConsent({ marketing: true, personalization: false, analytics: false });
 }
 
 export function rejectAll(): void {
   setConsent({ marketing: false, personalization: false, analytics: false });
 }
 
-/** Einzelne Kategorie erlauben (z. B. „Video laden"-Button im Vimeo-Poster). */
+/** Einzelne Kategorie erlauben (z. B. „Video abspielen" im Vimeo-Poster). */
 export function grantCategory(category: ConsentCategory): void {
   setConsent({ [category]: true } as Partial<ConsentState>);
 }

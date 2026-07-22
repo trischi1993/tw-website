@@ -151,12 +151,30 @@ function applyVimeoConsent(box: HTMLElement, allowed: boolean): void {
     if (!existing) {
       const iframe = document.createElement('iframe');
       // background=1: autoplay, muted, loop, ohne Player-UI (eigene Controls).
-      iframe.src = `https://player.vimeo.com/video/${encodeURIComponent(id)}?background=1&autoplay=1&muted=1&loop=1&autopause=0`;
+      // dnt=1 reduziert nicht notwendige Vimeo-Cookies; technisch notwendige
+      // Player-Cookies koennen laut Vimeo trotzdem gesetzt werden.
+      iframe.src = `https://player.vimeo.com/video/${encodeURIComponent(id)}?background=1&autoplay=1&muted=1&loop=1&autopause=0&dnt=1`;
       iframe.allow = 'autoplay; fullscreen; picture-in-picture';
       iframe.title = 'Vimeo-Video';
+      if (controls) controls.hidden = true;
+      iframe.addEventListener(
+        'load',
+        () => {
+          if (!iframe.isConnected || !hasConsent(VIMEO_CATEGORY)) return;
+          iframe.dataset.ready = '1';
+          vimeoPost(iframe, 'setVolume', 0);
+          vimeoPost(iframe, 'play');
+          if (controls) {
+            controls.hidden = false;
+            controls.dataset.muted = '1';
+            syncMuteIcons(controls, true);
+          }
+        },
+        { once: true },
+      );
       box.appendChild(iframe);
     }
-    if (controls) {
+    if (controls && existing?.dataset.ready === '1') {
       controls.hidden = false;
       controls.dataset.muted = '1';
       syncMuteIcons(controls, true);
@@ -186,6 +204,9 @@ function handleVimeoAction(btn: HTMLElement): void {
     vimeoPost(iframe, 'setVolume', nowMuted ? 0 : 1);
     syncMuteIcons(controls, nowMuted);
   } else if (btn.dataset.action === 'replay') {
+    controls.dataset.muted = '1';
+    syncMuteIcons(controls, true);
+    vimeoPost(iframe, 'setVolume', 0);
     vimeoPost(iframe, 'setCurrentTime', 0);
     vimeoPost(iframe, 'play');
   }

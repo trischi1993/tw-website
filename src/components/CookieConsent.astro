@@ -8,18 +8,8 @@
 const categories = [
   {
     key: 'marketing',
-    label: 'Marketing',
-    text: 'Diese Elemente werden verwendet, um Werbung anzuzeigen, die für Sie und Ihre Interessen relevanter ist. Sie können auch dazu verwendet werden, die Anzahl der Anzeigenaufrufe zu begrenzen und die Wirksamkeit von Werbekampagnen zu messen.',
-  },
-  {
-    key: 'personalization',
-    label: 'Personalisierung',
-    text: 'Diese Elemente ermöglichen es der Website, sich an Ihre Auswahl zu erinnern (z. B. Ihre Sprache oder die Region, in der Sie sich befinden) und erweiterte, persönlichere Funktionen bereitzustellen.',
-  },
-  {
-    key: 'analytics',
-    label: 'Analysen',
-    text: 'Diese Elemente helfen dem Website-Betreiber zu verstehen, wie seine Website funktioniert, wie Besucher mit der Website interagieren und ob es möglicherweise technische Probleme gibt.',
+    label: 'Externe Medien',
+    text: 'Erlaubt das Laden des eingebetteten Vimeo-Videos. Dabei werden technisch erforderliche Verbindungsdaten an Vimeo übertragen und Vimeo kann Cookies setzen.',
   },
 ];
 ---
@@ -27,16 +17,15 @@ const categories = [
 <div class="cc-banner" data-cc-banner hidden role="region" aria-label="Cookie-Hinweis">
   <div class="cc-banner__container">
     <p class="cc-banner__text">
-      Wenn Sie auf <strong>„Alle Cookies akzeptieren"</strong> klicken, stimmen Sie der Speicherung
-      von Cookies auf Ihrem Gerät zu, um die Navigation auf der Website zu verbessern, die Nutzung
-      der Website zu analysieren und unsere Marketingaktivitäten zu unterstützen. Weitere
-      Informationen finden Sie in unserer <a href="/datenschutz/">Datenschutzrichtlinie</a>.
+      Wir verwenden keine Analyse- oder Werbe-Cookies. Das eingebettete Vimeo-Video wird erst
+      nach Ihrer Zustimmung geladen. Weitere Informationen finden Sie in unserer
+      <a href="/datenschutz/">Datenschutzerklärung</a>.
     </p>
     <div class="cc-banner__buttons">
       <button type="button" class="btn-glow" data-cc="allow">
         <span class="btn-glow__circle" aria-hidden="true"></span>
         <span class="btn-glow__wrapper">
-          <span class="btn-glow__content"><span class="btn-glow__label">Alle akzeptieren</span></span>
+          <span class="btn-glow__content"><span class="btn-glow__label">Vimeo erlauben</span></span>
         </span>
       </button>
       <button type="button" class="button is-tertiary" data-cc="deny">Ablehnen</button>
@@ -79,26 +68,21 @@ const categories = [
     <div class="cc-prefs__content">
       <h2 class="cc-prefs__title" id="cc-prefs-title">Datenschutzpräferenzen</h2>
       <p class="cc-prefs__text">
-        Wenn Sie Websites besuchen, können diese Daten in Ihrem Browser speichern oder abrufen.
-        Diese Speicherung ist oft für die Grundfunktionen der Website erforderlich. Die Speicherung
-        kann für Marketing, Analysen und Personalisierung der Website verwendet werden, z. B. zum
-        Speichern Ihrer Präferenzen. Der Datenschutz ist uns wichtig, daher haben Sie die
-        Möglichkeit, bestimmte Arten der Speicherung zu deaktivieren, die für die Grundfunktionen
-        der Website nicht erforderlich sind. Das Blockieren von Kategorien kann Ihre Erfahrung auf
-        der Website beeinträchtigen.
+        Ihre Auswahl wird lokal in diesem Browser gespeichert. Ohne Ihre Zustimmung bleibt das
+        Vimeo-Video blockiert; alle übrigen Website-Inhalte funktionieren weiterhin.
       </p>
       <div class="cc-prefs__actions">
-        <button type="button" class="button is-tertiary" data-cc="deny">Alle Cookies ablehnen</button>
+        <button type="button" class="button is-tertiary" data-cc="deny">Nur notwendige</button>
         <button type="button" class="btn-glow" data-cc="allow">
           <span class="btn-glow__circle" aria-hidden="true"></span>
           <span class="btn-glow__wrapper">
             <span class="btn-glow__content">
-              <span class="btn-glow__label">Alle Cookies akzeptieren</span>
+              <span class="btn-glow__label">Vimeo erlauben</span>
             </span>
           </span>
         </button>
       </div>
-      <p class="cc-prefs__subtitle">Zustimmungspräferenzen nach Kategorie verwalten</p>
+      <p class="cc-prefs__subtitle">Optionale Inhalte verwalten</p>
 
       <div class="cc-prefs__option">
         <div class="cc-prefs__option-head">
@@ -106,7 +90,7 @@ const categories = [
           <p class="cc-prefs__always">Immer aktiv</p>
         </div>
         <p class="cc-prefs__option-text">
-          Diese Elemente sind erforderlich, um die Grundfunktionen der Website zu ermöglichen.
+          Speichert ausschließlich Ihre Datenschutzauswahl in diesem Browser.
         </p>
       </div>
 
@@ -391,6 +375,7 @@ const categories = [
     setConsent,
     acceptAll,
     rejectAll,
+    onConsentChange,
     type ConsentCategory,
   } from '../scripts/consent';
 
@@ -445,6 +430,13 @@ const categories = [
     document.body.classList.remove('no-scroll');
     lastFocused?.focus();
   };
+
+  // Eine Einzelzustimmung direkt am Video schließt auch das noch sichtbare
+  // Banner und zeigt anschließend den Einstellungs-Button.
+  onConsentChange(() => {
+    hideBanner();
+    closePrefs();
+  });
 
   document.addEventListener('click', (e) => {
     const el = (e.target as HTMLElement).closest<HTMLElement>(

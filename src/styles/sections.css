@@ -718,14 +718,43 @@ html.has-motion .results__track { height: 200vh; }
   flex-direction: column;
   align-items: center;
   justify-content: center;
-  gap: 0.75rem;
-  padding: 1.5rem;
+  gap: 0.6rem;
+  padding: 1rem;
   text-align: center;
   font-size: var(--text-sm);
-  color: var(--ink-2);
-  background: rgba(12, 12, 12, 0.72);
+  color: var(--ink);
+  background: linear-gradient(180deg, rgba(12, 12, 12, 0.2), rgba(12, 12, 12, 0.72));
 }
-.vhero__consent button { text-decoration: underline; color: var(--ink); }
+.vhero__consent[hidden] { display: none; }
+.vhero__consent button {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 0.55rem;
+  color: var(--ink);
+  font-size: clamp(0.7rem, 1.5vw, 0.9rem);
+  font-weight: 500;
+  line-height: 1.2;
+}
+.vhero__play-icon {
+  display: grid;
+  place-items: center;
+  width: clamp(2.75rem, 5vw, 4rem);
+  height: clamp(2.75rem, 5vw, 4rem);
+  border: 1px solid rgba(255, 255, 255, 0.5);
+  border-radius: 50%;
+  background: rgba(255, 255, 255, 0.2);
+  -webkit-backdrop-filter: blur(0.5rem);
+  backdrop-filter: blur(0.5rem);
+  transition: transform 0.25s var(--ease-smooth), background 0.25s var(--ease-smooth);
+}
+.vhero__play-icon svg { width: 42%; height: 42%; margin-left: 0.12rem; }
+.vhero__consent button:hover .vhero__play-icon {
+  background: rgba(255, 255, 255, 0.32);
+  transform: scale(1.06);
+}
+.vhero__consent-note { color: var(--ink-2); font-size: 0.65rem; line-height: 1.25; }
+.vhero__consent-note a { color: inherit; text-decoration: underline; text-underline-offset: 0.12em; }
 /* Original .hero_video-btn-wrapper: z-10 UNTER dem Mockup-Rahmen (z-20,
    pointer-events none), helle Frosted-Buttons 3.25rem mit dunklen Icons. */
 .vhero__controls {
@@ -739,6 +768,7 @@ html.has-motion .results__track { height: 200vh; }
   gap: 0.75rem;
   padding-bottom: 1.5rem;
 }
+.vhero__controls[hidden] { display: none; }
 .vhero__controls button {
   display: flex;
   align-items: center;
@@ -757,7 +787,6 @@ html.has-motion .results__track { height: 200vh; }
 .vhero__controls button:hover { background: #ffffff; transform: scale(1.1); }
 .vhero__controls [data-action='toggle-mute'] svg { width: 1.6rem; height: 1.6rem; transition: height 0.6s, width 0.6s; }
 .vhero__controls [data-action='replay'] svg { width: 1.25rem; height: 1.25rem; }
-.vhero__controls [hidden] { display: none; }
 @media (max-width: 991px) {
   .vhero__inner { padding-block: 6rem; }
   .vhero__grid { grid-template-columns: 1.5fr 1fr; column-gap: 3rem; row-gap: 3rem; }

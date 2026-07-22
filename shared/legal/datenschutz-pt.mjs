@@ -477,7 +477,7 @@ export default [
    {
     "_type": "span",
     "_key": "da29-s0",
-    "text": "Die öffentliche Website setzt nach dem aktuellen technischen Stand keine Analyse- oder Werbe-Cookies. Ihre Auswahl im Einwilligungsbanner wird unter dem Schlüssel `tw:consent` lokal in Ihrem Browser gespeichert. Dadurch muss die Auswahl nicht bei jedem Seitenaufruf erneut abgefragt werden.",
+    "text": "Die öffentliche Website setzt nach dem aktuellen technischen Stand keine Analyse- oder Werbe-Cookies. Ihre Auswahl im Einwilligungsbanner wird unter dem Schlüssel `tw-consent-v1` lokal in Ihrem Browser gespeichert. Dadurch muss die Auswahl nicht bei jedem Seitenaufruf erneut abgefragt werden.",
     "marks": []
    }
   ]

@@ -7,8 +7,8 @@ import RichText from './RichText';
 /**
  * AIO-Hero: H1 + Intro + Bewerbungs-CTA links, rechts Hochkant-Video im
  * iPhone-Mockup mit Gold-Blur. Das Vimeo-Embed ist consent-gated: bis zur
- * Zustimmung Poster + Hinweis; danach lädt consent.ts den Player (autoplay,
- * muted, loop, ohne Controls) + Mute/Replay-Buttons (widgets.ts).
+ * Zustimmung Poster + kompakter Play-Button; danach lädt consent.ts den Player
+ * (autoplay, muted, loop, ohne Vimeo-Controls) + Mute/Replay-Buttons (widgets.ts).
  */
 export default function VideoHeroSection({
   section,
@@ -47,13 +47,17 @@ export default function VideoHeroSection({
               <div className="vhero__video" data-vimeo={vimeoId}>
                 <Img image={posterImage} className="vhero__poster" loading="eager" />
                 <div className="vhero__consent" data-vimeo-consent="">
-                  <p>
-                    Dieses Video wird von Vimeo geladen. Mit dem Abspielen akzeptierst du die
-                    Übertragung von Daten an Vimeo.
-                  </p>
-                  <button type="button" data-vimeo-accept="">
-                    Video laden
+                  <button type="button" data-vimeo-accept="" aria-label="Vimeo-Video abspielen">
+                    <span className="vhero__play-icon" aria-hidden="true">
+                      <svg viewBox="0 0 24 24" fill="currentColor">
+                        <path d="M8 5.5v13l10-6.5-10-6.5Z" />
+                      </svg>
+                    </span>
+                    <span>Video abspielen</span>
                   </button>
+                  <p className="vhero__consent-note">
+                    Vimeo · <a href="/datenschutz/">Datenschutz</a>
+                  </p>
                 </div>
               </div>
               <div className="vhero__controls" data-vimeo-controls="" hidden>
