@@ -20,8 +20,8 @@
 
   --ink:   #f5f5f5;   /* Primärtext (whitesmoke) */
   --ink-2: #d3d3d3;   /* Fließtext / tertiär */
-  --ink-3: #737373;   /* sekundär: Platzhalter, Labels, gedämpft */
-  --ink-4: #525252;   /* Footer-Legal */
+  --ink-3: #808080;   /* sekundär: Platzhalter, Labels, gedämpft (WCAG AA: 4,96:1 auf --paper; Original #737373 = 4,12) */
+  --ink-4: #8a8a8a;   /* Footer-Legal (WCAG AA: 4,88:1 auf --paper-2; Original #525252 = 2,15) */
 
   --neutral-line: #1d1d1d;  /* Trennlinien auf dunklem Grund */
   --line-strong:  #292929;  /* Menü-Trennlinien */

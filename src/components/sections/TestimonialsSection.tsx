@@ -59,7 +59,7 @@ export default function TestimonialsSection({
           {testimonials.map((t, i) => (
             <article className="reviews__card" key={t.id} hidden={i >= initialCount || undefined}>
               <div>
-                <div className="reviews__stars" aria-label="5 von 5 Sternen">
+                <div className="reviews__stars" role="img" aria-label="5 von 5 Sternen">
                   <Star />
                   <Star />
                   <Star />

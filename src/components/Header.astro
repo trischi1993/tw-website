@@ -29,14 +29,19 @@ const menuItems = [{ label: 'Startseite', href: '/' }, ...settings.nav];
       <span class="navbar__logo-text" data-nav-logo-text="2">Weithaler</span>
     </span>
   </a>
-  <a href="/" class="navbar__logo is-mobile" aria-label={`${settings.siteName}, ${t.toStart}`}>
-    <span class="navbar__logo-word is-1" aria-hidden="true">
+  {/* Mobiles Kürzel „T|W": die Buchstaben bleiben sichtbar UND Teil des
+      Accessible-Name (Präfix), sonst meldet axe label-content-name-mismatch
+      (sichtbarer Text „TW" nicht im aria-label enthalten). Voller Name folgt
+      visually-hidden; die Gold-Linie bleibt dekorativ (aria-hidden). */}
+  <a href="/" class="navbar__logo is-mobile">
+    <span class="navbar__logo-word is-1">
       <span class="navbar__logo-text" data-nav-logo-text="1">T</span>
     </span>
     <span class="navbar__logo-line" data-nav-logo-line aria-hidden="true"></span>
-    <span class="navbar__logo-word is-2" aria-hidden="true">
+    <span class="navbar__logo-word is-2">
       <span class="navbar__logo-text" data-nav-logo-text="2">W</span>
     </span>
+    <span class="visually-hidden">{`${settings.siteName}, ${t.toStart}`}</span>
   </a>
 
   <div class="navbar__right" data-nav-right>

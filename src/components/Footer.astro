@@ -237,7 +237,10 @@ const mailHref = `mailto:${contact.email}?subject=Hey%20Tristan`;
   }
   .footer__mail {
     display: inline-block;
-    color: var(--brand);
+    /* Aufgehelltes Gold nur fuer diesen Link: --brand (#806429) erreicht auf
+       --paper-2 nur 3,02:1; #aa8630 = 4,94:1 (WCAG AA). Globales Brand-Token
+       bleibt unveraendert. */
+    color: #aa8630;
   }
 
   /* Original .footer_second-wrapper-bootmo: margin-top 2rem, in der rechten

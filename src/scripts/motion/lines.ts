@@ -28,6 +28,10 @@ function split(el: HTMLElement): void {
     type: 'lines',
     mask: 'lines',
     linesClass: 'line',
+    // SplitText setzt sonst per aria="auto" ein aria-label auf das Element -
+    // auf einem <p> ist das laut ARIA verboten (Lighthouse aria-prohibited-attr).
+    // aria:"none" laesst die (zeilenweise) Original-Reihenfolge fuer SR bestehen.
+    aria: 'none',
     autoSplit: true,
     onSplit: (self) => {
       gsap.set(el, { autoAlpha: 1 });

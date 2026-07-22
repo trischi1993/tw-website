@@ -41,7 +41,11 @@ export default function ResultsSection({
             <div className="results__list">
               {images.map((image, i) => (
                 <div className="results__card" data-results-card={i + 1} key={i}>
-                  <Img image={image} sizes="(max-width: 767px) 90vw, 30rem" />
+                  {/* Karte ist hoehen-getrieben (aspect-ratio 2/3, height 60vh /
+                      @991 24rem / @767 22rem); das Portrait rendert real nur
+                      ~174px (mobil) bis ~280px (Desktop) breit. sizes bildet das
+                      ab, sonst laedt der Browser eine viel zu grosse Stufe. */}
+                  <Img image={image} sizes="(max-width: 991px) 13rem, 30rem" />
                 </div>
               ))}
             </div>
