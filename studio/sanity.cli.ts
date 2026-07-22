@@ -13,9 +13,10 @@ export default defineCliConfig({
     projectId: process.env.SANITY_STUDIO_PROJECT_ID,
     dataset: process.env.SANITY_STUDIO_DATASET || 'production',
   },
-  // Kein fester studioHost: `sanity deploy` fragt den Hostnamen pro Projekt ab.
-  // (Die beim ersten Deploy ausgegebene appId ist projektspezifisch - optional
-  // im KUNDENPROJEKT unter deployment.appId eintragen, nie im Template.)
-  /** Automatische Aktualisierung der Studio-Version im Hosting. */
-  deployment: { autoUpdates: true },
+  // Projektspezifische App-ID des ersten Deploys: verhindert Rueckfragen bei
+  // spaeteren automatisierten Studio-Deploys.
+  deployment: {
+    appId: 's8ipqypo3ob9j0wvf1xec13b',
+    autoUpdates: true,
+  },
 });

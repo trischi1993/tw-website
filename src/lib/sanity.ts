@@ -1,5 +1,5 @@
 import { createClient, type SanityClient } from '@sanity/client';
-import imageUrlBuilder from '@sanity/image-url';
+import { createImageUrlBuilder } from '@sanity/image-url';
 import { getPreviewContext } from './preview-context';
 import { SECTIONS_PROJECTION, baseIdOf, mapSections } from './content/sections';
 import type { SiteSettings, HomeContent, SitePage, SiteImage, ServiceItem } from './content/types';
@@ -24,11 +24,14 @@ export const sanity: SanityClient = createClient({
   projectId: projectId ?? 'undefined',
   dataset,
   apiVersion,
-  useCdn: true, // published content only; safe for a static build
+  // Static deploys must see the just-published revision that triggered them.
+  // The CDN can still serve the previous document briefly, so query the API
+  // directly during builds. Public visitors never execute these GROQ queries.
+  useCdn: false,
   perspective: 'published',
 });
 
-const builder = imageUrlBuilder(sanity);
+const builder = createImageUrlBuilder(sanity);
 export const urlFor = (source: any) => builder.image(source);
 
 /**
@@ -55,7 +58,7 @@ function toPerspective(value: string): string | string[] {
 /**
  * Wählt den Client je Anfrage. In Produktion gibt es nie einen Vorschau-Kontext
  * (die Middleware setzt ihn nur im Vorschau-Build) → es bleibt beim
- * veröffentlichten CDN-Client oben, völlig unverändert. Nur in der Live-Vorschau
+ * veröffentlichten Build-Client oben. Nur in der Live-Vorschau
  * wird auf Entwürfe umgeschaltet (mit Token, ohne CDN; stega bleibt aus -
  * Click-to-edit läuft über data-sanity-Attribute, siehe SectionsIsland).
  */
@@ -80,6 +83,18 @@ interface RawImage {
 
 const MAX_W = 2400;
 
+/* Responsive-Breiten-Leiter fuer Sanity-CDN-Bilder: deckt Handy (1x-3x DPR)
+   bis Desktop-Retina ab. Auf die tatsaechliche (gekappte) Bildbreite geklemmt -
+   nie ueber die Quelle hochskalieren. Ohne srcset zieht der Browser sonst immer
+   die oberste w-Stufe (auf Mobile der LCP-Killer). */
+const WIDTH_LADDER = [320, 480, 640, 828, 1080, 1280, 1600, 2000, 2400];
+
+function buildSrcSet(url: string, maxWidth: number): string {
+  const widths = WIDTH_LADDER.filter((w) => w < maxWidth);
+  widths.push(maxWidth); // tatsaechliche Obergrenze immer als oberste Stufe
+  return widths.map((w) => `${url}?w=${w}&q=80&auto=format&fit=max ${w}w`).join(', ');
+}
+
 export function resolveImage(source?: RawImage, fallbackAlt = ''): SiteImage | undefined {
   const dim = source?.asset?.metadata?.dimensions;
   const url = source?.asset?.url;
@@ -90,6 +105,7 @@ export function resolveImage(source?: RawImage, fallbackAlt = ''): SiteImage | u
   return {
     kind: 'remote',
     src: `${url}?w=${width}&q=80&auto=format&fit=max`,
+    srcSet: buildSrcSet(url, width),
     width,
     height,
     alt: source?.alt ?? fallbackAlt,

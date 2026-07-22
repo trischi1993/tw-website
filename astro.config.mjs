@@ -244,4 +244,16 @@ export default defineConfig({
     // Allow Sanity-hosted images once the CMS is connected.
     domains: ['cdn.sanity.io'],
   },
+  vite: {
+    // choices.js (CTA-Modal-Multiselect) wird NUR lazy geladen: dynamischer
+    // Import in modals.ts beim ersten Öffnen des Modals. Ohne expliziten
+    // Eintrag bündelt Vites Dev-Server die Dep nicht schon beim Start vor;
+    // entdeckt er sie erst zur Laufzeit, re-optimiert er mitten in der Session
+    // → der bereits geladene Modul-Graph zeigt auf einen veralteten Hash →
+    // 504 „Outdated Optimize Dep", der Import schlägt fehl und das native
+    // <select multiple> bleibt hässlich sichtbar. Vorab-Bündeln macht den
+    // Import deterministisch. Reines Dev-Verhalten - der Prod-Build (Rollup)
+    // emittiert ohnehin einen sauberen Chunk und ist davon unberührt.
+    optimizeDeps: { include: ['choices.js'] },
+  },
 });

@@ -200,6 +200,18 @@ function num(v: unknown): number | undefined {
      (CDN-URL mit Breiten-/Qualitäts-Parametern, wie resolveImage in sanity.ts). */
 const IMG_MAX_W = 2400;
 
+/* Responsive-Breiten-Leiter (identisch zu resolveImage in sanity.ts): ohne
+   srcset zieht der Browser immer die oberste w-Stufe - auf Mobile der
+   LCP-Killer. Auf die tatsaechliche (gekappte) Bildbreite geklemmt, nie
+   ueber die Quelle hochskalieren. */
+const IMG_WIDTH_LADDER = [320, 480, 640, 828, 1080, 1280, 1600, 2000, 2400];
+
+function buildSrcSet(url: string, maxWidth: number): string {
+  const widths = IMG_WIDTH_LADDER.filter((w) => w < maxWidth);
+  widths.push(maxWidth); // tatsaechliche Obergrenze immer als oberste Stufe
+  return widths.map((w) => `${url}?w=${w}&q=80&auto=format&fit=max ${w}w`).join(', ');
+}
+
 export function mapImage(raw: any, fallbackAlt = ''): SiteImage | undefined {
   if (!raw) return undefined;
   if (raw.kind === 'local' || raw.kind === 'remote') return raw as SiteImage;
@@ -212,6 +224,7 @@ export function mapImage(raw: any, fallbackAlt = ''): SiteImage | undefined {
   return {
     kind: 'remote',
     src: `${url}?w=${width}&q=80&auto=format&fit=max`,
+    srcSet: buildSrcSet(url, width),
     width,
     height,
     alt: str(raw.alt) ?? fallbackAlt,

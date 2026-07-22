@@ -11,28 +11,36 @@ export default function Img({
   className,
   sizes,
   loading = 'lazy',
+  fetchPriority,
   style,
 }: {
   image?: SiteImage;
   className?: string;
   sizes?: string;
   loading?: 'lazy' | 'eager';
+  fetchPriority?: 'high' | 'low' | 'auto';
   style?: React.CSSProperties;
 }) {
   if (!image) return null;
   const src = image.kind === 'local' ? image.asset.src : image.src;
+  // srcset nur fuer Sanity-CDN-Bilder (lokale Assets sind einzelne Build-Dateien).
+  const srcSet = image.kind === 'remote' ? image.srcSet : undefined;
   const width = image.kind === 'local' ? image.asset.width : image.width;
   const height = image.kind === 'local' ? image.asset.height : image.height;
   return (
     <img
       src={src}
+      srcSet={srcSet}
       width={width || undefined}
       height={height || undefined}
       alt={image.alt}
       className={className}
-      sizes={sizes}
+      // sizes ist ohne srcset wirkungslos - nur dann setzen.
+      sizes={srcSet ? sizes : undefined}
       loading={loading}
       decoding={loading === 'eager' ? 'sync' : 'async'}
+      // Kleinschreibung erzwingt das HTML-Attribut unabhaengig von der React-Version.
+      {...(fetchPriority ? { fetchpriority: fetchPriority } : {})}
       style={style}
     />
   );

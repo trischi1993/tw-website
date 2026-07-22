@@ -35,7 +35,6 @@ const block = (key, children, markDefs = []) => ({
 });
 
 /** Ein Absatz aus reinem Text. */
-const rt = (key, text) => [block(`${key}-b`, [span(`${key}-s`, text)])];
 
 /** Mehrere Absätze (ein Block je Absatz — rendert als eigene <p>). */
 const rtParas = (key, paras) => paras.map((text, i) => block(`${key}-b${i}`, [span(`${key}-b${i}-s`, text)]));
@@ -812,7 +811,7 @@ export function buildContent({ img }) {
   /* =========================================================================
      RECHTSSEITEN
      ========================================================================= */
-  const legalPage = (slug, title, description, body) => ({
+  const legalPage = (slug, title, description, body, updatedAt = '01. September, 2024') => ({
     title,
     slug,
     seo: { title, description, noindex: true },
@@ -822,7 +821,7 @@ export function buildContent({ img }) {
         _key: 'head',
         name: 'Seitenkopf',
         heading: title,
-        meta: 'Aktualisierungs-Datum: 01. September, 2024',
+        meta: `Aktualisierungs-Datum: ${updatedAt}`,
       },
       { _type: 'sectionRichText', _key: 'body', name: 'Rechtstext', body },
     ],
@@ -836,6 +835,7 @@ export function buildContent({ img }) {
       'Datenschutz',
       'Datenschutzerklärung von Tristan Weithaler, Südtirols erstem Social Media Business Coach.',
       datenschutzBody,
+      '22. Juli 2026',
     ),
     legalPage(
       'impressum',

@@ -49,7 +49,12 @@ export default function HomeHeroSection({
           </div>
           <div className="hhero__media" data-hero-media="">
             <div className="hhero__media-frame">
-              <Img image={image} loading="eager" sizes="(max-width: 991px) 100vw, 60vw" />
+              <Img
+                image={image}
+                loading="eager"
+                fetchPriority="high"
+                sizes="(max-width: 991px) 100vw, 60vw"
+              />
               <div className="hhero__wipe" data-hero-wipe="" aria-hidden="true" />
             </div>
           </div>

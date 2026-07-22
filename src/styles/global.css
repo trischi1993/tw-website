@@ -22,8 +22,12 @@ body {
   font-weight: 300;
   color: var(--text);
   background-color: var(--bg);
-  -webkit-font-smoothing: antialiased;
-  -moz-osx-font-smoothing: grayscale;
+  /* KEIN globales font-smoothing-Override: das Original (webflow.css) setzt
+     `antialiased` NUR auf die Icon-Font (.w-icon-*) - der Fließtext rendert mit
+     Browser-Default (auf macOS Subpixel). Ein globales `antialiased` lässt die
+     dünne Poppins-300-Schrift auf dunklem Grund sichtbar magerer/gedämpfter
+     wirken (am deutlichsten auf dem Gold-Button). Default = kräftigere,
+     „weißere" Schrift, exakt wie im Original. */
   text-rendering: optimizeLegibility;
   overflow-x: clip;
 }
@@ -117,19 +121,26 @@ em, i { font-style: italic; }
   text-decoration: none;
 }
 .btn-glow__circle {
-  /* Original: DUNKLE Blur-Ellipse (#1d1d1d) unter dem Wrapper - sie dimmt
-     den 1px-Glow-Rand und folgt der Maus (motion/glow.ts). */
+  /* Original (.button-glow-circle): HELLE Blur-Ellipse - background-alternate
+     = grey-lightest = whitesmoke (Export-:root). Sie liegt UNTER dem opaken
+     Wrapper (z-1) und leuchtet nur im 1px-Rand: statischer Licht-Glanz in der
+     Mitte, folgt der Maus via motion/glow.ts (IX2 a-141). */
   position: absolute;
   top: 0;
   left: 0;
   width: calc(100% + 0.5rem);
   height: calc(100% + 0.5rem);
-  background: var(--paper-2);
+  background: var(--ink);
   border-radius: 100%;
   filter: blur(20px);
   pointer-events: none;
 }
 .btn-glow__wrapper {
+  /* display:block ist essenziell: als inline-<span> würde der opake
+     #0c0c0c-Hintergrund nicht hinter das Flex-Kind malen und die
+     Glow-Ellipse schiene durch die ganze Fläche statt nur im 1px-Rand
+     (Original .button-wrapper ist ein div mit z-10). */
+  display: block;
   position: relative;
   z-index: 1;
   background: var(--paper);

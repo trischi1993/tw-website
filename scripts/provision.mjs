@@ -394,7 +394,6 @@ async function setPreviewSecret() {
 }
 
 function queueManualSteps() {
-  const prodUrl = prodDomain ? `https://${prodDomain}` : `https://${slug || 'astro-starter'}-prod.<account>.workers.dev`;
   const previewUrl = previewDomain
     ? `https://${previewDomain}`
     : `https://${slug || 'astro-starter'}-preview.<account>.workers.dev`;

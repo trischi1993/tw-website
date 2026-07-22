@@ -21,8 +21,11 @@ function bindArrows(btn: HTMLElement): void {
   const icon1 = btn.querySelector<HTMLElement>('[data-btn-icon-1]');
   const icon2 = btn.querySelector<HTMLElement>('[data-btn-icon-2]');
   if (!icon1 || !icon2) return;
-  gsap.set(icon1, { xPercent: -131 });
-  gsap.set(icon2, { xPercent: 0 });
+  /* x:0 neutralisiert die vom CSS geerbte translateX(-131%)-Basis - GSAP
+     parst sie sonst als px-Offset, der sich zum xPercent ADDIERT (Pfeil 1
+     bliebe dauerhaft links außerhalb der Maske). */
+  gsap.set(icon1, { x: 0, xPercent: -131 });
+  gsap.set(icon2, { x: 0, xPercent: 0 });
   btn.addEventListener('mouseenter', () => {
     gsap.to(icon2, { xPercent: 131, duration: 0.4, ease: EASE.outSine });
     gsap.to(icon1, { xPercent: 0, duration: 0.4, ease: EASE.outSine });

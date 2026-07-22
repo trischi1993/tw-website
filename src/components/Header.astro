@@ -171,6 +171,12 @@ const menuItems = [{ label: 'Startseite', href: '/' }, ...settings.nav];
   .navbar__right { display: flex; align-items: center; position: relative; overflow: hidden; }
   .navbar__right-inner { display: flex; align-items: center; gap: 2rem; position: relative; }
   .navbar__list { display: flex; align-items: center; gap: 1.5rem; margin: 0; padding: 0; }
+  /* Jedes <li> als Flexbox: zentriert den Link vertikal und nimmt dem
+     inline-block-Anker die Grundlinien-Macke (overflow:hidden → Baseline =
+     Unterkante; die Zeilenbox reserviert dann die Font-Unterlänge DARUNTER und
+     schöbe den Text sonst ~4px zu hoch). Im Original ist der Link ein direktes
+     Flex-Kind von .navbar_menu-desktop und hat das Problem nicht. */
+  .navbar__list li { display: flex; align-items: center; }
   .navbar__link {
     color: var(--ink-2);
     font-size: 1rem;

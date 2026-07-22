@@ -427,8 +427,15 @@ const FORM_ACTION = 'https://form.taxi/s/vvg9bvd4';
   /* Choices.js - 1:1-Port des Original-Embeds (.modal-select-multiple-css):
      Rahmen/BG liegen auf .choices, __inner ist transparent; Dropdown auf
      Seitengrund; Tags transparent mit Goldrahmen, Gold-Fläche bei Hover/
-     Auswahl. Fokus ändert die Rahmenfarbe NICHT (wie Original). */
-  .choices {
+     Auswahl. Fokus ändert die Rahmenfarbe NICHT (wie Original).
+
+     WICHTIG - jede Regel ist mit `.modal` gescoped: Choices' eigenes
+     Stylesheet wird per dynamischem Import ZUR LAUFZEIT nachgeladen, landet
+     also NACH diesem Block im <head> (dev wie prod). Bei gleicher Spezifität
+     gewänne sonst das später geladene Default-CSS (Tags würden Choices-Türkis
+     statt Gold). Der `.modal`-Präfix hebt die Spezifität über die Defaults -
+     unabhängig von der Ladereihenfolge. */
+  .modal .choices {
     width: 100%;
     margin-bottom: 0;
     padding: 0.5rem 0.75rem;
@@ -438,7 +445,7 @@ const FORM_ACTION = 'https://form.taxi/s/vvg9bvd4';
     font-size: 16px;
     font-family: inherit;
   }
-  .choices__inner {
+  .modal .choices__inner {
     display: inline-block;
     vertical-align: top;
     width: 100%;
@@ -450,27 +457,27 @@ const FORM_ACTION = 'https://form.taxi/s/vvg9bvd4';
     min-height: auto;
     overflow: hidden;
   }
-  .choices__inner::before { color: var(--ink-3); }
-  .choices.is-focused .choices__inner {
+  .modal .choices__inner::before { color: var(--ink-3); }
+  .modal .choices.is-focused .choices__inner {
     border-color: var(--form-line);
     color: var(--ink);
   }
-  .choices__list--dropdown .choices__item--selectable {
+  .modal .choices__list--dropdown .choices__item--selectable {
     background: var(--paper-2);
     color: var(--ink-3);
     padding: 0.5rem;
   }
-  .choices__list--dropdown,
-  .choices__list[aria-expanded] {
+  .modal .choices__list--dropdown,
+  .modal .choices__list[aria-expanded] {
     border-radius: var(--radius-input);
     background: var(--paper);
   }
-  .choices__list--dropdown .choices__item--selectable.is-highlighted,
-  .choices__list[aria-expanded] .choices__item--selectable.is-highlighted {
+  .modal .choices__list--dropdown .choices__item--selectable.is-highlighted,
+  .modal .choices__list[aria-expanded] .choices__item--selectable.is-highlighted {
     background: var(--paper);
     color: var(--ink);
   }
-  .choices__input {
+  .modal .choices__input {
     width: 100%;
     padding: 0;
     border: 0;
@@ -481,25 +488,26 @@ const FORM_ACTION = 'https://form.taxi/s/vvg9bvd4';
     color: var(--ink);
     margin-bottom: 0;
   }
-  .choices__input::placeholder { color: var(--ink-3); }
-  .choices__list--multiple .choices__item {
+  .modal .choices__input::placeholder { color: var(--ink-3); }
+  .modal .choices__list--multiple .choices__item {
     background: transparent;
     border: 1px solid var(--brand);
     border-radius: var(--radius-input);
     color: var(--ink);
   }
-  .choices__list--multiple .choices__item.is-selected,
-  .choices__list--multiple .choices__item:hover,
-  .choices__list--multiple .choices__item.is-highlighted {
+  .modal .choices__list--multiple .choices__item.is-selected,
+  .modal .choices__list--multiple .choices__item:hover,
+  .modal .choices__list--multiple .choices__item.is-highlighted {
     background: var(--brand);
     border-color: var(--brand);
     color: var(--ink);
   }
-  .choices[data-type*='select-multiple'] .choices__button {
+  .modal .choices[data-type*='select-multiple'] .choices__button {
     border-left: 1px solid var(--form-line);
-    /* Sichtbarkeits-Fix (bewusste Ergänzung): Choices' X-Icon ist dunkel,
-       auf dunklem Grund ohne Invert unsichtbar. */
-    filter: invert(1);
+    /* KEIN `filter: invert(1)`: das X des Multi-Select-Tags ist bei Choices
+       11.2.3 per Default bereits weiß (--choices-icon-cross = #FFF, gedacht für
+       den türkisen Default-Tag) und damit auf unserem dunklen Tag sichtbar.
+       Ein invert würde es schwarz und damit unsichtbar machen. */
   }
 </style>
 

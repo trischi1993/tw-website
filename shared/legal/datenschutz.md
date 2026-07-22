@@ -1,438 +1,118 @@
 # Datenschutz
 
-*Aktualisierungs-Datum: 01. September, 2024*
+*Stand: 22. Juli 2026*
 
-#### Allgemeine Hinweise
+## 1. Verantwortlicher
 
-Die folgenden Hinweise geben einen einfachen Überblick darüber, was mit Ihren personenbezogenen Daten passiert, wenn Sie diese Website besuchen. Personenbezogene Daten sind alle Daten, mit denen Sie persönlich identifiziert werden können. Ausführliche Informationen zum Thema Datenschutz entnehmen Sie unserer unter diesem Text aufgeführten Datenschutzerklärung.
-
-### Datenerfassung auf dieser Website
-
-#### Wer ist verantwortlich für die Datenerfassung auf dieser Website?
-
-Die Datenverarbeitung auf dieser Website erfolgt durch den Websitebetreiber. Dessen Kontaktdaten können Sie dem Abschnitt „Hinweis zur Verantwortlichen Stelle" in dieser Datenschutzerklärung entnehmen.
-
-#### Wie erfassen wir Ihre Daten?
-
-Ihre Daten werden zum einen dadurch erhoben, dass Sie uns diese mitteilen. Hierbei kann es sich z. B. um Daten handeln, die Sie in ein Kontaktformular eingeben.
-
-Andere Daten werden automatisch oder nach Ihrer Einwilligung beim Besuch der Website durch unsere IT-Systeme erfasst. Das sind vor allem technische Daten (z. B. Internetbrowser, Betriebssystem oder Uhrzeit des Seitenaufrufs). Die Erfassung dieser Daten erfolgt automatisch, sobald Sie diese Website betreten.
-
-#### Wofür nutzen wir Ihre Daten?
-
-Ein Teil der Daten wird erhoben, um eine fehlerfreie Bereitstellung der Website zu gewährleisten. Andere Daten können zur Analyse Ihres Nutzerverhaltens verwendet werden.
-
-#### Welche Rechte haben Sie bezüglich Ihrer Daten?
-
-Sie haben jederzeit das Recht, unentgeltlich Auskunft über Herkunft, Empfänger und Zweck Ihrer gespeicherten personenbezogenen Daten zu erhalten. Sie haben außerdem ein Recht, die Berichtigung oder Löschung dieser Daten zu verlangen. Wenn Sie eine Einwilligung zur Datenverarbeitung erteilt haben, können Sie diese Einwilligung jederzeit für die Zukunft widerrufen. Außerdem haben Sie das Recht, unter bestimmten Umständen die Einschränkung der Verarbeitung Ihrer personenbezogenen Daten zu verlangen. Des Weiteren steht Ihnen ein Beschwerderecht bei der zuständigen Aufsichtsbehörde zu.
-
-Hierzu sowie zu weiteren Fragen zum Thema Datenschutz können Sie sich jederzeit an uns wenden.
-
-### Analyse-Tools und Tools von Drittanbietern
-
-Beim Besuch dieser Website kann Ihr Surf-Verhalten statistisch ausgewertet werden. Das geschieht vor allem mit sogenannten Analyseprogrammen.
-
-Detaillierte Informationen zu diesen Analyseprogrammen finden Sie in der folgenden Datenschutzerklärung.
-
-### 2. Hosting
-
-Wir hosten die Inhalte unserer Webseite bei folgendem Anbieter:
-
-### Webflow
-
-Anbieter ist die Webflow, Inc., 398 11th Street, 2nd Floor, San Francisco, CA 94103, USA (nachfolgend Webflow). Wenn Sie unsere Website besuchen, erfasst Webflow verschiedene Logfiles inklusive Ihrer IP-Adressen.
-
-Webflow ist ein Tool zum Erstellen und zum Hosten von Websites. Webflow speichert Cookies oder sonstige Wiedererkennungstechnologien, die für die Darstellung der Seite, zur Bereitstellung bestimmter Webseitenfunktionen und zur Gewährleistung der Sicherheit erforderlich sind (notwendige Cookies).
-
-Details entnehmen Sie der Datenschutzerklärung von Webflow: [https://webflow.com/legal/eu-privacy-policy](https://webflow.com/legal/eu-privacy-policy).
-
-Die Verwendung von Webflow erfolgt auf Grundlage von Art. 6 Abs. 1 lit. f DSGVO. Wir haben ein berechtigtes Interesse an einer möglichst zuverlässigen Darstellung unserer Website. Sofern eine entsprechende Einwilligung abgefragt wurde, erfolgt die Verarbeitung ausschließlich auf Grundlage von Art. 6 Abs. 1 lit. a DSGVO und § 25 Abs. 1 TTDSG, soweit die Einwilligung die Speicherung von Cookies oder den Zugriff auf Informationen im Endgerät des Nutzers (z. B. Device-Fingerprinting) im Sinne des TTDSG umfasst. Die Einwilligung ist jederzeit widerrufbar.
-
-Die Datenübertragung in die USA wird auf die Standardvertragsklauseln der EU-Kommission gestützt. Details finden Sie hier: [https://webflow.com/legal/eu-privacy-policy](https://webflow.com/legal/eu-privacy-policy).
-
-#### Auftragsverarbeitung
-
-Wir haben einen Vertrag über Auftragsverarbeitung (AVV) mit dem oben genannten Anbieter geschlossen. Hierbei handelt es sich um einen datenschutzrechtlich vorgeschriebenen Vertrag, der gewährleistet, dass dieser die personenbezogenen Daten unserer Websitebesucher nur nach unseren Weisungen und unter Einhaltung der DSGVO verarbeitet.
-
-### 3. Allgemeine Hinweise und Pflichtinformationen
-
-### Datenschutz
-
-Die Betreiber dieser Seiten nehmen den Schutz Ihrer persönlichen Daten sehr ernst. Wir behandeln Ihre personenbezogenen Daten vertraulich und entsprechend den gesetzlichen Datenschutzvorschriften sowie dieser Datenschutzerklärung.
-
-Wenn Sie diese Website benutzen, werden verschiedene personenbezogene Daten erhoben. Personenbezogene Daten sind Daten, mit denen Sie persönlich identifiziert werden können. Die vorliegende Datenschutzerklärung erläutert, welche Daten wir erheben und wofür wir sie nutzen. Sie erläutert auch, wie und zu welchem Zweck das geschieht.
-
-Wir weisen darauf hin, dass die Datenübertragung im Internet (z. B. bei der Kommunikation per E-Mail) Sicherheitslücken aufweisen kann. Ein lückenloser Schutz der Daten vor dem Zugriff durch Dritte ist nicht möglich.
-
-### Hinweis zur verantwortlichen Stelle
-
-Die verantwortliche Stelle für die Datenverarbeitung auf dieser Website ist:
+Verantwortlich für die Datenverarbeitung auf dieser Website ist:
 
 Tristan Weithaler
+
 Katharinaberg 50
+
 39020 Schnals, Italien
 
 Telefon: +39 334 179 9393
 
 E-Mail: info@tristanweithaler.com
 
-Verantwortliche Stelle ist die natürliche oder juristische Person, die allein oder gemeinsam mit anderen über die Zwecke und Mittel der Verarbeitung von personenbezogenen Daten (z. B. Namen, E-Mail-Adressen o. Ä.) entscheidet.
+## 2. Allgemeine Hinweise
+
+Wir behandeln personenbezogene Daten vertraulich und entsprechend den anwendbaren Datenschutzvorschriften. Personenbezogene Daten sind alle Informationen, mit denen Sie persönlich identifiziert werden können.
+
+Beim Besuch dieser Website werden einerseits technisch erforderliche Daten verarbeitet, damit die Website sicher und fehlerfrei bereitgestellt werden kann. Weitere Daten erhalten wir nur, wenn Sie sie uns mitteilen, beispielsweise über ein Kontaktformular, per E-Mail oder telefonisch. Eine Analyse des Besucherverhaltens oder Werbetracking findet auf dieser Website nach dem aktuellen technischen Stand nicht statt.
+
+### Rechtsgrundlagen
+
+Soweit eine Verarbeitung zur Durchführung eines Vertrags oder vorvertraglicher Maßnahmen erforderlich ist, beruht sie auf Art. 6 Abs. 1 lit. b DSGVO. Rechtliche Verpflichtungen werden auf Grundlage von Art. 6 Abs. 1 lit. c DSGVO erfüllt. Technisch notwendige Verarbeitungen zur sicheren und zuverlässigen Bereitstellung der Website beruhen auf Art. 6 Abs. 1 lit. f DSGVO. Einwilligungspflichtige Verarbeitungen erfolgen auf Grundlage von Art. 6 Abs. 1 lit. a DSGVO und, soweit Informationen auf Ihrem Endgerät gespeichert oder ausgelesen werden, § 25 Abs. 1 TDDDG. Eine Einwilligung kann jederzeit mit Wirkung für die Zukunft widerrufen werden.
 
 ### Speicherdauer
 
-Soweit innerhalb dieser Datenschutzerklärung keine speziellere Speicherdauer genannt wurde, verbleiben Ihre personenbezogenen Daten bei uns, bis der Zweck für die Datenverarbeitung entfällt. Wenn Sie ein berechtigtes Löschersuchen geltend machen oder eine Einwilligung zur Datenverarbeitung widerrufen, werden Ihre Daten gelöscht, sofern wir keine anderen rechtlich zulässigen Gründe für die Speicherung Ihrer personenbezogenen Daten haben (z. B. steuer- oder handelsrechtliche Aufbewahrungsfristen); im letztgenannten Fall erfolgt die Löschung nach Fortfall dieser Gründe.
+Sofern in dieser Datenschutzerklärung keine speziellere Speicherdauer genannt ist, speichern wir personenbezogene Daten nur so lange, wie sie für den jeweiligen Zweck erforderlich sind. Gesetzliche Aufbewahrungspflichten bleiben unberührt.
 
-### Allgemeine Hinweise zu den Rechtsgrundlagen der Datenverarbeitung auf dieser Website
+## 3. Hosting und Auslieferung
 
-Sofern Sie in die Datenverarbeitung eingewilligt haben, verarbeiten wir Ihre personenbezogenen Daten auf Grundlage von Art. 6 Abs. 1 lit. a DSGVO bzw. Art. 9 Abs. 2 lit. a DSGVO, sofern besondere Datenkategorien nach Art. 9 Abs. 1 DSGVO verarbeitet werden. Im Falle einer ausdrücklichen Einwilligung in die Übertragung personenbezogener Daten in Drittstaaten erfolgt die Datenverarbeitung außerdem auf Grundlage von Art. 49 Abs. 1 lit. a DSGVO. Sofern Sie in die Speicherung von Cookies oder in den Zugriff auf Informationen in Ihr Endgerät (z. B. via Device-Fingerprinting) eingewilligt haben, erfolgt die Datenverarbeitung zusätzlich auf Grundlage von § 25 Abs. 1 TTDSG. Die Einwilligung ist jederzeit widerrufbar. Sind Ihre Daten zur Vertragserfüllung oder zur Durchführung vorvertraglicher Maßnahmen erforderlich, verarbeiten wir Ihre Daten auf Grundlage des Art. 6 Abs. 1 lit. b DSGVO. Des Weiteren verarbeiten wir Ihre Daten, sofern diese zur Erfüllung einer rechtlichen Verpflichtung erforderlich sind auf Grundlage von Art. 6 Abs. 1 lit. c DSGVO. Die Datenverarbeitung kann ferner auf Grundlage unseres berechtigten Interesses nach Art. 6 Abs. 1 lit. f DSGVO erfolgen. Über die jeweils im Einzelfall einschlägigen Rechtsgrundlagen wird in den folgenden Absätzen dieser Datenschutzerklärung informiert.
+### Cloudflare
 
-### Hinweis zur Datenweitergabe in die USA und sonstige Drittstaaten
+Diese Website wird über Dienste von Cloudflare bereitgestellt. Anbieter ist Cloudflare, Inc., 101 Townsend Street, San Francisco, CA 94107, USA.
 
-Wir verwenden unter anderem Tools von Unternehmen mit Sitz in den USA oder sonstigen datenschutzrechtlich nicht sicheren Drittstaaten. Wenn diese Tools aktiv sind, können Ihre personenbezogene Daten in diese Drittstaaten übertragen und dort verarbeitet werden. Wir weisen darauf hin, dass in diesen Ländern kein mit der EU vergleichbares Datenschutzniveau garantiert werden kann. Beispielsweise sind US-Unternehmen dazu verpflichtet, personenbezogene Daten an Sicherheitsbehörden herauszugeben, ohne dass Sie als Betroffener hiergegen gerichtlich vorgehen könnten. Es kann daher nicht ausgeschlossen werden, dass US-Behörden (z. B. Geheimdienste) Ihre auf US-Servern befindlichen Daten zu Überwachungszwecken verarbeiten, auswerten und dauerhaft speichern. Wir haben auf diese Verarbeitungstätigkeiten keinen Einfluss.
+Cloudflare verarbeitet beim Aufruf der Website technisch erforderliche Verbindungsdaten, insbesondere IP-Adresse, Zeitpunkt der Anfrage, aufgerufene Adresse, Browser- und Geräteinformationen sowie Sicherheits- und Protokolldaten. Die Verarbeitung dient der Auslieferung, Stabilität und Sicherheit der Website sowie dem Schutz vor missbräuchlichen Zugriffen.
 
-### Widerruf Ihrer Einwilligung zur Datenverarbeitung
+Rechtsgrundlage ist Art. 6 Abs. 1 lit. f DSGVO. Unser berechtigtes Interesse besteht in einer sicheren, schnellen und zuverlässigen Bereitstellung der Website. Cloudflare stellt ein Data Processing Addendum einschließlich Regelungen für internationale Datenübermittlungen bereit.
 
-Viele Datenverarbeitungsvorgänge sind nur mit Ihrer ausdrücklichen Einwilligung möglich. Sie können eine bereits erteilte Einwilligung jederzeit widerrufen. Die Rechtmäßigkeit der bis zum Widerruf erfolgten Datenverarbeitung bleibt vom Widerruf unberührt.
+Weitere Informationen: [Cloudflare Datenschutzerklärung](https://www.cloudflare.com/policies/privacy/) und [Cloudflare Data Processing Addendum](https://www.cloudflare.com/cloudflare-customer-dpa/).
 
-### Widerspruchsrecht gegen die Datenerhebung in besonderen Fällen sowie gegen Direktwerbung (Art. 21 DSGVO)
+### Sanity
 
-WENN DIE DATENVERARBEITUNG AUF GRUNDLAGE VON ART. 6 ABS. 1 LIT. E ODER F DSGVO ERFOLGT, HABEN SIE JEDERZEIT DAS RECHT, AUS GRÜNDEN, DIE SICH AUS IHRER BESONDEREN SITUATION ERGEBEN, GEGEN DIE VERARBEITUNG IHRER PERSONENBEZOGENEN DATEN WIDERSPRUCH EINZULEGEN; DIES GILT AUCH FÜR EIN AUF DIESE BESTIMMUNGEN GESTÜTZTES PROFILING. DIE JEWEILIGE RECHTSGRUNDLAGE, AUF DENEN EINE VERARBEITUNG BERUHT, ENTNEHMEN SIE DIESER DATENSCHUTZERKLÄRUNG. WENN SIE WIDERSPRUCH EINLEGEN, WERDEN WIR IHRE BETROFFENEN PERSONENBEZOGENEN DATEN NICHT MEHR VERARBEITEN, ES SEI DENN, WIR KÖNNEN ZWINGENDE SCHUTZWÜRDIGE GRÜNDE FÜR DIE VERARBEITUNG NACHWEISEN, DIE IHRE INTERESSEN, RECHTE UND FREIHEITEN ÜBERWIEGEN ODER DIE VERARBEITUNG DIENT DER GELTENDMACHUNG, AUSÜBUNG ODER VERTEIDIGUNG VON RECHTSANSPRÜCHEN (WIDERSPRUCH NACH ART. 21 ABS. 1 DSGVO).
+Für die Verwaltung der Website-Inhalte und die Auslieferung von Bildern verwenden wir Sanity. Anbieter sind Sanity AS, Oslo, Norwegen, und verbundene Unternehmen. Bilder können beim Seitenaufruf direkt über `cdn.sanity.io` geladen werden. Dabei erhält Sanity technisch erforderliche Verbindungsdaten wie IP-Adresse, Zeitpunkt, angeforderte Datei sowie Browser- und Geräteinformationen.
 
-WERDEN IHRE PERSONENBEZOGENEN DATEN VERARBEITET, UM DIREKTWERBUNG ZU BETREIBEN, SO HABEN SIE DAS RECHT, JEDERZEIT WIDERSPRUCH GEGEN DIE VERARBEITUNG SIE BETREFFENDER PERSONENBEZOGENER DATEN ZUM ZWECKE DERARTIGER WERBUNG EINZULEGEN; DIES GILT AUCH FÜR DAS PROFILING, SOWEIT ES MIT SOLCHER DIREKTWERBUNG IN VERBINDUNG STEHT. WENN SIE WIDERSPRECHEN, WERDEN IHRE PERSONENBEZOGENEN DATEN ANSCHLIESSEND NICHT MEHR ZUM ZWECKE DER DIREKTWERBUNG VERWENDET (WIDERSPRUCH NACH ART. 21 ABS. 2 DSGVO).
+Die Inhaltsverwaltung im Sanity Studio ist nur für autorisierte Redakteure bestimmt. Öffentliche Websitebesucher erhalten keinen Zugriff auf nicht veröffentlichte Inhalte.
 
-### Beschwerderecht bei der zuständigen Aufsichtsbehörde
+Rechtsgrundlage für die technisch erforderliche Inhalts- und Bildauslieferung ist Art. 6 Abs. 1 lit. f DSGVO. Unser berechtigtes Interesse liegt in einer zuverlässigen Verwaltung und schnellen Bereitstellung der Website-Inhalte.
 
-Im Falle von Verstößen gegen die DSGVO steht den Betroffenen ein Beschwerderecht bei einer Aufsichtsbehörde, insbesondere in dem Mitgliedstaat ihres gewöhnlichen Aufenthalts, ihres Arbeitsplatzes oder des Orts des mutmaßlichen Verstoßes zu. Das Beschwerderecht besteht unbeschadet anderweitiger verwaltungsrechtlicher oder gerichtlicher Rechtsbehelfe.
+Weitere Informationen: [Sanity Privacy Policy](https://www.sanity.io/legal/privacy).
 
-### Recht auf Datenübertragbarkeit
+### Verschlüsselung
 
-Sie haben das Recht, Daten, die wir auf Grundlage Ihrer Einwilligung oder in Erfüllung eines Vertrags automatisiert verarbeiten, an sich oder an einen Dritten in einem gängigen, maschinenlesbaren Format aushändigen zu lassen. Sofern Sie die direkte Übertragung der Daten an einen anderen Verantwortlichen verlangen, erfolgt dies nur, soweit es technisch machbar ist.
+Die Website nutzt eine SSL- bzw. TLS-Verschlüsselung. Eine verschlüsselte Verbindung erkennen Sie an `https://` und dem Schloss-Symbol in der Adresszeile Ihres Browsers.
 
-### Auskunft, Löschung und Berichtigung
+## 4. Lokale Speicherung und Einwilligungen
 
-Sie haben im Rahmen der geltenden gesetzlichen Bestimmungen jederzeit das Recht auf unentgeltliche Auskunft über Ihre gespeicherten personenbezogenen Daten, deren Herkunft und Empfänger und den Zweck der Datenverarbeitung und ggf. ein Recht auf Berichtigung oder Löschung dieser Daten. Hierzu sowie zu weiteren Fragen zum Thema personenbezogene Daten können Sie sich jederzeit an uns wenden.
+Die öffentliche Website setzt nach dem aktuellen technischen Stand keine Analyse- oder Werbe-Cookies. Ihre Auswahl im Einwilligungsbanner wird unter dem Schlüssel `tw:consent` lokal in Ihrem Browser gespeichert. Dadurch muss die Auswahl nicht bei jedem Seitenaufruf erneut abgefragt werden.
 
-### Recht auf Einschränkung der Verarbeitung
+Diese Speicherung ist für die von Ihnen gewünschte Einwilligungsverwaltung erforderlich. Rechtsgrundlage ist § 25 Abs. 2 Nr. 2 TDDDG. Sie können die gespeicherte Auswahl über die Cookie-Einstellungen der Website ändern oder über die Browser-Einstellungen löschen.
 
-Sie haben das Recht, die Einschränkung der Verarbeitung Ihrer personenbezogenen Daten zu verlangen. Hierzu können Sie sich jederzeit an uns wenden. Das Recht auf Einschränkung der Verarbeitung besteht in folgenden Fällen:
+Externe Medien von Vimeo werden erst nach Ihrer Einwilligung geladen.
 
-- Wenn Sie die Richtigkeit Ihrer bei uns gespeicherten personenbezogenen Daten bestreiten, benötigen wir in der Regel Zeit, um dies zu überprüfen. Für die Dauer der Prüfung haben Sie das Recht, die Einschränkung der Verarbeitung Ihrer personenbezogenen Daten zu verlangen.
-- Wenn die Verarbeitung Ihrer personenbezogenen Daten unrechtmäßig geschah/geschieht, können Sie statt der Löschung die Einschränkung der Datenverarbeitung verlangen.
-- Wenn wir Ihre personenbezogenen Daten nicht mehr benötigen, Sie sie jedoch zur Ausübung, Verteidigung oder Geltendmachung von Rechtsansprüchen benötigen, haben Sie das Recht, statt der Löschung die Einschränkung der Verarbeitung Ihrer personenbezogenen Daten zu verlangen.
-- Wenn Sie einen Widerspruch nach Art. 21 Abs. 1 DSGVO eingelegt haben, muss eine Abwägung zwischen Ihren und unseren Interessen vorgenommen werden. Solange noch nicht feststeht, wessen Interessen überwiegen, haben Sie das Recht, die Einschränkung der Verarbeitung Ihrer personenbezogenen Daten zu verlangen.
+## 5. Kontakt- und Bewerbungsformulare
 
-Wenn Sie die Verarbeitung Ihrer personenbezogenen Daten eingeschränkt haben, dürfen diese Daten – von ihrer Speicherung abgesehen – nur mit Ihrer Einwilligung oder zur Geltendmachung, Ausübung oder Verteidigung von Rechtsansprüchen oder zum Schutz der Rechte einer anderen natürlichen oder juristischen Person oder aus Gründen eines wichtigen öffentlichen Interesses der Europäischen Union oder eines Mitgliedstaats verarbeitet werden.
+Wenn Sie ein Formular absenden, verarbeiten wir die von Ihnen eingegebenen Angaben. Dazu können insbesondere Name, E-Mail-Adresse, Berufsbezeichnung oder Unternehmen, Social-Media-Link, gewünschte Coaching-Leistung und freiwillige weitere Angaben gehören. Wir verwenden diese Daten zur Bearbeitung Ihrer Anfrage und für mögliche Anschlussfragen.
 
-### SSL- bzw. TLS-Verschlüsselung
+Die Übermittlung der Formulare erfolgt über Form.taxi. Anbieter ist wrkt*biz Reinhard Söllradl, 4070 Eferding, Österreich, E-Mail: support@form.taxi. Die Formularinhalte und technisch erforderliche Übertragungsdaten werden dabei an Form.taxi übermittelt und von dort an den vorgesehenen Empfänger weitergeleitet. Nach Angaben des Anbieters wird der Dienst in einem Rechenzentrum in Deutschland betrieben.
 
-Diese Seite nutzt aus Sicherheitsgründen und zum Schutz der Übertragung vertraulicher Inhalte, wie zum Beispiel Bestellungen oder Anfragen, die Sie an uns als Seitenbetreiber senden, eine SSL- bzw. TLS-Verschlüsselung. Eine verschlüsselte Verbindung erkennen Sie daran, dass die Adresszeile des Browsers von „http://" auf „https://" wechselt und an dem Schloss-Symbol in Ihrer Browserzeile.
+Rechtsgrundlage ist Art. 6 Abs. 1 lit. b DSGVO, soweit die Anfrage der Anbahnung oder Durchführung eines Vertrags dient. In anderen Fällen beruht die Verarbeitung auf Art. 6 Abs. 1 lit. f DSGVO; unser berechtigtes Interesse liegt in der effizienten Bearbeitung von Anfragen.
 
-Wenn die SSL- bzw. TLS-Verschlüsselung aktiviert ist, können die Daten, die Sie an uns übermitteln, nicht von Dritten mitgelesen werden.
+Die Daten werden gelöscht, sobald der Zweck der Anfragebearbeitung entfällt, sofern keine gesetzlichen Aufbewahrungspflichten oder sonstigen rechtmäßigen Gründe für eine weitere Speicherung bestehen.
 
-### 4. Datenerfassung auf dieser Website
+Weitere Informationen: [Form.taxi Datenschutzerklärung](https://form.taxi/de/privacy).
 
-### Cookies
+## 6. Kontakt per E-Mail oder Telefon
 
-Unsere Internetseiten verwenden so genannte „Cookies". Cookies sind kleine Datenpakete und richten auf Ihrem Endgerät keinen Schaden an. Sie werden entweder vorübergehend für die Dauer einer Sitzung (Session-Cookies) oder dauerhaft (permanente Cookies) auf Ihrem Endgerät gespeichert. Session-Cookies werden nach Ende Ihres Besuchs automatisch gelöscht. Permanente Cookies bleiben auf Ihrem Endgerät gespeichert, bis Sie diese selbst löschen oder eine automatische Löschung durch Ihren Webbrowser erfolgt.
+Wenn Sie uns per E-Mail oder Telefon kontaktieren, verarbeiten wir Ihre Anfrage einschließlich der daraus hervorgehenden personenbezogenen Daten zur Bearbeitung Ihres Anliegens. Rechtsgrundlage ist Art. 6 Abs. 1 lit. b DSGVO, soweit es um einen Vertrag oder vorvertragliche Maßnahmen geht, ansonsten Art. 6 Abs. 1 lit. f DSGVO.
 
-Teilweise können auch Cookies von Drittunternehmen auf Ihrem Endgerät gespeichert werden, wenn Sie unsere Seite betreten (Third-Party-Cookies). Diese ermöglichen uns oder Ihnen die Nutzung bestimmter Dienstleistungen des Drittunternehmens (z. B. Cookies zur Abwicklung von Zahlungsdienstleistungen).
+## 7. Vimeo
 
-Cookies haben verschiedene Funktionen. Zahlreiche Cookies sind technisch notwendig, da bestimmte Websitefunktionen ohne diese nicht funktionieren würden (z. B. die Warenkorbfunktion oder die Anzeige von Videos). Andere Cookies dienen dazu, das Nutzerverhalten auszuwerten oder Werbung anzuzeigen.
+Auf der Website kann ein Video des Anbieters Vimeo, Inc., 555 West 18th Street, New York, NY 10011, USA, eingebettet werden. Beim ersten Seitenaufruf wird keine Verbindung zum Vimeo-Player hergestellt. Der Vimeo-Player wird erst geladen, wenn Sie externe Medien über das Einwilligungsbanner erlauben oder das Video ausdrücklich aktivieren.
 
-Cookies, die zur Durchführung des elektronischen Kommunikationsvorgangs, zur Bereitstellung bestimmter, von Ihnen erwünschter Funktionen (z. B. für die Warenkorbfunktion) oder zur Optimierung der Website (z. B. Cookies zur Messung des Webpublikums) erforderlich sind (notwendige Cookies), werden auf Grundlage von Art. 6 Abs. 1 lit. f DSGVO gespeichert, sofern keine andere Rechtsgrundlage angegeben wird. Der Websitebetreiber hat ein berechtigtes Interesse an der Speicherung von notwendigen Cookies zur technisch fehlerfreien und optimierten Bereitstellung seiner Dienste. Sofern eine Einwilligung zur Speicherung von Cookies und vergleichbaren Wiedererkennungstechnologien abgefragt wurde, erfolgt die Verarbeitung ausschließlich auf Grundlage dieser Einwilligung (Art. 6 Abs. 1 lit. a DSGVO und § 25 Abs. 1 TTDSG); die Einwilligung ist jederzeit widerrufbar.
+Nach der Aktivierung erhält Vimeo insbesondere Ihre IP-Adresse, Informationen über die aufgerufene Seite sowie Browser- und Geräteinformationen. Vimeo kann dabei Cookies oder vergleichbare Technologien verwenden. Wenn Sie bei Vimeo angemeldet sind, kann Vimeo den Aufruf Ihrem Konto zuordnen.
 
-Sie können Ihren Browser so einstellen, dass Sie über das Setzen von Cookies informiert werden und Cookies nur im Einzelfall erlauben, die Annahme von Cookies für bestimmte Fälle oder generell ausschließen sowie das automatische Löschen der Cookies beim Schließen des Browsers aktivieren. Bei der Deaktivierung von Cookies kann die Funktionalität dieser Website eingeschränkt sein.
+Die Verarbeitung erfolgt ausschließlich auf Grundlage Ihrer Einwilligung gemäß Art. 6 Abs. 1 lit. a DSGVO und § 25 Abs. 1 TDDDG. Sie können die Einwilligung jederzeit über die Cookie-Einstellungen der Website widerrufen.
 
-Soweit Cookies von Drittunternehmen oder zu Analysezwecken eingesetzt werden, werden wir Sie hierüber im Rahmen dieser Datenschutzerklärung gesondert informieren und ggf. eine Einwilligung abfragen.
+Weitere Informationen: [Vimeo Datenschutzerklärung](https://vimeo.com/privacy).
 
-### Kontaktformular
+## 8. Lokale Schriftarten
 
-Wenn Sie uns per Kontaktformular Anfragen zukommen lassen, werden Ihre Angaben aus dem Anfrageformular inklusive der von Ihnen dort angegebenen Kontaktdaten zwecks Bearbeitung der Anfrage und für den Fall von Anschlussfragen bei uns gespeichert. Diese Daten geben wir nicht ohne Ihre Einwilligung weiter.
+Die verwendeten Schriftarten werden lokal von dieser Website ausgeliefert. Beim Laden der Schriftarten wird keine Verbindung zu Google Fonts oder anderen externen Schriftanbietern hergestellt.
 
-Die Verarbeitung dieser Daten erfolgt auf Grundlage von Art. 6 Abs. 1 lit. b DSGVO, sofern Ihre Anfrage mit der Erfüllung eines Vertrags zusammenhängt oder zur Durchführung vorvertraglicher Maßnahmen erforderlich ist. In allen übrigen Fällen beruht die Verarbeitung auf unserem berechtigten Interesse an der effektiven Bearbeitung der an uns gerichteten Anfragen (Art. 6 Abs. 1 lit. f DSGVO) oder auf Ihrer Einwilligung (Art. 6 Abs. 1 lit. a DSGVO) sofern diese abgefragt wurde; die Einwilligung ist jederzeit widerrufbar.
+## 9. Externe Links und soziale Netzwerke
 
-Die von Ihnen im Kontaktformular eingegebenen Daten verbleiben bei uns, bis Sie uns zur Löschung auffordern, Ihre Einwilligung zur Speicherung widerrufen oder der Zweck für die Datenspeicherung entfällt (z. B. nach abgeschlossener Bearbeitung Ihrer Anfrage). Zwingende gesetzliche Bestimmungen – insbesondere Aufbewahrungsfristen – bleiben unberührt.
+Diese Website enthält normale Links zu externen Angeboten, unter anderem Instagram, LinkedIn und Calendly. Beim bloßen Besuch unserer Website werden über diese Links keine Daten an die jeweiligen Anbieter übertragen. Erst wenn Sie einen externen Link öffnen, gelten die Datenschutzbestimmungen des jeweiligen Anbieters.
 
-### Anfrage per E-Mail, Telefon oder Telefax
+## 10. Ihre Rechte
 
-Wenn Sie uns per E-Mail, Telefon oder Telefax kontaktieren, wird Ihre Anfrage inklusive aller daraus hervorgehenden personenbezogenen Daten (Name, Anfrage) zum Zwecke der Bearbeitung Ihres Anliegens bei uns gespeichert und verarbeitet. Diese Daten geben wir nicht ohne Ihre Einwilligung weiter.
+Sie haben im Rahmen der gesetzlichen Voraussetzungen insbesondere folgende Rechte:
 
-Die Verarbeitung dieser Daten erfolgt auf Grundlage von Art. 6 Abs. 1 lit. b DSGVO, sofern Ihre Anfrage mit der Erfüllung eines Vertrags zusammenhängt oder zur Durchführung vorvertraglicher Maßnahmen erforderlich ist. In allen übrigen Fällen beruht die Verarbeitung auf unserem berechtigten Interesse an der effektiven Bearbeitung der an uns gerichteten Anfragen (Art. 6 Abs. 1 lit. f DSGVO) oder auf Ihrer Einwilligung (Art. 6 Abs. 1 lit. a DSGVO) sofern diese abgefragt wurde; die Einwilligung ist jederzeit widerrufbar.
+- Auskunft über Ihre gespeicherten personenbezogenen Daten,
+- Berichtigung unrichtiger Daten,
+- Löschung oder Einschränkung der Verarbeitung,
+- Datenübertragbarkeit,
+- Widerruf erteilter Einwilligungen mit Wirkung für die Zukunft,
+- Widerspruch gegen eine Verarbeitung auf Grundlage von Art. 6 Abs. 1 lit. f DSGVO.
 
-Die von Ihnen an uns per Kontaktanfragen übersandten Daten verbleiben bei uns, bis Sie uns zur Löschung auffordern, Ihre Einwilligung zur Speicherung widerrufen oder der Zweck für die Datenspeicherung entfällt (z. B. nach abgeschlossener Bearbeitung Ihres Anliegens). Zwingende gesetzliche Bestimmungen – insbesondere gesetzliche Aufbewahrungsfristen – bleiben unberührt.
+Zur Ausübung Ihrer Rechte können Sie sich an info@tristanweithaler.com wenden.
 
-### Kommunikation via WhatsApp
+Sie haben außerdem das Recht, sich bei einer zuständigen Datenschutzaufsichtsbehörde zu beschweren. Dies kann insbesondere die Aufsichtsbehörde an Ihrem gewöhnlichen Aufenthaltsort, Arbeitsplatz oder am Ort des mutmaßlichen Verstoßes sein.
 
-Für die Kommunikation mit unseren Kunden und sonstigen Dritten nutzen wir unter anderem den Instant-Messaging-Dienst WhatsApp. Anbieter ist die WhatsApp Ireland Limited, 4 Grand Canal Square, Grand Canal Harbour, Dublin 2, Irland.
+## 11. Änderungen dieser Datenschutzerklärung
 
-Die Kommunikation erfolgt über eine Ende-zu-Ende-Verschlüsselung (Peer-to-Peer), die verhindert, dass WhatsApp oder sonstige Dritte Zugriff auf die Kommunikationsinhalte erlangen können. WhatsApp erhält jedoch Zugriff auf Metadaten, die im Zuge des Kommunikationsvorgangs entstehen (z. B. Absender, Empfänger und Zeitpunkt). Wir weisen ferner darauf hin, dass WhatsApp nach eigener Aussage, personenbezogene Daten seiner Nutzer mit seiner in den USA ansässigen Konzernmutter Meta teilt. Weitere Details zur Datenverarbeitung finden Sie in der Datenschutzrichtlinie von WhatsApp unter: [https://www.whatsapp.com/legal/#privacy-policy](https://www.whatsapp.com/legal/#privacy-policy).
-
-Der Einsatz von WhatsApp erfolgt auf Grundlage unseres berechtigten Interesses an einer möglichst schnellen und effektiven Kommunikation mit Kunden, Interessenten und sonstigen Geschäfts- und Vertragspartnern (Art. 6 Abs. 1 lit. f DSGVO). Sofern eine entsprechende Einwilligung abgefragt wurde, erfolgt die Datenverarbeitung ausschließlich auf Grundlage der Einwilligung; diese ist jederzeit mit Wirkung für die Zukunft widerrufbar.
-
-Die zwischen und auf WhatsApp ausgetauschten Kommunikationsinhalte verbleiben bei uns, bis Sie uns zur Löschung auffordern, Ihre Einwilligung zur Speicherung widerrufen oder der Zweck für die Datenspeicherung entfällt (z. B. nach abgeschlossener Bearbeitung Ihrer Anfrage). Zwingende gesetzliche Bestimmungen – insbesondere Aufbewahrungsfristen – bleiben unberührt.
-
-### Google Forms
-
-Wir haben Google Forms auf dieser Website eingebunden. Anbieter ist die die Google Ireland Limited, Gordon House, Barrow Street, Dublin 4, Irland (nachfolgend Google).
-
-Google Forms ermöglicht es uns, Online-Formulare zu erstellen um Nachrichten, Anfragen und sonstige Eingaben unserer Websitebesucher strukturiert zu erfassen. Alle von Ihnen getätigten Eingaben werden auf den Servern von Google verarbeitet. Google Forms speichert ein Cookie in Ihrem Browser, das eine eindeutige ID enthält (NID-Cookie). Dieses Cookie speichert verschiedene Informationen wie beispielsweise Ihre Spracheinstellungen.
-
-Der Einsatz von Google Forms erfolgt auf Grundlage unseres berechtigten Interesses an einer möglichst nutzerfreundlichen Ermittlung Ihres Anliegens (Art. 6 Abs. 1 lit. f DSGVO). Sofern eine entsprechende Einwilligung abgefragt wurde, erfolgt die Verarbeitung ausschließlich auf Grundlage von Art. 6 Abs. 1 lit. a DSGVO und § 25 Abs. 1 TTDSG, soweit die Einwilligung die Speicherung von Cookies oder den Zugriff auf Informationen im Endgerät des Nutzers (z. B. Device-Fingerprinting) im Sinne des TTDSG umfasst. Die Einwilligung ist jederzeit widerrufbar.
-
-Die von Ihnen im Formular eingegebenen Daten verbleiben bei uns, bis Sie uns zur Löschung auffordern, Ihre Einwilligung zur Speicherung widerrufen oder der Zweck für die Datenspeicherung entfällt (z. B. nach abgeschlossener Bearbeitung Ihrer Anfrage). Zwingende gesetzliche Bestimmungen – insbesondere Aufbewahrungsfristen – bleiben unberührt.
-
-Weitere Informationen entnehmen Sie der Datenschutzerklärung von Google unter [https://policies.google.com/](https://policies.google.com/).
-
-### 5. Soziale Medien
-
-### Facebook
-
-Auf dieser Website sind Elemente des sozialen Netzwerks Facebook integriert. Anbieter dieses Dienstes ist die Meta Platforms Ireland Limited, 4 Grand Canal Square, Dublin 2, Irland. Die erfassten Daten werden nach Aussage von Facebook jedoch auch in die USA und in andere Drittländer übertragen.
-
-Eine Übersicht über die Facebook Social-Media-Elemente finden Sie hier: [https://developers.facebook.com/docs/plugins/?locale=de_DE](https://developers.facebook.com/docs/plugins/?locale=de_DE).
-
-Wenn das Social-Media-Element aktiv ist, wird eine direkte Verbindung zwischen Ihrem Endgerät und dem Facebook-Server hergestellt. Facebook erhält dadurch die Information, dass Sie mit Ihrer IP-Adresse diese Website besucht haben. Wenn Sie den Facebook „Like-Button" anklicken, während Sie in Ihrem Facebook-Account eingeloggt sind, können Sie die Inhalte dieser Website auf Ihrem Facebook-Profil verlinken. Dadurch kann Facebook den Besuch dieser Website Ihrem Benutzerkonto zuordnen. Wir weisen darauf hin, dass wir als Anbieter der Seiten keine Kenntnis vom Inhalt der übermittelten Daten sowie deren Nutzung durch Facebook erhalten. Weitere Informationen hierzu finden Sie in der Datenschutzerklärung von Facebook unter: [https://de-de.facebook.com/privacy/explanation](https://de-de.facebook.com/privacy/explanation).
-
-Soweit eine Einwilligung (Consent) eingeholt wurde, erfolgt der Einsatz des o. g. Dienstes auf Grundlage von Art. 6 Abs. 1 lit. a DSGVO und § 25 TTDSG. Die Einwilligung ist jederzeit widerrufbar. Soweit keine Einwilligung eingeholt wurde, erfolgt die Verwendung des Dienstes auf Grundlage unseres berechtigten Interesses an einer möglichst umfassenden Sichtbarkeit in den Sozialen Medien.
-
-Soweit mit Hilfe des hier beschriebenen Tools personenbezogene Daten auf unserer Website erfasst und an Facebook weitergeleitet werden, sind wir und die Meta Platforms Ireland Limited, 4 Grand Canal Square, Grand Canal Harbour, Dublin 2, Irland gemeinsam für diese Datenverarbeitung verantwortlich (Art. 26 DSGVO). Die gemeinsame Verantwortlichkeit beschränkt sich dabei ausschließlich auf die Erfassung der Daten und deren Weitergabe an Facebook. Die nach der Weiterleitung erfolgende Verarbeitung durch Facebook ist nicht Teil der gemeinsamen Verantwortung. Die uns gemeinsam obliegenden Verpflichtungen wurden in einer Vereinbarung über gemeinsame Verarbeitung festgehalten. Den Wortlaut der Vereinbarung finden Sie unter: [https://www.facebook.com/legal/controller_addendum](https://www.facebook.com/legal/controller_addendum). Laut dieser Vereinbarung sind wir für die Erteilung der Datenschutzinformationen beim Einsatz des Facebook-Tools und für die datenschutzrechtlich sichere Implementierung des Tools auf unserer Website verantwortlich. Für die Datensicherheit der Facebook-Produkte ist Facebook verantwortlich. Betroffenenrechte (z. B. Auskunftsersuchen) hinsichtlich der bei Facebook verarbeiteten Daten können Sie direkt bei Facebook geltend machen. Wenn Sie die Betroffenenrechte bei uns geltend machen, sind wir verpflichtet, diese an Facebook weiterzuleiten.
-
-Die Datenübertragung in die USA wird auf die Standardvertragsklauseln der EU-Kommission gestützt. Details finden Sie hier: [https://www.facebook.com/legal/EU_data_transfer_addendum](https://www.facebook.com/legal/EU_data_transfer_addendum), [https://de-de.facebook.com/help/566994660333381](https://de-de.facebook.com/help/566994660333381) und [https://www.facebook.com/policy.php](https://www.facebook.com/policy.php).
-
-### Instagram
-
-Auf dieser Website sind Funktionen des Dienstes Instagram eingebunden. Diese Funktionen werden angeboten durch die Meta Platforms Ireland Limited, 4 Grand Canal Square, Grand Canal Harbour, Dublin 2, Irland.
-
-Wenn das Social-Media-Element aktiv ist, wird eine direkte Verbindung zwischen Ihrem Endgerät und dem Instagram-Server hergestellt. Instagram erhält dadurch Informationen über den Besuch dieser Website durch Sie.
-
-Wenn Sie in Ihrem Instagram-Account eingeloggt sind, können Sie durch Anklicken des Instagram-Buttons die Inhalte dieser Website mit Ihrem Instagram-Profil verlinken. Dadurch kann Instagram den Besuch dieser Website Ihrem Benutzerkonto zuordnen. Wir weisen darauf hin, dass wir als Anbieter der Seiten keine Kenntnis vom Inhalt der übermittelten Daten sowie deren Nutzung durch Instagram erhalten.
-
-Soweit eine Einwilligung (Consent) eingeholt wurde, erfolgt der Einsatz des o. g. Dienstes auf Grundlage von Art. 6 Abs. 1 lit. a DSGVO und § 25 TTDSG. Die Einwilligung ist jederzeit widerrufbar. Soweit keine Einwilligung eingeholt wurde, erfolgt die Verwendung des Dienstes auf Grundlage unseres berechtigten Interesses an einer möglichst umfassenden Sichtbarkeit in den Sozialen Medien.
-
-Soweit mit Hilfe des hier beschriebenen Tools personenbezogene Daten auf unserer Website erfasst und an Facebook bzw. Instagram weitergeleitet werden, sind wir und die Meta Platforms Ireland Limited, 4 Grand Canal Square, Grand Canal Harbour, Dublin 2, Irland gemeinsam für diese Datenverarbeitung verantwortlich (Art. 26 DSGVO). Die gemeinsame Verantwortlichkeit beschränkt sich dabei ausschließlich auf die Erfassung der Daten und deren Weitergabe an Facebook bzw. Instagram. Die nach der Weiterleitung erfolgende Verarbeitung durch Facebook bzw. Instagram ist nicht Teil der gemeinsamen Verantwortung. Die uns gemeinsam obliegenden Verpflichtungen wurden in einer Vereinbarung über gemeinsame Verarbeitung festgehalten. Den Wortlaut der Vereinbarung finden Sie unter: [https://www.facebook.com/legal/controller_addendum](https://www.facebook.com/legal/controller_addendum). Laut dieser Vereinbarung sind wir für die Erteilung der Datenschutzinformationen beim Einsatz des Facebook- bzw. Instagram-Tools und für die datenschutzrechtlich sichere Implementierung des Tools auf unserer Website verantwortlich. Für die Datensicherheit der Facebook bzw. Instagram-Produkte ist Facebook verantwortlich. Betroffenenrechte (z. B. Auskunftsersuchen) hinsichtlich der bei Facebook bzw. Instagram verarbeiteten Daten können Sie direkt bei Facebook geltend machen. Wenn Sie die Betroffenenrechte bei uns geltend machen, sind wir verpflichtet, diese an Facebook weiterzuleiten.
-
-Die Datenübertragung in die USA wird auf die Standardvertragsklauseln der EU-Kommission gestützt. Details finden Sie hier: [https://www.facebook.com/legal/EU_data_transfer_addendum](https://www.facebook.com/legal/EU_data_transfer_addendum), [https://help.instagram.com/519522125107875](https://help.instagram.com/519522125107875) und [https://de-de.facebook.com/help/566994660333381](https://de-de.facebook.com/help/566994660333381).
-
-Weitere Informationen hierzu finden Sie in der Datenschutzerklärung von Instagram: [https://instagram.com/about/legal/privacy/](https://instagram.com/about/legal/privacy/).
-
-### LinkedIn
-
-Diese Website nutzt Elemente des Netzwerks LinkedIn. Anbieter ist die LinkedIn Ireland Unlimited Company, Wilton Plaza, Wilton Place, Dublin 2, Irland.
-
-Bei jedem Abruf einer Seite dieser Website, die Elemente von LinkedIn enthält, wird eine Verbindung zu Servern von LinkedIn aufgebaut. LinkedIn wird darüber informiert, dass Sie diese Website mit Ihrer IP-Adresse besucht haben. Wenn Sie den „Recommend-Button" von LinkedIn anklicken und in Ihrem Account bei LinkedIn eingeloggt sind, ist es LinkedIn möglich, Ihren Besuch auf dieser Website Ihnen und Ihrem Benutzerkonto zuzuordnen. Wir weisen darauf hin, dass wir als Anbieter der Seiten keine Kenntnis vom Inhalt der übermittelten Daten sowie deren Nutzung durch LinkedIn haben.
-
-Soweit eine Einwilligung (Consent) eingeholt wurde, erfolgt der Einsatz des o. g. Dienstes auf Grundlage von Art. 6 Abs. 1 lit. a DSGVO und § 25 TTDSG. Die Einwilligung ist jederzeit widerrufbar. Soweit keine Einwilligung eingeholt wurde, erfolgt die Verwendung des Dienstes auf Grundlage unseres berechtigten Interesses an einer möglichst umfassenden Sichtbarkeit in den Sozialen Medien.
-
-Die Datenübertragung in die USA wird auf die Standardvertragsklauseln der EU-Kommission gestützt. Details finden Sie hier: [https://www.linkedin.com/help/linkedin/answer/62538/datenubertragung-aus-der-eu-dem-ewr-und-der-schweiz?lang=de](https://www.linkedin.com/help/linkedin/answer/62538/datenubertragung-aus-der-eu-dem-ewr-und-der-schweiz?lang=de)
-
-Weitere Informationen hierzu finden Sie in der Datenschutzerklärung von LinkedIn unter: [https://www.linkedin.com/legal/privacy-policy](https://www.linkedin.com/legal/privacy-policy).
-
-### 6. Analyse-Tools und Werbung
-
-### Google Tag Manager
-
-Wir setzen den Google Tag Manager ein. Anbieter ist die Google Ireland Limited, Gordon House, Barrow Street, Dublin 4, Irland.
-
-Der Google Tag Manager ist ein Tool, mit dessen Hilfe wir Tracking- oder Statistik-Tools und andere Technologien auf unserer Website einbinden können. Der Google Tag Manager selbst erstellt keine Nutzerprofile, speichert keine Cookies und nimmt keine eigenständigen Analysen vor. Er dient lediglich der Verwaltung und Ausspielung der über ihn eingebundenen Tools. Der Google Tag Manager erfasst jedoch Ihre IP-Adresse, die auch an das Mutterunternehmen von Google in die Vereinigten Staaten übertragen werden kann.
-
-Der Einsatz des Google Tag Managers erfolgt auf Grundlage von Art. 6 Abs. 1 lit. f DSGVO. Der Websitebetreiber hat ein berechtigtes Interesse an einer schnellen und unkomplizierten Einbindung und Verwaltung verschiedener Tools auf seiner Website. Sofern eine entsprechende Einwilligung abgefragt wurde, erfolgt die Verarbeitung ausschließlich auf Grundlage von Art. 6 Abs. 1 lit. a DSGVO und § 25 Abs. 1 TTDSG, soweit die Einwilligung die Speicherung von Cookies oder den Zugriff auf Informationen im Endgerät des Nutzers (z. B. Device-Fingerprinting) im Sinne des TTDSG umfasst. Die Einwilligung ist jederzeit widerrufbar.
-
-### Google Analytics
-
-Diese Website nutzt Funktionen des Webanalysedienstes Google Analytics. Anbieter ist die Google Ireland Limited („Google"), Gordon House, Barrow Street, Dublin 4, Irland.
-
-Google Analytics ermöglicht es dem Websitebetreiber, das Verhalten der Websitebesucher zu analysieren. Hierbei erhält der Websitebetreiber verschiedene Nutzungsdaten, wie z. B. Seitenaufrufe, Verweildauer, verwendete Betriebssysteme und Herkunft des Nutzers. Diese Daten werden dem jeweiligen Endgerät des Users zugeordnet. Eine Zuordnung zu einer User-ID erfolgt nicht.
-
-Des Weiteren können wir mit Google Analytics u. a. Ihre Maus- und Scrollbewegungen und Klicks aufzeichnen. Ferner verwendet Google Analytics verschiedene Modellierungsansätze, um die erfassten Datensätze zu ergänzen und setzt Machine-Learning-Technologien bei der Datenanalyse ein.
-
-Google Analytics verwendet Technologien, die die Wiedererkennung des Nutzers zum Zwecke der Analyse des Nutzerverhaltens ermöglichen (z. B. Cookies oder Device-Fingerprinting). Die von Google erfassten Informationen über die Benutzung dieser Website werden in der Regel an einen Server von Google in den USA übertragen und dort gespeichert.
-
-Die Nutzung dieses Dienstes erfolgt auf Grundlage Ihrer Einwilligung nach Art. 6 Abs. 1 lit. a DSGVO und § 25 Abs. 1 TTDSG. Die Einwilligung ist jederzeit widerrufbar.
-
-Die Datenübertragung in die USA wird auf die Standardvertragsklauseln der EU-Kommission gestützt. Details finden Sie hier: [https://privacy.google.com/businesses/controllerterms/mccs/](https://privacy.google.com/businesses/controllerterms/mccs/).
-
-#### IP Anonymisierung
-
-Wir haben auf dieser Website die Funktion IP-Anonymisierung aktiviert. Dadurch wird Ihre IP-Adresse von Google innerhalb von Mitgliedstaaten der Europäischen Union oder in anderen Vertragsstaaten des Abkommens über den Europäischen Wirtschaftsraum vor der Übermittlung in die USA gekürzt. Nur in Ausnahmefällen wird die volle IP-Adresse an einen Server von Google in den USA übertragen und dort gekürzt. Im Auftrag des Betreibers dieser Website wird Google diese Informationen benutzen, um Ihre Nutzung der Website auszuwerten, um Reports über die Websiteaktivitäten zusammenzustellen und um weitere mit der Websitenutzung und der Internetnutzung verbundene Dienstleistungen gegenüber dem Websitebetreiber zu erbringen. Die im Rahmen von Google Analytics von Ihrem Browser übermittelte IP-Adresse wird nicht mit anderen Daten von Google zusammengeführt.
-
-#### Browser Plugin
-
-Sie können die Erfassung und Verarbeitung Ihrer Daten durch Google verhindern, indem Sie das unter dem folgenden Link verfügbare Browser-Plugin herunterladen und installieren: [https://tools.google.com/dlpage/gaoptout?hl=de](https://tools.google.com/dlpage/gaoptout?hl=de).
-
-Mehr Informationen zum Umgang mit Nutzerdaten bei Google Analytics finden Sie in der Datenschutzerklärung von Google: [https://support.google.com/analytics/answer/6004245?hl=de](https://support.google.com/analytics/answer/6004245?hl=de).
-
-#### Auftragsverarbeitung
-
-Wir haben mit Google einen Vertrag zur Auftragsverarbeitung abgeschlossen und setzen die strengen Vorgaben der deutschen Datenschutzbehörden bei der Nutzung von Google Analytics vollständig um.
-
-### Google Ads
-
-Der Websitebetreiber verwendet Google Ads. Google Ads ist ein Online-Werbeprogramm der Google Ireland Limited („Google"), Gordon House, Barrow Street, Dublin 4, Irland.
-
-Google Ads ermöglicht es uns Werbeanzeigen in der Google-Suchmaschine oder auf Drittwebseiten auszuspielen, wenn der Nutzer bestimmte Suchbegriffe bei Google eingibt (Keyword-Targeting). Ferner können zielgerichtete Werbeanzeigen anhand der bei Google vorhandenen Nutzerdaten (z. B. Standortdaten und Interessen) ausgespielt werden (Zielgruppen-Targeting). Wir als Websitebetreiber können diese Daten quantitativ auswerten, indem wir beispielsweise analysieren, welche Suchbegriffe zur Ausspielung unserer Werbeanzeigen geführt haben und wie viele Anzeigen zu entsprechenden Klicks geführt haben.
-
-Die Nutzung dieses Dienstes erfolgt auf Grundlage Ihrer Einwilligung nach Art. 6 Abs. 1 lit. a DSGVO und § 25 Abs. 1 TTDSG. Die Einwilligung ist jederzeit widerrufbar.
-
-Die Datenübertragung in die USA wird auf die Standardvertragsklauseln der EU-Kommission gestützt. Details finden Sie hier: [https://policies.google.com/privacy/frameworks](https://policies.google.com/privacy/frameworks) und [https://privacy.google.com/businesses/controllerterms/mccs/](https://privacy.google.com/businesses/controllerterms/mccs/).
-
-### Google Ads Remarketing
-
-Diese Website nutzt die Funktionen von Google Ads Remarketing. Anbieter ist die Google Ireland Limited („Google"), Gordon House, Barrow Street, Dublin 4, Irland.
-
-Mit Google Ads Remarketing können wir Personen, die mit unserem Online-Angebot interagieren bestimmten Zielgruppen zuordnen, um ihnen anschließend interessenbezogene Werbung im Google-Werbenetzwerk anzeigen zu lassen (Remarketing bzw. Retargeting).
-
-Des Weiteren können die mit Google Ads Remarketing erstellten Werbe-Zielgruppen mit den geräteübergreifenden Funktionen von Google verknüpft werden. Auf diese Weise können interessenbezogene, personalisierte Werbebotschaften, die in Abhängigkeit Ihres früheren Nutzungs- und Surfverhaltens auf einem Endgerät (z. B. Handy) an Sie angepasst wurden auch auf einem anderen Ihrer Endgeräte (z. B. Tablet oder PC) angezeigt werden.
-
-Wenn Sie über einen Google-Account verfügen, können Sie der personalisierten Werbung unter folgendem Link widersprechen: [https://www.google.com/settings/ads/onweb/](https://www.google.com/settings/ads/onweb/).
-
-Die Nutzung dieses Dienstes erfolgt auf Grundlage Ihrer Einwilligung nach Art. 6 Abs. 1 lit. a DSGVO und § 25 Abs. 1 TTDSG. Die Einwilligung ist jederzeit widerrufbar.
-
-Weitergehende Informationen und die Datenschutzbestimmungen finden Sie in der Datenschutzerklärung von Google unter: [https://policies.google.com/technologies/ads?hl=de](https://policies.google.com/technologies/ads?hl=de).
-
-### Google Conversion-Tracking
-
-Diese Website nutzt Google Conversion Tracking. Anbieter ist die Google Ireland Limited („Google"), Gordon House, Barrow Street, Dublin 4, Irland.
-
-Mit Hilfe von Google-Conversion-Tracking können Google und wir erkennen, ob der Nutzer bestimmte Aktionen durchgeführt hat. So können wir beispielsweise auswerten, welche Buttons auf unserer Website wie häufig geklickt und welche Produkte besonders häufig angesehen oder gekauft wurden. Diese Informationen dienen dazu, Conversion-Statistiken zu erstellen. Wir erfahren die Gesamtanzahl der Nutzer, die auf unsere Anzeigen geklickt haben und welche Aktionen sie durchgeführt haben. Wir erhalten keine Informationen, mit denen wir den Nutzer persönlich identifizieren können. Google selbst nutzt zur Identifikation Cookies oder vergleichbare Wiedererkennungstechnologien.
-
-Die Nutzung dieses Dienstes erfolgt auf Grundlage Ihrer Einwilligung nach Art. 6 Abs. 1 lit. a DSGVO und § 25 Abs. 1 TTDSG. Die Einwilligung ist jederzeit widerrufbar.
-
-Mehr Informationen zu Google Conversion-Tracking finden Sie in den Datenschutzbestimmungen von Google: [https://policies.google.com/privacy?hl=de](https://policies.google.com/privacy?hl=de).
-
-### Facebook Pixel
-
-Diese Website nutzt zur Konversionsmessung der Besucheraktions-Pixel von Facebook. Anbieter dieses Dienstes ist die Meta Platforms Ireland Limited, 4 Grand Canal Square, Dublin 2, Irland. Die erfassten Daten werden nach Aussage von Facebook jedoch auch in die USA und in andere Drittländer übertragen.
-
-So kann das Verhalten der Seitenbesucher nachverfolgt werden, nachdem diese durch Klick auf eine Facebook-Werbeanzeige auf die Website des Anbieters weitergeleitet wurden. Dadurch können die Wirksamkeit der Facebook-Werbeanzeigen für statistische und Marktforschungszwecke ausgewertet werden und zukünftige Werbemaßnahmen optimiert werden.
-
-Die erhobenen Daten sind für uns als Betreiber dieser Website anonym, wir können keine Rückschlüsse auf die Identität der Nutzer ziehen. Die Daten werden aber von Facebook gespeichert und verarbeitet, sodass eine Verbindung zum jeweiligen Nutzerprofil möglich ist und Facebook die Daten für eigene Werbezwecke, entsprechend der [Facebook-Datenverwendungsrichtlinie](https://de-de.facebook.com/about/privacy/) verwenden kann. Dadurch kann Facebook das Schalten von Werbeanzeigen auf Seiten von Facebook sowie außerhalb von Facebook ermöglichen. Diese Verwendung der Daten kann von uns als Seitenbetreiber nicht beeinflusst werden.
-
-Die Nutzung dieses Dienstes erfolgt auf Grundlage Ihrer Einwilligung nach Art. 6 Abs. 1 lit. a DSGVO und § 25 Abs. 1 TTDSG. Die Einwilligung ist jederzeit widerrufbar.
-
-Die Datenübertragung in die USA wird auf die Standardvertragsklauseln der EU-Kommission gestützt. Details finden Sie hier: [https://www.facebook.com/legal/EU_data_transfer_addendum](https://www.facebook.com/legal/EU_data_transfer_addendum) und [https://de-de.facebook.com/help/566994660333381](https://de-de.facebook.com/help/566994660333381).
-
-Soweit mit Hilfe des hier beschriebenen Tools personenbezogene Daten auf unserer Website erfasst und an Facebook weitergeleitet werden, sind wir und die Meta Platforms Ireland Limited, 4 Grand Canal Square, Grand Canal Harbour, Dublin 2, Irland gemeinsam für diese Datenverarbeitung verantwortlich (Art. 26 DSGVO). Die gemeinsame Verantwortlichkeit beschränkt sich dabei ausschließlich auf die Erfassung der Daten und deren Weitergabe an Facebook. Die nach der Weiterleitung erfolgende Verarbeitung durch Facebook ist nicht Teil der gemeinsamen Verantwortung. Die uns gemeinsam obliegenden Verpflichtungen wurden in einer Vereinbarung über gemeinsame Verarbeitung festgehalten. Den Wortlaut der Vereinbarung finden Sie unter: [https://www.facebook.com/legal/controller_addendum](https://www.facebook.com/legal/controller_addendum). Laut dieser Vereinbarung sind wir für die Erteilung der Datenschutzinformationen beim Einsatz des Facebook-Tools und für die datenschutzrechtlich sichere Implementierung des Tools auf unserer Website verantwortlich. Für die Datensicherheit der Facebook-Produkte ist Facebook verantwortlich. Betroffenenrechte (z. B. Auskunftsersuchen) hinsichtlich der bei Facebook verarbeiteten Daten können Sie direkt bei Facebook geltend machen. Wenn Sie die Betroffenenrechte bei uns geltend machen, sind wir verpflichtet, diese an Facebook weiterzuleiten.
-
-In den Datenschutzhinweisen von Facebook finden Sie weitere Hinweise zum Schutz Ihrer Privatsphäre: [https://de-de.facebook.com/about/privacy/](https://de-de.facebook.com/about/privacy/).
-
-Sie können außerdem die Remarketing-Funktion „Custom Audiences" im Bereich Einstellungen für Werbeanzeigen unter [https://www.facebook.com/ads/preferences/?entry_product=ad_settings_screen](https://www.facebook.com/ads/preferences/?entry_product=ad_settings_screen) deaktivieren. Dazu müssen Sie bei Facebook angemeldet sein.
-
-Wenn Sie kein Facebook Konto besitzen, können Sie nutzungsbasierte Werbung von Facebook auf der Website der European Interactive Digital Advertising Alliance deaktivieren: [http://www.youronlinechoices.com/de/praferenzmanagement/](http://www.youronlinechoices.com/de/praferenzmanagement/).
-
-### Facebook Custom Audiences
-
-Wir nutzen Facebook Custom Audiences. Anbieter dieses Dienstes ist die Meta Platforms Ireland Limited, 4 Grand Canal Square, Dublin 2, Irland.
-
-Wenn Sie unsere Webseiten und Apps besuchen bzw. nutzen, unsere kostenlosen oder kostenpflichtigen Angebote in Anspruch nehmen, Daten an uns übermitteln oder mit den Facebook-Inhalten unseres Unternehmens interagieren, erfassen wir hierbei Ihre personenbezogenen Daten. Sofern Sie uns eine Einwilligung zur Nutzung von Facebook Custom Audiences erteilen, werden wir diese Daten an Facebook übermitteln, mit denen Facebook Ihnen passende Werbung ausspielen kann. Des Weiteren können mit Ihren Daten Zielgruppen definiert werden (Lookalike Audiences).
-
-Facebook verarbeitet diese Daten als unser Auftragsverarbeiter. Details sind der Nutzungsvereinbarung von Facebook zu entnehmen: [https://www.facebook.com/legal/terms/customaudience](https://www.facebook.com/legal/terms/customaudience).
-
-Die Nutzung dieses Dienstes erfolgt auf Grundlage Ihrer Einwilligung nach Art. 6 Abs. 1 lit. a DSGVO und § 25 Abs. 1 TTDSG. Die Einwilligung ist jederzeit widerrufbar.
-
-Die Datenübertragung in die USA wird auf die Standardvertragsklauseln der EU-Kommission gestützt. Details finden Sie hier: [https://www.facebook.com/legal/terms/customaudience](https://www.facebook.com/legal/terms/customaudience) und [https://www.facebook.com/legal/terms/dataprocessing](https://www.facebook.com/legal/terms/dataprocessing).
-
-### LinkedIn Insight Tag
-
-Diese Website nutzt das Insight-Tag von LinkedIn. Anbieter dieses Dienstes ist die LinkedIn Ireland Unlimited Company, Wilton Plaza, Wilton Place, Dublin 2, Irland.
-
-#### Datenverarbeitung durch LinkedIn Insight Tag
-
-Mit Hilfe des LinkedIn Insight Tags erhalten wir Informationen über die Besucher unserer Website. Ist ein Websitebesucher bei LinkedIn registriert, können wir u. a. die beruflichen Eckdaten (z. B. Karrierestufe, Unternehmensgröße, Land, Standort, Branche und Berufsbezeichnung) unserer Websitebesucher analysieren und so unsere Seite besser auf die jeweiligen Zielgruppen ausrichten. Ferner können wir mit Hilfe von LinkedIn Insight Tags messen, ob die Besucher unserer Webseiten einen Kauf oder eine sonstige Aktion tätigen (Conversion-Messung). Die Conversion-Messung kann auch geräteübergreifend erfolgen (z. B. von PC zu Tablet). LinkedIn Insight Tag bietet außerdem eine Retargeting-Funktion an, mit deren Hilfe wir den Besuchern unserer Website zielgerichtete Werbung außerhalb der Website anzeigen lassen können, wobei laut LinkedIn keine Identifikation des Werbeadressaten stattfindet.
-
-LinkedIn selbst erfasst außerdem sogenannte Logfiles (URL, Referrer-URL, IP-Adresse, Geräte- und Browsereigenschaften und Zeitpunkt des Zugriffs). Die IP-Adressen werden gekürzt oder (sofern sie genutzt werden, um LinkedIn-Mitglieder geräteübergreifend zu erreichen) gehasht (pseudonymisiert). Die direkten Kennungen der LinkedIn-Mitglieder werden nach sieben Tagen von LinkedIn gelöscht. Die verbleibenden pseudonymisierten Daten werden dann innerhalb von 180 Tagen gelöscht.
-
-Die von LinkedIn erhobenen Daten können von uns als Websitebetreiber nicht bestimmten Einzelpersonen zugeordnet werden. LinkedIn wird die erfassten personenbezogenen Daten der Websitebesucher auf seinen Servern in den USA speichern und sie im Rahmen eigener Werbemaßnahmen nutzen. Details entnehmen Sie der Datenschutzerklärung von LinkedIn unter [https://www.linkedin.com/legal/privacy-policy#choices-oblig](https://www.linkedin.com/legal/privacy-policy#choices-oblig).
-
-#### Rechtsgrundlage
-
-Soweit eine Einwilligung (Consent) eingeholt wurde, erfolgt der Einsatz des o. g. Dienstes ausschließlich auf Grundlage von Art. 6 Abs. 1 lit. a DSGVO und § 25 TTDSG. Die Einwilligung ist jederzeit widerrufbar. Soweit keine Einwilligung eingeholt wurde, erfolgt die Verwendung dieses Dienstes auf Grundlage von Art. 6 Abs. 1 lit. f DSGVO; der Websitebetreiber hat ein berechtigtes Interesse an effektiven Werbemaßnahmen unter Einschluss der sozialen Medien.
-
-Die Datenübertragung in die USA wird auf die Standardvertragsklauseln der EU-Kommission gestützt. Details finden Sie hier: [https://www.linkedin.com/legal/l/dpa](https://www.linkedin.com/legal/l/dpa) und [https://www.linkedin.com/legal/l/eu-sccs](https://www.linkedin.com/legal/l/eu-sccs).
-
-#### Widerspruch gegen die Verwendung von LinkedIn Insight Tag
-
-Der Analyse des Nutzungsverhaltens sowie zielgerichtete Werbung durch LinkedIn unter folgendem Link widersprechen: [https://www.linkedin.com/psettings/guest-controls/retargeting-opt-out](https://www.linkedin.com/psettings/guest-controls/retargeting-opt-out).
-
-Des Weiteren können Mitglieder von LinkedIn die Nutzung ihrer personenbezogenen Daten zu Werbezwecken in den Kontoeinstellungen steuern. Um einer Verknüpfung von auf unserer Website erhobenen Daten durch LinkedIn und Ihrem LinkedIn Account zu vermeiden, müssen Sie sich aus Ihrem LinkedIn-Account ausloggen bevor Sie unsere Website aufsuchen.
-
-### 7. Newsletter
-
-### Newsletterdaten
-
-Wenn Sie den auf der Website angebotenen Newsletter beziehen möchten, benötigen wir von Ihnen eine E-Mail-Adresse sowie Informationen, welche uns die Überprüfung gestatten, dass Sie der Inhaber der angegebenen E-Mail-Adresse und mit dem Empfang des Newsletters einverstanden sind. Weitere Daten werden nicht bzw. nur auf freiwilliger Basis erhoben. Für die Abwicklung der Newsletter nutzen wir Newsletterdiensteanbieter, die nachfolgend beschrieben werden.
-
-### ActiveCampaign
-
-Diese Website nutzt ActiveCampaign für den Versand von Newslettern. Anbieter ist die ActiveCampaign, Inc., 1 N Dearborn, 5th Floor Chicago, Illinois 60602, USA.
-
-ActiveCampaign ist ein Dienst, mit dem u.a. der Versand von Newslettern organisiert und analysiert werden kann. Die von Ihnen zum Zwecke des Newsletterbezugs eingegeben Daten werden auf den Servern von ActiveCampaign in den USA gespeichert.
-
-#### Datenanalyse durch ActiveCampaign
-
-Mit Hilfe von ActiveCampaign ist es uns möglich, unsere Newsletter-Kampagnen zu analysieren. So können wir z. B. sehen, ob eine Newsletter-Nachricht geöffnet wurde und welche Links ggf. angeklickt wurden. Auf diese Weise können wir u.a. feststellen, welche Links besonders oft angeklickt wurden.
-
-Außerdem können wir erkennen, ob nach dem Öffnen / Anklicken bestimmte vorher definierte Aktionen durchgeführt wurden (Conversion-Rate). Wir können so z. B. erkennen, ob Sie nach dem Anklicken des Newsletters einen Kauf getätigt haben.
-
-ActiveCampaign ermöglicht es uns auch, die Newsletter-Empfänger anhand verschiedener Kategorien zu unterteilen ("clustern"). Dabei lassen sich die Newsletterempfänger z. B. nach Alter, Geschlecht oder Wohnort unterteilen. Auf diese Weise lassen sich die Newsletter besser an die jeweiligen Zielgruppen anpassen. Wenn Sie keine Analyse durch ActiveCampaign wollen, müssen Sie den Newsletter abbestellen. Hierfür stellen wir in jeder Newsletternachricht einen entsprechenden Link zur Verfügung.
-
-Ausführliche Informationen zu den Funktionen von ActiveCampaign entnehmen Sie folgendem Link: [https://www.activecampaign.com/email-marketing](https://www.activecampaign.com/email-marketing).
-
-Die Datenschutzerklärung von ActiveCampaign finden Sie unter: [https://www.activecampaign.com/privacy-policy](https://www.activecampaign.com/privacy-policy).
-
-#### Rechtsgrundlage
-
-Die Datenverarbeitung erfolgt auf Grundlage Ihrer Einwilligung (Art. 6 Abs. 1 lit. a DSGVO). Sie können diese Einwilligung jederzeit widerrufen. Die Rechtmäßigkeit der bereits erfolgten Datenverarbeitungsvorgänge bleibt vom Widerruf unberührt.
-
-Die Datenübertragung in die USA wird auf die Standardvertragsklauseln der EU-Kommission gestützt. Details finden Sie hier: [https://www.activecampaign.com/legal/scc](https://www.activecampaign.com/legal/scc) und [https://www.activecampaign.com/de/legal/gdpr-updates/privacy-shield](https://www.activecampaign.com/de/legal/gdpr-updates/privacy-shield).
-
-#### Speicherdauer
-
-Die von Ihnen zum Zwecke des Newsletter-Bezugs bei uns hinterlegten Daten werden von uns bis zu Ihrer Austragung aus dem Newsletter bei uns bzw. dem Newsletterdiensteanbieter gespeichert und nach der Abbestellung des Newsletters aus der Newsletterverteilerliste gelöscht. Daten, die zu anderen Zwecken bei uns gespeichert wurden, bleiben hiervon unberührt.
-
-Nach Ihrer Austragung aus der Newsletterverteilerliste wird Ihre E-Mail-Adresse bei uns bzw. dem Newsletterdiensteanbieter ggf. in einer Blacklist gespeichert, sofern dies zur Verhinderung künftiger Mailings erforderlich ist. Die Daten aus der Blacklist werden nur für diesen Zweck verwendet und nicht mit anderen Daten zusammengeführt. Dies dient sowohl Ihrem Interesse als auch unserem Interesse an der Einhaltung der gesetzlichen Vorgaben beim Versand von Newslettern (berechtigtes Interesse im Sinne des Art. 6 Abs. 1 lit. f DSGVO). Die Speicherung in der Blacklist ist zeitlich nicht befristet. **Sie können der Speicherung widersprechen, sofern Ihre Interessen unser berechtigtes Interesse überwiegen.**
-
-### 8. Plugins und Tools
-
-### YouTube mit erweitertem Datenschutz
-
-Diese Website bindet Videos der YouTube ein. Betreiber der Seiten ist die Google Ireland Limited („Google"), Gordon House, Barrow Street, Dublin 4, Irland.
-
-Wir nutzen YouTube im erweiterten Datenschutzmodus. Dieser Modus bewirkt laut YouTube, dass YouTube keine Informationen über die Besucher auf dieser Website speichert, bevor diese sich das Video ansehen. Die Weitergabe von Daten an YouTube-Partner wird durch den erweiterten Datenschutzmodus hingegen nicht zwingend ausgeschlossen. So stellt YouTube – unabhängig davon, ob Sie sich ein Video ansehen – eine Verbindung zum Google DoubleClick-Netzwerk her.
-
-Sobald Sie ein YouTube-Video auf dieser Website starten, wird eine Verbindung zu den Servern von YouTube hergestellt. Dabei wird dem YouTube-Server mitgeteilt, welche unserer Seiten Sie besucht haben. Wenn Sie in Ihrem YouTube-Account eingeloggt sind, ermöglichen Sie YouTube, Ihr Surfverhalten direkt Ihrem persönlichen Profil zuzuordnen. Dies können Sie verhindern, indem Sie sich aus Ihrem YouTube-Account ausloggen.
-
-Des Weiteren kann YouTube nach Starten eines Videos verschiedene Cookies auf Ihrem Endgerät speichern oder vergleichbare Wiedererkennungstechnologien (z. B. Device-Fingerprinting) einsetzen. Auf diese Weise kann YouTube Informationen über Besucher dieser Website erhalten. Diese Informationen werden u. a. verwendet, um Videostatistiken zu erfassen, die Anwenderfreundlichkeit zu verbessern und Betrugsversuchen vorzubeugen.
-
-Gegebenenfalls können nach dem Start eines YouTube-Videos weitere Datenverarbeitungsvorgänge ausgelöst werden, auf die wir keinen Einfluss haben.
-
-Die Nutzung von YouTube erfolgt im Interesse einer ansprechenden Darstellung unserer Online-Angebote. Dies stellt ein berechtigtes Interesse im Sinne von Art. 6 Abs. 1 lit. f DSGVO dar. Sofern eine entsprechende Einwilligung abgefragt wurde, erfolgt die Verarbeitung ausschließlich auf Grundlage von Art. 6 Abs. 1 lit. a DSGVO und § 25 Abs. 1 TTDSG, soweit die Einwilligung die Speicherung von Cookies oder den Zugriff auf Informationen im Endgerät des Nutzers (z. B. Device-Fingerprinting) im Sinne des TTDSG umfasst. Die Einwilligung ist jederzeit widerrufbar.
-
-Weitere Informationen über Datenschutz bei YouTube finden Sie in deren Datenschutzerklärung unter: [https://policies.google.com/privacy?hl=de](https://policies.google.com/privacy?hl=de).
-
-### Vimeo ohne Tracking (Do-Not-Track)
-
-Diese Website nutzt Plugins des Videoportals Vimeo. Anbieter ist die Vimeo Inc., 555 West 18th Street, New York, New York 10011, USA.
-
-Wenn Sie eine unserer mit Vimeo-Videos ausgestatteten Seiten besuchen, wird eine Verbindung zu den Servern von Vimeo hergestellt. Dabei wird dem Vimeo-Server mitgeteilt, welche unserer Seiten Sie besucht haben. Zudem erlangt Vimeo Ihre IP-Adresse. Wir haben Vimeo jedoch so eingestellt, dass Vimeo Ihre Nutzeraktivitäten nicht nachverfolgen und keine Cookies setzen wird.
-
-Die Nutzung von Vimeo erfolgt im Interesse einer ansprechenden Darstellung unserer Online-Angebote. Dies stellt ein berechtigtes Interesse im Sinne des Art. 6 Abs. 1 lit. f DSGVO dar. Sofern eine entsprechende Einwilligung abgefragt wurde, erfolgt die Verarbeitung ausschließlich auf Grundlage von Art. 6 Abs. 1 lit. a DSGVO; die Einwilligung ist jederzeit widerrufbar.
-
-Die Datenübertragung in die USA wird auf die Standardvertragsklauseln der EU-Kommission sowie nach Aussage von Vimeo auf „berechtigte Geschäftsinteressen" gestützt. Details finden Sie hier: [https://vimeo.com/privacy](https://vimeo.com/privacy).
-
-Weitere Informationen zum Umgang mit Nutzerdaten finden Sie in der Datenschutzerklärung von Vimeo unter: [https://vimeo.com/privacy](https://vimeo.com/privacy).
-
-### Google Fonts (lokales Hosting)
-
-Diese Seite nutzt zur einheitlichen Darstellung von Schriftarten so genannte Google Fonts, die von Google bereitgestellt werden. Die Google Fonts sind lokal installiert. Eine Verbindung zu Servern von Google findet dabei nicht statt.
-
-Weitere Informationen zu Google Fonts finden Sie unter [https://developers.google.com/fonts/faq](https://developers.google.com/fonts/faq) und in der Datenschutzerklärung von Google: [https://policies.google.com/privacy?hl=de](https://policies.google.com/privacy?hl=de).
-
-### Zapier
-
-Wir haben Zapier auf dieser Website eingebunden. Anbieter ist die Zapier Inc., Market St. #62411, San Francisco, CA 94104-5401, USA (nachfolgend Zapier).
-
-Zapier ermöglicht es uns, verschiedene Funktionalitäten, Datenbanken und Tools mit unserer Website zu verknüpfen und untereinander zu synchronisieren. Auf diese Weise ist es beispielsweise möglich, Inhalte, die wir auf unserer Website veröffentlichen, automatisch auch auf unseren Social-Media-Kanälen auszuspielen oder Inhalte aus Marketing- und Analysetools zu exportieren. Je nach Funktionalität kann hierbei auch Zapier verschiedene personenbezogene Daten erfassen.
-
-Die Verwendung von Zapier erfolgt auf Grundlage von Art. 6 Abs. 1 lit. f DSGVO. Der Websitebetreiber hat ein berechtigtes Interesse an einer möglichst effektiven Integration der genutzten Tools. Sofern eine entsprechende Einwilligung abgefragt wurde, erfolgt die Verarbeitung ausschließlich auf Grundlage von Art. 6 Abs. 1 lit. a DSGVO und § 25 Abs. 1 TTDSG, soweit die Einwilligung die Speicherung von Cookies oder den Zugriff auf Informationen im Endgerät des Nutzers (z. B. Device-Fingerprinting) im Sinne des TTDSG umfasst. Die Einwilligung ist jederzeit widerrufbar.
-
-Die Datenübertragung in die USA wird auf die Standardvertragsklauseln der EU-Kommission gestützt. Details finden Sie hier: [https://zapier.com/tos](https://zapier.com/tos).
+Wir passen diese Datenschutzerklärung an, wenn sich die Website, die eingesetzten Dienste oder die rechtlichen Anforderungen ändern.
