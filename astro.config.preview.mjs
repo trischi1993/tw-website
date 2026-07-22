@@ -63,6 +63,12 @@ export default defineConfig({
   trailingSlash: 'ignore',
   output: 'server',
   adapter,
+  // Kritisches CSS inline in den <head> statt zwei render-blockende <link>s
+  // (BaseLayout ~67 KB roh + choices ~5 KB fallen ueber Astros 'auto'-Grenze).
+  // Spart auf Mobil die CSS-Round-Trips (PSI: ~940 ms render-blocking) OHNE
+  // FOUC-Risiko - async-CSS waere nicht FOUC-sicher. CSP der Preview erlaubt
+  // Inline-<style> (nur frame-ancestors gesetzt).
+  build: { inlineStylesheets: 'always' },
   // Astro-Dev-Toolbar im Presentation-iframe abschalten: ihr Audit wirft
   // Fetch-Fehler in die Console und ihre Overlays kollidieren mit den
   // Sanity-Click-to-edit-Overlays. (Betrifft nur `npm run dev:preview`.)

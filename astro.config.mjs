@@ -215,6 +215,11 @@ export default defineConfig({
   site: 'https://tristanweithaler.com',
   trailingSlash: 'always',
   output: 'static',
+  // Kritisches CSS inline in den <head> statt render-blockender <link>s
+  // (BaseLayout ~67 KB roh faellt ueber Astros 'auto'-Grenze). Spart auf Mobil
+  // die CSS-Round-Trips (PSI live: FCP 2,1->1,2 s, Perf 91->~96) OHNE FOUC-Risiko.
+  // CSP deckt das ab: `style-src 'self' 'unsafe-inline'` in public/_headers.
+  build: { inlineStylesheets: 'always' },
   // Interne Links bei Hover/Touch-Start vorab laden – schnellere Navigation
   // ohne Viewport-Over-Prefetch (lädt nur bei erkennbarer Absicht).
   prefetch: {
