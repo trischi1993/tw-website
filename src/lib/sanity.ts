@@ -92,7 +92,7 @@ const WIDTH_LADDER = [320, 480, 640, 828, 1080, 1280, 1600, 2000, 2400];
 function buildSrcSet(url: string, maxWidth: number): string {
   const widths = WIDTH_LADDER.filter((w) => w < maxWidth);
   widths.push(maxWidth); // tatsaechliche Obergrenze immer als oberste Stufe
-  return widths.map((w) => `${url}?w=${w}&q=80&auto=format&fit=max ${w}w`).join(', ');
+  return widths.map((w) => `${url}?w=${w}&q=90&auto=format&fit=max ${w}w`).join(', ');
 }
 
 export function resolveImage(source?: RawImage, fallbackAlt = ''): SiteImage | undefined {
@@ -104,7 +104,7 @@ export function resolveImage(source?: RawImage, fallbackAlt = ''): SiteImage | u
   const height = Math.round(dim.height * scale);
   return {
     kind: 'remote',
-    src: `${url}?w=${width}&q=80&auto=format&fit=max`,
+    src: `${url}?w=${width}&q=90&auto=format&fit=max`,
     srcSet: buildSrcSet(url, width),
     width,
     height,
