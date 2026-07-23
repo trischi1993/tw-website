@@ -30,11 +30,17 @@ export default function ModuleSection({
     coachingHeading,
     coachingText,
     videoSrc,
+    videoPosterImage,
     videoPoster,
   } = section;
   const path = `sections[_key=="${_key}"]`;
   const words = Array.from({ length: 17 }, (_, i) => i);
   const hasCoaching = Boolean(coachingHeading && coachingText);
+  const videoPosterUrl = videoPosterImage
+    ? videoPosterImage.kind === 'local'
+      ? videoPosterImage.asset.src
+      : videoPosterImage.src
+    : videoPoster;
 
   /* Anim-Belegung je Modul, 1:1 aus den IX2-Events des Webflow-Exports
      (Positionen im Export-HTML; siehe HANDOVER/Decode):
@@ -130,7 +136,7 @@ export default function ModuleSection({
         <div className="coachvid">
           <div className="coachvid__bg" aria-hidden="true">
             {videoSrc && (
-              <video autoPlay muted loop playsInline preload="metadata" poster={videoPoster || undefined}>
+              <video autoPlay muted loop playsInline preload="metadata" poster={videoPosterUrl || undefined}>
                 <source src={videoSrc} type="video/mp4" />
               </video>
             )}

@@ -10,7 +10,9 @@
     "build": "sanity build",
     "deploy": "sanity deploy",
     "seed:build": "node scripts/make-seed.mjs",
-    "import-seed": "npm run seed:build && sanity dataset import seed.ndjson production --replace"
+    "import-seed": "npm run seed:build && sanity dataset import seed.ndjson production --replace",
+    "migrate:module-posters": "sanity exec scripts/migrate-module-posters.mjs --with-user-token",
+    "migrate:module-posters:dry-run": "sanity exec scripts/migrate-module-posters.mjs --with-user-token -- --dry-run"
   },
   "dependencies": {
     "@sanity/comlink": "4.0.1",

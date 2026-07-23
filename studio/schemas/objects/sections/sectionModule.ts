@@ -93,16 +93,32 @@ export default defineType({
     defineField({
       name: 'videoSrc',
       title: t({ en: '1:1 part: background video', de: '1:1-Teil: Hintergrundvideo' }),
-      description: t({ en: 'Path, e.g. /videos/modul1.mp4', de: 'Pfad, z. B. /videos/modul1.mp4' }),
+      description: t({
+        en: 'Direct MP4 URL, e.g. from Bunny CDN.',
+        de: 'Direkte MP4-URL, z. B. von Bunny CDN.',
+      }),
       type: 'string',
       hidden: ({ parent }) => !(parent as { coachingHeading?: string } | undefined)?.coachingHeading,
     }),
     defineField({
-      name: 'videoPoster',
+      name: 'videoPosterImage',
       title: t({ en: '1:1 part: video poster', de: '1:1-Teil: Video-Standbild' }),
-      description: t({ en: 'Path, e.g. /videos/modul1-poster.jpg', de: 'Pfad, z. B. /videos/modul1-poster.jpg' }),
-      type: 'string',
+      description: t({
+        en: 'Upload the poster image here. Sanity hosts and delivers it through its image CDN.',
+        de: 'Standbild hier hochladen. Sanity hostet und liefert es über das eigene Bild-CDN aus.',
+      }),
+      type: 'imageWithAlt',
       hidden: ({ parent }) => !(parent as { coachingHeading?: string } | undefined)?.coachingHeading,
+    }),
+    defineField({
+      name: 'videoPoster',
+      title: t({ en: 'Legacy video poster path', de: 'Alter Video-Standbild-Pfad' }),
+      description: t({
+        en: 'Compatibility fallback for existing content.',
+        de: 'Kompatibilitäts-Fallback für bestehende Inhalte.',
+      }),
+      type: 'string',
+      hidden: true,
     }),
   ],
   preview: {

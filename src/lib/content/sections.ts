@@ -61,7 +61,7 @@ export const SECTIONS_PROJECTION = `sections[]{
   _type == "sectionTestimonials" => { heading, loadMoreLabel, initialCount, ${TESTIMONIALS_SUB} },
   _type == "sectionFaq" => { heading, items[]{ _key, question, answer } },
   _type == "sectionVideoHero" => { heading, intro, ctaLabel, videoUrl, mockupImage${IMG}, posterImage${IMG} },
-  _type == "sectionModule" => { titleRowText, number, bannerWord, bannerGold, heading, bullets, bulletsNowrap, image${IMG}, imageWide, coachingHeading, coachingText, videoSrc, videoPoster },
+  _type == "sectionModule" => { titleRowText, number, bannerWord, bannerGold, heading, bullets, bulletsNowrap, image${IMG}, imageWide, coachingHeading, coachingText, videoSrc, videoPosterImage${IMG}, videoPoster },
   _type == "sectionBonuses" => { heading, intro, ctaLabel, cards[]{ _key, tag, title, text, image${IMG} } },
   _type == "sectionFinalCta" => { heading, text, ctaLabel, ctaAction, ctaHref, ctaNewTab },
   _type == "sectionPortraitHero" => { heading, intro, image${IMG}, socials[]{ _key, platform, href } },
@@ -498,6 +498,7 @@ export function mapSection(s: any): Section | null {
         coachingHeading: str(s.coachingHeading),
         coachingText: str(s.coachingText),
         videoSrc: str(s.videoSrc),
+        videoPosterImage: mapImage(s.videoPosterImage),
         videoPoster: str(s.videoPoster),
       };
 

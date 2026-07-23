@@ -352,6 +352,9 @@ export interface SectionModule extends SectionBase {
   coachingHeading?: string;
   coachingText?: string;
   videoSrc?: string;
+  /** In Sanity hochgeladenes Standbild; wird über das Sanity Image CDN ausgeliefert. */
+  videoPosterImage?: SiteImage;
+  /** Legacy-/Seed-Fallback für ältere Inhalte. */
   videoPoster?: string;
 }
 
