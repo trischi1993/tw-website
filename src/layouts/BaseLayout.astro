@@ -3,7 +3,6 @@ import '../styles/global.css';
 import SEO from '../components/SEO.astro';
 import Header from '../components/Header.astro';
 import Footer from '../components/Footer.astro';
-import CookieConsent from '../components/CookieConsent.astro';
 import CtaModal from '../components/CtaModal.astro';
 import AioModal from '../components/AioModal.astro';
 // In Produktion eine leere Komponente (No-op); nur der Vorschau-Build biegt
@@ -118,11 +117,10 @@ const jsonLdArray = [orgJsonLd, ...pageJsonLd];
     </main>
     <Footer />
     {/* Direkte Body-Kinder: die inert-Logik der Modals erwartet Top-Level. */}
-    <CookieConsent />
     <CtaModal />
     <AioModal />
     <script>
-      // Interaktive Widgets (FAQ, Tabs, Read-More, Load-More, Vimeo-Gate)
+      // Interaktive Widgets (FAQ, Tabs, Read-More, Load-More, Video-Controls)
       // laufen auf jeder Seite. Das GSAP-Motion-Bundle ebenso: Footer-Reveal,
       // Underline-Wipes und der Glow-CTA im Header animieren auf jeder Seite
       // (IX2 a-87/a-91/a-141); eine Hook-Bedingung wäre immer wahr.

@@ -1,6 +1,6 @@
 # Datenschutz
 
-*Stand: 22. Juli 2026*
+*Stand: 23. Juli 2026*
 
 ## 1. Verantwortlicher
 
@@ -56,13 +56,9 @@ Weitere Informationen: [Sanity Privacy Policy](https://www.sanity.io/legal/priva
 
 Die Website nutzt eine SSL- bzw. TLS-Verschlüsselung. Eine verschlüsselte Verbindung erkennen Sie an `https://` und dem Schloss-Symbol in der Adresszeile Ihres Browsers.
 
-## 4. Lokale Speicherung und Einwilligungen
+## 4. Cookies und lokale Speicherung
 
-Die öffentliche Website setzt nach dem aktuellen technischen Stand keine Analyse- oder Werbe-Cookies. Ihre Auswahl im Einwilligungsbanner wird unter dem Schlüssel `tw-consent-v1` lokal in Ihrem Browser gespeichert. Dadurch muss die Auswahl nicht bei jedem Seitenaufruf erneut abgefragt werden.
-
-Diese Speicherung ist für die von Ihnen gewünschte Einwilligungsverwaltung erforderlich. Rechtsgrundlage ist § 25 Abs. 2 Nr. 2 TDDDG. Sie können die gespeicherte Auswahl über die Cookie-Einstellungen der Website ändern oder über die Browser-Einstellungen löschen.
-
-Externe Medien von Vimeo werden erst nach Ihrer Einwilligung geladen.
+Die öffentliche Website setzt nach dem aktuellen technischen Stand keine Analyse- oder Werbe-Cookies und verwendet keine vergleichbaren Technologien zur Analyse des Besucherverhaltens oder für personalisierte Werbung. Da derzeit keine einwilligungspflichtigen Cookies oder vergleichbaren Technologien eingesetzt werden, wird kein Einwilligungsbanner angezeigt. Technisch erforderliche Verarbeitungen der eingesetzten Dienste werden in den folgenden Abschnitten beschrieben.
 
 ## 5. Kontakt- und Bewerbungsformulare
 
@@ -80,15 +76,15 @@ Weitere Informationen: [Form.taxi Datenschutzerklärung](https://form.taxi/de/pr
 
 Wenn Sie uns per E-Mail oder Telefon kontaktieren, verarbeiten wir Ihre Anfrage einschließlich der daraus hervorgehenden personenbezogenen Daten zur Bearbeitung Ihres Anliegens. Rechtsgrundlage ist Art. 6 Abs. 1 lit. b DSGVO, soweit es um einen Vertrag oder vorvertragliche Maßnahmen geht, ansonsten Art. 6 Abs. 1 lit. f DSGVO.
 
-## 7. Vimeo
+## 7. Videobereitstellung über bunny.net
 
-Auf der Website kann ein Video des Anbieters Vimeo, Inc., 555 West 18th Street, New York, NY 10011, USA, eingebettet werden. Beim ersten Seitenaufruf wird keine Verbindung zum Vimeo-Player hergestellt. Der Vimeo-Player wird erst geladen, wenn Sie externe Medien über das Einwilligungsbanner erlauben oder das Video ausdrücklich aktivieren.
+Auf der Seite „ALL-IN-ONE Coaching“ wird eine Videodatei direkt über das Content Delivery Network von bunny.net geladen. Anbieter ist BunnyWay d.o.o., Dunajska cesta 165, 1000 Ljubljana, Slowenien. Es wird kein externer Video-Player oder iFrame eingebettet.
 
-Nach der Aktivierung erhält Vimeo insbesondere Ihre IP-Adresse, Informationen über die aufgerufene Seite sowie Browser- und Geräteinformationen. Vimeo kann dabei Cookies oder vergleichbare Technologien verwenden. Wenn Sie bei Vimeo angemeldet sind, kann Vimeo den Aufruf Ihrem Konto zuordnen.
+Beim Laden des Videos erhält bunny.net technisch erforderliche Verbindungsdaten, insbesondere IP-Adresse, Zeitpunkt der Anfrage, angeforderte Videodatei sowie Browser- und Geräteinformationen. Diese Verarbeitung dient der schnellen, stabilen und sicheren Auslieferung des Videos.
 
-Die Verarbeitung erfolgt ausschließlich auf Grundlage Ihrer Einwilligung gemäß Art. 6 Abs. 1 lit. a DSGVO und § 25 Abs. 1 TDDDG. Sie können die Einwilligung jederzeit über die Cookie-Einstellungen der Website widerrufen.
+Die konkret verwendete Video-Adresse auf der Domain `b-cdn.net` setzt nach aktueller technischer Prüfung bei der Auslieferung keine Cookies. Rechtsgrundlage für die technisch erforderliche Übertragung ist Art. 6 Abs. 1 lit. f DSGVO. Unser berechtigtes Interesse liegt in einer schnellen und zuverlässigen Videobereitstellung.
 
-Weitere Informationen: [Vimeo Datenschutzerklärung](https://vimeo.com/privacy).
+Weitere Informationen: [bunny.net Privacy & Data Policy](https://bunny.net/privacy/).
 
 ## 8. Lokale Schriftarten
 

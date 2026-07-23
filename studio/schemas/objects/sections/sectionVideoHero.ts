@@ -6,7 +6,7 @@ import { categoryIcon } from '../../../components/inputs/categoryIcon';
 import { t } from '../../uiLocale';
 
 /**
- * AIO-Hero (Layout-Section): Vimeo-Video im iPhone-Mockup (consent-gated),
+ * AIO-Hero (Layout-Section): direktes Bunny-MP4 im iPhone-Mockup,
  * CTA öffnet das AIO-Bewerbungs-Modal. Layout fest verdrahtet.
  */
 export default defineType({
@@ -35,14 +35,32 @@ export default defineType({
       validation: (R) => R.required(),
     }),
     defineField({
-      name: 'vimeoId',
-      title: t({ en: 'Vimeo video ID', de: 'Vimeo-Video-ID' }),
+      name: 'videoUrl',
+      title: t({ en: 'Bunny video URL', de: 'Bunny-Video-URL' }),
       description: t({
-        en: 'The number in the Vimeo URL (e.g. 1164742630). Loads only after cookie consent.',
-        de: 'Die Nummer in der Vimeo-URL (z. B. 1164742630). Lädt erst nach Cookie-Zustimmung.',
+        en: 'Direct HTTPS URL to an MP4 on the Bunny CDN (*.b-cdn.net).',
+        de: 'Direkte HTTPS-Adresse zu einer MP4-Datei im Bunny-CDN (*.b-cdn.net).',
       }),
-      type: 'string',
-      validation: (R) => R.required(),
+      type: 'url',
+      validation: (R) =>
+        R.required()
+          .uri({ scheme: ['https'] })
+          .custom((value) => {
+            if (!value) return true;
+            try {
+              const url = new URL(value);
+              const isBunny = url.hostname === 'b-cdn.net' || url.hostname.endsWith('.b-cdn.net');
+              const isMp4 = url.pathname.toLowerCase().endsWith('.mp4');
+              return isBunny && isMp4
+                ? true
+                : t({
+                    en: 'Use a direct HTTPS MP4 URL on *.b-cdn.net.',
+                    de: 'Bitte eine direkte HTTPS-MP4-URL auf *.b-cdn.net verwenden.',
+                  });
+            } catch {
+              return t({ en: 'Enter a valid URL.', de: 'Bitte eine gültige URL eingeben.' });
+            }
+          }),
     }),
     defineField({
       name: 'mockupImage',
@@ -51,10 +69,10 @@ export default defineType({
     }),
     defineField({
       name: 'posterImage',
-      title: t({ en: 'Video poster (before consent)', de: 'Video-Standbild (vor Zustimmung)' }),
+      title: t({ en: 'Video poster', de: 'Video-Standbild' }),
       description: t({
-        en: 'Shown instead of the video until the visitor accepts media cookies.',
-        de: 'Wird statt des Videos gezeigt, bis Medien-Cookies akzeptiert wurden.',
+        en: 'Shown while the video is loading or if it cannot be played.',
+        de: 'Wird angezeigt, während das Video lädt oder falls es nicht abgespielt werden kann.',
       }),
       type: 'imageWithAlt',
     }),

@@ -701,7 +701,7 @@ html.has-motion .results__track { height: 200vh; }
   overflow: clip;
   background: var(--paper-2);
 }
-.vhero__video iframe,
+.vhero__video video,
 .vhero__video img.vhero__poster {
   position: absolute;
   inset: 0;
@@ -710,51 +710,7 @@ html.has-motion .results__track { height: 200vh; }
   border: 0;
   object-fit: cover;
 }
-.vhero__consent {
-  position: absolute;
-  inset: 0;
-  z-index: 5;
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  justify-content: center;
-  gap: 0.6rem;
-  padding: 1rem;
-  text-align: center;
-  font-size: var(--text-sm);
-  color: var(--ink);
-  background: linear-gradient(180deg, rgba(12, 12, 12, 0.2), rgba(12, 12, 12, 0.72));
-}
-.vhero__consent[hidden] { display: none; }
-.vhero__consent button {
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  gap: 0.55rem;
-  color: var(--ink);
-  font-size: clamp(0.7rem, 1.5vw, 0.9rem);
-  font-weight: 500;
-  line-height: 1.2;
-}
-.vhero__play-icon {
-  display: grid;
-  place-items: center;
-  width: clamp(2.75rem, 5vw, 4rem);
-  height: clamp(2.75rem, 5vw, 4rem);
-  border: 1px solid rgba(255, 255, 255, 0.5);
-  border-radius: 50%;
-  background: rgba(255, 255, 255, 0.2);
-  -webkit-backdrop-filter: blur(0.5rem);
-  backdrop-filter: blur(0.5rem);
-  transition: transform 0.25s var(--ease-smooth), background 0.25s var(--ease-smooth);
-}
-.vhero__play-icon svg { width: 42%; height: 42%; margin-left: 0.12rem; }
-.vhero__consent button:hover .vhero__play-icon {
-  background: rgba(255, 255, 255, 0.32);
-  transform: scale(1.06);
-}
-.vhero__consent-note { color: var(--ink-2); font-size: 0.65rem; line-height: 1.25; }
-.vhero__consent-note a { color: inherit; text-decoration: underline; text-underline-offset: 0.12em; }
+.vhero__video video { z-index: 1; }
 /* Original .hero_video-btn-wrapper: z-10 UNTER dem Mockup-Rahmen (z-20,
    pointer-events none), helle Frosted-Buttons 3.25rem mit dunklen Icons. */
 .vhero__controls {

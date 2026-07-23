@@ -11,7 +11,7 @@ als Referenz; der Code hier ist sauberes Astro ohne Webflow-Klassen.
 |---|---|
 | `/` | Home: Hero (Scroll-Wipe), Statement, Zahlen & Fakten, AIO-Teaser, Coachings (Tabs), Bekannt aus, USP-Liste, Testimonials, Erfolgs-Check (`#0-Euro-Angebot`), FAQ |
 | `/ueber-mich/` | Portrait-Hero, Werdegang-Timeline (Pin-Scroll), Interessen + Wort-Marquees, Abschluss-CTA |
-| `/all-in-one-coaching/` | Video-Hero (Vimeo, consent-gated), Säulen-Galerie, Module 1–5 (+ „Deine Resultate"), Bonusse, USPs, Testimonials, CTA, FAQ |
+| `/all-in-one-coaching/` | Video-Hero (direktes Bunny-MP4), Säulen-Galerie, Module 1–5 (+ „Deine Resultate"), Bonusse, USPs, Testimonials, CTA, FAQ |
 | `/datenschutz/`, `/impressum/` | Seitenkopf + Rechtstext (noindex, nicht in der Sitemap) |
 | `/danke/` | Form.Taxi-Redirect-Fallback (noindex) |
 | `404` | gebrandet (bewusste Abweichung: Live-404 war Webflow-Default) |
@@ -63,11 +63,11 @@ Live-Island identisch); das Anfrage-Modal zieht seine Multiselect-Optionen aus
   `gsap.set`; Scroll-Layouts sind hinter `html.has-motion` gegated → ohne
   JS/`prefers-reduced-motion` statisch und vollständig sichtbar.
 - **Widgets** (`src/scripts/widgets.ts`): FAQ, Tabs, Read-More (216 Zeichen),
-  Testimonials-Load-More (250ms-Stagger), Vimeo-Gate.
-- **Cookie-Consent** (`CookieConsent.astro` + `src/scripts/consent.ts`):
-  schlanker Finsweet-Nachbau, opt-in, 4 Kategorien, localStorage, Event
-  `tw:consent`. Das Vimeo-Embed im AIO-Hero lädt erst nach Marketing-Zustimmung
-  (Poster + „Video laden"-Button vorher).
+  Testimonials-Load-More (250ms-Stagger), Mute/Replay für das direkte HTML5-Video.
+- **Video/Datenschutz:** Das AIO-Video wird ohne Drittanbieter-Player direkt von
+  `*.b-cdn.net` geladen. Die geprüfte Bunny-Auslieferung setzt kein Cookie;
+  ohne Tracking oder andere optionale Dienste ist deshalb kein Cookie-Banner
+  eingebunden. Die Video-URL ist im Sanity-Video-Hero editierbar.
 - **Modals:** `CtaModal.astro` (Anfrage, choices.js 11.2.3 lazy, bedingte
   Radio-Logik, Coaching-Multiselect) + `AioModal.astro` (Bewerbung). Beide
   posten per fetch an Form.Taxi (Endpunkt `https://form.taxi/s/vvg9bvd4`,
@@ -117,11 +117,12 @@ provision` druckt die genaue Anleitung. Live-Preview-Plumbing (zwei Builds,
 
 ## Offene Platzhalter (vor Go-Live)
 
-1. **Form.Taxi-Endpunkt** in `CtaModal.astro` + `AioModal.astro` ersetzen.
-2. **Vimeo-Poster:** aktuell `og-aio.avif`; echtes Standbild von Tristan
+1. **Finales Video:** Bunny-URL im Sanity-Video-Hero ersetzen, sobald das
+   endgültige Kundenvideo vorliegt.
+2. **Video-Poster:** aktuell `og-aio.avif`; echtes Standbild von Tristan
    einsetzen (`posterImage` der Video-Hero-Section).
-3. **Datenschutztext** wurde 1:1 übernommen und nennt noch Webflow/Google
-   Fonts etc. - rechtlich prüfen und anpassen lassen.
+3. **Rechtliche Endprüfung:** Datenschutz/Impressum vor Go-Live vom Kunden
+   freigeben lassen.
 4. **DNS:** `tristanweithaler.com` erst beim Go-Live auf den Prod-Worker
    umstellen.
 

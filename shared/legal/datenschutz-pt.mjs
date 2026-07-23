@@ -9,7 +9,7 @@ export default [
    {
     "_type": "span",
     "_key": "da0-s0",
-    "text": "*Stand: 22. Juli 2026*",
+    "text": "*Stand: 23. Juli 2026*",
     "marks": []
    }
   ]
@@ -463,7 +463,7 @@ export default [
    {
     "_type": "span",
     "_key": "da28-s0",
-    "text": "4. Lokale Speicherung und Einwilligungen",
+    "text": "4. Cookies und lokale Speicherung",
     "marks": []
    }
   ]
@@ -477,7 +477,7 @@ export default [
    {
     "_type": "span",
     "_key": "da29-s0",
-    "text": "Die öffentliche Website setzt nach dem aktuellen technischen Stand keine Analyse- oder Werbe-Cookies. Ihre Auswahl im Einwilligungsbanner wird unter dem Schlüssel `tw-consent-v1` lokal in Ihrem Browser gespeichert. Dadurch muss die Auswahl nicht bei jedem Seitenaufruf erneut abgefragt werden.",
+    "text": "Die öffentliche Website setzt nach dem aktuellen technischen Stand keine Analyse- oder Werbe-Cookies und verwendet keine vergleichbaren Technologien zur Analyse des Besucherverhaltens oder für personalisierte Werbung. Da derzeit keine einwilligungspflichtigen Cookies oder vergleichbaren Technologien eingesetzt werden, wird kein Einwilligungsbanner angezeigt. Technisch erforderliche Verarbeitungen der eingesetzten Dienste werden in den folgenden Abschnitten beschrieben.",
     "marks": []
    }
   ]
@@ -485,13 +485,13 @@ export default [
  {
   "_type": "block",
   "_key": "da30",
-  "style": "normal",
+  "style": "h2",
   "markDefs": [],
   "children": [
    {
     "_type": "span",
     "_key": "da30-s0",
-    "text": "Diese Speicherung ist für die von Ihnen gewünschte Einwilligungsverwaltung erforderlich. Rechtsgrundlage ist § 25 Abs. 2 Nr. 2 TDDDG. Sie können die gespeicherte Auswahl über die Cookie-Einstellungen der Website ändern oder über die Browser-Einstellungen löschen.",
+    "text": "5. Kontakt- und Bewerbungsformulare",
     "marks": []
    }
   ]
@@ -505,7 +505,7 @@ export default [
    {
     "_type": "span",
     "_key": "da31-s0",
-    "text": "Externe Medien von Vimeo werden erst nach Ihrer Einwilligung geladen.",
+    "text": "Wenn Sie ein Formular absenden, verarbeiten wir die von Ihnen eingegebenen Angaben. Dazu können insbesondere Name, E-Mail-Adresse, Berufsbezeichnung oder Unternehmen, Social-Media-Link, gewünschte Coaching-Leistung und freiwillige weitere Angaben gehören. Wir verwenden diese Daten zur Bearbeitung Ihrer Anfrage und für mögliche Anschlussfragen.",
     "marks": []
    }
   ]
@@ -513,13 +513,13 @@ export default [
  {
   "_type": "block",
   "_key": "da32",
-  "style": "h2",
+  "style": "normal",
   "markDefs": [],
   "children": [
    {
     "_type": "span",
     "_key": "da32-s0",
-    "text": "5. Kontakt- und Bewerbungsformulare",
+    "text": "Die Übermittlung der Formulare erfolgt über Form.taxi. Anbieter ist wrkt*biz Reinhard Söllradl, 4070 Eferding, Österreich, E-Mail: support@form.taxi. Die Formularinhalte und technisch erforderliche Übertragungsdaten werden dabei an Form.taxi übermittelt und von dort an den vorgesehenen Empfänger weitergeleitet. Nach Angaben des Anbieters wird der Dienst in einem Rechenzentrum in Deutschland betrieben.",
     "marks": []
    }
   ]
@@ -533,7 +533,7 @@ export default [
    {
     "_type": "span",
     "_key": "da33-s0",
-    "text": "Wenn Sie ein Formular absenden, verarbeiten wir die von Ihnen eingegebenen Angaben. Dazu können insbesondere Name, E-Mail-Adresse, Berufsbezeichnung oder Unternehmen, Social-Media-Link, gewünschte Coaching-Leistung und freiwillige weitere Angaben gehören. Wir verwenden diese Daten zur Bearbeitung Ihrer Anfrage und für mögliche Anschlussfragen.",
+    "text": "Rechtsgrundlage ist Art. 6 Abs. 1 lit. b DSGVO, soweit die Anfrage der Anbahnung oder Durchführung eines Vertrags dient. In anderen Fällen beruht die Verarbeitung auf Art. 6 Abs. 1 lit. f DSGVO; unser berechtigtes Interesse liegt in der effizienten Bearbeitung von Anfragen.",
     "marks": []
    }
   ]
@@ -547,7 +547,7 @@ export default [
    {
     "_type": "span",
     "_key": "da34-s0",
-    "text": "Die Übermittlung der Formulare erfolgt über Form.taxi. Anbieter ist wrkt*biz Reinhard Söllradl, 4070 Eferding, Österreich, E-Mail: support@form.taxi. Die Formularinhalte und technisch erforderliche Übertragungsdaten werden dabei an Form.taxi übermittelt und von dort an den vorgesehenen Empfänger weitergeleitet. Nach Angaben des Anbieters wird der Dienst in einem Rechenzentrum in Deutschland betrieben.",
+    "text": "Die Daten werden gelöscht, sobald der Zweck der Anfragebearbeitung entfällt, sofern keine gesetzlichen Aufbewahrungspflichten oder sonstigen rechtmäßigen Gründe für eine weitere Speicherung bestehen.",
     "marks": []
    }
   ]
@@ -556,12 +556,33 @@ export default [
   "_type": "block",
   "_key": "da35",
   "style": "normal",
-  "markDefs": [],
+  "markDefs": [
+   {
+    "_type": "link",
+    "_key": "da35-l1",
+    "href": "https://form.taxi/de/privacy",
+    "newTab": true
+   }
+  ],
   "children": [
    {
     "_type": "span",
     "_key": "da35-s0",
-    "text": "Rechtsgrundlage ist Art. 6 Abs. 1 lit. b DSGVO, soweit die Anfrage der Anbahnung oder Durchführung eines Vertrags dient. In anderen Fällen beruht die Verarbeitung auf Art. 6 Abs. 1 lit. f DSGVO; unser berechtigtes Interesse liegt in der effizienten Bearbeitung von Anfragen.",
+    "text": "Weitere Informationen: ",
+    "marks": []
+   },
+   {
+    "_type": "span",
+    "_key": "da35-s1",
+    "text": "Form.taxi Datenschutzerklärung",
+    "marks": [
+     "da35-l1"
+    ]
+   },
+   {
+    "_type": "span",
+    "_key": "da35-s2",
+    "text": ".",
     "marks": []
    }
   ]
@@ -569,13 +590,13 @@ export default [
  {
   "_type": "block",
   "_key": "da36",
-  "style": "normal",
+  "style": "h2",
   "markDefs": [],
   "children": [
    {
     "_type": "span",
     "_key": "da36-s0",
-    "text": "Die Daten werden gelöscht, sobald der Zweck der Anfragebearbeitung entfällt, sofern keine gesetzlichen Aufbewahrungspflichten oder sonstigen rechtmäßigen Gründe für eine weitere Speicherung bestehen.",
+    "text": "6. Kontakt per E-Mail oder Telefon",
     "marks": []
    }
   ]
@@ -584,33 +605,12 @@ export default [
   "_type": "block",
   "_key": "da37",
   "style": "normal",
-  "markDefs": [
-   {
-    "_type": "link",
-    "_key": "da37-l1",
-    "href": "https://form.taxi/de/privacy",
-    "newTab": true
-   }
-  ],
+  "markDefs": [],
   "children": [
    {
     "_type": "span",
     "_key": "da37-s0",
-    "text": "Weitere Informationen: ",
-    "marks": []
-   },
-   {
-    "_type": "span",
-    "_key": "da37-s1",
-    "text": "Form.taxi Datenschutzerklärung",
-    "marks": [
-     "da37-l1"
-    ]
-   },
-   {
-    "_type": "span",
-    "_key": "da37-s2",
-    "text": ".",
+    "text": "Wenn Sie uns per E-Mail oder Telefon kontaktieren, verarbeiten wir Ihre Anfrage einschließlich der daraus hervorgehenden personenbezogenen Daten zur Bearbeitung Ihres Anliegens. Rechtsgrundlage ist Art. 6 Abs. 1 lit. b DSGVO, soweit es um einen Vertrag oder vorvertragliche Maßnahmen geht, ansonsten Art. 6 Abs. 1 lit. f DSGVO.",
     "marks": []
    }
   ]
@@ -624,7 +624,7 @@ export default [
    {
     "_type": "span",
     "_key": "da38-s0",
-    "text": "6. Kontakt per E-Mail oder Telefon",
+    "text": "7. Videobereitstellung über bunny.net",
     "marks": []
    }
   ]
@@ -638,7 +638,7 @@ export default [
    {
     "_type": "span",
     "_key": "da39-s0",
-    "text": "Wenn Sie uns per E-Mail oder Telefon kontaktieren, verarbeiten wir Ihre Anfrage einschließlich der daraus hervorgehenden personenbezogenen Daten zur Bearbeitung Ihres Anliegens. Rechtsgrundlage ist Art. 6 Abs. 1 lit. b DSGVO, soweit es um einen Vertrag oder vorvertragliche Maßnahmen geht, ansonsten Art. 6 Abs. 1 lit. f DSGVO.",
+    "text": "Auf der Seite „ALL-IN-ONE Coaching“ wird eine Videodatei direkt über das Content Delivery Network von bunny.net geladen. Anbieter ist BunnyWay d.o.o., Dunajska cesta 165, 1000 Ljubljana, Slowenien. Es wird kein externer Video-Player oder iFrame eingebettet.",
     "marks": []
    }
   ]
@@ -646,13 +646,13 @@ export default [
  {
   "_type": "block",
   "_key": "da40",
-  "style": "h2",
+  "style": "normal",
   "markDefs": [],
   "children": [
    {
     "_type": "span",
     "_key": "da40-s0",
-    "text": "7. Vimeo",
+    "text": "Beim Laden des Videos erhält bunny.net technisch erforderliche Verbindungsdaten, insbesondere IP-Adresse, Zeitpunkt der Anfrage, angeforderte Videodatei sowie Browser- und Geräteinformationen. Diese Verarbeitung dient der schnellen, stabilen und sicheren Auslieferung des Videos.",
     "marks": []
    }
   ]
@@ -666,7 +666,7 @@ export default [
    {
     "_type": "span",
     "_key": "da41-s0",
-    "text": "Auf der Website kann ein Video des Anbieters Vimeo, Inc., 555 West 18th Street, New York, NY 10011, USA, eingebettet werden. Beim ersten Seitenaufruf wird keine Verbindung zum Vimeo-Player hergestellt. Der Vimeo-Player wird erst geladen, wenn Sie externe Medien über das Einwilligungsbanner erlauben oder das Video ausdrücklich aktivieren.",
+    "text": "Die konkret verwendete Video-Adresse auf der Domain `b-cdn.net` setzt nach aktueller technischer Prüfung bei der Auslieferung keine Cookies. Rechtsgrundlage für die technisch erforderliche Übertragung ist Art. 6 Abs. 1 lit. f DSGVO. Unser berechtigtes Interesse liegt in einer schnellen und zuverlässigen Videobereitstellung.",
     "marks": []
    }
   ]
@@ -675,12 +675,33 @@ export default [
   "_type": "block",
   "_key": "da42",
   "style": "normal",
-  "markDefs": [],
+  "markDefs": [
+   {
+    "_type": "link",
+    "_key": "da42-l1",
+    "href": "https://bunny.net/privacy/",
+    "newTab": true
+   }
+  ],
   "children": [
    {
     "_type": "span",
     "_key": "da42-s0",
-    "text": "Nach der Aktivierung erhält Vimeo insbesondere Ihre IP-Adresse, Informationen über die aufgerufene Seite sowie Browser- und Geräteinformationen. Vimeo kann dabei Cookies oder vergleichbare Technologien verwenden. Wenn Sie bei Vimeo angemeldet sind, kann Vimeo den Aufruf Ihrem Konto zuordnen.",
+    "text": "Weitere Informationen: ",
+    "marks": []
+   },
+   {
+    "_type": "span",
+    "_key": "da42-s1",
+    "text": "bunny.net Privacy & Data Policy",
+    "marks": [
+     "da42-l1"
+    ]
+   },
+   {
+    "_type": "span",
+    "_key": "da42-s2",
+    "text": ".",
     "marks": []
    }
   ]
@@ -688,13 +709,13 @@ export default [
  {
   "_type": "block",
   "_key": "da43",
-  "style": "normal",
+  "style": "h2",
   "markDefs": [],
   "children": [
    {
     "_type": "span",
     "_key": "da43-s0",
-    "text": "Die Verarbeitung erfolgt ausschließlich auf Grundlage Ihrer Einwilligung gemäß Art. 6 Abs. 1 lit. a DSGVO und § 25 Abs. 1 TDDDG. Sie können die Einwilligung jederzeit über die Cookie-Einstellungen der Website widerrufen.",
+    "text": "8. Lokale Schriftarten",
     "marks": []
    }
   ]
@@ -703,33 +724,12 @@ export default [
   "_type": "block",
   "_key": "da44",
   "style": "normal",
-  "markDefs": [
-   {
-    "_type": "link",
-    "_key": "da44-l1",
-    "href": "https://vimeo.com/privacy",
-    "newTab": true
-   }
-  ],
+  "markDefs": [],
   "children": [
    {
     "_type": "span",
     "_key": "da44-s0",
-    "text": "Weitere Informationen: ",
-    "marks": []
-   },
-   {
-    "_type": "span",
-    "_key": "da44-s1",
-    "text": "Vimeo Datenschutzerklärung",
-    "marks": [
-     "da44-l1"
-    ]
-   },
-   {
-    "_type": "span",
-    "_key": "da44-s2",
-    "text": ".",
+    "text": "Die verwendeten Schriftarten werden lokal von dieser Website ausgeliefert. Beim Laden der Schriftarten wird keine Verbindung zu Google Fonts oder anderen externen Schriftanbietern hergestellt.",
     "marks": []
    }
   ]
@@ -743,7 +743,7 @@ export default [
    {
     "_type": "span",
     "_key": "da45-s0",
-    "text": "8. Lokale Schriftarten",
+    "text": "9. Externe Links und soziale Netzwerke",
     "marks": []
    }
   ]
@@ -757,7 +757,7 @@ export default [
    {
     "_type": "span",
     "_key": "da46-s0",
-    "text": "Die verwendeten Schriftarten werden lokal von dieser Website ausgeliefert. Beim Laden der Schriftarten wird keine Verbindung zu Google Fonts oder anderen externen Schriftanbietern hergestellt.",
+    "text": "Diese Website enthält normale Links zu externen Angeboten, unter anderem Instagram, LinkedIn und Calendly. Beim bloßen Besuch unserer Website werden über diese Links keine Daten an die jeweiligen Anbieter übertragen. Erst wenn Sie einen externen Link öffnen, gelten die Datenschutzbestimmungen des jeweiligen Anbieters.",
     "marks": []
    }
   ]
@@ -771,7 +771,7 @@ export default [
    {
     "_type": "span",
     "_key": "da47-s0",
-    "text": "9. Externe Links und soziale Netzwerke",
+    "text": "10. Ihre Rechte",
     "marks": []
    }
   ]
@@ -785,7 +785,7 @@ export default [
    {
     "_type": "span",
     "_key": "da48-s0",
-    "text": "Diese Website enthält normale Links zu externen Angeboten, unter anderem Instagram, LinkedIn und Calendly. Beim bloßen Besuch unserer Website werden über diese Links keine Daten an die jeweiligen Anbieter übertragen. Erst wenn Sie einen externen Link öffnen, gelten die Datenschutzbestimmungen des jeweiligen Anbieters.",
+    "text": "Sie haben im Rahmen der gesetzlichen Voraussetzungen insbesondere folgende Rechte:",
     "marks": []
    }
   ]
@@ -793,16 +793,18 @@ export default [
  {
   "_type": "block",
   "_key": "da49",
-  "style": "h2",
+  "style": "normal",
   "markDefs": [],
   "children": [
    {
     "_type": "span",
     "_key": "da49-s0",
-    "text": "10. Ihre Rechte",
+    "text": "Auskunft über Ihre gespeicherten personenbezogenen Daten,",
     "marks": []
    }
-  ]
+  ],
+  "listItem": "bullet",
+  "level": 1
  },
  {
   "_type": "block",
@@ -813,10 +815,12 @@ export default [
    {
     "_type": "span",
     "_key": "da50-s0",
-    "text": "Sie haben im Rahmen der gesetzlichen Voraussetzungen insbesondere folgende Rechte:",
+    "text": "Berichtigung unrichtiger Daten,",
     "marks": []
    }
-  ]
+  ],
+  "listItem": "bullet",
+  "level": 1
  },
  {
   "_type": "block",
@@ -827,7 +831,7 @@ export default [
    {
     "_type": "span",
     "_key": "da51-s0",
-    "text": "Auskunft über Ihre gespeicherten personenbezogenen Daten,",
+    "text": "Löschung oder Einschränkung der Verarbeitung,",
     "marks": []
    }
   ],
@@ -843,7 +847,7 @@ export default [
    {
     "_type": "span",
     "_key": "da52-s0",
-    "text": "Berichtigung unrichtiger Daten,",
+    "text": "Datenübertragbarkeit,",
     "marks": []
    }
   ],
@@ -859,7 +863,7 @@ export default [
    {
     "_type": "span",
     "_key": "da53-s0",
-    "text": "Löschung oder Einschränkung der Verarbeitung,",
+    "text": "Widerruf erteilter Einwilligungen mit Wirkung für die Zukunft,",
     "marks": []
    }
   ],
@@ -875,7 +879,7 @@ export default [
    {
     "_type": "span",
     "_key": "da54-s0",
-    "text": "Datenübertragbarkeit,",
+    "text": "Widerspruch gegen eine Verarbeitung auf Grundlage von Art. 6 Abs. 1 lit. f DSGVO.",
     "marks": []
    }
   ],
@@ -891,12 +895,10 @@ export default [
    {
     "_type": "span",
     "_key": "da55-s0",
-    "text": "Widerruf erteilter Einwilligungen mit Wirkung für die Zukunft,",
+    "text": "Zur Ausübung Ihrer Rechte können Sie sich an info@tristanweithaler.com wenden.",
     "marks": []
    }
-  ],
-  "listItem": "bullet",
-  "level": 1
+  ]
  },
  {
   "_type": "block",
@@ -907,23 +909,21 @@ export default [
    {
     "_type": "span",
     "_key": "da56-s0",
-    "text": "Widerspruch gegen eine Verarbeitung auf Grundlage von Art. 6 Abs. 1 lit. f DSGVO.",
+    "text": "Sie haben außerdem das Recht, sich bei einer zuständigen Datenschutzaufsichtsbehörde zu beschweren. Dies kann insbesondere die Aufsichtsbehörde an Ihrem gewöhnlichen Aufenthaltsort, Arbeitsplatz oder am Ort des mutmaßlichen Verstoßes sein.",
     "marks": []
    }
-  ],
-  "listItem": "bullet",
-  "level": 1
+  ]
  },
  {
   "_type": "block",
   "_key": "da57",
-  "style": "normal",
+  "style": "h2",
   "markDefs": [],
   "children": [
    {
     "_type": "span",
     "_key": "da57-s0",
-    "text": "Zur Ausübung Ihrer Rechte können Sie sich an info@tristanweithaler.com wenden.",
+    "text": "11. Änderungen dieser Datenschutzerklärung",
     "marks": []
    }
   ]
@@ -937,34 +937,6 @@ export default [
    {
     "_type": "span",
     "_key": "da58-s0",
-    "text": "Sie haben außerdem das Recht, sich bei einer zuständigen Datenschutzaufsichtsbehörde zu beschweren. Dies kann insbesondere die Aufsichtsbehörde an Ihrem gewöhnlichen Aufenthaltsort, Arbeitsplatz oder am Ort des mutmaßlichen Verstoßes sein.",
-    "marks": []
-   }
-  ]
- },
- {
-  "_type": "block",
-  "_key": "da59",
-  "style": "h2",
-  "markDefs": [],
-  "children": [
-   {
-    "_type": "span",
-    "_key": "da59-s0",
-    "text": "11. Änderungen dieser Datenschutzerklärung",
-    "marks": []
-   }
-  ]
- },
- {
-  "_type": "block",
-  "_key": "da60",
-  "style": "normal",
-  "markDefs": [],
-  "children": [
-   {
-    "_type": "span",
-    "_key": "da60-s0",
     "text": "Wir passen diese Datenschutzerklärung an, wenn sich die Website, die eingesetzten Dienste oder die rechtlichen Anforderungen ändern.",
     "marks": []
    }

@@ -166,7 +166,7 @@ const INSERT_FACTORIES: Record<EditorBlockType, () => Record<string, unknown>> =
     name: 'Video-Hero',
     heading: 'Überschrift',
     ctaLabel: 'Jetzt bewerben',
-    vimeoId: '',
+    videoUrl: 'https://upgreight-ws.b-cdn.net/webinarwonders-preview.mp4',
   }),
   sectionModule: () => ({
     _type: 'sectionModule',

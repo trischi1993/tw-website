@@ -323,13 +323,13 @@ export interface SectionFaq extends SectionBase {
   items: { _key: string; question: string; answer: RichText }[];
 }
 
-/** AIO-Hero: Vimeo-Video im iPhone-Mockup (consent-gated), CTA → AIO-Modal. */
+/** AIO-Hero: direktes Bunny-MP4 im iPhone-Mockup, CTA → AIO-Modal. */
 export interface SectionVideoHero extends SectionBase {
   _type: 'sectionVideoHero';
   heading: string;
   intro?: RichText;
   ctaLabel: string;
-  vimeoId: string;
+  videoUrl: string;
   mockupImage?: SiteImage;
   posterImage?: SiteImage;
 }

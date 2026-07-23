@@ -6,9 +6,9 @@ import RichText from './RichText';
 
 /**
  * AIO-Hero: H1 + Intro + Bewerbungs-CTA links, rechts Hochkant-Video im
- * iPhone-Mockup mit Gold-Blur. Das Vimeo-Embed ist consent-gated: bis zur
- * Zustimmung Poster + kompakter Play-Button; danach lädt consent.ts den Player
- * (autoplay, muted, loop, ohne Vimeo-Controls) + Mute/Replay-Buttons (widgets.ts).
+ * iPhone-Mockup mit Gold-Blur. Das MP4 wird direkt vom cookie-freien Bunny-CDN
+ * geladen (autoplay, muted, loop, ohne native Controls); Mute/Replay laufen
+ * über die delegierten Handler in widgets.ts.
  */
 export default function VideoHeroSection({
   section,
@@ -17,7 +17,7 @@ export default function VideoHeroSection({
   section: SectionVideoHero;
   edit?: EditAttr;
 }) {
-  const { _key, anchor, heading, intro, ctaLabel, vimeoId, mockupImage, posterImage } = section;
+  const { _key, anchor, heading, intro, ctaLabel, videoUrl, mockupImage, posterImage } = section;
   const path = `sections[_key=="${_key}"]`;
 
   return (
@@ -44,23 +44,27 @@ export default function VideoHeroSection({
             </header>
             <div className="vhero__phone" data-aio-video="">
               <Img image={mockupImage} className="vhero__mockup" loading="eager" />
-              <div className="vhero__video" data-vimeo={vimeoId}>
+              <div className="vhero__video" data-video-player="">
                 <Img image={posterImage} className="vhero__poster" loading="eager" />
-                <div className="vhero__consent" data-vimeo-consent="">
-                  <button type="button" data-vimeo-accept="" aria-label="Vimeo-Video abspielen">
-                    <span className="vhero__play-icon" aria-hidden="true">
-                      <svg viewBox="0 0 24 24" fill="currentColor">
-                        <path d="M8 5.5v13l10-6.5-10-6.5Z" />
-                      </svg>
-                    </span>
-                    <span>Video abspielen</span>
-                  </button>
-                  <p className="vhero__consent-note">
-                    Vimeo · <a href="/datenschutz/">Datenschutz</a>
-                  </p>
-                </div>
+                {videoUrl ? (
+                  <video
+                    src={videoUrl}
+                    autoPlay
+                    muted
+                    loop
+                    playsInline
+                    preload="auto"
+                    aria-label="ALL-IN-ONE Coaching Video"
+                    {...edit?.(`${path}.videoUrl`)}
+                  />
+                ) : null}
               </div>
-              <div className="vhero__controls" data-vimeo-controls="" hidden>
+              <div
+                className="vhero__controls"
+                data-video-controls=""
+                data-muted="1"
+                hidden={!videoUrl}
+              >
                 {/* Icon-Belegung wie Original (aio-13-Script): stumm → Wellen-Icon
                     („Ton holen"), mit Ton → X-Icon. Strichstärke/Formen 1:1. */}
                 <button type="button" data-action="toggle-mute" aria-label="Ton an/aus">

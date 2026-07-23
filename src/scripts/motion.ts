@@ -28,7 +28,7 @@ import * as glow from './motion/glow';
      matchMedia-Bedingung wie seine Animation (sonst versteckt z. B. der
      Footer-Reveal auf Mobile Inhalte, obwohl er dort nie abspielt).
    - prefers-reduced-motion: kompletter No-op (statische Layouts). Funktionale
-     Interaktionen (Menü, FAQ, Modals, Consent) leben in widgets/menu/consent
+     Interaktionen (Menü, FAQ, Modals, Video) leben in widgets/menu
      und bleiben auch dann bedienbar.
    --------------------------------------------------------------------------- */
 

@@ -60,7 +60,7 @@ export const SECTIONS_PROJECTION = `sections[]{
   _type == "sectionUspList" => { heading, items[]{ _key, lead, text } },
   _type == "sectionTestimonials" => { heading, loadMoreLabel, initialCount, ${TESTIMONIALS_SUB} },
   _type == "sectionFaq" => { heading, items[]{ _key, question, answer } },
-  _type == "sectionVideoHero" => { heading, intro, ctaLabel, vimeoId, mockupImage${IMG}, posterImage${IMG} },
+  _type == "sectionVideoHero" => { heading, intro, ctaLabel, videoUrl, mockupImage${IMG}, posterImage${IMG} },
   _type == "sectionModule" => { titleRowText, number, bannerWord, bannerGold, heading, bullets, bulletsNowrap, image${IMG}, imageWide, coachingHeading, coachingText, videoSrc, videoPoster },
   _type == "sectionBonuses" => { heading, intro, ctaLabel, cards[]{ _key, tag, title, text, image${IMG} } },
   _type == "sectionFinalCta" => { heading, text, ctaLabel, ctaAction, ctaHref, ctaNewTab },
@@ -477,7 +477,7 @@ export function mapSection(s: any): Section | null {
         heading: str(s.heading) ?? '',
         intro: richText(s.intro),
         ctaLabel: str(s.ctaLabel) ?? '',
-        vimeoId: str(s.vimeoId) ?? '',
+        videoUrl: str(s.videoUrl) ?? '',
         mockupImage: mapImage(s.mockupImage),
         posterImage: mapImage(s.posterImage),
       };

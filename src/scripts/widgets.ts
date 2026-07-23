@@ -1,10 +1,9 @@
 import { gsap } from 'gsap';
-import { hasConsent, grantCategory, onConsentChange, VIMEO_CATEGORY } from './consent';
 
 /* ---------------------------------------------------------------------------
    Interaktive Widgets der Sections (delegierte Handler, ein zentraler Init):
    FAQ-Accordion, Coaching-Tabs, Read-More, Testimonials-Load-More und das
-   consent-gated Vimeo-Embed. Animationsdauern fallen bei
+   direkte HTML5-Video. Animationsdauern fallen bei
    prefers-reduced-motion auf 0 (Zustand wechselt sofort).
    --------------------------------------------------------------------------- */
 
@@ -132,59 +131,7 @@ function loadMore(btn: HTMLElement): void {
   }
 }
 
-/* --- Vimeo (consent-gated, Steuerung über die player.vimeo.com-postMessage-
-       API - kein zusätzliches SDK) ----------------------------------------- */
-
-function vimeoPost(iframe: HTMLIFrameElement, method: string, value?: unknown): void {
-  iframe.contentWindow?.postMessage(JSON.stringify({ method, value }), 'https://player.vimeo.com');
-}
-
-function applyVimeoConsent(box: HTMLElement, allowed: boolean): void {
-  const id = box.getAttribute('data-vimeo');
-  if (!id) return;
-  const consentLayer = box.querySelector<HTMLElement>('[data-vimeo-consent]');
-  const controls = box.parentElement?.querySelector<HTMLElement>('[data-vimeo-controls]');
-  const existing = box.querySelector('iframe');
-
-  if (allowed) {
-    if (consentLayer) consentLayer.hidden = true;
-    if (!existing) {
-      const iframe = document.createElement('iframe');
-      // background=1: autoplay, muted, loop, ohne Player-UI (eigene Controls).
-      // dnt=1 reduziert nicht notwendige Vimeo-Cookies; technisch notwendige
-      // Player-Cookies koennen laut Vimeo trotzdem gesetzt werden.
-      iframe.src = `https://player.vimeo.com/video/${encodeURIComponent(id)}?background=1&autoplay=1&muted=1&loop=1&autopause=0&dnt=1`;
-      iframe.allow = 'autoplay; fullscreen; picture-in-picture';
-      iframe.title = 'Vimeo-Video';
-      if (controls) controls.hidden = true;
-      iframe.addEventListener(
-        'load',
-        () => {
-          if (!iframe.isConnected || !hasConsent(VIMEO_CATEGORY)) return;
-          iframe.dataset.ready = '1';
-          vimeoPost(iframe, 'setVolume', 0);
-          vimeoPost(iframe, 'play');
-          if (controls) {
-            controls.hidden = false;
-            controls.dataset.muted = '1';
-            syncMuteIcons(controls, true);
-          }
-        },
-        { once: true },
-      );
-      box.appendChild(iframe);
-    }
-    if (controls && existing?.dataset.ready === '1') {
-      controls.hidden = false;
-      controls.dataset.muted = '1';
-      syncMuteIcons(controls, true);
-    }
-  } else {
-    existing?.remove();
-    if (consentLayer) consentLayer.hidden = false;
-    if (controls) controls.hidden = true;
-  }
-}
+/* --- Direktes HTML5-Video (Bunny MP4, ohne Drittanbieter-Player) ----------- */
 
 function syncMuteIcons(controls: HTMLElement, muted: boolean): void {
   controls.querySelectorAll<SVGElement>('[data-icon]').forEach((icon) => {
@@ -193,31 +140,24 @@ function syncMuteIcons(controls: HTMLElement, muted: boolean): void {
   });
 }
 
-function handleVimeoAction(btn: HTMLElement): void {
-  const controls = btn.closest<HTMLElement>('[data-vimeo-controls]');
-  const iframe = controls?.parentElement?.querySelector<HTMLIFrameElement>('[data-vimeo] iframe');
-  if (!controls || !iframe) return;
+function handleVideoAction(btn: HTMLElement): void {
+  const controls = btn.closest<HTMLElement>('[data-video-controls]');
+  const video = controls?.parentElement?.querySelector<HTMLVideoElement>('[data-video-player] video');
+  if (!controls || !video) return;
 
   if (btn.dataset.action === 'toggle-mute') {
-    const nowMuted = controls.dataset.muted !== '1';
+    const nowMuted = !video.muted;
+    video.muted = nowMuted;
     controls.dataset.muted = nowMuted ? '1' : '0';
-    vimeoPost(iframe, 'setVolume', nowMuted ? 0 : 1);
     syncMuteIcons(controls, nowMuted);
+    void video.play().catch(() => undefined);
   } else if (btn.dataset.action === 'replay') {
+    video.muted = true;
+    video.currentTime = 0;
     controls.dataset.muted = '1';
     syncMuteIcons(controls, true);
-    vimeoPost(iframe, 'setVolume', 0);
-    vimeoPost(iframe, 'setCurrentTime', 0);
-    vimeoPost(iframe, 'play');
+    void video.play().catch(() => undefined);
   }
-}
-
-function initVimeo(): void {
-  const boxes = document.querySelectorAll<HTMLElement>('[data-vimeo]');
-  if (!boxes.length) return;
-  const apply = (allowed: boolean) => boxes.forEach((box) => applyVimeoConsent(box, allowed));
-  apply(hasConsent(VIMEO_CATEGORY));
-  onConsentChange((state) => apply(state[VIMEO_CATEGORY] === true));
 }
 
 /* --- Delegierter Klick-Handler + Init -------------------------------------- */
@@ -235,11 +175,8 @@ document.addEventListener('click', (e) => {
   const moreBtn = target.closest<HTMLElement>('[data-load-more]');
   if (moreBtn) return loadMore(moreBtn);
 
-  if (target.closest('[data-vimeo-accept]')) return grantCategory(VIMEO_CATEGORY);
-
-  const actionBtn = target.closest<HTMLElement>('[data-vimeo-controls] [data-action]');
-  if (actionBtn) return handleVimeoAction(actionBtn);
+  const actionBtn = target.closest<HTMLElement>('[data-video-controls] [data-action]');
+  if (actionBtn) return handleVideoAction(actionBtn);
 });
 
 initReadMore();
-initVimeo();

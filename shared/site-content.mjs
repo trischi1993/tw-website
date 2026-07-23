@@ -541,7 +541,7 @@ export function buildContent({ img }) {
           'Damit lernst du, deine Social Media Präsenz eigenständig und unabhängig erfolgreich aufzubauen.',
         ]),
         ctaLabel: APPLY_LABEL,
-        vimeoId: '1164742630',
+        videoUrl: 'https://upgreight-ws.b-cdn.net/webinarwonders-preview.mp4',
         mockupImage: img('aio-iphone-mockup.avif', 'iPhone-Rahmen um das Coaching-Video'),
         posterImage: img('og-aio.avif', 'Vorschaubild: ALL-IN-ONE Social Media Coaching'),
       },
@@ -835,7 +835,7 @@ export function buildContent({ img }) {
       'Datenschutz',
       'Datenschutzerklärung von Tristan Weithaler, Südtirols erstem Social Media Business Coach.',
       datenschutzBody,
-      '22. Juli 2026',
+      '23. Juli 2026',
     ),
     legalPage(
       'impressum',
