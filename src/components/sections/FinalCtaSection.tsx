@@ -25,7 +25,7 @@ export default function FinalCtaSection({
       {...edit?.(path)}
     >
       <div className="container">
-        <div className="final-cta__content max-w-xs">
+        <div className="final-cta__content">
           <h2 data-anim="reveal" {...edit?.(`${path}.heading`)}>
             {heading}
           </h2>

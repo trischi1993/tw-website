@@ -106,11 +106,6 @@ window.addEventListener('keydown', (e) => {
   }
 });
 
-// ?openModal=true öffnet das Anfrage-Modal direkt (Original-Verhalten).
-if (new URLSearchParams(window.location.search).get('openModal') === 'true') {
-  openModal('cta');
-}
-
 /* --- CTA: bedingte Radio-Logik --------------------------------------------- */
 
 const ctaForm = document.querySelector<HTMLFormElement>('[data-cta-form]');
@@ -309,6 +304,11 @@ function wireSubmit(form: HTMLFormElement) {
       });
       if (!res.ok) throw new Error(`Form endpoint responded ${res.status}`);
       form.setAttribute('hidden', '');
+      // Die Modal-Hauptüberschrift ist ein Geschwister des Formulars (nicht in
+      // ihm) und würde sonst über der Danke-Meldung stehen bleiben. Nach dem
+      // Absenden soll nur noch die Erfolgsmeldung (eigenes „Vielen Dank!") zu
+      // sehen sein.
+      root?.querySelector('.modal__heading')?.setAttribute('hidden', '');
       if (success) {
         success.removeAttribute('hidden');
         success.focus();
@@ -328,3 +328,12 @@ function wireSubmit(form: HTMLFormElement) {
 document
   .querySelectorAll<HTMLFormElement>('[data-cta-form], [data-aio-form]')
   .forEach(wireSubmit);
+
+// ?openModal=true öffnet das Anfrage-Modal direkt (Original-Verhalten).
+// MUSS am Dateiende stehen: openModal() ruft ensureChoices(), das die
+// Modul-Variable `choicesReady` liest. Früher lief dieser Block VOR deren
+// `let`-Initialisierung → TDZ-ReferenceError, der Choices.js abbrach und das
+// Multiselect als rohes <select> stehen ließ.
+if (new URLSearchParams(window.location.search).get('openModal') === 'true') {
+  openModal('cta');
+}

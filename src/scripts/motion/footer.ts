@@ -68,10 +68,28 @@ export function init(mm: gsap.MatchMedia): void {
       items.forEach((item) => {
         const others = items.filter((o) => o !== item);
         if (!others.length) return;
+        // overwrite: 'auto' - beim schnellen Wechsel zwischen Geschwistern
+        // feuern mouseleave (restore alle) und mouseenter (dim andere) fast
+        // gleichzeitig auf überlappende Ziele. Ohne Overwrite liefen beide
+        // Tweens zu Ende und der zuletzt fertige gewann → ein Icon blieb
+        // manchmal geblurrt/gedimmt hängen. 'auto' killt beim Start den
+        // konkurrierenden Tween auf denselben Zielen → letzte Absicht gewinnt.
         const enter = () =>
-          gsap.to(others, { opacity: 0.6, filter: 'blur(2px)', duration: 0.38, ease: 'none' });
+          gsap.to(others, {
+            opacity: 0.6,
+            filter: 'blur(2px)',
+            duration: 0.38,
+            ease: 'none',
+            overwrite: 'auto',
+          });
         const leave = () =>
-          gsap.to(items, { opacity: 1, filter: 'blur(0px)', duration: 0.34, ease: EASE.ease });
+          gsap.to(items, {
+            opacity: 1,
+            filter: 'blur(0px)',
+            duration: 0.34,
+            ease: EASE.ease,
+            overwrite: 'auto',
+          });
         item.addEventListener('mouseenter', enter);
         item.addEventListener('mouseleave', leave);
         cleanups.push(() => {

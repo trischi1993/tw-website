@@ -3,18 +3,17 @@ import type { EditAttr } from './SectionsList';
 import Img from './Img';
 import { safeHref } from '../../lib/safe-href';
 
-const InstagramIcon = () => (
-  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" aria-hidden="true">
-    <rect x="3" y="3" width="18" height="18" rx="5" />
-    <circle cx="12" cy="12" r="4" />
-    <circle cx="17.2" cy="6.8" r="1.1" fill="currentColor" stroke="none" />
-  </svg>
-);
-const LinkedinIcon = () => (
-  <svg viewBox="0 0 24 24" fill="currentColor" aria-hidden="true">
-    <path d="M4.98 3.5C4.98 4.88 3.87 6 2.5 6S0 4.88 0 3.5 1.12 1 2.5 1s2.48 1.12 2.48 2.5zM.4 8.1h4.2V23H.4V8.1zM8.2 8.1h4v2h.06c.56-1.05 1.93-2.16 3.97-2.16 4.25 0 5.03 2.8 5.03 6.44V23h-4.2v-7.4c0-1.77-.03-4.05-2.47-4.05-2.47 0-2.85 1.93-2.85 3.92V23H8.2V8.1z" />
-  </svg>
-);
+/**
+ * Social-Icons wie im Footer: dieselben Lottie-Dateien + Größen (global-chrome
+ * §6). Der Loader (Footer.astro-Script, lazy lottie-web) greift jede
+ * [data-lottie-root]-Gruppe und spielt [data-lottie] beim Sichtbarwerden 1×,
+ * Hover spielt neu. Instagram 2rem, LinkedIn 1.75rem - identisch zum Footer,
+ * damit beide Auftritte gleich aussehen (vorher wich das LinkedIn-SVG ab).
+ */
+const LOTTIE: Record<'linkedin' | 'instagram', { path: string; size: string }> = {
+  linkedin: { path: '/lottie/linkedin.json', size: '1.75rem' },
+  instagram: { path: '/lottie/instagram.json', size: '2rem' },
+};
 
 /**
  * Über-mich-Hero: H1 + Vorstellung + Social-Icons links, Portrait (2:3) rechts.
@@ -50,19 +49,28 @@ export default function PortraitHeroSection({
                 {intro}
               </p>
               {socials.length > 0 && (
-                <div className="ahero__socials">
-                  {socials.map((s) => (
-                    <a
-                      key={s._key}
-                      href={safeHref(s.href)}
-                      className={s.platform === 'linkedin' ? 'is-linkedin' : 'is-instagram'}
-                      target="_blank"
-                      rel="noopener noreferrer"
-                      aria-label={s.platform === 'linkedin' ? 'LinkedIn' : 'Instagram'}
-                    >
-                      {s.platform === 'linkedin' ? <LinkedinIcon /> : <InstagramIcon />}
-                    </a>
-                  ))}
+                <div className="ahero__socials" data-lottie-root>
+                  {socials.map((s) => {
+                    const isLinkedin = s.platform === 'linkedin';
+                    const lottie = isLinkedin ? LOTTIE.linkedin : LOTTIE.instagram;
+                    return (
+                      <a
+                        key={s._key}
+                        href={safeHref(s.href)}
+                        className={isLinkedin ? 'is-linkedin' : 'is-instagram'}
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        aria-label={isLinkedin ? 'LinkedIn' : 'Instagram'}
+                      >
+                        <span
+                          className="ahero__social-icon"
+                          data-lottie={lottie.path}
+                          style={{ width: lottie.size, height: lottie.size }}
+                          aria-hidden="true"
+                        />
+                      </a>
+                    );
+                  })}
                 </div>
               )}
             </header>

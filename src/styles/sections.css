@@ -15,6 +15,12 @@
 .hhero__track { position: relative; }
 @media (min-width: 992px) {
   html.has-motion .hhero__track { height: 300vh; }
+  /* Scroll-Indikator (.hhero__scroll, bottom:-14rem unter dem Content) darf am
+     Ende der 300vh-Strecke nicht unter dem gewachsenen Bild in die Folgesektion
+     ragen. Auf niedrigen Viewports reicht der -14rem-Überhang sonst über die
+     100vh-Sticky-Box hinaus. `clip` begrenzt ihn auf die Sticky-Box, ohne das
+     Sticky-Verhalten selbst zu beeinflussen (Clip am Element ≠ am Scrollcontainer). */
+  .hhero__sticky { overflow: clip; }
 }
 .hhero__trigger {
   position: absolute;
@@ -969,6 +975,13 @@ html.has-motion .results__track { height: 200vh; }
    P→Buttons = .spacer-medium (2/1.5rem). AIO-P ist im Export 1rem
    (text-size-regular), Über-mich-P 1.125rem (text-size-medium) — geteilte
    Komponente, der Über-mich-Wert bleibt (Abweichung AIO: +0.125rem). */
+/* Spaltenbreite: Über-mich hat kurze Copy → schmal (wie bisher, max-w-xs).
+   AIO trägt in derselben geteilten Komponente deutlich mehr Text (lange
+   Headline + Hinweis) → breiter, damit Headline und Absatz auf max. 3 Zeilen
+   umbrechen. Unterscheidung über [data-route] auf <main> (BaseLayout). */
+.final-cta__content { max-width: var(--max-w-xs); }
+[data-route='all-in-one-coaching'] .final-cta__content { max-width: 46rem; }
+[data-route='all-in-one-coaching'] .final-cta__content h2 { text-wrap: balance; }
 .final-cta__content h2 { margin-bottom: 1.5rem; }
 .final-cta__content p { color: var(--ink-2); font-size: var(--text-md); }
 .final-cta__buttons { margin-top: 2rem; }
@@ -993,17 +1006,15 @@ html.has-motion .results__track { height: 200vh; }
 .ahero__content { max-width: 29rem; }
 .ahero__content h1 { margin-bottom: 1rem; }
 .ahero__content p { font-size: var(--text-md); color: var(--ink-2); }
-/* Icon-Maße wie Original: Instagram (icon-embed-custom1) 1.8rem,
-   LinkedIn (icon-embed-xsmall) 1.5rem; kein Hover-Effekt im Original. */
+/* Lottie-Icons wie im Footer: Größe kommt vom Inline-Span (Instagram 2rem,
+   LinkedIn 1.75rem), Hover spielt neu (Footer.astro-Loader). */
 .ahero__socials { display: flex; align-items: center; gap: 1.5rem; margin-top: 3rem; }
 .ahero__socials a {
-  display: grid;
-  place-items: center;
+  display: inline-flex;
+  align-items: center;
   color: var(--ink);
 }
-.ahero__socials a.is-instagram { width: 1.8rem; height: 1.8rem; }
-.ahero__socials a.is-linkedin { width: 1.5rem; height: 1.5rem; }
-.ahero__socials svg { width: 100%; height: 100%; }
+.ahero__social-icon { display: inline-block; }
 .ahero__media {
   position: relative;
   padding-left: 3vw;

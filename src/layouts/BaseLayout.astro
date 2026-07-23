@@ -18,8 +18,10 @@ interface Props {
   noindex?: boolean;
   type?: 'website' | 'article';
   jsonLd?: Record<string, any> | Record<string, any>[];
+  /** Seiten-Slug als CSS-Haken auf <main> (z. B. seiten-spezifische Overrides). */
+  route?: string;
 }
-const { title, description, image, noindex, type, jsonLd } = Astro.props;
+const { title, description, image, noindex, type, jsonLd, route } = Astro.props;
 const settings = await getSiteSettings();
 
 // Organization auf jeder Seite: macht die Marke für Google/AI zur eindeutigen
@@ -112,7 +114,7 @@ const jsonLdArray = [orgJsonLd, ...pageJsonLd];
     <Header />
     {/* tabindex=-1: macht das Sprung-Ziel per Skip-Link fokussierbar (sonst
         setzen manche Browser/AT den Fokus nicht zuverlässig auf <main>). */}
-    <main id="main" tabindex="-1">
+    <main id="main" tabindex="-1" data-route={route || undefined}>
       <slot />
     </main>
     <Footer />

@@ -38,6 +38,7 @@ if (!page) return Astro.rewrite('/404');
   description={page.seo.description}
   image={ogImageUrl(page.seo.image)}
   noindex={page.seo.noindex}
+  route={page.slug}
 >
   <SectionsHost
     sections={page.sections}

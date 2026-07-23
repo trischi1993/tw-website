@@ -91,60 +91,60 @@ const mailHref = `mailto:${contact.email}?subject=Hey%20Tristan`;
           }
         </div>
 
+        {/* Rechte Spalte als 2×2-Grid (Spalte 1: Nav/Legal-Links links,
+            Spalte 2: E-Mail/Credit rechts). So fluchtet „Created by upgreight"
+            linksbündig unter die E-Mail-Spalte (gleicher Inset), und die
+            Kontakt-Box wird nicht auf Nav-Höhe gestreckt (E-Mail-Maske clippt). */}
         <div class="footer__second">
-          <div class="footer__second-top">
-            <nav class="footer__nav" aria-label="Footer-Navigation">
-              <ul role="list" data-dim-group>
-                {
-                  footerNav.map((item) => (
-                    <li class="footer__nav-mask" data-dim-item>
-                      <a
-                        class="footer__nav-link"
-                        href={safeHref(item.href)}
-                        target={isExternal(item.href) ? '_blank' : undefined}
-                        rel={isExternal(item.href) ? 'noopener noreferrer' : undefined}
-                        data-footer-nav-link
-                      >
-                        {item.label}
-                      </a>
-                    </li>
-                  ))
-                }
-              </ul>
-            </nav>
-
-            <div class="footer__contact">
-              <img
-                class="footer__contact-icon"
-                src={emailIcon.src}
-                alt=""
-                width="43"
-                height="27"
-                loading="lazy"
-                data-footer-contact-icon
-              />
-              <p class="footer__contact-title" data-footer-contact-title>Email</p>
-              <a class="footer__mail" href={mailHref} data-footer-mail>{contact.email}</a>
-            </div>
-          </div>
-
-          {/* Original: Legal-Zeile sitzt UNTEN in der rechten Spalte
-              (.footer_second-wrapper-bootmo, margin-top 2rem). */}
-          <div class="footer__legal" data-footer-legal>
-            <p class="footer__legal-links">
+          <nav class="footer__nav" aria-label="Footer-Navigation">
+            <ul role="list" data-dim-group>
               {
-                settings.legalLinks.map((item, i) => (
-                  <>
-                    {i > 0 && <span aria-hidden="true"> • </span>}
-                    <a href={safeHref(item.href)}>{item.label}</a>
-                  </>
+                footerNav.map((item) => (
+                  <li class="footer__nav-mask" data-dim-item>
+                    <a
+                      class="footer__nav-link"
+                      href={safeHref(item.href)}
+                      target={isExternal(item.href) ? '_blank' : undefined}
+                      rel={isExternal(item.href) ? 'noopener noreferrer' : undefined}
+                      data-footer-nav-link
+                    >
+                      {item.label}
+                    </a>
+                  </li>
                 ))
               }
-            </p>
-            <p class="footer__credit">
-              Created by <a href="https://upgreight.com" target="_blank" rel="noopener noreferrer">upgreight</a>
-            </p>
+            </ul>
+          </nav>
+
+          <div class="footer__contact">
+            <img
+              class="footer__contact-icon"
+              src={emailIcon.src}
+              alt=""
+              width="43"
+              height="27"
+              loading="lazy"
+              data-footer-contact-icon
+            />
+            <p class="footer__contact-title" data-footer-contact-title>Email</p>
+            <a class="footer__mail" href={mailHref} data-footer-mail>{contact.email}</a>
           </div>
+
+          {/* Legal-Links unten links (unter der Nav), Credit unten rechts
+              (linksbündig unter der E-Mail-Spalte). */}
+          <p class="footer__legal-links" data-footer-legal>
+            {
+              settings.legalLinks.map((item, i) => (
+                <>
+                  {i > 0 && <span aria-hidden="true"> • </span>}
+                  <a href={safeHref(item.href)}>{item.label}</a>
+                </>
+              ))
+            }
+          </p>
+          <p class="footer__credit" data-footer-legal>
+            Created by <a href="https://upgreight.com" target="_blank" rel="noopener noreferrer">upgreight</a>
+          </p>
         </div>
       </div>
     </div>
@@ -177,15 +177,17 @@ const mailHref = `mailto:${contact.email}?subject=Hey%20Tristan`;
     align-items: flex-start;
     overflow: hidden;
   }
+  /* 2×2-Grid: Spalte 1 = Nav (oben) / Legal-Links (unten), Spalte 2 = E-Mail
+     (oben) / Credit (unten). align-content: space-between hält oben/unten wie
+     das frühere Flex-space-between; der Credit fluchtet dadurch linksbündig
+     unter die E-Mail-Spalte (gleicher Inset). */
   .footer__second {
     width: 55%;
-    display: flex;
-    flex-direction: column;
-    justify-content: space-between;
-  }
-  .footer__second-top {
-    display: flex;
-    justify-content: space-between;
+    display: grid;
+    grid-template-columns: 1fr auto;
+    align-content: space-between;
+    row-gap: 2rem;
+    column-gap: 2rem;
   }
 
   /* Logo wie im Original: 9rem mit Negativ-Margins (@991 6rem). */
@@ -196,7 +198,9 @@ const mailHref = `mailto:${contact.email}?subject=Hey%20Tristan`;
     margin-top: -1rem;
     margin-left: -0.5rem;
   }
-  .footer__claim { color: #d6d6d6; }
+  /* Slogan auf zwei Zeilen umbrechen (Original: schmalerer Wrapper), Zeilen
+     ausbalanciert. */
+  .footer__claim { color: #d6d6d6; max-width: 16rem; text-wrap: balance; }
   .footer__social-list {
     display: flex;
     align-items: center;
@@ -227,8 +231,11 @@ const mailHref = `mailto:${contact.email}?subject=Hey%20Tristan`;
   }
 
   /* Mask für den Mail-Slide (y 110 %) — Original .footer_contact-item;
-     Innen ohne Abstände (Original stapelt icon/title/link direkt). */
-  .footer__contact { overflow: hidden; margin-right: 2rem; }
+     Innen ohne Abstände (Original stapelt icon/title/link direkt).
+     align-self: start — NICHT auf Nav-Höhe strecken: sonst hätte die
+     overflow:hidden-Maske unter der Mail Leerraum und der yPercent:110-Slide
+     würde die Mail nicht verstecken (sie wäre von Anfang an sichtbar). */
+  .footer__contact { overflow: hidden; margin-right: 2rem; align-self: start; }
   .footer__contact-icon { width: 2.6875rem; height: auto; }
   .footer__contact-title {
     color: var(--ink);
@@ -243,34 +250,31 @@ const mailHref = `mailto:${contact.email}?subject=Hey%20Tristan`;
     color: #aa8630;
   }
 
-  /* Original .footer_second-wrapper-bootmo: margin-top 2rem, in der rechten
-     Spalte; Text .825rem auf #525252 (Credit = Hausregel-Ergänzung). */
-  .footer__legal {
-    display: flex;
-    flex-wrap: wrap;
-    justify-content: space-between;
-    gap: 0.75rem 2rem;
-    margin-top: 2rem;
-    overflow: hidden;
+  /* Legal-Zeile unten (Grid-Reihe 2): Links links unter der Nav, Credit rechts
+     linksbündig unter der E-Mail-Spalte. Text .825rem, gedämpft
+     (Credit = Hausregel-Ergänzung). */
+  .footer__legal-links,
+  .footer__credit {
     color: var(--ink-4);
     font-size: 0.825rem;
   }
-  .footer__legal a { color: inherit; }
+  .footer__legal-links a,
+  .footer__credit a { color: inherit; }
 
   @media (max-width: 991px) {
     .footer { padding-top: 2rem; }
     .footer__body { padding-block: 10rem; }
     .footer__grid { gap: 4rem; }
     .footer__logo { width: 6rem; }
-    .footer__second { flex: 1; }
-    .footer__second-top { gap: 3rem; }
+    .footer__second { flex: 1; column-gap: 3rem; }
     .footer__contact { margin-right: 0; }
   }
   @media (max-width: 767px) {
     .footer__body { padding-block: 6rem; }
     .footer__grid { flex-flow: column; gap: 3rem; }
     .footer__first { width: 100%; }
-    .footer__second-top { flex-flow: column; }
+    /* Rechte Spalte einspaltig stapeln: Nav, E-Mail, Legal-Links, Credit. */
+    .footer__second { grid-template-columns: 1fr; align-content: start; }
   }
   @media (max-width: 479px) {
     .footer__logo-link { margin-bottom: 2rem; }
@@ -287,36 +291,45 @@ const mailHref = `mailto:${contact.email}?subject=Hey%20Tristan`;
   // Embed data-autoplay="1"), Hover spielt von vorn in 600 ms bis zum Ende
   // (IX2 a-78: 0 → 99.8 % in 600 ms → Speed = Dauer / 0.6).
   // prefers-reduced-motion: kein Autoplay/Hover, stattdessen Endframe zeigen.
-  const root = document.querySelector<HTMLElement>('[data-lottie-root]');
-  if (root) {
+  // Jede [data-lottie-root]-Gruppe lazy laden (Footer + z. B. Über-mich-Hero
+  // teilen dieselben Icons). lottie-web wird nur einmal ausgeliefert (der
+  // dynamische Import ist gebündelt/gecacht) und pro Gruppe beim ersten
+  // Sichtbarwerden initialisiert.
+  const roots = document.querySelectorAll<HTMLElement>('[data-lottie-root]');
+  if (roots.length) {
     const reduceMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
-    const io = new IntersectionObserver(
-      async (entries) => {
-        if (!entries.some((e) => e.isIntersecting)) return;
-        io.disconnect();
-        const lottie = (await import('lottie-web/build/player/lottie_light')).default;
-        root.querySelectorAll<HTMLElement>('[data-lottie]').forEach((el) => {
-          const anim = lottie.loadAnimation({
-            container: el,
-            renderer: 'svg',
-            loop: false,
-            autoplay: !reduceMotion,
-            path: el.dataset.lottie!,
-          });
-          if (reduceMotion) {
-            anim.addEventListener('DOMLoaded', () => {
-              anim.goToAndStop(Math.max(0, anim.totalFrames - 1), true);
-            });
-            return;
-          }
-          el.closest('a')?.addEventListener('mouseenter', () => {
-            anim.setSpeed(anim.getDuration(false) / 0.6);
-            anim.goToAndPlay(0, true);
-          });
+    const initRoot = async (root: HTMLElement) => {
+      const lottie = (await import('lottie-web/build/player/lottie_light')).default;
+      root.querySelectorAll<HTMLElement>('[data-lottie]').forEach((el) => {
+        const anim = lottie.loadAnimation({
+          container: el,
+          renderer: 'svg',
+          loop: false,
+          autoplay: !reduceMotion,
+          path: el.dataset.lottie!,
         });
-      },
-      { rootMargin: '200px' },
-    );
-    io.observe(root);
+        if (reduceMotion) {
+          anim.addEventListener('DOMLoaded', () => {
+            anim.goToAndStop(Math.max(0, anim.totalFrames - 1), true);
+          });
+          return;
+        }
+        el.closest('a')?.addEventListener('mouseenter', () => {
+          anim.setSpeed(anim.getDuration(false) / 0.6);
+          anim.goToAndPlay(0, true);
+        });
+      });
+    };
+    roots.forEach((root) => {
+      const io = new IntersectionObserver(
+        (entries) => {
+          if (!entries.some((e) => e.isIntersecting)) return;
+          io.disconnect();
+          void initRoot(root);
+        },
+        { rootMargin: '200px' },
+      );
+      io.observe(root);
+    });
   }
 </script>
