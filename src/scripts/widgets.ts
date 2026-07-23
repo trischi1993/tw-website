@@ -152,10 +152,10 @@ function handleVideoAction(btn: HTMLElement): void {
     syncMuteIcons(controls, nowMuted);
     void video.play().catch(() => undefined);
   } else if (btn.dataset.action === 'replay') {
-    video.muted = true;
+    video.muted = false;
     video.currentTime = 0;
-    controls.dataset.muted = '1';
-    syncMuteIcons(controls, true);
+    controls.dataset.muted = '0';
+    syncMuteIcons(controls, false);
     void video.play().catch(() => undefined);
   }
 }
