@@ -433,37 +433,40 @@ em, i { font-style: italic; }
    sichtbar (unveränderte No-JS/A11y-Garantie).
    --------------------------------------------------------------------------- */
 
-/* Zeilen-Reveal (Home-H1, Value-Statement) - motion/lines.ts, jede Seite. */
-html.has-motion [data-anim='lines']:not([data-revealed]) { visibility: hidden; }
+/* Nur VOR der Motion-Initialisierung verstecken. Das Preview-Live-Island
+   rendert Sections nach `motion-ready` per React neu; diese neuen DOM-Knoten
+   tragen bewusst keine imperativen `data-revealed`-Marker. Ohne dieses Scope
+   würden Hero/Statement nach einem Sanity-Live-Update dauerhaft verschwinden. */
+html.has-motion:not(.motion-ready) [data-anim='lines']:not([data-revealed]) { visibility: hidden; }
 
 /* Geteilter Navbar-Build - nur auf Seiten mit Load-Choreo (Home/Über-mich/AIO). */
-html.has-motion:has([data-home-hero], [data-about-hero], [data-aio-hero]) [data-nav-logo-line]:not([data-revealed]) { height: 0; }
-html.has-motion:has([data-home-hero], [data-about-hero], [data-aio-hero]) [data-nav-right]:not([data-revealed]) {
+html.has-motion:not(.motion-ready):has([data-home-hero], [data-about-hero], [data-aio-hero]) [data-nav-logo-line]:not([data-revealed]) { height: 0; }
+html.has-motion:not(.motion-ready):has([data-home-hero], [data-about-hero], [data-aio-hero]) [data-nav-right]:not([data-revealed]) {
   opacity: 0;
   transform: translateX(2.5rem);
 }
 
 /* Home: Logo-Text-Slides + Buttons sind seitenübergreifende Selektoren → :has;
    Wipe/Scroll tragen Home-eigene Attribute und begrenzen sich selbst. */
-html.has-motion:has([data-home-hero]) [data-nav-logo-text='1']:not([data-revealed]) { transform: translateX(140%); }
-html.has-motion:has([data-home-hero]) [data-nav-logo-text='2']:not([data-revealed]) { transform: translateX(-140%); }
-html.has-motion:has([data-home-hero]) .button-group:not([data-revealed]) {
+html.has-motion:not(.motion-ready):has([data-home-hero]) [data-nav-logo-text='1']:not([data-revealed]) { transform: translateX(140%); }
+html.has-motion:not(.motion-ready):has([data-home-hero]) [data-nav-logo-text='2']:not([data-revealed]) { transform: translateX(-140%); }
+html.has-motion:not(.motion-ready):has([data-home-hero]) .button-group:not([data-revealed]) {
   opacity: 0;
   transform: translateX(40px);
 }
-html.has-motion [data-hero-wipe]:not([data-revealed]) { width: 100%; height: 100%; }
-html.has-motion [data-hero-scroll]:not([data-revealed]) { opacity: 0; }
+html.has-motion:not(.motion-ready) [data-hero-wipe]:not([data-revealed]) { width: 100%; height: 100%; }
+html.has-motion:not(.motion-ready) [data-hero-scroll]:not([data-revealed]) { opacity: 0; }
 
 /* Über-mich (Hero-intern, self-scoped über [data-about-hero]). */
-html.has-motion [data-about-hero] h1:not([data-revealed]) { opacity: 0; transform: translateX(2rem); }
-html.has-motion [data-about-hero] .ahero__intro:not([data-revealed]) { opacity: 0; transform: translateX(2rem); }
-html.has-motion [data-about-hero] .ahero__socials:not([data-revealed]) { opacity: 0; transform: translateX(2rem); }
+html.has-motion:not(.motion-ready) [data-about-hero] h1:not([data-revealed]) { opacity: 0; transform: translateX(2rem); }
+html.has-motion:not(.motion-ready) [data-about-hero] .ahero__intro:not([data-revealed]) { opacity: 0; transform: translateX(2rem); }
+html.has-motion:not(.motion-ready) [data-about-hero] .ahero__socials:not([data-revealed]) { opacity: 0; transform: translateX(2rem); }
 
 /* AIO (Hero-intern, self-scoped über die data-aio-*-Attribute). */
-html.has-motion [data-aio-h1]:not([data-revealed]) { opacity: 0; transform: translateX(2rem); }
-html.has-motion [data-aio-intro]:not([data-revealed]) { opacity: 0; transform: translateX(2rem); }
-html.has-motion [data-aio-buttons]:not([data-revealed]) { opacity: 0; transform: translateX(2rem); }
-html.has-motion [data-aio-video]:not([data-revealed]) { opacity: 0; }
+html.has-motion:not(.motion-ready) [data-aio-h1]:not([data-revealed]) { opacity: 0; transform: translateX(2rem); }
+html.has-motion:not(.motion-ready) [data-aio-intro]:not([data-revealed]) { opacity: 0; transform: translateX(2rem); }
+html.has-motion:not(.motion-ready) [data-aio-buttons]:not([data-revealed]) { opacity: 0; transform: translateX(2rem); }
+html.has-motion:not(.motion-ready) [data-aio-video]:not([data-revealed]) { opacity: 0; }
 
 /* ---------------------------------------------------------------------------
    Reduced motion
