@@ -18,6 +18,11 @@ export default function VideoHeroSection({
   edit?: EditAttr;
 }) {
   const { _key, anchor, heading, intro, ctaLabel, videoUrl, mockupImage, posterImage } = section;
+  // In der lokalen Astro-Entwicklung keine Bunny-Bandbreite verbrauchen:
+  // Standbild zeigen, während Deploy-/Preview-Builds weiterhin die Sanity-URL
+  // verwenden. Eine Fake-URL würde bei jedem Laden immerhin einen 404-Request
+  // an Bunny senden und unnötige Fehler in der Browser-Konsole erzeugen.
+  const playbackUrl = import.meta.env.DEV ? '' : videoUrl;
   const path = `sections[_key=="${_key}"]`;
 
   return (
@@ -46,9 +51,9 @@ export default function VideoHeroSection({
               <Img image={mockupImage} className="vhero__mockup" loading="eager" />
               <div className="vhero__video" data-video-player="">
                 <Img image={posterImage} className="vhero__poster" loading="eager" />
-                {videoUrl ? (
+                {playbackUrl ? (
                   <video
-                    src={videoUrl}
+                    src={playbackUrl}
                     autoPlay
                     muted
                     loop
@@ -63,7 +68,7 @@ export default function VideoHeroSection({
                 className="vhero__controls"
                 data-video-controls=""
                 data-muted="1"
-                hidden={!videoUrl}
+                hidden={!playbackUrl}
               >
                 {/* Icon-Belegung wie Original (aio-13-Script): stumm → Wellen-Icon
                     („Ton holen"), mit Ton → X-Icon. Strichstärke/Formen 1:1. */}

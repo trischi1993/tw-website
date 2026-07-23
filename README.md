@@ -67,7 +67,9 @@ Live-Island identisch); das Anfrage-Modal zieht seine Multiselect-Optionen aus
 - **Video/Datenschutz:** Das AIO-Video wird ohne Drittanbieter-Player direkt von
   `*.b-cdn.net` geladen. Die geprüfte Bunny-Auslieferung setzt kein Cookie;
   ohne Tracking oder andere optionale Dienste ist deshalb kein Cookie-Banner
-  eingebunden. Die Video-URL ist im Sanity-Video-Hero editierbar.
+  eingebunden. Die Video-URL ist im Sanity-Video-Hero editierbar. Im lokalen
+  Astro-Dev-Modus wird nur das Poster gerendert, damit keine Bunny-Bandbreite
+  für lokale Tests anfällt; deployte Preview-/Prod-Builds verwenden Sanity.
 - **Modals:** `CtaModal.astro` (Anfrage, choices.js 11.2.3 lazy, bedingte
   Radio-Logik, Coaching-Multiselect) + `AioModal.astro` (Bewerbung). Beide
   posten per fetch an Form.Taxi (Endpunkt `https://form.taxi/s/vvg9bvd4`,
