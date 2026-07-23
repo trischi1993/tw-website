@@ -29,7 +29,7 @@ const FORM_ACTION = 'https://form.taxi/s/vvg9bvd4';
             <path d="M12 4v16M4 12h16" />
           </svg>
         </button>
-        <h3 class="modal__heading" id="cta-modal-title">Coaching anfragen</h3>
+        <h2 class="modal__heading" id="cta-modal-title">Coaching anfragen</h2>
 
         <form
           class="modal__form"
@@ -171,7 +171,12 @@ const FORM_ACTION = 'https://form.taxi/s/vvg9bvd4';
                   <path d="M1 5.5 4.2 8.5 11 1.5" />
                 </svg>
               </span>
-              <span>Ich akzeptiere die <a href="/datenschutz/" target="_blank">Datenschutzerklärung</a></span>
+              <span>
+                Ich akzeptiere die
+                <a href="/datenschutz/" target="_blank" rel="noopener noreferrer">
+                  Datenschutzerklärung
+                </a>
+              </span>
             </label>
           </div>
 
@@ -187,14 +192,28 @@ const FORM_ACTION = 'https://form.taxi/s/vvg9bvd4';
           </div>
         </form>
 
-        <div class="modal__success" data-form-success hidden tabindex="-1">
-          <h4>Vielen Dank!</h4>
+        <div
+          class="modal__success"
+          data-form-success
+          role="status"
+          aria-live="polite"
+          hidden
+          tabindex="-1"
+        >
+          <h3>Vielen Dank!</h3>
           <p>
             Ich melde mich in Kürze bei dir. Bitte überprüfe auch deinen Spam-Ordner, falls meine
             Nachricht dort gelandet ist.
           </p>
         </div>
-        <div class="modal__fail" data-form-fail hidden>
+        <div
+          class="modal__fail"
+          data-form-fail
+          role="alert"
+          aria-live="assertive"
+          hidden
+          tabindex="-1"
+        >
           <p>Ups! Etwas ist schief gelaufen - bitte versuche es nochmal.</p>
         </div>
       </div>
@@ -405,7 +424,7 @@ const FORM_ACTION = 'https://form.taxi/s/vvg9bvd4';
 
   /* --- Erfolg / Fehler ------------------------------------------------------ */
   .modal__success { color: var(--ink); }
-  .modal__success h4 { margin-bottom: 0.5rem; }
+  .modal__success h3 { margin-bottom: 0.5rem; }
   .modal__success p { color: var(--ink-2); }
   .modal__fail {
     margin-top: 1.5rem;

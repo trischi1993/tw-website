@@ -12,15 +12,17 @@
     "seed:build": "node scripts/make-seed.mjs",
     "import-seed": "npm run seed:build && sanity dataset import seed.ndjson production --replace",
     "migrate:module-posters": "sanity exec scripts/migrate-module-posters.mjs --with-user-token",
-    "migrate:module-posters:dry-run": "sanity exec scripts/migrate-module-posters.mjs --with-user-token -- --dry-run"
+    "migrate:module-posters:dry-run": "sanity exec scripts/migrate-module-posters.mjs --with-user-token -- --dry-run",
+    "migrate:seo-descriptions": "sanity exec scripts/update-seo-descriptions.mjs --with-user-token",
+    "migrate:seo-descriptions:dry-run": "sanity exec scripts/update-seo-descriptions.mjs --with-user-token -- --dry-run"
   },
   "dependencies": {
     "@sanity/comlink": "4.0.1",
     "@sanity/icons": "5.0.0",
-    "@sanity/vision": "6.5.0",
+    "@sanity/vision": "6.6.0",
     "react": "^19.2.7",
     "react-dom": "^19.2.7",
-    "sanity": "6.5.0",
+    "sanity": "6.6.0",
     "styled-components": "^6.4.3"
   },
   "devDependencies": {

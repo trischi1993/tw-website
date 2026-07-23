@@ -141,7 +141,7 @@ export function buildContent({ img }) {
     seo: {
       title: 'Tristan Weithaler - Südtirols erster Social Media Business Coach',
       description:
-        'Ich bin Tristan, Social Media Business Coach mit über 8 Jahren Erfahrung. Ich zeige dir, wie du deine Reichweite, Follower und Kunden organisch steigerst und dein Business strategisch über Social Media aufbaust.',
+        'Tristan Weithaler zeigt Selbstständigen und Unternehmen, wie sie mit Social Media organisch Reichweite, Follower und Kunden gewinnen.',
       image: img('og-home.png', 'Tristan Weithaler - Südtirols erster Social Media Business Coach'),
     },
     sections: [
@@ -525,7 +525,7 @@ export function buildContent({ img }) {
     seo: {
       title: 'ALL-IN-ONE Social Media Coaching | Tristan Weithaler',
       description:
-        'Mein ALL-IN-ONE Social Media Coaching ist das Komplettpaket für Selbständige und Unternehmen. Dort lernst du die Grundlagen von Social Media, klare Strategien für mehr Reichweite, Follower und Kunden sowie professionelle Content-Erstellung für nachhaltiges Wachstum.',
+        'Das ALL-IN-ONE Social Media Coaching für Selbstständige und Unternehmen: Strategien für Reichweite, Kundengewinnung und professionelle Content-Erstellung.',
       image: img('og-aio.avif', 'ALL-IN-ONE Social Media Coaching mit Tristan Weithaler'),
     },
     sections: [

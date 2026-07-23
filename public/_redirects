@@ -1,12 +1,18 @@
 # Cloudflare-Redirects (PRODUCTION). Wird wie unter Pages von `dist/_redirects`
 # ausgeliefert. Eine Regel pro Zeile:  <von>  <nach>  <status>
 #
-# Standardmäßig LEER (keine aktiven Regeln). Pro Projekt einkommentieren/ergänzen.
 # Die Apex/www-Vereinheitlichung macht ihr in der Regel auf DNS-/Zonen-Ebene in
-# Cloudflare (Redirect Rule) – falls doch hier: den www-Host in astro.config.mjs
-# NICHT als `site` setzen (canonical bleibt Apex).
+# Cloudflare (Redirect Rule). Domain-level redirects werden von dieser Datei
+# nicht unterstützt; canonical bleibt die Apex-Domain aus astro.config.mjs.
 #
-# Beispiele (Platzhalter – anpassen, dann einkommentieren):
-# /alte-seite            /neue-seite            301
-# /kontakt.html          /kontakt/              301
-# /blog/*                /journal/:splat        301
+# Relaunch Webflow -> Astro:
+# Die alte Webflow-Sitemap und Canonicals nutzten die Kernpfade ohne Slash.
+# Astro/Cloudflare liefert sie mit Slash aus. Explizite 301-Regeln verhindern,
+# dass Cloudflares automatische temporäre 307-Normalisierung die Migration
+# übernimmt. Die alte Sitemap-URL bleibt für bestehende GSC-Einreichungen gültig.
+/ueber-mich              /ueber-mich/            301
+/all-in-one-coaching     /all-in-one-coaching/   301
+/datenschutz             /datenschutz/           301
+/impressum               /impressum/             301
+/index.html              /                        301
+/sitemap.xml             /sitemap-index.xml       301

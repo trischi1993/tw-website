@@ -9,8 +9,8 @@
    - CTA-Formular: bedingte Radio-Logik (Service-Typ → Unternehmens-Typ →
      Multiselect), Choices.js LAZY beim ersten Öffnen, Hidden-Sync
      `Coaching-Bereiche`, eigene Inline-Fehlermeldungen (#E05C5C).
-   - Submit: fetch POST an Form.Taxi (PLATZHALTER-Endpunkt), Erfolg/Fehler
-     inline (.w-form-done/-fail-Äquivalente).
+   - Submit: fetch POST an Form.Taxi, Erfolg/Fehler inline
+     (.w-form-done/-fail-Äquivalente).
    --------------------------------------------------------------------------- */
 
 type ModalKey = 'cta' | 'aio';
@@ -186,15 +186,45 @@ function fieldWrap(el: HTMLElement): HTMLElement {
   return el.closest<HTMLElement>('.modal__field, fieldset') ?? el;
 }
 
-function addError(anchor: HTMLElement, message: string) {
+let validationErrorId = 0;
+
+function clearErrors(form: HTMLFormElement) {
+  form.querySelectorAll('.modal-field-error').forEach((el) => el.remove());
+  form.querySelectorAll<HTMLElement>('[data-validation-error]').forEach((control) => {
+    const errorId = control.dataset.validationError;
+    const describedBy = (control.getAttribute('aria-describedby') ?? '')
+      .split(/\s+/)
+      .filter((id) => id && id !== errorId);
+
+    if (describedBy.length) control.setAttribute('aria-describedby', describedBy.join(' '));
+    else control.removeAttribute('aria-describedby');
+
+    control.removeAttribute('aria-invalid');
+    delete control.dataset.validationError;
+  });
+}
+
+function addError(anchor: HTMLElement, message: string, controls: HTMLElement[]) {
   const p = document.createElement('p');
   p.className = 'modal-field-error';
+  p.id = `modal-field-error-${++validationErrorId}`;
+  p.setAttribute('role', 'alert');
   p.textContent = message;
   anchor.appendChild(p);
+
+  controls.forEach((control) => {
+    const describedBy = new Set(
+      (control.getAttribute('aria-describedby') ?? '').split(/\s+/).filter(Boolean),
+    );
+    describedBy.add(p.id);
+    control.setAttribute('aria-describedby', [...describedBy].join(' '));
+    control.setAttribute('aria-invalid', 'true');
+    control.dataset.validationError = p.id;
+  });
 }
 
 function validate(form: HTMLFormElement): boolean {
-  form.querySelectorAll('.modal-field-error').forEach((el) => el.remove());
+  clearErrors(form);
 
   const radioGroups = new Set<string>();
   form
@@ -203,8 +233,11 @@ function validate(form: HTMLFormElement): boolean {
   radioGroups.forEach((name) => {
     const checked = form.querySelector(`input[name="${name}"]:checked`);
     if (!checked) {
-      const first = form.querySelector<HTMLInputElement>(`input[name="${name}"]`);
-      if (first) addError(fieldWrap(first), MSG_RADIO);
+      const radios = Array.from(
+        form.querySelectorAll<HTMLInputElement>(`input[name="${name}"]`),
+      );
+      const first = radios[0];
+      if (first) addError(fieldWrap(first), MSG_RADIO, radios);
     }
   });
 
@@ -214,19 +247,21 @@ function validate(form: HTMLFormElement): boolean {
     )
     .forEach((field) => {
       if (field instanceof HTMLInputElement && field.type === 'checkbox') {
-        if (!field.checked) addError(fieldWrap(field), MSG_GDPR);
+        if (!field.checked) addError(fieldWrap(field), MSG_GDPR, [field]);
         return;
       }
       if (!field.value.trim()) {
-        addError(fieldWrap(field), MSG_REQUIRED);
+        addError(fieldWrap(field), MSG_REQUIRED, [field]);
       } else if (field instanceof HTMLInputElement && field.validity.typeMismatch) {
-        addError(fieldWrap(field), MSG_EMAIL);
+        addError(fieldWrap(field), MSG_EMAIL, [field]);
       }
     });
 
   const firstError = form.querySelector('.modal-field-error');
   if (firstError) {
-    fieldWrap(firstError.parentElement as HTMLElement).scrollIntoView({
+    const firstInvalid = form.querySelector<HTMLElement>('[aria-invalid="true"]');
+    firstInvalid?.focus({ preventScroll: true });
+    fieldWrap(firstInvalid ?? (firstError.parentElement as HTMLElement)).scrollIntoView({
       behavior: 'smooth',
       block: 'center',
     });
@@ -235,7 +270,7 @@ function validate(form: HTMLFormElement): boolean {
   return true;
 }
 
-/* --- Submit (fetch → Form.Taxi-Platzhalter) -------------------------------- */
+/* --- Submit (fetch → Form.Taxi) -------------------------------------------- */
 
 function wireSubmit(form: HTMLFormElement) {
   form.addEventListener('submit', async (e) => {
@@ -279,7 +314,10 @@ function wireSubmit(form: HTMLFormElement) {
         success.focus();
       }
     } catch {
-      fail?.removeAttribute('hidden');
+      if (fail) {
+        fail.removeAttribute('hidden');
+        fail.focus();
+      }
     } finally {
       if (button) button.disabled = false;
       if (label) label.textContent = idleText;
