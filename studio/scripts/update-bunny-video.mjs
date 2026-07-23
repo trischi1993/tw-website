@@ -1,7 +1,8 @@
 import { getCliClient } from 'sanity/cli';
 import datenschutzBody from '../../shared/legal/datenschutz-pt.mjs';
 
-const VIDEO_URL = 'https://upgreight-ws.b-cdn.net/webinarwonders-preview.mp4';
+const VIDEO_URL =
+  'https://tristan-website.b-cdn.net/NEW%20Video%20-%20All-In-One%20Social%20Media%20Coaching%20-%20compressed.mp4';
 const DRY_RUN = process.argv.includes('--dry-run');
 const client = getCliClient({ apiVersion: '2024-10-01' });
 

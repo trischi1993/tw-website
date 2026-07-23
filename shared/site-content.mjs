@@ -541,7 +541,8 @@ export function buildContent({ img }) {
           'Damit lernst du, deine Social Media Präsenz eigenständig und unabhängig erfolgreich aufzubauen.',
         ]),
         ctaLabel: APPLY_LABEL,
-        videoUrl: 'https://upgreight-ws.b-cdn.net/webinarwonders-preview.mp4',
+        videoUrl:
+          'https://tristan-website.b-cdn.net/NEW%20Video%20-%20All-In-One%20Social%20Media%20Coaching%20-%20compressed.mp4',
         mockupImage: img('aio-iphone-mockup.avif', 'iPhone-Rahmen um das Coaching-Video'),
         posterImage: img('og-aio.avif', 'Vorschaubild: ALL-IN-ONE Social Media Coaching'),
       },
