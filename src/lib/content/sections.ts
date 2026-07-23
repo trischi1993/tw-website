@@ -17,6 +17,7 @@ import type {
   SpaceToken,
   CtaVariant,
 } from './types';
+import { imgFromOriginalFilename } from './images';
 
 /* ---------------------------------------------------------------------------
    Sections-Contract: GROQ-Projektion + Mapper für das `sections[]`-Array.
@@ -38,7 +39,7 @@ import type {
     Mapper URL + Dimensionen bekommt (funktioniert auch in der Live-Island:
     groq-js im Presentation-Loader löst `asset->` lokal auf). */
 const CONTENT_PROJECTION = `content[]{ _type, _key, text, label, href, variant, newTab, level, size, color, textWrap, maxWidth, marginBottom }`;
-const IMG = `{ alt, caption, asset->{ url, metadata{ dimensions, lqip } } }`;
+const IMG = `{ alt, caption, asset->{ url, originalFilename, metadata{ dimensions, lqip } } }`;
 
 /* Eingebettete CMS-Collections: die Section liefert ihre Items gleich mit —
    eine Quelle für Build, SSR und Live-Island (Änderungen an Services/
@@ -196,8 +197,8 @@ function num(v: unknown): number | undefined {
 /* --- Bilder ----------------------------------------------------------------
    Browser-sicherer Bild-Mapper (die Island nutzt ihn clientseitig):
    - Seed liefert bereits fertige SiteImage-Objekte (`kind` gesetzt) → durchreichen.
-   - Sanity liefert das dereferenzierte Asset → in ein remote-SiteImage übersetzen
-     (CDN-URL mit Breiten-/Qualitäts-Parametern, wie resolveImage in sanity.ts). */
+   - Sanity liefert das dereferenzierte Asset → wenn das Original im Repo liegt,
+     als lokales Build-Asset ausliefern; sonst als Sanity-CDN-Fallback. */
 const IMG_MAX_W = 2400;
 
 /* Responsive-Breiten-Leiter (identisch zu resolveImage in sanity.ts): ohne
@@ -215,6 +216,10 @@ function buildSrcSet(url: string, maxWidth: number): string {
 export function mapImage(raw: any, fallbackAlt = ''): SiteImage | undefined {
   if (!raw) return undefined;
   if (raw.kind === 'local' || raw.kind === 'remote') return raw as SiteImage;
+  const alt = str(raw.alt) ?? fallbackAlt;
+  const caption = str(raw.caption);
+  const local = imgFromOriginalFilename(str(raw.asset?.originalFilename), alt, caption);
+  if (local) return local;
   const url: string | undefined = raw.asset?.url;
   const dim = raw.asset?.metadata?.dimensions;
   if (!url || !dim) return undefined;
@@ -227,8 +232,8 @@ export function mapImage(raw: any, fallbackAlt = ''): SiteImage | undefined {
     srcSet: buildSrcSet(url, width),
     width,
     height,
-    alt: str(raw.alt) ?? fallbackAlt,
-    caption: str(raw.caption),
+    alt,
+    caption,
     lqip: raw.asset?.metadata?.lqip,
   };
 }

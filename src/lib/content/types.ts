@@ -9,8 +9,8 @@ import type { ImageMetadata } from 'astro';
    component needs to change. One contract, two sources.
    --------------------------------------------------------------------------- */
 
-/** A picture, source-agnostic. `local` = optimised at build via astro:assets;
- *  `remote` = a Sanity CDN URL once the CMS is connected. */
+/** A picture, source-agnostic. `local` = optimised and hosted with the Astro
+ *  build; `remote` = Sanity-CDN fallback for a CMS image not yet in the repo. */
 export type SiteImage =
   | { kind: 'local'; asset: ImageMetadata; alt: string; caption?: string }
   | {

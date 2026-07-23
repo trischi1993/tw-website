@@ -2,6 +2,7 @@ import { createClient, type SanityClient } from '@sanity/client';
 import { createImageUrlBuilder } from '@sanity/image-url';
 import { getPreviewContext } from './preview-context';
 import { SECTIONS_PROJECTION, baseIdOf, mapSections } from './content/sections';
+import { imgFromOriginalFilename } from './content/images';
 import type { SiteSettings, HomeContent, SitePage, SiteImage, ServiceItem } from './content/types';
 
 /* ---------------------------------------------------------------------------
@@ -78,7 +79,11 @@ function activeClient(): SanityClient {
 interface RawImage {
   alt?: string;
   caption?: string;
-  asset?: { url?: string; metadata?: { dimensions?: { width: number; height: number }; lqip?: string } };
+  asset?: {
+    url?: string;
+    originalFilename?: string;
+    metadata?: { dimensions?: { width: number; height: number }; lqip?: string };
+  };
 }
 
 const MAX_W = 2400;
@@ -96,6 +101,9 @@ function buildSrcSet(url: string, maxWidth: number): string {
 }
 
 export function resolveImage(source?: RawImage, fallbackAlt = ''): SiteImage | undefined {
+  const alt = source?.alt ?? fallbackAlt;
+  const local = imgFromOriginalFilename(source?.asset?.originalFilename, alt, source?.caption);
+  if (local) return local;
   const dim = source?.asset?.metadata?.dimensions;
   const url = source?.asset?.url;
   if (!url || !dim) return undefined;
@@ -108,7 +116,7 @@ export function resolveImage(source?: RawImage, fallbackAlt = ''): SiteImage | u
     srcSet: buildSrcSet(url, width),
     width,
     height,
-    alt: source?.alt ?? fallbackAlt,
+    alt,
     caption: source?.caption,
     lqip: source?.asset?.metadata?.lqip,
   };
@@ -125,7 +133,7 @@ const SETTINGS_QUERY = `*[_type == "siteSettings"][0]{
 /* SEO-Projektion: das optionale Teilen-Bild wird dereferenziert (asset->),
    damit resolveImage url + Dimensionen bekommt (sonst bliebe seo.image ein
    nackter Reference und das Per-Seite-OG-Bild käme nie an). */
-const SEO_PROJECTION = `seo{ title, description, noindex, image{ alt, caption, asset->{ url, metadata{ dimensions, lqip } } } }`;
+const SEO_PROJECTION = `seo{ title, description, noindex, image{ alt, caption, asset->{ url, originalFilename, metadata{ dimensions, lqip } } } }`;
 
 /* Die Sections-Projektion + Mapper leben in ./content/sections.ts - browser-
    sicher, weil die Live-Vorschau-Island dieselben Funktionen clientseitig
@@ -173,7 +181,7 @@ export async function fetchHome(): Promise<HomeContent> {
    die Subquery in SECTIONS_PROJECTION selbst ein). */
 const SERVICES_QUERY = `*[_type == "service"] | order(coalesce(order, 9999) asc, _id asc){
   "id": _id, name, formName, category, description,
-  image{ alt, caption, asset->{ url, metadata{ dimensions, lqip } } }
+  image{ alt, caption, asset->{ url, originalFilename, metadata{ dimensions, lqip } } }
 }`;
 
 export async function fetchServices(): Promise<ServiceItem[]> {

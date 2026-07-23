@@ -64,11 +64,6 @@ const jsonLdArray = [orgJsonLd, ...pageJsonLd];
     </script>
     <meta name="theme-color" content="#0C0C0C" />
     <meta name="color-scheme" content="dark" />
-    {/* Verbindung zum Sanity-Bild-CDN vorwaermen (DNS+TCP+TLS), damit das
-        Hero-LCP-Bild ohne Handshake-Verzoegerung laedt. Ohne crossorigin, weil
-        die <img>-Requests nicht als CORS laufen - sonst waere die vorgewaermte
-        Verbindung nicht wiederverwendbar. */}
-    <link rel="preconnect" href="https://cdn.sanity.io" />
     <link rel="icon" href="/favicon.png" type="image/png" />
     <link rel="apple-touch-icon" href="/apple-touch-icon.png" />
     <link
