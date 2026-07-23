@@ -20,6 +20,8 @@ const FORM_ACTION = 'https://form.taxi/s/vvg9bvd4';
         <h2 class="modal__heading" id="aio-modal-title">Bewerbung ALL-IN-ONE Coaching</h2>
 
         <form class="modal__form" data-aio-form method="POST" action={FORM_ACTION} novalidate>
+          <!-- Formular-Kennung für Form.Taxi (siehe CtaModal). -->
+          <input type="hidden" name="Formular" value="All-in-one-Coaching-Anfrage" />
           <div class="modal__field">
             <label class="modal__label" for="aio-name">Name</label>
             <input

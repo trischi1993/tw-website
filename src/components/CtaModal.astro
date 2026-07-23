@@ -38,6 +38,10 @@ const FORM_ACTION = 'https://form.taxi/s/vvg9bvd4';
           action={FORM_ACTION}
           novalidate
         >
+          <!-- Formular-Kennung für Form.Taxi: beide Modals senden an denselben
+               Endpunkt - ohne dieses Feld ist in der Benachrichtigung nicht
+               erkennbar, aus welchem Formular die Anfrage kam. -->
+          <input type="hidden" name="Formular" value="Allgemeine Coaching-Anfrage" />
           <div class="modal__field">
             <label class="modal__label" for="cta-name">Name</label>
             <input
