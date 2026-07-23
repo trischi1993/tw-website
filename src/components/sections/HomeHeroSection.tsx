@@ -54,7 +54,10 @@ export default function HomeHeroSection({
                 image={image}
                 loading="eager"
                 fetchPriority="high"
-                sizes="(max-width: 991px) 100vw, 60vw"
+                /* Desktop scrubbt das Bild von 40 auf 100vw. Auf Mobile liegt
+                   das 150% hohe Cover-Bild in einem quadratischen Frame und
+                   braucht wegen seines Querformats effektiv rund 200vw. */
+                sizes="(max-width: 991px) 200vw, 100vw"
               />
               <div className="hhero__wipe" data-hero-wipe="" aria-hidden="true" />
             </div>

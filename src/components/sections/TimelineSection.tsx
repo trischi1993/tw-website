@@ -179,7 +179,9 @@ export default function TimelineSection({
                         </div>
                       </div>
                       <div className="tl__media" data-timeline-media="">
-                        <Img image={item.image} sizes="100vw" />
+                        {/* Auf Mobile ist das Panel hoeher als breit. Das
+                            Querformat-Cover braucht dort effektiv rund 180vw. */}
+                        <Img image={item.image} sizes="(max-width: 479px) 180vw, 100vw" />
                         <div className="tl__overlay" aria-hidden="true" />
                       </div>
                     </div>
