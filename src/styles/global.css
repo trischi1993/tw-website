@@ -278,8 +278,10 @@ em, i { font-style: italic; }
   text-align: var(--alignment, left);
 }
 
-/* Heading element (Editor): Tag und Optik entkoppelt, Größen über .h-*. */
-.heading { color: var(--on-surface); }
+/* Heading element (Editor): Tag und Optik entkoppelt, Größen über .h-*.
+   text-wrap: balance gleicht die Zeilen aus (keine Einzelwort-Waisen); der
+   optionale Inline-Token (wrapStyle) übersteuert pro Überschrift weiterhin. */
+.heading { color: var(--on-surface); text-wrap: balance; }
 .h-sm  { font-size: var(--h-sm);  font-weight: 700; line-height: 1.375; }
 .h-md  { font-size: var(--h-md);  font-weight: 700; line-height: 1.3; letter-spacing: 0.01em; }
 .h-lg  { font-size: var(--h-lg);  font-weight: 500; line-height: 1.1875; }
@@ -288,7 +290,9 @@ em, i { font-style: italic; }
 .h-3xl { font-size: var(--h-3xl); font-weight: 300; line-height: 1.3;   letter-spacing: -0.01em; }
 .h-4xl { font-size: var(--h-4xl); font-weight: 300; line-height: 1.1;   letter-spacing: -0.03em; }
 
-.paragraph { line-height: var(--leading-body); color: var(--on-surface-body); }
+/* text-wrap: pretty gegen Einzelwort-Waisen in der letzten Zeile (für Fließtext
+   robuster als balance, das ab ~6 Zeilen aussetzt). */
+.paragraph { line-height: var(--leading-body); color: var(--on-surface-body); text-wrap: pretty; }
 .p-sm { font-size: var(--text-sm); }
 .p-md { font-size: var(--text-base); }
 .p-lg { font-size: var(--text-md); }
@@ -301,6 +305,7 @@ em, i { font-style: italic; }
   display: inline-block;
   font-weight: 600;
   color: var(--accent-fg);
+  text-wrap: balance;
 }
 
 /* CTA-Element-Varianten (Token-Kontrakt CTA_VARIANT_CLASS) */
