@@ -449,10 +449,11 @@ const FORM_ACTION = 'https://form.taxi/s/vvg9bvd4';
      Auswahl. Fokus ändert die Rahmenfarbe NICHT (wie Original).
 
      WICHTIG - jede Regel ist mit `.modal` gescoped: Choices' eigenes
-     Stylesheet wird per dynamischem Import ZUR LAUFZEIT nachgeladen, landet
-     also NACH diesem Block im <head> (dev wie prod). Bei gleicher Spezifität
-     gewänne sonst das später geladene Default-CSS (Tags würden Choices-Türkis
-     statt Gold). Der `.modal`-Präfix hebt die Spezifität über die Defaults -
+     Stylesheet wird in modals.ts statisch importiert (Prod: von Astro mit ins
+     HTML geinlined; dev: von Vite injiziert) - die Reihenfolge relativ zu
+     diesem Block ist dabei nicht garantiert. Bei gleicher Spezifität gewänne
+     ggf. das später geladene Default-CSS (Tags würden Choices-Türkis statt
+     Gold). Der `.modal`-Präfix hebt die Spezifität über die Defaults -
      unabhängig von der Ladereihenfolge. */
   .modal .choices {
     width: 100%;

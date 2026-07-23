@@ -7,11 +7,21 @@
    - A11y: Body-Scroll-Lock, `inert` auf dem Seitenrest, Fokus-Trap,
      Fokus-Rückgabe.
    - CTA-Formular: bedingte Radio-Logik (Service-Typ → Unternehmens-Typ →
-     Multiselect), Choices.js LAZY beim ersten Öffnen, Hidden-Sync
+     Multiselect), Choices.js-JS LAZY beim ersten Öffnen, Hidden-Sync
      `Coaching-Bereiche`, eigene Inline-Fehlermeldungen (#E05C5C).
    - Submit: fetch POST an Form.Taxi, Erfolg/Fehler inline
      (.w-form-done/-fail-Äquivalente).
    --------------------------------------------------------------------------- */
+
+// Choices-Stylesheet STATISCH importieren, nur das JS bleibt lazy. Ein
+// dynamischer CSS-Import bricht in Produktion: `inlineStylesheets: 'always'`
+// inlined das CSS beim Build in den <head> jeder Seite und verwirft die
+// Asset-Datei, der gebaute Chunk referenziert sie aber weiter (__vite__mapDeps)
+// → 404 beim ersten Modal-Öffnen → die Import-Promise wirft → Choices
+// initialisiert nie und das rohe <select multiple> bleibt stehen. Statisch
+// landet das CSS im selben Inline-<head> wie bisher (null Mehrgewicht), ohne
+// Laufzeit-Referenz.
+import 'choices.js/public/assets/styles/choices.min.css';
 
 type ModalKey = 'cta' | 'aio';
 
@@ -150,10 +160,7 @@ async function ensureChoices(modal: HTMLElement) {
   choicesReady = true;
   const selects = modal.querySelectorAll<HTMLSelectElement>('select[data-choices]');
   if (selects.length === 0) return;
-  const [{ default: Choices }] = await Promise.all([
-    import('choices.js'),
-    import('choices.js/public/assets/styles/choices.min.css'),
-  ]);
+  const { default: Choices } = await import('choices.js');
   selects.forEach((select) => {
     new Choices(select, {
       searchEnabled: true,
