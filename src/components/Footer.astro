@@ -198,9 +198,16 @@ const mailHref = `mailto:${contact.email}?subject=Hey%20Tristan`;
     margin-top: -1rem;
     margin-left: -0.5rem;
   }
-  /* Slogan auf zwei Zeilen umbrechen (Original: schmalerer Wrapper), Zeilen
-     ausbalanciert. */
-  .footer__claim { color: #d6d6d6; max-width: 16rem; text-wrap: balance; }
+  /* Feste Textbreite mit normalem, vorwärts füllendem Umbruch: So bleibt
+     „Südtirols erster Social Media“ in Zeile 1 und „Business Coach“ in Zeile 2.
+     `balance` würde beide Zeilen wieder auf ähnlich lange Wortgruppen verteilen
+     und dadurch „Social Media“ trennen. */
+  .footer__claim {
+    color: #d6d6d6;
+    inline-size: 16rem;
+    max-inline-size: 100%;
+    text-wrap: wrap;
+  }
   .footer__social-list {
     display: flex;
     align-items: center;

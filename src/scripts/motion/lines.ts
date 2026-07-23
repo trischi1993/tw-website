@@ -64,10 +64,18 @@ function build(entry: LineAnim): void {
       },
     },
   });
+  // WICHTIG: KEIN `ease` im stagger-Objekt. GSAP erzwingt sonst die
+  // Verteil-Ease auch als Per-Zeilen-Ease → jede Zeile fährt LINEAR mit
+  // konstantem Tempo hoch und stoppt abrupt (fühlt sich wie „Reinschlagen"
+  // an). Ohne stagger.ease greift die Tween-`ease` (power2.out) pro Zeile →
+  // jede Zeile läuft sanft aus. Die Verteilung der Startzeiten bleibt gleich
+  // (Default = gleichmäßig über `amount`). Das ist auch die vom Webflow-Autor
+  // ursprünglich gemeinte Wirkung (Kommentar „Power2.easeOut" im Original,
+  // der dort wegen dieses GSAP-Verhaltens nie ankam).
   tl.fromTo(
     entry.split.lines,
     { yPercent: 100 },
-    { yPercent: 0, duration: speed, delay, ease: 'power2.out', stagger: { amount, ease: 'none' } },
+    { yPercent: 0, duration: speed, delay, ease: 'power2.out', stagger: { amount } },
   );
   entry.tl = tl;
 }
