@@ -40,6 +40,11 @@ function studioLayout(props: LayoutProps) {
  */
 const projectId = process.env.SANITY_STUDIO_PROJECT_ID;
 const dataset = process.env.SANITY_STUDIO_DATASET || 'production';
+const previewUrl = process.env.SANITY_STUDIO_PREVIEW_URL || 'http://localhost:4321';
+const previewOrigins = [
+  'http://localhost:4321',
+  'https://tristanweithaler-preview.tristanweithaler.workers.dev',
+];
 
 const singletonSet = new Set<string>(SINGLETONS);
 
@@ -61,6 +66,9 @@ export default defineConfig({
      */
     presentationTool({
       resolve,
+      // Nur die beiden tatsächlich verwendeten Preview-Frontends freigeben.
+      // Sanity blockiert abweichende Origins bewusst für die Comlink-Verbindung.
+      allowOrigins: previewOrigins,
       /**
        * Seiten-Wechsler in der linken Spalte: feste Liste aller bearbeitbaren
        * Seiten (statt sich über die Website-Navigation oder die „verwendet
@@ -74,7 +82,7 @@ export default defineConfig({
         },
       },
       previewUrl: {
-        initial: process.env.SANITY_STUDIO_PREVIEW_URL || 'http://localhost:4321',
+        initial: previewUrl,
         previewMode: {
           enable: '/api/draft-mode/enable',
           disable: '/api/draft-mode/disable',
