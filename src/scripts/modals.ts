@@ -280,13 +280,16 @@ function wireSubmit(form: HTMLFormElement) {
     if (!validate(form)) return;
 
     // Gewählte Coaching-Bereiche (sichtbares Multiselect) → Hidden-Feld.
-    // Beide Selects liegen INNERHALB des äußeren data-conditional-Blocks -
-    // sichtbar ist nur das ohne [hidden]-Vorfahren (closest prüft alle Ebenen).
+    // Sichtbarkeit NUR über die eigenen Conditional-Blöcke bestimmen:
+    // Choices.js setzt `hidden` auf das originale <select> SELBST
+    // (WrappedElement.conceal) - ein pauschales closest('[hidden]') träfe
+    // deshalb jedes initialisierte Select und das Feld käme bei Form.Taxi
+    // immer leer an.
     const syncInput = form.querySelector<HTMLInputElement>('[data-choices-sync]');
     if (syncInput) {
       const visibleSelect = Array.from(
         form.querySelectorAll<HTMLSelectElement>('select[data-choices]'),
-      ).find((sel) => !sel.closest('[hidden]'));
+      ).find((sel) => !sel.closest('[data-conditional][hidden]'));
       syncInput.value = visibleSelect
         ? Array.from(visibleSelect.selectedOptions).map((o) => o.value).join(', ')
         : '';

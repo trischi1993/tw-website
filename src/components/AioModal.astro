@@ -57,10 +57,13 @@ const FORM_ACTION = 'https://form.taxi/s/vvg9bvd4';
           </div>
           <div class="modal__field">
             <label class="modal__label" for="aio-social">Social Media Link (falls vorhanden)</label>
+            <!-- Bewusst KLEIN geschrieben wie im CTA-Modal (Webflow-Original war
+                 hier „…-Falls-Vorhanden"): beide Formulare müssen bei Form.Taxi
+                 unter demselben Feldnamen ankommen. -->
             <input
               class="modal-input"
               id="aio-social"
-              name="Social-Media-Link-Falls-Vorhanden"
+              name="Social-Media-Link-falls-vorhanden"
               type="text"
               maxlength="256"
               placeholder="@Instagram…"
