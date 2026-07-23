@@ -10,6 +10,7 @@ export default function Img({
   image,
   className,
   sizes,
+  quality,
   loading = 'lazy',
   fetchPriority,
   style,
@@ -17,14 +18,22 @@ export default function Img({
   image?: SiteImage;
   className?: string;
   sizes?: string;
+  /** Optionale Sanity-Transform-Qualitaet fuer besonders prominente Bilder. */
+  quality?: number;
   loading?: 'lazy' | 'eager';
   fetchPriority?: 'high' | 'low' | 'auto';
   style?: React.CSSProperties;
 }) {
   if (!image) return null;
-  const src = image.kind === 'local' ? image.asset.src : image.src;
+  const sanitizedQuality =
+    quality === undefined ? undefined : Math.max(1, Math.min(100, Math.round(quality)));
+  const withQuality = (url?: string) =>
+    url && sanitizedQuality !== undefined
+      ? url.replace(/([?&])q=\d+/g, `$1q=${sanitizedQuality}`)
+      : url;
+  const src = image.kind === 'local' ? image.asset.src : withQuality(image.src);
   // srcset nur fuer Sanity-CDN-Bilder (lokale Assets sind einzelne Build-Dateien).
-  const srcSet = image.kind === 'remote' ? image.srcSet : undefined;
+  const srcSet = image.kind === 'remote' ? withQuality(image.srcSet) : undefined;
   const width = image.kind === 'local' ? image.asset.width : image.width;
   const height = image.kind === 'local' ? image.asset.height : image.height;
   return (

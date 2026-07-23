@@ -54,10 +54,13 @@ export default function HomeHeroSection({
                 image={image}
                 loading="eager"
                 fetchPriority="high"
+                quality={90}
                 /* Desktop scrubbt das Bild von 40 auf 100vw. Auf Mobile liegt
                    das 150% hohe Cover-Bild in einem quadratischen Frame und
-                   braucht wegen seines Querformats effektiv rund 200vw. */
-                sizes="(max-width: 991px) 200vw, 100vw"
+                   braucht wegen seines Querformats effektiv rund 200vw.
+                   200vw waehlt wie das Webflow-Original auch auf grossen
+                   Standard-Displays den groessten 2440px-Kandidaten. */
+                sizes="200vw"
               />
               <div className="hhero__wipe" data-hero-wipe="" aria-hidden="true" />
             </div>

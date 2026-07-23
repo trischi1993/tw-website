@@ -81,7 +81,7 @@ interface RawImage {
   asset?: { url?: string; metadata?: { dimensions?: { width: number; height: number }; lqip?: string } };
 }
 
-const MAX_W = 2400;
+const MAX_W = 2440;
 
 /* Responsive-Breiten-Leiter fuer Sanity-CDN-Bilder: deckt Handy (1x-3x DPR)
    bis Desktop-Retina ab. Auf die tatsaechliche (gekappte) Bildbreite geklemmt -

@@ -198,7 +198,7 @@ function num(v: unknown): number | undefined {
    - Seed liefert bereits fertige SiteImage-Objekte (`kind` gesetzt) → durchreichen.
    - Sanity liefert das dereferenzierte Asset → in ein remote-SiteImage übersetzen
      (CDN-URL mit Breiten-/Qualitäts-Parametern, wie resolveImage in sanity.ts). */
-const IMG_MAX_W = 2400;
+const IMG_MAX_W = 2440;
 
 /* Responsive-Breiten-Leiter (identisch zu resolveImage in sanity.ts): ohne
    srcset zieht der Browser immer die oberste w-Stufe - auf Mobile der
