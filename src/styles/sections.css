@@ -103,6 +103,11 @@
     height: auto;
     display: flex;
     flex-direction: column;
+    /* Basis-Regel setzt align-items:center fürs Desktop-Grid (vertikal). In der
+       Mobile-Flex-Column zentriert center aber die Cross-Achse (horizontal) und
+       schiebt den Content trotz margin-inline:5% in die Mitte - am schmalen
+       Portrait kaum sichtbar, im Querformat deutlich. flex-start = linksbündig. */
+    align-items: flex-start;
     row-gap: 4rem;
     padding-top: 7rem;
   }
@@ -227,6 +232,14 @@ html.has-motion .results__track { height: 200vh; }
   .results__trigger { margin-top: 90vh; }
   .results__title.is-outline { -webkit-text-stroke-width: 1px; }
 }
+/* Handy im Querformat: die 24/22rem hohen Karten (Portrait 2/3) sind höher als
+   der ~390-430px flache Viewport und werden oben/unten abgeschnitten. Höhen-Query
+   (KEINE Breiten-/Orientierungs-Heuristik) trifft ausschließlich flache Viewports:
+   Landscape-Phones ≤~430px → skaliert; Portrait-Phones ≥667px und Tablets ≥768px
+   (auch quer) bleiben unberührt, also kein Risiko winziger Karten im Normalbetrieb. */
+@media (max-height: 480px) {
+  .results__card { height: 78svh; }
+}
 
 /* ========================= Split-CTA (Text + Bild) ========================= */
 .split-cta__grid {
@@ -267,11 +280,17 @@ html.has-motion .results__track { height: 200vh; }
 @media (max-width: 991px) {
   .split-cta__grid { grid-template-columns: 1fr 1fr; column-gap: 3rem; }
   .split-cta.is-glow .split-cta__grid { padding-bottom: 6rem; }
-  .split-cta.is-plain .split-cta__grid { gap: 2rem; }
+  /* Spec: 991 → 1fr/1fr gap 2rem. Eigene is-plain-Regel (0,3,0), sonst gewinnt
+     die ungemedierte Basis .split-cta.is-plain .split-cta__grid (1.25fr/1fr). */
+  .split-cta.is-plain .split-cta__grid { grid-template-columns: 1fr 1fr; gap: 2rem; }
   .split-cta.is-plain .split-cta__buttons { margin-top: 1.5rem; }
 }
 @media (max-width: 767px) {
   .split-cta__grid { grid-template-columns: 1fr; row-gap: 3rem; }
+  /* Spec: 767/479 → 1 Spalte, Mockup unter dem Button. Eigene is-plain-Regel
+     (0,3,0), sonst überschreibt die ungemedierte Basis (1.25fr/1fr) den
+     Einspalter und das Mockup bleibt (gequetscht) neben dem Text. */
+  .split-cta.is-plain .split-cta__grid { grid-template-columns: 1fr; row-gap: 3rem; }
   .split-cta__body { margin-top: 1.25rem; }
   .split-cta.is-glow .split-cta__grid { padding-bottom: 4rem; }
   .split-cta.is-glow .split-cta__buttons { margin-top: 1.5rem; }
