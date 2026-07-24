@@ -674,10 +674,9 @@ html.has-motion .results__track { height: 200vh; }
 }
 .vhero__grid {
   display: grid;
-  /* Desktop-Textspalte breiter (1.4fr) als die Bildspalte, damit der lange
-     AIO-Intro-Text weniger umbricht. Tablet/Mobil überschreiben (≤991: 1.5fr/1fr,
-     ≤479: 1fr) → hier greift nur ≥992. */
-  grid-template-columns: 1.4fr 1fr;
+  /* Gleiche Spalten und Mittelachse wie der Über-mich-Hero: Das Video-Mockup
+     sitzt dadurch horizontal exakt dort, wo auf Über mich das Portrait sitzt. */
+  grid-template-columns: 1fr 1fr;
   column-gap: 9rem;
   row-gap: 4rem;
   align-items: center;
@@ -687,13 +686,10 @@ html.has-motion .results__track { height: 200vh; }
      als bei Über-mich. width:100% = volle Breite, Text bündig am 5vw-Rand. */
   width: 100%;
 }
-/* max-width an die breitere 1.4fr-Spalte angepasst (war 29rem → mehr Textbreite,
-   weniger Umbruch). Nur Desktop wirksam (≤991 setzt max-width:none). */
 .vhero__content { max-width: 34rem; }
 .vhero__content h1 { margin-bottom: 1rem; }
-/* Nur den Fließtext minimal schmaler halten; Headline und Button behalten die
-   volle Content-Breite. So beginnt „- 1:1 oder im Team.“ in einer neuen Zeile. */
-.vhero__intro { max-width: 33rem; color: var(--ink-2); font-size: var(--text-md); }
+/* Nur der Fließtext ist schmaler; Headline und Button behalten ihre Breite. */
+.vhero__intro { max-width: 28rem; color: var(--ink-2); font-size: var(--text-md); }
 .vhero__intro p + p { margin-top: 1.4em; }
 /* Original .hero_button-group: gap 1.5rem, overflow hidden (Load-Anim-Maske);
    Abstand = .margin-top.margin-large (3 / 2.5 / 1.5rem). */
