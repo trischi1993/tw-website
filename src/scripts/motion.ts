@@ -68,6 +68,25 @@ function init(): void {
   if (document.fonts?.ready) {
     document.fonts.ready.then(() => ScrollTrigger.refresh());
   }
+
+  // Laufzeit-Layoutänderungen (widgets.ts: FAQ öffnen, Tab wechseln,
+  // „weiterlesen", Testimonials nachladen) verschieben nachfolgende Inhalte und
+  // machen die once-Reveal-Trigger darunter stale → sie würden verfrüht feuern.
+  // `lp:layout-changed` lässt die Positionen neu vermessen. rAF-debounced, damit
+  // ein Interaktions-Burst nur EIN refresh() auslöst. Ohne Interaktion feuert
+  // der Listener nie → normales Scrollen bleibt unverändert. Zukunftssicher:
+  // jeder neue Code, der die Höhe ändert, muss nur dieses Event dispatchen.
+  // Nur bei aktivem Motion registriert (reduced-motion kehrt oben früh zurück →
+  // das Event ist dann ein folgenloser No-op).
+  let refreshQueued = false;
+  window.addEventListener('lp:layout-changed', () => {
+    if (refreshQueued) return;
+    refreshQueued = true;
+    requestAnimationFrame(() => {
+      refreshQueued = false;
+      ScrollTrigger.refresh();
+    });
+  });
 }
 
 init();

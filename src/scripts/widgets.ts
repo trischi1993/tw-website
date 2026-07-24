@@ -10,6 +10,16 @@ import { gsap } from 'gsap';
 const reduced = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
 const dur = (seconds: number) => (reduced ? 0 : seconds);
 
+/* Laufzeit-Layoutänderungen (FAQ öffnen, Tab wechseln, „weiterlesen",
+   Testimonials nachladen) verschieben alle nachfolgenden Inhalte. Dieses Signal
+   lässt das Motion-Bundle die Scroll-Trigger-Positionen neu vermessen, damit
+   noch nicht ausgelöste Reveals darunter nicht verfrüht feuern (motion.ts hört
+   auf `lp:layout-changed`). Entkoppelt & zukunftssicher: jeder künftige Code,
+   der die Höhe ändert, kann dasselbe Event dispatchen. */
+function notifyLayoutChanged(): void {
+  window.dispatchEvent(new Event('lp:layout-changed'));
+}
+
 /* --- FAQ-Accordion ([data-faq-*]) ------------------------------------------
    IX2 a-54/a-55 (Desktop ≥992): Antwort-Höhe 0 ↔ auto, 0.8 s power3.out.
    IX2 a-101/a-102 (≤991): zusätzlich fährt die Whipe-Fläche hinter der Frage
@@ -33,6 +43,7 @@ function toggleFaq(btn: HTMLElement): void {
       ease: 'power3.out',
       onComplete: () => {
         panel.hidden = true;
+        notifyLayoutChanged();
       },
     });
     if (whipe && faqMobile.matches) {
@@ -49,7 +60,12 @@ function toggleFaq(btn: HTMLElement): void {
     item.classList.add('is-open');
     btn.setAttribute('aria-expanded', 'true');
     panel.hidden = false;
-    gsap.fromTo(panel, { height: 0 }, { height: 'auto', duration: dur(0.8), ease: 'power3.out' });
+    gsap.fromTo(panel, { height: 0 }, {
+      height: 'auto',
+      duration: dur(0.8),
+      ease: 'power3.out',
+      onComplete: notifyLayoutChanged,
+    });
     if (whipe && faqMobile.matches) {
       whipe.hidden = false;
       gsap.fromTo(
@@ -80,6 +96,8 @@ function switchTab(btn: HTMLElement): void {
       gsap.fromTo(panel, { opacity: 0 }, { opacity: 1, duration: 0.35, ease: 'power1.out' });
     }
   });
+  // Panels unterschiedlicher Höhe verschieben nachfolgende Sections.
+  notifyLayoutChanged();
 }
 
 /* --- Read-More (lange Testimonial-Texte, Grenze wie im Original: 216) ------ */
@@ -101,6 +119,7 @@ function initReadMore(root: ParentNode = document): void {
     more.textContent = 'weiterlesen';
     more.addEventListener('click', () => {
       el.textContent = full;
+      notifyLayoutChanged();
     });
     el.appendChild(more);
   });
@@ -129,6 +148,8 @@ function loadMore(btn: HTMLElement): void {
   if (grid.querySelectorAll('[hidden]').length === 0) {
     (btn.closest<HTMLElement>('.reviews__more') ?? btn).remove();
   }
+  // Neu eingeblendete Karten verlängern die Seite → Trigger darunter neu messen.
+  notifyLayoutChanged();
 }
 
 /* --- Direktes HTML5-Video (Bunny MP4, ohne Drittanbieter-Player) ----------- */
