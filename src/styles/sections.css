@@ -674,13 +674,22 @@ html.has-motion .results__track { height: 200vh; }
 }
 .vhero__grid {
   display: grid;
-  grid-template-columns: 1fr 1fr;
+  /* Desktop-Textspalte breiter (1.4fr) als die Bildspalte, damit der lange
+     AIO-Intro-Text weniger umbricht. Tablet/Mobil überschreiben (≤991: 1.5fr/1fr,
+     ≤479: 1fr) → hier greift nur ≥992. */
+  grid-template-columns: 1.4fr 1fr;
   column-gap: 9rem;
   row-gap: 4rem;
   align-items: center;
-  max-width: 100%;
+  /* width:100% (wie .ahero__grid), NICHT nur max-width: sonst schrumpft das Grid
+     im Einspalter (≤479) auf Inhaltsbreite und wird von
+     .vhero__inner{justify-content:center} mittig gesetzt → Text säße weiter rechts
+     als bei Über-mich. width:100% = volle Breite, Text bündig am 5vw-Rand. */
+  width: 100%;
 }
-.vhero__content { max-width: 29rem; }
+/* max-width an die breitere 1.4fr-Spalte angepasst (war 29rem → mehr Textbreite,
+   weniger Umbruch). Nur Desktop wirksam (≤991 setzt max-width:none). */
+.vhero__content { max-width: 34rem; }
 .vhero__content h1 { margin-bottom: 1rem; }
 .vhero__intro { color: var(--ink-2); font-size: var(--text-md); }
 .vhero__intro p + p { margin-top: 1.4em; }
