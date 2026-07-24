@@ -26,7 +26,7 @@ export default defineType({
     richTextField({ initialText: 'Heading' }),
     levelField,
     headingSizeField,
-    textWrapField('balance'),
+    textWrapField('pretty'),
     maxWidthField('heading'), // kein Default → Auto (volle Breite)
     marginBottomField,
   ],

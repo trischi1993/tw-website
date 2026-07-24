@@ -37,7 +37,7 @@ function heading() {
     text: portableText('Heading'),
     level: 'h2',
     size: 'xl',
-    textWrap: 'balance',
+    textWrap: 'pretty',
   };
 }
 

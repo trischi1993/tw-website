@@ -691,7 +691,9 @@ html.has-motion .results__track { height: 200vh; }
    weniger Umbruch). Nur Desktop wirksam (≤991 setzt max-width:none). */
 .vhero__content { max-width: 34rem; }
 .vhero__content h1 { margin-bottom: 1rem; }
-.vhero__intro { color: var(--ink-2); font-size: var(--text-md); }
+/* Nur den Fließtext minimal schmaler halten; Headline und Button behalten die
+   volle Content-Breite. So beginnt „- 1:1 oder im Team.“ in einer neuen Zeile. */
+.vhero__intro { max-width: 33rem; color: var(--ink-2); font-size: var(--text-md); }
 .vhero__intro p + p { margin-top: 1.4em; }
 /* Original .hero_button-group: gap 1.5rem, overflow hidden (Load-Anim-Maske);
    Abstand = .margin-top.margin-large (3 / 2.5 / 1.5rem). */
@@ -1009,7 +1011,6 @@ html.has-motion .results__track { height: 200vh; }
    umbrechen. Unterscheidung über [data-route] auf <main> (BaseLayout). */
 .final-cta__content { max-width: var(--max-w-xs); }
 [data-route='all-in-one-coaching'] .final-cta__content { max-width: 46rem; }
-[data-route='all-in-one-coaching'] .final-cta__content h2 { text-wrap: balance; }
 .final-cta__content h2 { margin-bottom: 1.5rem; }
 .final-cta__content p { color: var(--ink-2); font-size: var(--text-md); }
 .final-cta__buttons { margin-top: 2rem; }
