@@ -1,22 +1,10 @@
-# ws-tristan — Astro-, Sanity- und Cloudflare-Website
-
-## Vor jeder Änderung lesen
-
-1. `docs/NEXT_SESSION.md` — jüngste operative Übergabe
-2. `docs/HANDOVER.md` — historische Entscheidungen und Referenzdetails
-3. `README.md` und bei Preview-Arbeiten zusätzlich
-   `docs/sanity-live-editing-architecture.md`
-
-`docs/HANDOVER.md` enthält ältere Zwischenstände mit bewusst rotem Build.
-Diese Passagen sind historisch; der aktuelle Repository- und Live-Stand hat
-Vorrang und muss vor Änderungen verifiziert werden.
+# ws-tristan — Astro-, Sanity- und Cloudflare-Website (migriert von Webflow tristan93.webflow.io)
 
 ## Aktueller technischer Stand
 
 - Astro-Build, TypeScript und Sanity-Schema sind grün.
 - GitHub-Branch: `main` im Repository `trischi1993/tw-website`.
-- Cloudflare Worker: `tristanweithaler-prod`; die Hauptdomain zeigt bis zur
-  ausdrücklich freigegebenen DNS-Umstellung weiterhin auf Webflow.
+- Cloudflare Worker: `tristanweithaler-prod`; die Website ist live.
 - Sanity-Projekt: `45zc9nhz`, Dataset: `production`.
 - Sanity Studio: `https://tristanweithaler.sanity.studio`.
 - Veröffentlichte CMS-Bilder und die fünf AIO-Video-Standbilder werden über
@@ -32,7 +20,7 @@ Vorrang und muss vor Änderungen verifiziert werden.
 - Dateien immer explizit stagen; niemals pauschal `git add .` verwenden.
 - Commits enthalten ausschließlich die Änderungen des aktuellen Auftrags.
 - Für Git und GitHub native Terminal-Befehle verwenden. Composio oder andere
-  GitHub-Connectoren niemals als Git-Fallback einsetzen. Falls native
+  GitHub-Connectoren niemals als Git-Fallback einsetzen ausser sinnvoll und freigegeben. Falls native
   Authentifizierung fehlschlägt, stoppen und den Nutzer informieren.
 - Template-Plumbing für Sanity Preview, Click-to-edit, CSP und die zwei
   Cloudflare-Builds nur bei einem ausdrücklich darauf bezogenen Auftrag ändern.
@@ -40,5 +28,4 @@ Vorrang und muss vor Änderungen verifiziert werden.
 - Neue Sections halten den dokumentierten Vertrag synchron:
   `types.ts` ↔ `sections.ts` ↔ Studio-Schema ↔ `SectionsList` ↔
   `shared/editor-blocks.ts` ↔ `insertables.ts`.
-- Webflow dient nur als historische Designreferenz. Keine neuen
-  Webflow-Abhängigkeiten oder Webflow-CDN-URLs einführen.
+- Der Repo-Inhaber Tristan ist kein Developer und hat das Projekt übernommen, nicht selbst gebaut. Er wird mit AI-Unterstützung Änderungen vornehmen. Verstehe seine Prompts pragmatisch, setze sie zuverlässig um und antworte klar, prägnant und ohne unnötigen Fachjargon.

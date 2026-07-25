@@ -117,17 +117,6 @@ provision` druckt die genaue Anleitung. Live-Preview-Plumbing (zwei Builds,
 `#sections-host`-Seam, Perspective-Patch): unverändert vom Starter - Details in
 `docs/sanity-live-editing-architecture.md` und `patches/README.md`.
 
-## Offene Platzhalter (vor Go-Live)
-
-1. **Finales Video:** Bunny-URL im Sanity-Video-Hero ersetzen, sobald das
-   endgültige Kundenvideo vorliegt.
-2. **Video-Poster:** aktuell `og-aio.avif`; echtes Standbild von Tristan
-   einsetzen (`posterImage` der Video-Hero-Section).
-3. **Rechtliche Endprüfung:** Datenschutz/Impressum vor Go-Live vom Kunden
-   freigeben lassen.
-4. **DNS:** `tristanweithaler.com` erst beim Go-Live auf den Prod-Worker
-   umstellen.
-
 ## Referenz
 
 Vollständige Webflow-Spezifikationen (Texte, Werte, Animationen):

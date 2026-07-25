@@ -7,9 +7,8 @@ Auftrag relevanten, dort verlinkten Übergabe- und Architekturdokumente lesen.
 Zusätzlich gilt für Codex:
 
 - Git- und GitHub-Operationen ausschließlich mit nativen Terminal-Befehlen
-  ausführen; Composio niemals als Git-Fallback verwenden.
-- Bei fehlender nativer GitHub-Authentifizierung stoppen und den Nutzer um
-  Anmeldung bitten.
+  ausführen; Composio niemals als Git-Fallback verwenden ausser sinnvoll und ausdrücklich befohlen.
 - Wegen möglicher paralleler Sessions vor dem Staging erneut `git status`
   prüfen und nur ausdrücklich zum aktuellen Auftrag gehörende Dateien stagen
   und committen.
+- Der Repo-Inhaber Tristan ist kein Developer und hat das Projekt übernommen, nicht selbst gebaut. Er wird mit AI-Unterstützung Änderungen vornehmen. Verstehe seine Prompts pragmatisch, setze sie zuverlässig um und antworte klar, prägnant und ohne unnötigen Fachjargon.
