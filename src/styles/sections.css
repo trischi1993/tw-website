@@ -147,6 +147,12 @@
    Karten leicht gefächert (nth-child-Rotationen, wie Webflow-Basiszustand).
    Der Scrub läuft über .results__trigger (unteres 100vh-Fenster der Strecke,
    wie .results_ix-trigger im Original). */
+.results {
+  /* Bei flachen Viewports kann der Scrub dem Scrollen kurz hinterherlaufen.
+     An der Section-Grenze dürfen die Karten trotzdem nicht über den direkt
+     folgenden Inhalt zeichnen. clip erhält das Sticky-Verhalten. */
+  overflow: clip;
+}
 .results__track { position: relative; }
 html.has-motion .results__track { height: 200vh; }
 .results__trigger {
