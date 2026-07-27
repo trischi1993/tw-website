@@ -69,6 +69,21 @@ function init(): void {
     document.fonts.ready.then(() => ScrollTrigger.refresh());
   }
 
+  /* `ignoreMobileResize` verhindert absichtlich Refreshes beim Ein-/Ausblenden
+     der mobilen Browserleisten. Ein echter Orientierungswechsel muss dagegen
+     neu vermessen werden: iOS aktualisiert vw/vh/svh und Sticky-Grenzen dabei
+     in mehreren Schritten. Der doppelte rAF greift das neue CSS-Layout auf,
+     der zweite Refresh den anschließend stabilisierten Visual Viewport. */
+  const portrait = window.matchMedia('(orientation: portrait)');
+  let orientationRefreshTimer: number | undefined;
+  portrait.addEventListener('change', () => {
+    requestAnimationFrame(() => {
+      requestAnimationFrame(() => ScrollTrigger.refresh());
+    });
+    if (orientationRefreshTimer !== undefined) window.clearTimeout(orientationRefreshTimer);
+    orientationRefreshTimer = window.setTimeout(() => ScrollTrigger.refresh(), 600);
+  });
+
   // Laufzeit-Layoutänderungen (widgets.ts: FAQ öffnen, Tab wechseln,
   // „weiterlesen", Testimonials nachladen) verschieben nachfolgende Inhalte und
   // machen die once-Reveal-Trigger darunter stale → sie würden verfrüht feuern.
