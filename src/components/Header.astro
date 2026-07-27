@@ -157,11 +157,10 @@ const menuItems = [{ label: 'Startseite', href: '/' }, ...settings.nav];
   .navbar__logo-word.is-1 { padding-right: 0.625rem; }
   .navbar__logo-word.is-2 { padding-left: 0.75rem; }
   .navbar__logo-text {
-    display: inline-block;
+    display: block;
     color: var(--ink);
     font-size: 1.5rem;
     font-weight: 500;
-    line-height: 1.1;
     white-space: nowrap;
   }
   .navbar__logo-line {
@@ -293,7 +292,7 @@ const menuItems = [{ label: 'Startseite', href: '/' }, ...settings.nav];
   }
   @media (max-width: 767px) {
     .navbar__logo.is-desktop { display: none; }
-    .navbar__logo.is-mobile { display: inline-flex; }
+    .navbar__logo.is-mobile { display: inline-flex; height: 3rem; }
     .navbar__logo-word.is-1 { padding-right: 0.25rem; }
     .navbar__logo-word.is-2 { padding-left: 0.25rem; }
     .navbar__logo.is-mobile .navbar__logo-line { background: var(--brand); }
