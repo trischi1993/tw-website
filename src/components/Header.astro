@@ -293,11 +293,18 @@ const menuItems = [{ label: 'Startseite', href: '/' }, ...settings.nav];
   }
   @media (max-width: 767px) {
     .navbar__logo.is-desktop { display: none; }
-    .navbar__logo.is-mobile { display: inline-flex; }
-    .navbar__logo-word.is-1 { padding-right: 0.25rem; }
-    .navbar__logo-word.is-2 { padding-left: 0.25rem; }
-    /* Original .navbar_logo-line.black: helleres Bronze für die T|W-Marke. */
-    .navbar__logo.is-mobile .navbar__logo-line { background: var(--logo-line); }
+    .navbar__logo.is-mobile {
+      display: inline-grid;
+      grid-template-columns: 1.5rem 1.75px 1.5rem;
+      align-items: center;
+      column-gap: 0.25rem;
+    }
+    .navbar__logo.is-mobile .navbar__logo-word {
+      display: flex;
+      justify-content: center;
+      padding: 0;
+    }
+    .navbar__logo.is-mobile .navbar__logo-line { background: var(--brand); }
   }
   @media (max-width: 479px) {
     /* Original: ≤479 ist die Wortmarke komplett ausgeblendet. */
