@@ -48,7 +48,7 @@
 }
 .hhero__h1 { line-height: 1.2; }
 .hhero__h1-small {
-  display: block;
+  display: inline;
   font-size: var(--hero-h1-span);
   font-weight: 300;
   line-height: 1.4;

@@ -39,6 +39,7 @@ export default function HomeHeroSection({
               <span className="hhero__h1-small" {...edit?.(`${path}.headingSmall`)}>
                 {headingSmall}
               </span>
+              <br />
               <span {...edit?.(`${path}.headingLarge`)}>{headingLarge}</span>
             </h1>
             <div className="hhero__buttons button-group">
