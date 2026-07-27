@@ -1,5 +1,5 @@
 import { SplitText } from 'gsap/SplitText';
-import { gsap } from './util';
+import { gsap, ScrollTrigger } from './util';
 
 gsap.registerPlugin(SplitText);
 
@@ -28,11 +28,84 @@ const DELAY_AFTER_DOM_MS = 150;
 // Nach dem letzten Resize-Event warten, bevor neu gesplittet wird (bündelt das
 // Ziehen; verhindert Flackern/Re-Reveal auf jedem Zwischenschritt).
 const RESIZE_DEBOUNCE_MS = 200;
+// Der lange Statement-Absatz erzeugt auf kleinen Displays deutlich mehr
+// SplitText-Zeilen als der Hero. iOS Safari muss beim Scrollen sonst alle
+// Transform-Tweens auf dem Haupt-Thread nachfuehren. Die Web Animations API
+// kann die reine Transform-Animation direkt auf dem Compositor abspielen.
+const MOBILE_STATEMENT = '(max-width: 767px)';
+const POWER2_OUT_CSS = 'cubic-bezier(0.215, 0.61, 0.355, 1)';
+
+interface NativeLineAnim {
+  line: HTMLElement;
+  animation: Animation;
+}
 
 interface LineAnim {
   el: HTMLElement;
   split?: SplitText;
   tl?: gsap.core.Timeline;
+  trigger?: ReturnType<typeof ScrollTrigger.create>;
+  nativeLines?: NativeLineAnim[];
+}
+
+function buildNativeMobile(
+  entry: LineAnim,
+  lines: HTMLElement[],
+  speed: number,
+  delay: number,
+  amount: number,
+  replay: boolean,
+): void {
+  const lastIndex = Math.max(1, lines.length - 1);
+  const startTransform = 'translate3d(0, 100%, 0)';
+  const endTransform = 'translate3d(0, 0, 0)';
+  let hasPlayed = false;
+
+  // Bis zum Trigger in der Zeilenmaske verstecken, aber noch keine Layer fuer
+  // den weit unterhalb des Hero liegenden Absatz reservieren.
+  lines.forEach((line) => {
+    line.style.transform = startTransform;
+  });
+
+  const play = () => {
+    entry.nativeLines?.forEach(({ animation }) => animation.cancel());
+    entry.nativeLines = lines.map((line, index) => {
+      line.style.willChange = 'transform';
+      line.style.backfaceVisibility = 'hidden';
+      const animation = line.animate(
+        [{ transform: startTransform }, { transform: endTransform }],
+        {
+          duration: speed * 1000,
+          // Der bestehende 0,2-s-Delay gibt Safari Zeit, die Layer vor dem
+          // ersten bewegten Frame vorzubereiten.
+          delay: (delay + (amount * index) / lastIndex) * 1000,
+          easing: POWER2_OUT_CSS,
+          fill: 'both',
+        },
+      );
+      animation.onfinish = () => {
+        // Den Endzustand ohne dauerhaft aktive Animation/Compositor-Layer halten.
+        line.style.transform = endTransform;
+        line.style.removeProperty('will-change');
+        line.style.removeProperty('backface-visibility');
+        animation.cancel();
+      };
+
+      return { line, animation };
+    });
+  };
+
+  entry.trigger = ScrollTrigger.create({
+    trigger: entry.el,
+    start: 'top bottom',
+    end: 'bottom bottom',
+    onEnter: () => {
+      if (replay || !hasPlayed) {
+        hasPlayed = true;
+        play();
+      }
+    },
+  });
 }
 
 function build(entry: LineAnim): void {
@@ -53,6 +126,19 @@ function build(entry: LineAnim): void {
   });
 
   gsap.set(el, { autoAlpha: 1 });
+  const lines = entry.split.lines as HTMLElement[];
+
+  // Nur der lange mobile Statement-Absatz braucht den nativen Compositor-Pfad.
+  // Der kurze Hero und groessere Breakpoints behalten das GSAP-Original.
+  if (
+    el.classList.contains('value-stmt__text') &&
+    window.matchMedia(MOBILE_STATEMENT).matches &&
+    typeof lines[0]?.animate === 'function'
+  ) {
+    buildNativeMobile(entry, lines, speed, delay, amount, replay);
+    return;
+  }
+
   const tl = gsap.timeline({
     scrollTrigger: {
       trigger: el,
@@ -73,7 +159,7 @@ function build(entry: LineAnim): void {
   // ursprünglich gemeinte Wirkung (Kommentar „Power2.easeOut" im Original,
   // der dort wegen dieses GSAP-Verhaltens nie ankam).
   tl.fromTo(
-    entry.split.lines,
+    lines,
     { yPercent: 100 },
     { yPercent: 0, duration: speed, delay, ease: 'power2.out', stagger: { amount } },
   );
@@ -81,9 +167,14 @@ function build(entry: LineAnim): void {
 }
 
 function rebuild(entry: LineAnim): void {
+  entry.trigger?.kill();
+  entry.nativeLines?.forEach(({ animation }) => animation.cancel());
   entry.tl?.scrollTrigger?.kill();
   entry.tl?.kill();
   entry.split?.revert();
+  entry.trigger = undefined;
+  entry.nativeLines = undefined;
+  entry.tl = undefined;
   build(entry);
 }
 
