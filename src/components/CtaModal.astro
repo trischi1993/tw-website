@@ -206,8 +206,8 @@ const FORM_ACTION = 'https://form.taxi/s/vvg9bvd4';
         >
           <h3>Vielen Dank für Deine Anfrage!</h3>
           <p>
-            Ich habe Deine Nachricht erhalten und melde mich innerhalb der nächsten 48 Stunden per
-            E-Mail bei Dir.
+            Ich habe Deine Nachricht erhalten und melde mich innerhalb der nächsten 48 Stunden
+            persönlich per E-Mail bei Dir.
           </p>
           <p>
             P.S. Bitte überprüfe auch Deinen Spam-Ordner, sollte meine Nachricht dort gelandet sein.
@@ -435,6 +435,9 @@ const FORM_ACTION = 'https://form.taxi/s/vvg9bvd4';
   .modal__success h3 { margin-bottom: 0.5rem; }
   .modal__success p { color: var(--ink-2); }
   .modal__success p + p { margin-top: 1rem; }
+  @media (max-width: 767px) {
+    .modal__success h3 { margin-bottom: 1rem; }
+  }
   .modal__fail {
     margin-top: 1.5rem;
     padding: 0.75rem 1rem;
