@@ -11,8 +11,31 @@
 html {
   -webkit-text-size-adjust: 100%;
   text-size-adjust: 100%;
-  scroll-behavior: smooth;
   -webkit-tap-highlight-color: transparent;
+}
+
+/* Normale Anker-Klicks innerhalb der bereits geladenen Seite bleiben weich.
+   Bei einem neuen Dokument mit Fragment übernimmt dagegen die Seitenblende;
+   der Browser darf dahinter ohne sichtbare Fahrt direkt zum Ziel springen. */
+html:not(.has-initial-hash) { scroll-behavior: smooth; }
+
+/* Webflow-artige Seitenblende für dokumentübergreifende Fragment-Links. Das
+   echte Dokument (insbesondere das Fragmentziel) bleibt vollständig sichtbar
+   und unverändert hinter der Blende, damit der Browser seine native
+   Fragmentnavigation einmalig abschließen kann. Die Navbar bleibt wie im
+   bisherigen Übergang darüber sichtbar. */
+html.has-initial-hash body::before {
+  content: '';
+  position: fixed;
+  z-index: 498;
+  inset: 0;
+  background: var(--paper);
+  pointer-events: none;
+  opacity: 1;
+}
+html.has-initial-hash.initial-hash-ready body::before {
+  opacity: 0;
+  transition: opacity 180ms var(--ease-smooth);
 }
 
 body {

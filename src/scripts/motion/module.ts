@@ -1,4 +1,4 @@
-import { gsap, EASE, onEnterOnce } from './util';
+import { gsap, EASE, onEnterOnce, type EnterOnceTrigger } from './util';
 
 /* ---------------------------------------------------------------------------
    Modul-Sections der AIO-Seite (5× Modul + „Deine Resultate").
@@ -15,7 +15,16 @@ import { gsap, EASE, onEnterOnce } from './util';
    data-anim="reveal" (motion/reveals.ts).
    --------------------------------------------------------------------------- */
 
-export function init(_mm: gsap.MatchMedia): void {
+const titleTriggers: EnterOnceTrigger[] = [];
+let initialized = false;
+
+function initTitles(): void {
+  titleTriggers.splice(0).forEach((trigger) => trigger.kill());
+  const titleParts = document.querySelectorAll<HTMLElement>(
+    '[data-module-title-text], [data-module-title-line], [data-module-title-number]',
+  );
+  gsap.killTweensOf(titleParts);
+
   // a-75 - Titel-Choreo
   document.querySelectorAll<HTMLElement>('[data-module-title]').forEach((row) => {
     const offset = parseFloat(row.dataset.offset ?? '16');
@@ -27,12 +36,32 @@ export function init(_mm: gsap.MatchMedia): void {
     if (line.length) gsap.set(line, { xPercent: -101 });
     if (num.length) gsap.set(num, { xPercent: 101 });
 
-    onEnterOnce(row, offset, () => {
-      if (text.length) gsap.to(text, { yPercent: 0, duration: 0.85, ease: EASE.inOutQuart });
-      if (line.length) gsap.to(line, { xPercent: 0, duration: 0.75, delay: 0.25, ease: EASE.outQuart });
-      if (num.length) gsap.to(num, { xPercent: 0, duration: 0.6, delay: 0.6, ease: EASE.inOutQuart });
-    });
+    titleTriggers.push(
+      onEnterOnce(row, offset, () => {
+        if (text.length)
+          gsap.to(text, { yPercent: 0, duration: 0.85, ease: EASE.inOutQuart });
+        if (line.length)
+          gsap.to(line, {
+            xPercent: 0,
+            duration: 0.75,
+            delay: 0.25,
+            ease: EASE.outQuart,
+          });
+        if (num.length)
+          gsap.to(num, {
+            xPercent: 0,
+            duration: 0.6,
+            delay: 0.6,
+            ease: EASE.inOutQuart,
+          });
+      }),
+    );
   });
+}
+
+export function init(_mm: gsap.MatchMedia): void {
+  initialized = true;
+  initTitles();
 
   // a-71 - Banner-Scrub
   document.querySelectorAll<HTMLElement>('[data-module-scrub]').forEach((part) => {
@@ -48,4 +77,11 @@ export function init(_mm: gsap.MatchMedia): void {
       },
     );
   });
+}
+
+/** Setzt nur die einmalige Titel-Choreo zurück; der Banner-Scrub wird durch
+ * den anschließenden globalen ScrollTrigger.refresh() korrekt neu vermessen. */
+export function restartEntrances(): void {
+  if (!initialized) return;
+  initTitles();
 }

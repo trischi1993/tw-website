@@ -12,10 +12,12 @@ import { EASE, gsap } from './util';
    --------------------------------------------------------------------------- */
 
 const LOGO_LINE_HEIGHT = '2rem'; // Header.astro: .navbar__logo-line { height: 2rem }
+let replayHomeLoad: (() => void) | undefined;
 
 export function init(_mm: gsap.MatchMedia): void {
   const hero = document.querySelector<HTMLElement>('[data-home-hero]');
   if (!hero) return;
+  const initialHashNavigation = document.documentElement.classList.contains('has-initial-hash');
 
   const buttonGroups = document.querySelectorAll<HTMLElement>('.button-group');
   const logoLines = document.querySelectorAll<HTMLElement>('[data-nav-logo-line]');
@@ -35,14 +37,24 @@ export function init(_mm: gsap.MatchMedia): void {
     nl.forEach((el) => el.setAttribute('data-revealed', '')),
   );
 
-  // GROUP 0 - Initialzustände (im Original als Inline-Styles gebacken)
-  gsap.set(buttonGroups, { opacity: 0, x: 40 });
-  gsap.set(logoLines, { height: 0 });
-  gsap.set(logoText1, { xPercent: 140 });
-  gsap.set(logoText2, { xPercent: -140 });
-  gsap.set(navRight, { opacity: 0, x: '2.5rem' });
-  gsap.set(wipe, { width: '100%', height: '100%' });
-  gsap.set(scrollWrap, { opacity: 0 });
+  const reset = () => {
+    // GROUP 0 - Initialzustände (im Original als Inline-Styles gebacken)
+    gsap.set(buttonGroups, { opacity: 0, x: 40 });
+    gsap.set(logoLines, { height: 0 });
+    gsap.set(logoText1, { xPercent: 140 });
+    gsap.set(logoText2, { xPercent: -140 });
+    gsap.set(navRight, { opacity: 0, x: '2.5rem' });
+    gsap.set(wipe, { width: '100%', height: '100%' });
+    gsap.set(scrollWrap, { opacity: 0 });
+  };
+
+  const stop = () => {
+    [buttonGroups, logoLines, logoText1, logoText2, navRight, wipe, scrollWrap].forEach(
+      (targets) => gsap.killTweensOf(targets),
+    );
+  };
+
+  reset();
 
   const play = () => {
     // GROUP 1 - Delays/Dauern/Easings aus a-105, global gestrafft: DELAY_SCALE
@@ -51,8 +63,12 @@ export function init(_mm: gsap.MatchMedia): void {
     // ihm. DUR_SCALE kürzt die Dauern nur einen Hauch. Beide skalieren ALLE
     // Werte gleich → Verhältnisse/Überlappungen bleiben erhalten. Zum Feintunen
     // (nach visuellem Review) genügen diese zwei Zahlen; d()/t()-Arg = Original.
-    const DELAY_SCALE = 0.3;
-    const DUR_SCALE = 0.9;
+    // Beim Einstieg über einen Startseiten-Anker entspricht das ungekürzte
+    // Timing der alten Webflow-Seite: Überschrift/FAQ beginnen zuerst, der CTA
+    // folgt bewusst verzögert. Beim normalen Startseitenaufruf bleibt die
+    // bereits abgestimmte, kompaktere Variante unverändert.
+    const DELAY_SCALE = initialHashNavigation ? 1 : 0.3;
+    const DUR_SCALE = initialHashNavigation ? 1 : 0.9;
     const d = (s: number) => s * DELAY_SCALE;
     const t = (s: number) => s * DUR_SCALE;
     gsap.to(logoLines, {
@@ -71,9 +87,25 @@ export function init(_mm: gsap.MatchMedia): void {
     gsap.to(scrollWrap, { opacity: 1, delay: d(2), duration: t(0.7), ease: EASE.outQuart });
   };
 
+  // Webflow startet PAGE_FINISH nach einem Media-Key-Wechsel erneut. Da
+  // `.button-group` ein Seiten-Selektor ist, betrifft das ausdrücklich auch
+  // den Button „Zum kostenlosen Erfolgs-Check" weiter unten auf der Seite.
+  replayHomeLoad = () => {
+    stop();
+    reset();
+    play();
+  };
+
   if (document.readyState === 'complete') {
     play();
   } else {
     window.addEventListener('load', play, { once: true });
   }
+}
+
+export function restart(): void {
+  // Vor PAGE_FINISH würde der bestehende load-Listener denselben Ablauf ein
+  // zweites Mal starten. Ein echter Handy-Wechsel nach dem Laden ist sicher.
+  if (document.readyState !== 'complete') return;
+  replayHomeLoad?.();
 }

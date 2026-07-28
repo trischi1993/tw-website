@@ -1,18 +1,16 @@
 /**
- * Korrigiert dokumentübergreifende Fragment-Navigation, nachdem Motion,
- * Schriften und Medien ihre endgültigen Layoutgrößen gesetzt haben.
- *
- * Der Browser springt bei `/#fragment` bereits während des HTML-Parsens.
- * Anschließend vergrößert ScrollTrigger auf der Startseite vorausgehende
- * Scroll-Strecken; ohne Nachjustierung liegt das Ziel dadurch gelegentlich
- * außerhalb des Viewports. Gleichseitige Anchor-Klicks bleiben nativ und
- * behalten das gewünschte Smooth-Scrolling.
+ * Richtet ein Fragment nach dem Aufbau von Motion, Widgets, Schriften und
+ * Medien genau einmal neu aus. Der Browser darf seine native Fragment-
+ * Navigation zuvor normal abschließen; danach bleiben URL, History und die ID
+ * des Ziels unangetastet.
  */
 
 export {};
 
+const root = document.documentElement;
+
 function initialHashTarget(): HTMLElement | null {
-  const raw = window.location.hash.slice(1);
+  const raw = (root.dataset.initialHash ?? window.location.hash).slice(1);
   if (!raw) return null;
 
   try {
@@ -22,34 +20,59 @@ function initialHashTarget(): HTMLElement | null {
   }
 }
 
+const clearInitialHashState = () => {
+  delete root.dataset.initialHash;
+  root.classList.remove('has-initial-hash', 'initial-hash-ready');
+};
+
 const target = initialHashTarget();
 
-if (target) {
+if (target && root.classList.contains('has-initial-hash')) {
   const jumpToTarget = () => {
-    const root = document.documentElement;
     const previousBehavior = root.style.scrollBehavior;
-
-    // Die Nachkorrektur soll nicht als zweite sichtbare Smooth-Animation
-    // ablaufen. scroll-margin-top am Ziel bleibt via scrollIntoView erhalten.
     root.style.scrollBehavior = 'auto';
     target.scrollIntoView({ block: 'start', inline: 'nearest' });
     root.style.scrollBehavior = previousBehavior;
   };
 
-  const afterLayout = () => {
-    requestAnimationFrame(() => requestAnimationFrame(jumpToTarget));
-  };
+  const pageLoaded = document.readyState === 'complete'
+    ? Promise.resolve()
+    : new Promise<void>((resolve) =>
+        window.addEventListener('load', () => resolve(), { once: true }),
+      );
+  const fontsReady = document.fonts?.ready.then(
+    () => undefined,
+    () => undefined,
+  ) ?? Promise.resolve();
+  // Mobile Browser führen ihre native Fragment-Wiederherstellung teils erst
+  // einige Frames nach `load` aus. Vorher dagegen zu scrollen erzeugt zwei
+  // konkurrierende Zielpositionen und kann beim ersten Touch erneut springen.
+  const nativeFragmentReady = new Promise<void>((resolve) =>
+    window.setTimeout(resolve, 500),
+  );
 
-  afterLayout();
+  Promise.all([pageLoaded, fontsReady, nativeFragmentReady]).then(() => {
+    // Zuerst die für Überschrift/FAQ zurückgehaltenen Reveal-Trigger anlegen.
+    // Ihre interne Neuberechnung läuft dadurch noch hinter der Blende ab.
+    window.dispatchEvent(new Event('lp:initial-hash-ready'));
 
-  if (document.readyState === 'complete') {
-    afterLayout();
-  } else {
-    window.addEventListener('load', afterLayout, { once: true });
-  }
+    requestAnimationFrame(() => {
+      // Der verdeckte Sprung stößt bei einem Reload auch die noch ausstehende
+      // native Fragment-Wiederherstellung an. Deren Ergebnis ist die normale
+      // Browser-Ankerposition und wird anschließend nicht mehr überschrieben.
+      jumpToTarget();
 
-  document.fonts?.ready.then(afterLayout);
-  window.addEventListener('pageshow', (event) => {
-    if (event.persisted) afterLayout();
+      window.setTimeout(() => {
+        // Erst in der stabilen nativen Position die Blende öffnen. Ab hier
+        // findet kein weiterer Scroll statt.
+        root.classList.add('initial-hash-ready');
+
+        // Nach dem Ausblenden der Seitenblende ist die Sonderbehandlung
+        // vollständig beendet. Es bleibt kein Scroll-/Lifecycle-Listener aktiv.
+        window.setTimeout(clearInitialHashState, 250);
+      }, 100);
+    });
   });
+} else {
+  clearInitialHashState();
 }

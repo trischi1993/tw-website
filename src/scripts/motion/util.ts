@@ -39,9 +39,100 @@ export const BP = {
 
 export const FINE_POINTER = '(hover: hover) and (pointer: fine)';
 
-/** IX2 SCROLL_INTO_VIEW: Offset % vom unteren Viewportrand, spielt einmalig. */
-export function onEnterOnce(el: Element, offsetPct: number, onEnter: () => void): void {
-  ScrollTrigger.create({ trigger: el, start: `top ${100 - offsetPct}%`, once: true, onEnter });
+const ENTER_ONCE_CHECK_EVENT = 'lp:enter-once-check';
+
+/** Prüft noch nicht ausgelöste IX2-Entrances erneut, sobald ein mobiler
+ * Viewport nach einer Drehung seine endgültigen Maße erreicht hat. */
+export function refreshEnterOnce(): void {
+  window.dispatchEvent(new Event(ENTER_ONCE_CHECK_EVENT));
+}
+
+/**
+ * IX2 SCROLL_INTO_VIEW: Der um den Offset verkleinerte Viewport wird aus
+ * BEIDEN Scrollrichtungen betreten. Die Action spielt pro Initialisierung nur
+ * einmal. Wie Webflow prüfen wir das Elementrechteck erst ab readyState
+ * `complete` und danach bei Scroll-/Viewport-Ereignissen. Das ist wichtig bei
+ * einem Reload mitten auf der Seite: Der Browser stellt die alte Scrollposition
+ * erst während des Ladens wieder her; oberhalb liegende Elemente dürfen davor
+ * nicht irrtümlich als bereits sichtbar/abgespielt markiert werden.
+ */
+export interface EnterOnceTrigger {
+  kill(): void;
+}
+
+export function onEnterOnce(
+  el: Element,
+  offsetPct: number,
+  onEnter: () => void,
+): EnterOnceTrigger {
+  let stopped = false;
+  let cleanup = () => {};
+
+  const enter = () => {
+    if (stopped) return;
+    stopped = true;
+    cleanup();
+    onEnter();
+  };
+  const controller: EnterOnceTrigger = {
+    kill: () => {
+      if (stopped) return;
+      stopped = true;
+      cleanup();
+    },
+  };
+
+  const start = () => {
+    if (stopped) return;
+
+    let frame: number | undefined;
+    const check = () => {
+      frame = undefined;
+      const bounds = el.getBoundingClientRect();
+      // Webflow verwendet documentElement.clientHeight/clientWidth, nicht den
+      // auf iOS während einer Drehung zeitweise abweichenden innerHeight-Wert.
+      const viewport = document.documentElement;
+      const inset = viewport.clientHeight * (offsetPct / 100);
+      if (
+        bounds.left <= viewport.clientWidth &&
+        bounds.right >= 0 &&
+        bounds.top <= viewport.clientHeight - inset &&
+        bounds.bottom >= inset
+      ) {
+        enter();
+      }
+    };
+    const queueCheck = () => {
+      if (frame !== undefined || stopped) return;
+      frame = requestAnimationFrame(check);
+    };
+    cleanup = () => {
+      if (frame !== undefined) cancelAnimationFrame(frame);
+      window.removeEventListener('scroll', queueCheck);
+      window.removeEventListener('resize', queueCheck);
+      window.removeEventListener('orientationchange', queueCheck);
+      window.removeEventListener(ENTER_ONCE_CHECK_EVENT, queueCheck);
+    };
+    window.addEventListener('scroll', queueCheck, { passive: true });
+    window.addEventListener('resize', queueCheck, { passive: true });
+    window.addEventListener('orientationchange', queueCheck, { passive: true });
+    window.addEventListener(ENTER_ONCE_CHECK_EVENT, queueCheck);
+    queueCheck();
+  };
+
+  if (document.readyState === 'complete') {
+    start();
+  } else {
+    const onReadyStateChange = () => {
+      if (document.readyState !== 'complete') return;
+      document.removeEventListener('readystatechange', onReadyStateChange);
+      start();
+    };
+    cleanup = () => document.removeEventListener('readystatechange', onReadyStateChange);
+    document.addEventListener('readystatechange', onReadyStateChange);
+  }
+
+  return controller;
 }
 
 /**

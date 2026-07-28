@@ -1,4 +1,4 @@
-import { gsap, ScrollTrigger } from './motion/util';
+import { gsap, ScrollTrigger, refreshEnterOnce } from './motion/util';
 import * as lines from './motion/lines';
 import * as reveals from './motion/reveals';
 import * as homeLoad from './motion/home-load';
@@ -16,6 +16,15 @@ import * as interests from './motion/interests';
 import * as footer from './motion/footer';
 import * as buttons from './motion/buttons';
 import * as glow from './motion/glow';
+
+type WebflowMediaKey = 'main' | 'medium' | 'small' | 'tiny';
+
+function webflowMediaKey(width = window.innerWidth): WebflowMediaKey {
+  if (width >= 992) return 'main';
+  if (width >= 768) return 'medium';
+  if (width >= 480) return 'small';
+  return 'tiny';
+}
 
 /* ---------------------------------------------------------------------------
    Zentraler Motion-Init - 1:1-Nachbau der Webflow-Animationen (IX2 + IX3 +
@@ -69,19 +78,47 @@ function init(): void {
     document.fonts.ready.then(() => ScrollTrigger.refresh());
   }
 
-  /* `ignoreMobileResize` verhindert absichtlich Refreshes beim Ein-/Ausblenden
-     der mobilen Browserleisten. Ein echter Orientierungswechsel muss dagegen
-     neu vermessen werden: iOS aktualisiert vw/vh/svh und Sticky-Grenzen dabei
-     in mehreren Schritten. Der doppelte rAF greift das neue CSS-Layout auf,
-     der zweite Refresh den anschließend stabilisierten Visual Viewport. */
+  /* Webflow stoppt und initialisiert IX2 neu, sobald resize/orientationchange
+     den aktiven main/medium/small/tiny-Breakpoint ändert. Generische Reveals
+     dürfen dadurch erneut starten; bereits sichtbare FAQ-Zeilen behalten ihren
+     einmaligen Zustand. Reine Höhenänderungen durch mobile Browserleisten
+     ändern den Key nicht. */
+  let currentMediaKey = webflowMediaKey();
+  let breakpointFrame: number | undefined;
+  const restartAfterBreakpointChange = () => {
+    const nextMediaKey = webflowMediaKey();
+    if (nextMediaKey === currentMediaKey) return;
+    currentMediaKey = nextMediaKey;
+    reveals.restart();
+    moduleScrub.restartEntrances();
+    homeLoad.restart();
+  };
+  const queueBreakpointCheck = () => {
+    if (breakpointFrame !== undefined) return;
+    breakpointFrame = requestAnimationFrame(() => {
+      breakpointFrame = undefined;
+      restartAfterBreakpointChange();
+    });
+  };
+  window.addEventListener('resize', queueBreakpointCheck, { passive: true });
+
+  // Webflow prüft SCROLL_INTO_VIEW auch direkt auf orientationchange. Safari
+  // liefert die endgültige clientHeight teils erst nach der CSS-Drehung; daher
+  // prüfen wir nach zwei Frames und nach der stabilen 600-ms-Phase nochmals.
   const portrait = window.matchMedia('(orientation: portrait)');
-  let orientationRefreshTimer: number | undefined;
+  let orientationSettleTimer: number | undefined;
   portrait.addEventListener('change', () => {
     requestAnimationFrame(() => {
-      requestAnimationFrame(() => ScrollTrigger.refresh());
+      requestAnimationFrame(() => {
+        restartAfterBreakpointChange();
+        refreshEnterOnce();
+      });
     });
-    if (orientationRefreshTimer !== undefined) window.clearTimeout(orientationRefreshTimer);
-    orientationRefreshTimer = window.setTimeout(() => ScrollTrigger.refresh(), 600);
+    if (orientationSettleTimer !== undefined) window.clearTimeout(orientationSettleTimer);
+    orientationSettleTimer = window.setTimeout(() => {
+      restartAfterBreakpointChange();
+      refreshEnterOnce();
+    }, 600);
   });
 
   // Laufzeit-Layoutänderungen (widgets.ts: FAQ öffnen, Tab wechseln,

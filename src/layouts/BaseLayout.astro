@@ -55,6 +55,30 @@ const jsonLdArray = [orgJsonLd, ...pageJsonLd];
          sichtbar statt dauerhaft versteckt. */
       (function () {
         var el = document.documentElement;
+        /* Ein Fragment bei einem neuen Seitenaufruf darf nicht den globalen
+           Smooth-Scroll von ganz oben starten: Während dieses langen Scrolls
+           ändern Widgets/Motion noch das Layout und die spätere
+           Ankerkorrektur wird vom laufenden Browser-Scroll überschrieben.
+           Gleichseitige Anchor-Klicks sind davon nicht betroffen und bleiben
+           nach der Korrektur weiterhin weich. */
+        if (window.location.hash) {
+          /* Das Fragment bleibt bewusst in der URL und sein Ziel bleibt im
+             Layout: So kann der Browser seine einmalige native Positionierung
+             noch während des Ladens vollständig abschließen. Der Wert wird
+             zusätzlich für die gezielt verzögerten Reveals gespeichert. */
+          el.dataset.initialHash = window.location.hash;
+          el.classList.add('has-initial-hash');
+          window.addEventListener('load', function () {
+            /* Failsafe, falls das Hash-Navigations-Bundle nicht lädt. */
+            setTimeout(function () {
+              delete el.dataset.initialHash;
+              el.classList.remove(
+                'has-initial-hash',
+                'initial-hash-ready'
+              );
+            }, 3000);
+          });
+        }
         if (window.matchMedia('(prefers-reduced-motion: reduce)').matches) return;
         el.classList.add('has-motion');
         window.addEventListener('load', function () {
@@ -126,10 +150,14 @@ const jsonLdArray = [orgJsonLd, ...pageJsonLd];
       // laufen auf jeder Seite. Das GSAP-Motion-Bundle ebenso: Footer-Reveal,
       // Underline-Wipes und der Glow-CTA im Header animieren auf jeder Seite
       // (IX2 a-87/a-91/a-141); eine Hook-Bedingung wäre immer wahr.
-      import('../scripts/widgets.ts');
+      const widgetsReady = import('../scripts/widgets.ts');
       // Fragmentziele erst nach dem Motion-Setup nachjustieren: ScrollTrigger
-      // erweitert auf der Startseite vor dem Ziel mehrere Scroll-Strecken.
-      import('../scripts/motion.ts').then(() => import('../scripts/hash-navigation.ts'));
+      // und Widgets verändern vor dem Ziel noch das Layout. Erst wenn beide
+      // Initialisierungen abgeschlossen sind, wird der Anker final gesetzt.
+      const motionReady = import('../scripts/motion.ts');
+      Promise.allSettled([widgetsReady, motionReady]).then(() =>
+        import('../scripts/hash-navigation.ts')
+      );
     </script>
     <PreviewExtras />
   </body>

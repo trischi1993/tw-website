@@ -17,7 +17,7 @@ export function init(mm: gsap.MatchMedia): void {
   if (!root) return;
 
   /* --- a-87: Reveal-Choreo (main+medium) ---------------------------------- */
-  mm.add(BP.mainMedium, () => {
+  const initReveal = () => {
     const logo = root.querySelectorAll('[data-footer-logo]');
     const claim = root.querySelectorAll('[data-footer-claim]');
     const socials = root.querySelectorAll('[data-footer-social]');
@@ -39,7 +39,7 @@ export function init(mm: gsap.MatchMedia): void {
     // Social-Delays wie live (Original-Elemente is-1 → 300 ms, is-3 → 500 ms).
     const socialDelay = [0.3, 0.5];
 
-    onEnterOnce(root, 5, () => {
+    const revealTrigger = onEnterOnce(root, 5, () => {
       gsap.to(logo, { yPercent: 0, duration: 0.7, ease: EASE.outQuart });
       gsap.to(claim, { x: 0, opacity: 1, duration: 0.7, delay: 0.2, ease: EASE.outQuart });
       socials.forEach((el, i) =>
@@ -58,7 +58,16 @@ export function init(mm: gsap.MatchMedia): void {
       gsap.to(mail, { yPercent: 0, duration: 0.7, delay: 1.2, ease: EASE.outQuart });
       gsap.to(legal, { opacity: 1, duration: 2, delay: 1.2, ease: EASE.outQuart });
     });
-  });
+
+    return () => revealTrigger.kill();
+  };
+
+  // Getrennt registriert, obwohl die Choreo auf beiden Größen identisch ist:
+  // Webflow baut IX2 beim Wechsel medium ↔ main neu auf. Ein gemeinsames
+  // `(min-width: 768px)` bliebe dagegen aktiv und würde den Reveal nicht neu
+  // initialisieren (relevant z. B. beim Drehen eines Tablets).
+  mm.add(BP.main, initReveal);
+  mm.add(BP.medium, initReveal);
 
   /* --- a-123/a-124: Geschwister-Dim (main, feiner Pointer) ---------------- */
   mm.add(`${BP.main} and ${FINE_POINTER}`, () => {
