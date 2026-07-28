@@ -39,11 +39,7 @@ export default function UspListSection({
           {items.map((item) => (
             <div className="usp__item" key={item._key}>
               <div className="usp__row" data-anim="usp-row">
-                <span className="usp__dot" aria-hidden="true" data-usp-icon="">
-                  <svg viewBox="0 0 12 12" width="6" height="6">
-                    <circle cx="5.99978" cy="5.94241" r="5.83011" fill="currentColor" />
-                  </svg>
-                </span>
+                <span className="usp__dot" aria-hidden="true" data-usp-icon="" />
                 <p className="usp__text" data-usp-text="">
                   {item.lead && <strong>{item.lead} </strong>}
                   {item.text}
