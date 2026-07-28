@@ -1,0 +1,128 @@
+---
+import {
+  ERFOLGS_CHECK_AREAS,
+  ERFOLGS_CHECK_ICONS,
+} from '../data/erfolgs-check';
+import arrowIcon from '../assets/images/icon-arrow-white.svg';
+import '../styles/erfolgs-check.css';
+---
+
+<section class="success-check" data-erfolgs-check aria-labelledby="success-check-title">
+  <div class="success-check__ambient is-one" aria-hidden="true"></div>
+  <div class="success-check__ambient is-two" aria-hidden="true"></div>
+
+  <div class="success-check__container">
+    <header class="success-check__hero" data-check-hero>
+      <p class="success-check__eyebrow">
+        <span aria-hidden="true"></span> Kostenloser Selbst-Check
+      </p>
+      <h1 id="success-check-title">
+        Dein persönlicher <span>Instagram-<wbr />Erfolgs‑Check</span>
+      </h1>
+      <p class="success-check__hero-copy">
+        Fast jeder Instagram-Account lässt irgendwo Potenzial liegen – oft ohne es zu merken.
+        Dieser Selbst-Check zeigt dir in 5 Minuten, wo deine größten Hebel liegen.
+      </p>
+      <ul class="success-check__meta" role="list">
+        <li>
+          <svg viewBox="0 0 24 24" aria-hidden="true">
+            <circle cx="12" cy="12" r="9"></circle>
+            <path d="M12 7v5l3.5 2"></path>
+          </svg>
+          ca. 5 Minuten
+        </li>
+        <li>
+          <svg viewBox="0 0 24 24" aria-hidden="true">
+            <rect x="4" y="4" width="6" height="6" rx="1"></rect>
+            <rect x="14" y="4" width="6" height="6" rx="1"></rect>
+            <rect x="4" y="14" width="6" height="6" rx="1"></rect>
+            <rect x="14" y="14" width="6" height="6" rx="1"></rect>
+          </svg>
+          6 Bereiche
+        </li>
+        <li>
+          <svg viewBox="0 0 24 24" aria-hidden="true">
+            <path d="M6 20v-5M12 20V8M18 20V4"></path>
+          </svg>
+          Persönliches Ergebnisprofil
+        </li>
+      </ul>
+    </header>
+
+    <div class="success-check__compact-title" data-check-compact hidden>
+      <span class="success-check__compact-mark" aria-hidden="true">TW</span>
+      <div>
+        <span>Instagram</span>
+        <strong>Erfolgs-Check</strong>
+      </div>
+    </div>
+
+    <div class="success-check__progress" data-check-progress hidden>
+      <div class="success-check__progress-copy">
+        <span data-check-progress-label>Frage 1 von 18</span>
+        <span class="success-check__progress-status">
+          <em data-check-progress-motivation>Gleich weißt du mehr über deinen Account</em>
+          <strong data-check-progress-value>6%</strong>
+        </span>
+      </div>
+      <div
+        class="success-check__progress-track"
+        role="progressbar"
+        aria-valuemin="0"
+        aria-valuemax="100"
+        aria-valuenow="0"
+        aria-label="Fortschritt"
+        data-check-progress-track
+      >
+        <span></span>
+      </div>
+    </div>
+
+    <div data-check-stage>
+      <div class="success-check__start-card">
+        <div class="success-check__area-grid">
+          {
+            ERFOLGS_CHECK_AREAS.map((area, index) => (
+              <div class="success-check__area-tile">
+                <span class="success-check__area-icon" set:html={ERFOLGS_CHECK_ICONS[index]} />
+                <span>{area.short}</span>
+              </div>
+            ))
+          }
+        </div>
+        <p>
+          Beantworte jede Frage so ehrlich wie möglich. Je ehrlicher du bist, desto
+          aussagekräftiger wird dein Ergebnis.
+        </p>
+        <button
+          class="btn-glow success-check__primary-button"
+          type="button"
+          data-check-start
+          data-check-glow
+        >
+          <span class="btn-glow__circle" aria-hidden="true" data-check-glow-circle></span>
+          <span class="btn-glow__wrapper">
+            <span class="btn-glow__content">
+              <span class="btn-glow__label">Check starten</span>
+              <span class="btn-arrows" aria-hidden="true">
+                <img src={arrowIcon.src} alt="" data-check-icon-1 />
+                <img src={arrowIcon.src} alt="" data-check-icon-2 />
+              </span>
+            </span>
+          </span>
+        </button>
+        <small>Kostenlos · keine Vorbereitung nötig</small>
+      </div>
+    </div>
+
+    <noscript>
+      <p class="success-check__noscript">
+        Für den interaktiven Erfolgs-Check muss JavaScript in deinem Browser aktiviert sein.
+      </p>
+    </noscript>
+  </div>
+</section>
+
+<script>
+  import '../scripts/erfolgs-check';
+</script>
