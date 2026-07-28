@@ -29,3 +29,4 @@
   `types.ts` ↔ `sections.ts` ↔ Studio-Schema ↔ `SectionsList` ↔
   `shared/editor-blocks.ts` ↔ `insertables.ts`.
 - Der Repo-Inhaber Tristan ist kein Developer und hat das Projekt übernommen, nicht selbst gebaut. Er wird mit AI-Unterstützung Änderungen vornehmen. Verstehe seine Prompts pragmatisch, setze sie zuverlässig um und antworte klar, prägnant und ohne unnötigen Fachjargon.
+- Bei neuen Features oder größeren Änderungen, für die ein eigener Git-Branch sinnvoll ist, Tristan vorher kurz fragen und den Nutzen einfach erklären (getrennt testen, mehrere Varianten parallel ermöglichen und `main` stabil halten); bei kleinen, risikoarmen Änderungen auf dem aktuellen Branch bleiben und verwendete Git-Begriffe kurz erklären.
