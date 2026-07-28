@@ -479,7 +479,15 @@ html.has-motion .results__track { height: 200vh; }
 }
 .usp__item { position: relative; display: flex; flex-direction: column; }
 .usp__row { display: flex; gap: 1rem; margin-block: 2.5rem; }
-.usp__dot { flex: none; width: 1rem; margin-top: 0.75rem; color: var(--icon-dot); }
+.usp__dot {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  width: 1rem;
+  height: 1rem;
+  margin-top: 0.75rem;
+  color: var(--icon-dot);
+}
 .usp__text { font-size: 1.5rem; color: var(--ink-2); }
 .usp__text strong { font-weight: 600; }
 .usp__line {

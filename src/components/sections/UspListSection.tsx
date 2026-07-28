@@ -40,8 +40,8 @@ export default function UspListSection({
             <div className="usp__item" key={item._key}>
               <div className="usp__row" data-anim="usp-row">
                 <span className="usp__dot" aria-hidden="true" data-usp-icon="">
-                  <svg viewBox="0 0 16 16" width="16" height="16">
-                    <circle cx="8" cy="8" r="6" fill="currentColor" />
+                  <svg viewBox="0 0 12 12" width="6" height="6">
+                    <circle cx="5.99978" cy="5.94241" r="5.83011" fill="currentColor" />
                   </svg>
                 </span>
                 <p className="usp__text" data-usp-text="">
