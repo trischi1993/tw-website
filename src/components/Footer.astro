@@ -2,6 +2,8 @@
 import dolomites from '../assets/images/footer-dolomiten.avif';
 import logoTw from '../assets/images/logo-tw.avif';
 import emailIcon from '../assets/images/icon-email.svg';
+import instagramIcon from '../assets/images/icon-instagram.svg';
+import linkedinIcon from '../assets/images/icon-linkedin.svg';
 import { getSiteSettings } from '../lib/content';
 import { safeHref } from '../lib/safe-href';
 
@@ -9,7 +11,7 @@ import { safeHref } from '../lib/safe-href';
  * Footer (Webflow section_footer, global-chrome.md §6): Dolomiten-Band auf
  * #1D1D1D, Logo + Claim + Lottie-Socials links, Nav + E-Mail-Block rechts,
  * Legal-Zeile mit upgreight-Credit (Hausregel). Lottie-Icons laden lazy
- * (lottie-web light), spielen 1× beim Sichtbarwerden (Webflow data-autoplay);
+ * (Lottie-SVG-Player), spielen 1× beim Sichtbarwerden (Webflow data-autoplay);
  * Hover spielt in 600 ms neu ab (IX2 a-78). Reveal-Choreo + Geschwister-Dim:
  * src/scripts/motion/footer.ts (IX2 a-87, a-123/a-124); die data-footer-*-
  * Hooks hier sind deren Anker. Overflow-Masken wie im Original:
@@ -21,10 +23,26 @@ const { contact } = settings;
 const isExternal = (href: string) => /^https?:\/\//.test(href);
 
 /** Label → Lottie-Datei + Größe (global-chrome.md §6). */
-function lottieFor(label: string): { path: string; size: string } | null {
+function lottieFor(
+  label: string,
+): { path: string; size: string; pixels: number; fallback: string } | null {
   const l = label.toLowerCase();
-  if (l.includes('insta')) return { path: '/lottie/instagram.json', size: '2rem' };
-  if (l.includes('linked')) return { path: '/lottie/linkedin.json', size: '1.75rem' };
+  if (l.includes('insta')) {
+    return {
+      path: '/lottie/instagram.json',
+      size: '2rem',
+      pixels: 32,
+      fallback: instagramIcon.src,
+    };
+  }
+  if (l.includes('linked')) {
+    return {
+      path: '/lottie/linkedin.json',
+      size: '1.75rem',
+      pixels: 28,
+      fallback: linkedinIcon.src,
+    };
+  }
   return null;
 }
 
@@ -78,7 +96,16 @@ const mailHref = `mailto:${contact.email}?subject=Hey%20Tristan`;
                             data-lottie={lottie.path}
                             style={`width:${lottie.size};height:${lottie.size}`}
                             aria-hidden="true"
-                          />
+                          >
+                            <img
+                              class="footer__social-fallback"
+                              src={lottie.fallback}
+                              alt=""
+                              width={lottie.pixels}
+                              height={lottie.pixels}
+                              decoding="async"
+                            />
+                          </span>
                         ) : (
                           s.label
                         )}
@@ -219,7 +246,15 @@ const mailHref = `mailto:${contact.email}?subject=Hey%20Tristan`;
     align-items: center;
     color: var(--ink);
   }
-  .footer__social-icon { display: inline-block; }
+  .footer__social-icon { display: inline-block; position: relative; }
+  .footer__social-fallback { display: block; width: 100%; height: 100%; }
+  .footer__social-icon[data-lottie-ready] .footer__social-fallback { display: none; }
+  .footer__social-icon > :global(svg) {
+    position: absolute;
+    inset: 0;
+    width: 100% !important;
+    height: 100% !important;
+  }
 
   .footer__nav ul {
     display: flex;
@@ -293,50 +328,104 @@ const mailHref = `mailto:${contact.email}?subject=Hey%20Tristan`;
 </style>
 
 <script>
-  // Lottie-Socials: erst beim Sichtbarwerden des Footers laden (lazy, light
-  // build ohne Expressions). Wie im Original: 1× Autoplay beim Laden (Webflow-
-  // Embed data-autoplay="1"), Hover spielt von vorn in 600 ms bis zum Ende
-  // (IX2 a-78: 0 → 99.8 % in 600 ms → Speed = Dauer / 0.6).
-  // prefers-reduced-motion: kein Autoplay/Hover, stattdessen Endframe zeigen.
-  // Jede [data-lottie-root]-Gruppe lazy laden (Footer + z. B. Über-mich-Hero
-  // teilen dieselben Icons). lottie-web wird nur einmal ausgeliefert (der
-  // dynamische Import ist gebündelt/gecacht) und pro Gruppe beim ersten
-  // Sichtbarwerden initialisiert.
+  import lottie from 'lottie-web/build/player/lottie_light.js';
+
+  // Lottie-Socials wie im Webflow-Original eager laden und 1× automatisch
+  // abspielen (Embed data-loading="eager", data-autoplay="1"). Erreicht der
+  // Footer nach dem Scrollen erstmals das Sichtfeld, starten beide Icons
+  // gemeinsam noch einmal mit ihrer nativen Dauer (Instagram 1,183 s,
+  // LinkedIn 1,5 s). Hover spielt das jeweilige Icon in 600 ms neu ab
+  // (IX2 a-78: 0 → 99,8 % in 600 ms → Speed = Dauer / 0,6).
+  // Das statische SVG bleibt bis zum erfolgreichen Lottie-Start sichtbar und
+  // dient bei Import-/Netzwerkfehlern als Fallback. Die Animation spielt auf
+  // Desktop UND Touchgeraeten. Jede [data-lottie-root]-Gruppe (Footer + z. B.
+  // Über-mich-Hero) wird direkt initialisiert. Der Player wird bewusst statisch
+  // gebündelt: Ein fehlgeschlagener dynamischer Import ließ in mobilen
+  // Dev-/Preview-Sessions bislang lautlos nur das unbewegte Fallback stehen.
   const roots = document.querySelectorAll<HTMLElement>('[data-lottie-root]');
   if (roots.length) {
-    const reduceMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
-    const initRoot = async (root: HTMLElement) => {
-      const lottie = (await import('lottie-web/build/player/lottie_light')).default;
-      root.querySelectorAll<HTMLElement>('[data-lottie]').forEach((el) => {
-        const anim = lottie.loadAnimation({
-          container: el,
-          renderer: 'svg',
-          loop: false,
-          autoplay: !reduceMotion,
-          path: el.dataset.lottie!,
-        });
-        if (reduceMotion) {
-          anim.addEventListener('DOMLoaded', () => {
-            anim.goToAndStop(Math.max(0, anim.totalFrames - 1), true);
+    const initRoot = (root: HTMLElement) => {
+      return Promise.all(
+        Array.from(root.querySelectorAll<HTMLElement>('[data-lottie]')).map(
+          (el) =>
+            new Promise<ReturnType<typeof lottie.loadAnimation>>((resolve) => {
+              const anim = lottie.loadAnimation({
+                container: el,
+                renderer: 'svg',
+                loop: false,
+                autoplay: true,
+                path: el.dataset.lottie!,
+              });
+              anim.addEventListener('DOMLoaded', () => {
+                el.setAttribute('data-lottie-ready', '');
+                resolve(anim);
+              });
+              el.closest('a')?.addEventListener('mouseenter', () => {
+                anim.setSpeed(anim.getDuration(false) / 0.6);
+                anim.goToAndPlay(0, true);
+              });
+            }),
+        ),
+      );
+    };
+
+    const watchFooter = (
+      root: HTMLElement,
+      load: ReturnType<typeof initRoot>,
+    ) => {
+      const isVisible = () => {
+        const bounds = root.getBoundingClientRect();
+        const viewport = document.documentElement;
+        return (
+          bounds.left <= viewport.clientWidth &&
+          bounds.right >= 0 &&
+          bounds.top <= viewport.clientHeight &&
+          bounds.bottom >= 0
+        );
+      };
+
+      const startedVisible = isVisible();
+      const replay = () => {
+        // Beide Animationen erst nach DOMLoaded gemeinsam zurücksetzen. So
+        // funktioniert der Replay auch bei sehr schnellem Scrollen direkt
+        // nach dem Seitenaufruf zuverlässig.
+        void load.then((animations) => {
+          animations.forEach((anim) => {
+            anim.setSpeed(1);
+            anim.goToAndPlay(0, true);
           });
+        });
+      };
+
+      const armReplay = () => {
+        // Bei einem Reload direkt im Footer ist das eager Autoplay bereits der
+        // sichtbare Durchlauf. Wurde der Footer erst während des Ladens
+        // erreicht (z. B. Scroll-Restoration), spielen wir kontrolliert neu.
+        if (isVisible()) {
+          if (!startedVisible) replay();
           return;
         }
-        el.closest('a')?.addEventListener('mouseenter', () => {
-          anim.setSpeed(anim.getDuration(false) / 0.6);
-          anim.goToAndPlay(0, true);
+
+        const observer = new IntersectionObserver((entries) => {
+          if (!entries.some((entry) => entry.isIntersecting)) return;
+          observer.disconnect();
+          replay();
         });
-      });
+        observer.observe(root);
+      };
+
+      // Erst nach dem vollständigen Layout scharfstellen. Eine Prüfung direkt
+      // beim Parsen kann den Footer kurzzeitig als sichtbar einstufen und den
+      // späteren Scroll-Replay dadurch ungewollt verbrauchen.
+      if (document.readyState === 'complete') armReplay();
+      else window.addEventListener('load', armReplay, { once: true });
     };
+
     roots.forEach((root) => {
-      const io = new IntersectionObserver(
-        (entries) => {
-          if (!entries.some((e) => e.isIntersecting)) return;
-          io.disconnect();
-          void initRoot(root);
-        },
-        { rootMargin: '200px' },
-      );
-      io.observe(root);
+      // Bei Import-/Netzwerkfehlern bleibt das statische SVG sichtbar.
+      const load = initRoot(root);
+      void load.catch(() => undefined);
+      if (root.classList.contains('footer__social-list')) watchFooter(root, load);
     });
   }
 </script>

@@ -2,17 +2,34 @@ import type { SectionPortraitHero } from '../../lib/content/types';
 import type { EditAttr } from './SectionsList';
 import Img from './Img';
 import { safeHref } from '../../lib/safe-href';
+import instagramIcon from '../../assets/images/icon-instagram.svg';
+import linkedinIcon from '../../assets/images/icon-linkedin.svg';
 
 /**
  * Social-Icons wie im Footer: dieselben Lottie-Dateien + Größen (global-chrome
- * §6). Der Loader (Footer.astro-Script, lazy lottie-web) greift jede
- * [data-lottie-root]-Gruppe und spielt [data-lottie] beim Sichtbarwerden 1×,
- * Hover spielt neu. Instagram 2rem, LinkedIn 1.75rem - identisch zum Footer,
- * damit beide Auftritte gleich aussehen (vorher wich das LinkedIn-SVG ab).
+ * §6). Der Loader (Footer.astro-Script, Lottie-SVG-Player) greift jede
+ * [data-lottie-root]-Gruppe und spielt [data-lottie] beim Laden 1×; Hover
+ * spielt neu. Wie im Webflow-Original ist Instagram 2rem und LinkedIn 1,75rem.
  */
-const LOTTIE: Record<'linkedin' | 'instagram', { path: string; size: string }> = {
-  linkedin: { path: '/lottie/linkedin.json', size: '1.75rem' },
-  instagram: { path: '/lottie/instagram.json', size: '2rem' },
+const instagramIconSrc = typeof instagramIcon === 'string' ? instagramIcon : instagramIcon.src;
+const linkedinIconSrc = typeof linkedinIcon === 'string' ? linkedinIcon : linkedinIcon.src;
+
+const LOTTIE: Record<
+  'linkedin' | 'instagram',
+  { path: string; size: string; fallback: string; pixels: number }
+> = {
+  linkedin: {
+    path: '/lottie/linkedin.json',
+    size: '1.75rem',
+    fallback: linkedinIconSrc,
+    pixels: 28,
+  },
+  instagram: {
+    path: '/lottie/instagram.json',
+    size: '2rem',
+    fallback: instagramIconSrc,
+    pixels: 32,
+  },
 };
 
 /**
@@ -67,7 +84,16 @@ export default function PortraitHeroSection({
                           data-lottie={lottie.path}
                           style={{ width: lottie.size, height: lottie.size }}
                           aria-hidden="true"
-                        />
+                        >
+                          <img
+                            className="ahero__social-fallback"
+                            src={lottie.fallback}
+                            alt=""
+                            width={lottie.pixels}
+                            height={lottie.pixels}
+                            decoding="async"
+                          />
+                        </span>
                       </a>
                     );
                   })}

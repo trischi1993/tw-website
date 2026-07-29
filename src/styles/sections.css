@@ -1054,15 +1054,23 @@ html.has-motion .results__track { height: 200vh; }
 .ahero__content { max-width: 29rem; }
 .ahero__content h1 { margin-bottom: 1rem; }
 .ahero__content p { font-size: var(--text-md); color: var(--ink-2); }
-/* Lottie-Icons wie im Footer: Größe kommt vom Inline-Span (Instagram 2rem,
-   LinkedIn 1.75rem), Hover spielt neu (Footer.astro-Loader). */
+/* Lottie-Icons wie im Footer/Webflow-Original: Instagram 2rem,
+   LinkedIn 1.75rem; Hover spielt neu (Footer.astro-Loader). */
 .ahero__socials { display: flex; align-items: center; gap: 1.5rem; margin-top: 3rem; }
 .ahero__socials a {
   display: inline-flex;
   align-items: center;
   color: var(--ink);
 }
-.ahero__social-icon { display: inline-block; }
+.ahero__social-icon { display: inline-block; position: relative; }
+.ahero__social-fallback { display: block; width: 100%; height: 100%; }
+.ahero__social-icon[data-lottie-ready] .ahero__social-fallback { display: none; }
+.ahero__social-icon > svg {
+  position: absolute;
+  inset: 0;
+  width: 100% !important;
+  height: 100% !important;
+}
 .ahero__media {
   position: relative;
   padding-left: 3vw;
