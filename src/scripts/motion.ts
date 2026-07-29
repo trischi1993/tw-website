@@ -19,11 +19,102 @@ import * as glow from './motion/glow';
 
 type WebflowMediaKey = 'main' | 'medium' | 'small' | 'tiny';
 
+type AboutScrollAnchor = {
+  element: HTMLElement;
+  ratio: number;
+};
+
 function webflowMediaKey(width = window.innerWidth): WebflowMediaKey {
   if (width >= 992) return 'main';
   if (width >= 768) return 'medium';
   if (width >= 480) return 'small';
   return 'tiny';
+}
+
+/** Hält nach der responsiv ihre Höhe wechselnden Werdegang-Timeline den
+ * tatsächlich sichtbaren Folgeinhalt im Viewport. Eine absolute Scrollposition
+ * reicht dort nicht: 500vh im Hochformat und 1200vh im Querformat ergeben auf
+ * einem Handy unterschiedlich viele Pixel. */
+function preserveAboutContentAfterTimeline(portrait: MediaQueryList): void {
+  const timeline = document.querySelector<HTMLElement>('.tl');
+  if (!timeline) return;
+
+  const root = document.documentElement;
+  const anchorSelector = [
+    '.interests h2',
+    '.interests__intro',
+    '.interests__item',
+    '.marquee',
+    '.final-cta h2',
+    '.final-cta p',
+    '.final-cta__buttons',
+    '.interests',
+    '.final-cta',
+    'footer',
+  ].join(',');
+  let anchor: AboutScrollAnchor | undefined;
+  let captureFrame: number | undefined;
+  let wasPortrait = portrait.matches;
+
+  const capture = () => {
+    captureFrame = undefined;
+    const centerX = root.clientWidth / 2;
+    const centerY = root.clientHeight / 2;
+    const hit = document.elementFromPoint(centerX, centerY) as HTMLElement | null;
+    const element = hit?.closest<HTMLElement>(anchorSelector) ?? hit?.closest<HTMLElement>('section, footer');
+    const followsTimeline = element
+      && !timeline.contains(element)
+      && Boolean(timeline.compareDocumentPosition(element) & Node.DOCUMENT_POSITION_FOLLOWING);
+
+    if (!element || !followsTimeline) {
+      anchor = undefined;
+      return;
+    }
+
+    const bounds = element.getBoundingClientRect();
+    if (bounds.height <= 0) {
+      anchor = undefined;
+      return;
+    }
+
+    anchor = {
+      element,
+      ratio: Math.min(1, Math.max(0, (centerY - bounds.top) / bounds.height)),
+    };
+  };
+
+  const queueCapture = () => {
+    if (captureFrame !== undefined) return;
+    captureFrame = requestAnimationFrame(capture);
+  };
+
+  window.addEventListener('scroll', queueCapture, { passive: true });
+  window.addEventListener('load', queueCapture, { once: true });
+  capture();
+
+  // Dieses Event läuft nach GSAPs vollständigem matchMedia-Refresh, aber noch
+  // im selben Task und damit vor dem nächsten sichtbaren Browser-Frame.
+  ScrollTrigger.addEventListener('matchMedia', () => {
+    const isPortrait = portrait.matches;
+    if (isPortrait === wasPortrait) return;
+    wasPortrait = isPortrait;
+
+    const saved = anchor;
+    if (!saved?.element.isConnected) return;
+
+    const bounds = saved.element.getBoundingClientRect();
+    const currentFocusY = bounds.top + bounds.height * saved.ratio;
+    const targetY = window.scrollY + currentFocusY - root.clientHeight / 2;
+    const previousBehavior = root.style.scrollBehavior;
+    root.style.scrollBehavior = 'auto';
+    window.scrollTo(0, targetY);
+    root.style.scrollBehavior = previousBehavior;
+
+    // Aktualisiert auch GSAPs internen Scroller-Cache auf die korrigierte
+    // Position, damit ein späterer Refresh nicht auf den alten Wert zurückfällt.
+    ScrollTrigger.update();
+    capture();
+  });
 }
 
 /* ---------------------------------------------------------------------------
@@ -60,6 +151,18 @@ function init(): void {
       ? 'visibilitychange,DOMContentLoaded,load'
       : 'visibilitychange,DOMContentLoaded,load,resize',
   });
+
+  /* Webflows Scroll-Engine bleibt auf der Über-mich-Seite auch im statischen
+     Tiny-Layout aktiv. Bei uns wäre die responsive Timeline dort dagegen der
+     einzige ScrollTrigger: Beim ersten Aktivieren kennt GSAP den Scroller noch
+     nicht, beim Deaktivieren löscht es mit dem letzten Trigger dessen gemerkte
+     Position. Dieser permanente, wirkungslose Trigger hält nur den Window-
+     Scroller registriert. So zeichnet GSAP den echten Scrollstand VOR jedem
+     Timeline-Neuaufbau/-Abbau auf und restauriert ihn samt Animationszustand. */
+  const isAboutPage = Boolean(document.querySelector('[data-about-hero]'));
+  if (isAboutPage) {
+    ScrollTrigger.create({ id: 'about-scroll-state', start: 0, end: 1 });
+  }
 
   const mm = gsap.matchMedia();
 
@@ -117,6 +220,7 @@ function init(): void {
   // liefert die endgültige clientHeight teils erst nach der CSS-Drehung; daher
   // prüfen wir nach zwei Frames und nach der stabilen 600-ms-Phase nochmals.
   const portrait = window.matchMedia('(orientation: portrait)');
+  if (isAboutPage) preserveAboutContentAfterTimeline(portrait);
   let orientationSettleTimer: number | undefined;
   portrait.addEventListener('change', () => {
     requestAnimationFrame(() => {

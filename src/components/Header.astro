@@ -149,6 +149,15 @@ const menuItems = [{ label: 'Startseite', href: '/' }, ...settings.nav];
     background-image: linear-gradient(var(--overlay-navbar-tint), var(--overlay-navbar-tint));
     -webkit-backdrop-filter: blur(0.5rem);
     backdrop-filter: blur(0.5rem);
+    /* iOS Safari baut fixe Backdrop-Filter beim Orientierungswechsel sonst
+       kurz als neue Ebene auf und zeichnet dabei die Navbar sichtbar neu.
+       Die GPU-Ebene bleibt wie beim Webflow-Original über den Wechsel hinweg
+       bestehen; dadurch blitzt die obere Menüleiste nicht mehr auf. */
+    -webkit-transform: translate3d(0, 0, 0);
+    transform: translate3d(0, 0, 0);
+    -webkit-backface-visibility: hidden;
+    backface-visibility: hidden;
+    will-change: transform;
   }
 
   /* --- Split-Wortmarke (Word-Wrapper = Overflow-Masken der Load-Anim) ------ */
