@@ -64,7 +64,17 @@ export default function GalleryMarqueeSection({
               data-shift={shiftFor(i)}
               key={item._key}
             >
-              <Img image={item.image} sizes="(max-width: 767px) 70vw, 30vw" />
+              <Img
+                image={item.image}
+                sizes="(max-width: 767px) 70vw, 30vw"
+                /* Die ersten beiden AIO-Säulen liegen direkt unter dem Hero
+                   und sind beim schnellen mobilen Scrollen sofort sichtbar.
+                   Früh, aber mit niedriger Priorität laden: So konkurrieren
+                   sie nicht mit Hero/Poster und zeigen trotzdem keine leeren
+                   schwarzen Karten, bis Lazy-Loading erst später anspringt. */
+                loading={!titlesVisible && i < 2 ? 'eager' : 'lazy'}
+                fetchPriority={!titlesVisible && i < 2 ? 'low' : undefined}
+              />
               {item.title &&
                 (titlesVisible ? (
                   <div className="gallery__item-text">

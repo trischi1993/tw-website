@@ -50,11 +50,12 @@ export function refreshEnterOnce(): void {
 /**
  * IX2 SCROLL_INTO_VIEW: Der um den Offset verkleinerte Viewport wird aus
  * BEIDEN Scrollrichtungen betreten. Die Action spielt pro Initialisierung nur
- * einmal. Wie Webflow prüfen wir das Elementrechteck erst ab readyState
- * `complete` und danach bei Scroll-/Viewport-Ereignissen. Das ist wichtig bei
- * einem Reload mitten auf der Seite: Der Browser stellt die alte Scrollposition
- * erst während des Ladens wieder her; oberhalb liegende Elemente dürfen davor
- * nicht irrtümlich als bereits sichtbar/abgespielt markiert werden.
+ * einmal. Die automatische Erstprüfung wartet bis readyState `complete`, damit
+ * ein Reload mitten auf der Seite zuerst seine Scrollposition restaurieren
+ * kann. Scroll-/Viewport-Ereignisse werden aber sofort beobachtet und ein
+ * bereits vorhandener Scrollstand wird direkt geprüft: Scrollt der Nutzer
+ * schon während große Bilder, Videos oder das Motion-Bundle laden, bleiben
+ * sichtbare Inhalte nicht bis zum vollständigen `window.load` versteckt.
  */
 export interface EnterOnceTrigger {
   kill(): void;
@@ -106,8 +107,14 @@ export function onEnterOnce(
       if (frame !== undefined || stopped) return;
       frame = requestAnimationFrame(check);
     };
+    const onReadyStateChange = () => {
+      if (document.readyState !== 'complete') return;
+      document.removeEventListener('readystatechange', onReadyStateChange);
+      queueCheck();
+    };
     cleanup = () => {
       if (frame !== undefined) cancelAnimationFrame(frame);
+      document.removeEventListener('readystatechange', onReadyStateChange);
       window.removeEventListener('scroll', queueCheck);
       window.removeEventListener('resize', queueCheck);
       window.removeEventListener('orientationchange', queueCheck);
@@ -117,20 +124,11 @@ export function onEnterOnce(
     window.addEventListener('resize', queueCheck, { passive: true });
     window.addEventListener('orientationchange', queueCheck, { passive: true });
     window.addEventListener(ENTER_ONCE_CHECK_EVENT, queueCheck);
-    queueCheck();
+    if (document.readyState === 'complete' || window.scrollY > 0) queueCheck();
+    else document.addEventListener('readystatechange', onReadyStateChange);
   };
 
-  if (document.readyState === 'complete') {
-    start();
-  } else {
-    const onReadyStateChange = () => {
-      if (document.readyState !== 'complete') return;
-      document.removeEventListener('readystatechange', onReadyStateChange);
-      start();
-    };
-    cleanup = () => document.removeEventListener('readystatechange', onReadyStateChange);
-    document.addEventListener('readystatechange', onReadyStateChange);
-  }
+  start();
 
   return controller;
 }
