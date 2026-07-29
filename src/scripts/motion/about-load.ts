@@ -1,5 +1,7 @@
 import { EASE, gsap } from './util';
 
+let responsiveNavbarAnimations: Animation[] = [];
+
 /* ---------------------------------------------------------------------------
    Über-mich-Load-Choreografie - IX2 a-125 (PAGE_START, alle Breakpoints).
    Initialzustände + Ablauf exakt aus dem Decode:
@@ -40,9 +42,9 @@ export function init(_mm: gsap.MatchMedia): void {
     });
   }
   if (navRight) {
-    gsap.set(navRight, { opacity: 0, x: '2.5rem' });
+    gsap.set(navRight, { opacity: 0, x: '2.5rem', force3D: true });
     gsap.to(navRight, { opacity: 1, duration: 1.2, delay: 0.3, ease: EASE.ease });
-    gsap.to(navRight, { x: 0, duration: 1, delay: 0.3, ease: EASE.outQuart });
+    gsap.to(navRight, { x: 0, duration: 1, delay: 0.3, ease: EASE.outQuart, force3D: true });
   }
   if (h1) {
     gsap.set(h1, { opacity: 0, x: '2rem' });
@@ -65,5 +67,48 @@ export function init(_mm: gsap.MatchMedia): void {
   if (wipe) {
     // CSS-Basis ist bereits width/height 100 % (Initialzustand der ActionList).
     gsap.to(wipe, { height: 0, duration: 2, delay: 1.2, ease: EASE.outQuart });
+  }
+}
+
+/** Webflow spielt PAGE_START nach einem Media-Key-Wechsel erneut ab. Die
+ * browsernative Animation bildet nur die Navbar-Timings nach und weckt dabei
+ * nicht GSAPs ScrollTrigger-Cache; Hero und Portrait bleiben unberührt. */
+export function restartNavbar(): void {
+  if (!document.querySelector('[data-about-hero]')) return;
+  const logoLines = document.querySelectorAll<HTMLElement>('[data-nav-logo-line]');
+  const navRight = document.querySelector<HTMLElement>('[data-nav-right]');
+
+  responsiveNavbarAnimations.forEach((animation) => animation.cancel());
+  responsiveNavbarAnimations = [];
+
+  logoLines.forEach((line) => {
+    responsiveNavbarAnimations.push(line.animate(
+      [{ height: '0px' }, { height: '2rem' }],
+      {
+        duration: 500,
+        delay: 100,
+        easing: 'cubic-bezier(0.165, 0.84, 0.44, 1)',
+        fill: 'backwards',
+      },
+    ));
+  });
+  if (navRight) {
+    responsiveNavbarAnimations.push(
+      navRight.animate([{ opacity: 0 }, { opacity: 1 }], {
+        duration: 1200,
+        delay: 300,
+        easing: 'cubic-bezier(0.25, 0.1, 0.25, 1)',
+        fill: 'backwards',
+      }),
+      navRight.animate(
+        [{ transform: 'translate3d(2.5rem, 0, 0)' }, { transform: 'translate3d(0, 0, 0)' }],
+        {
+          duration: 1000,
+          delay: 300,
+          easing: 'cubic-bezier(0.165, 0.84, 0.44, 1)',
+          fill: 'backwards',
+        },
+      ),
+    );
   }
 }

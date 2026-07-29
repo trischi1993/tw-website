@@ -20,6 +20,7 @@ const isExternal = (href: string) => /^https?:\/\//.test(href);
 const menuItems = [{ label: 'Startseite', href: '/' }, ...settings.nav];
 ---
 <header class="navbar" data-site-header>
+  <div class="navbar__container">
   <a href="/" class="navbar__logo is-desktop" aria-label={`${settings.siteName}, ${t.toStart}`}>
     <span class="navbar__logo-word is-1" aria-hidden="true">
       <span class="navbar__logo-text" data-nav-logo-text="1">Tristan</span>
@@ -99,6 +100,7 @@ const menuItems = [{ label: 'Startseite', href: '/' }, ...settings.nav];
       }
     </div>
   </div>
+  </div>
 </header>
 
 <div class="menu" id="site-menu" data-site-menu hidden>
@@ -136,28 +138,29 @@ const menuItems = [{ label: 'Startseite', href: '/' }, ...settings.nav];
          Menü-Öffnen NUR die background-color animiert) ------------------- */
   .navbar {
     position: fixed;
-    inset: 0 0 auto 0;
+    inset: 0 0 auto auto;
     z-index: 499;
     display: flex;
     align-items: center;
-    justify-content: space-between;
-    gap: 1rem;
+    width: 100%;
     height: var(--header-h);
     max-height: 80px;
+    margin-inline: auto;
     padding: 0.125rem 5vw;
     background-color: var(--overlay-navbar);
     background-image: linear-gradient(var(--overlay-navbar-tint), var(--overlay-navbar-tint));
     -webkit-backdrop-filter: blur(0.5rem);
     backdrop-filter: blur(0.5rem);
-    /* iOS Safari baut fixe Backdrop-Filter beim Orientierungswechsel sonst
-       kurz als neue Ebene auf und zeichnet dabei die Navbar sichtbar neu.
-       Die GPU-Ebene bleibt wie beim Webflow-Original über den Wechsel hinweg
-       bestehen; dadurch blitzt die obere Menüleiste nicht mehr auf. */
-    -webkit-transform: translate3d(0, 0, 0);
-    transform: translate3d(0, 0, 0);
-    -webkit-backface-visibility: hidden;
-    backface-visibility: hidden;
-    will-change: transform;
+  }
+
+  /* Stabiler Inhalts-Container wie `.navbar_container` im Webflow-Original:
+     Die fixe Blur-Fläche bleibt dadurch beim Breakpoint-Wechsel strukturell
+     unverändert; nur Logo und rechter Bereich wechseln bzw. animieren. */
+  .navbar__container {
+    display: flex;
+    justify-content: space-between;
+    width: 100%;
+    margin-inline: auto;
   }
 
   /* --- Split-Wortmarke (Word-Wrapper = Overflow-Masken der Load-Anim) ------ */
@@ -181,8 +184,23 @@ const menuItems = [{ label: 'Startseite', href: '/' }, ...settings.nav];
   .navbar__logo.is-mobile { display: none; }
 
   /* --- Rechte Seite: Overflow-Maske (Load-Anim + 9.2rem-Menü-Shift) -------- */
-  .navbar__right { display: flex; align-items: center; position: relative; overflow: hidden; }
-  .navbar__right-inner { display: flex; align-items: center; gap: 2rem; position: relative; }
+  .navbar__right {
+    z-index: 99999;
+    display: flex;
+    align-items: center;
+    position: relative;
+    overflow: hidden;
+    transform: translate3d(0, 0, 0);
+    transform-style: preserve-3d;
+  }
+  .navbar__right-inner {
+    display: flex;
+    align-items: center;
+    gap: 2rem;
+    position: relative;
+    transform: translate3d(0, 0, 0);
+    transform-style: preserve-3d;
+  }
   .navbar__list { display: flex; align-items: center; gap: 1.5rem; margin: 0; padding: 0; }
   /* Jedes <li> als Flexbox: zentriert den Link vertikal und nimmt dem
      inline-block-Anker die Grundlinien-Macke (overflow:hidden → Baseline =
@@ -317,8 +335,6 @@ const menuItems = [{ label: 'Startseite', href: '/' }, ...settings.nav];
     .navbar__logo.is-mobile .navbar__logo-line { background: var(--brand); }
   }
   @media (max-width: 479px) {
-    /* Original: ≤479 ist die Wortmarke komplett ausgeblendet. */
-    .navbar__logo { display: none; }
     .menu__link { padding-left: 6vw; padding-right: 6vw; }
     .menu__text { font-size: 2.75rem; letter-spacing: -0.03em; }
     .menu__arrow { height: 2rem; }

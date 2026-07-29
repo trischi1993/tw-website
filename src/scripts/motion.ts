@@ -88,19 +88,8 @@ function preserveAboutContentAfterTimeline(portrait: MediaQueryList): void {
     captureFrame = requestAnimationFrame(capture);
   };
 
-  window.addEventListener('scroll', queueCapture, { passive: true });
-  window.addEventListener('load', queueCapture, { once: true });
-  capture();
-
-  // Dieses Event läuft nach GSAPs vollständigem matchMedia-Refresh, aber noch
-  // im selben Task und damit vor dem nächsten sichtbaren Browser-Frame.
-  ScrollTrigger.addEventListener('matchMedia', () => {
-    const isPortrait = portrait.matches;
-    if (isPortrait === wasPortrait) return;
-    wasPortrait = isPortrait;
-
-    const saved = anchor;
-    if (!saved?.element.isConnected) return;
+  const restore = (saved: AboutScrollAnchor): void => {
+    if (!saved.element.isConnected) return;
 
     const bounds = saved.element.getBoundingClientRect();
     const currentFocusY = bounds.top + bounds.height * saved.ratio;
@@ -114,6 +103,22 @@ function preserveAboutContentAfterTimeline(portrait: MediaQueryList): void {
     // Position, damit ein späterer Refresh nicht auf den alten Wert zurückfällt.
     ScrollTrigger.update();
     capture();
+  };
+
+  window.addEventListener('scroll', queueCapture, { passive: true });
+  window.addEventListener('load', queueCapture, { once: true });
+  capture();
+
+  // Dieses Event läuft nach GSAPs vollständigem matchMedia-Refresh, aber noch
+  // im selben Task und damit vor dem nächsten sichtbaren Browser-Frame.
+  ScrollTrigger.addEventListener('matchMedia', () => {
+    const isPortrait = portrait.matches;
+    if (isPortrait === wasPortrait) return;
+    wasPortrait = isPortrait;
+
+    const saved = anchor;
+    if (!saved?.element.isConnected) return;
+    restore(saved);
   });
 }
 
@@ -199,6 +204,16 @@ function init(): void {
      ändern den Key nicht. */
   let currentMediaKey = webflowMediaKey();
   let breakpointFrame: number | undefined;
+  let navbarReplayFrame: number | undefined;
+  const queueNavbarReplay = () => {
+    if (navbarReplayFrame !== undefined) cancelAnimationFrame(navbarReplayFrame);
+    navbarReplayFrame = requestAnimationFrame(() => {
+      navbarReplayFrame = undefined;
+      aboutLoad.restartNavbar();
+      aioLoad.restartNavbar();
+    });
+  };
+  ScrollTrigger.addEventListener('matchMedia', queueNavbarReplay);
   const restartAfterBreakpointChange = () => {
     const nextMediaKey = webflowMediaKey();
     if (nextMediaKey === currentMediaKey) return;

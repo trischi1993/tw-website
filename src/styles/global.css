@@ -52,7 +52,9 @@ body {
      wirken (am deutlichsten auf dem Gold-Button). Default = kräftigere,
      „weißere" Schrift, exakt wie im Original. */
   text-rendering: optimizeLegibility;
-  overflow-x: clip;
+  /* Root-Scroller wie im Webflow-Original. */
+  overflow-y: scroll;
+  overflow-x: hidden;
 }
 
 /* Wie im Original: unsichtbare Scrollbar (WebKit), Layout bleibt stabil. */
@@ -428,8 +430,10 @@ em, i { font-style: italic; }
   white-space: nowrap; border: 0;
 }
 .skip-link {
-  position: fixed;
-  top: 0.5rem; left: 0.5rem;
+  /* Kein permanenter Fixed-Layer: iOS Safari nahm den vollständig geclippten
+     Link sonst trotzdem in denselben Rotations-Snapshot wie die Navbar auf. */
+  position: absolute;
+  top: 0; left: 0;
   z-index: 600;
   width: 1px;
   height: 1px;
@@ -446,6 +450,9 @@ em, i { font-style: italic; }
   text-decoration: none;
 }
 .skip-link:focus {
+  position: fixed;
+  top: 0.5rem;
+  left: 0.5rem;
   width: auto;
   height: auto;
   padding: 0.7em 1.1em;

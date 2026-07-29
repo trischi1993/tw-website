@@ -43,7 +43,7 @@ export function init(_mm: gsap.MatchMedia): void {
     gsap.set(logoLines, { height: 0 });
     gsap.set(logoText1, { xPercent: 140 });
     gsap.set(logoText2, { xPercent: -140 });
-    gsap.set(navRight, { opacity: 0, x: '2.5rem' });
+    gsap.set(navRight, { opacity: 0, x: '2.5rem', force3D: true });
     gsap.set(wipe, { width: '100%', height: '100%' });
     gsap.set(scrollWrap, { opacity: 0 });
   };
@@ -80,7 +80,7 @@ export function init(_mm: gsap.MatchMedia): void {
     gsap.to(logoText1, { xPercent: 0, delay: d(0.2), duration: t(1), ease: EASE.outQuart });
     gsap.to(logoText2, { xPercent: 0, delay: d(0.2), duration: t(1), ease: EASE.outQuart });
     gsap.to(navRight, { opacity: 1, delay: d(0.2), duration: t(1.2), ease: EASE.ease });
-    gsap.to(navRight, { x: 0, delay: d(0.2), duration: t(1), ease: EASE.outQuart });
+    gsap.to(navRight, { x: 0, delay: d(0.2), duration: t(1), ease: EASE.outQuart, force3D: true });
     gsap.to(buttonGroups, { opacity: 1, delay: d(1), duration: t(1.1), ease: EASE.ease });
     gsap.to(buttonGroups, { x: 0, delay: d(1), duration: t(1), ease: EASE.outQuart });
     gsap.to(wipe, { width: '100%', height: 0, delay: d(1.3), duration: t(2), ease: EASE.outQuart });
