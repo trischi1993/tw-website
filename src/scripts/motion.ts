@@ -48,7 +48,18 @@ function init(): void {
   // Signal fürs Pre-Paint-Failsafe (BaseLayout-Inline-Script): das Motion-Bundle
   // hat initialisiert und übernimmt die Reveals - Failsafe NICHT auslösen.
   document.documentElement.classList.add('motion-ready');
-  ScrollTrigger.config({ ignoreMobileResize: true });
+  ScrollTrigger.config({
+    ignoreMobileResize: true,
+    // Mobile Browserleisten verändern beim Scrollen nur die Viewport-Höhe.
+    // Besonders im flachen Querformat überschreitet das GSAPs prozentuale
+    // Ignore-Schwelle und löst sonst einen vollständigen Refresh aus, der den
+    // Scroller intern kurz auf 0 setzt. iOS Safari kann während einer aktiven
+    // Berührung dort hängen bleiben. Echte Rotations-/Breakpoint-Wechsel
+    // verarbeitet gsap.matchMedia weiterhin selbst; Desktop-Resize bleibt an.
+    autoRefreshEvents: ScrollTrigger.isTouch === 1
+      ? 'visibilitychange,DOMContentLoaded,load'
+      : 'visibilitychange,DOMContentLoaded,load,resize',
+  });
 
   const mm = gsap.matchMedia();
 
