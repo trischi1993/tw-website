@@ -74,6 +74,11 @@ Live-Island identisch); das Anfrage-Modal zieht seine Multiselect-Optionen aus
   Radio-Logik, Coaching-Multiselect) + `AioModal.astro` (Bewerbung). Beide
   posten per fetch an Form.Taxi (Endpunkt `https://form.taxi/s/vvg9bvd4`,
   von Julian am 2026-07-21 geliefert).
+- **Instagram-Erfolgs-Check:** Der Lead läuft nicht über Form.Taxi, sondern über
+  `/api/erfolgs-check-lead` im Produktions-Worker direkt zu Systeme.io. Der
+  API-Key liegt ausschließlich als Cloudflare-Secret `SYSTEME_API_KEY`; der
+  Worker weist den Tag `Freebies - Download` zu. Die anonyme Quiz-Auswertung
+  wird unabhängig davon an die bestehende Google-Apps-Script-Web-App gesendet.
 - Kein Lenis/Smooth-Scroll, keine Seiten-Transition, kein jQuery/Typekit (auf
   der Live-Site tot). Fonts: selbst gehostetes Poppins (woff2, preloaded).
 
@@ -104,12 +109,19 @@ b6a131… nicht verwenden). Git-Remote: `trischi1993/tw-website`.
 
 | Worker | Build | Config | Inhalt |
 |---|---|---|---|
-| `tristanweithaler-prod` | `npm run build` | `wrangler.prod.jsonc` | statisches `dist/`, published-only, kein Token |
+| `tristanweithaler-prod` | `npm run build` | `wrangler.prod.jsonc` | statisches `dist/` + `/api/erfolgs-check-lead`; Systeme.io-Key nur als Runtime-Secret |
 | `tristanweithaler-preview` | `npm run build:preview` | generiert: `dist/server/wrangler.json` | SSR, Drafts hinter Preview-Cookie |
 
 Beim manuellen Preview-Deploy muss die vom Astro-Adapter erzeugte Konfiguration
 verwendet werden: `npm run deploy:preview`. `wrangler.jsonc` enthält die
 Quell-Bindings, aber noch keinen Worker-Einstiegspunkt.
+
+Vor dem ersten Prod-Deploy der Systeme.io-Anbindung das Secret einmalig setzen
+(den Wert niemals committen oder in `wrangler.prod.jsonc` eintragen):
+
+```bash
+npx wrangler secret put SYSTEME_API_KEY -c wrangler.prod.jsonc
+```
 
 Workers-Builds-Anbindung, Custom Domain (erst beim Go-Live/DNS-Umstieg) und der
 Sanity-Publish-Webhook → Prod-Deploy-Hook sind Dashboard-Schritte; `npm run

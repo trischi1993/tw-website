@@ -1,11 +1,11 @@
 {
-  // PRODUKTIONS-Worker: reiner "Assets-only-Worker" (Workers Static Assets).
+  // PRODUKTIONS-Worker: statische Assets plus ein schmaler API-Endpunkt für
+  // den Systeme.io-Lead des Instagram-Erfolgs-Checks.
   //
-  // Kein `main`, kein Adapter: dieser Worker fuehrt KEINEN Server-Code aus, er
-  // liefert nur die statischen Dateien aus `dist/` (Ergebnis von `npm run build`,
-  // output: 'static'). "Kein `main`" bezieht sich auf die Worker-Einstiegsdatei
-  // (Server-Code) - NICHT auf den Git-Branch `main`. Auto-Deploy bei Push regelt
-  // Workers Builds, voellig unabhaengig von diesem Feld.
+  // Statische Treffer werden weiterhin direkt und kostenlos ausgeliefert. Nur
+  // `/api/*` läuft zuerst durch `src/workers/prod.ts`; alle Website-Assets
+  // umgehen den Worker-Code. Der Systeme.io-API-Key ist ein Cloudflare-Secret
+  // namens `SYSTEME_API_KEY` und darf niemals in dieser Datei stehen.
   //
   // Warum ein Worker statt Cloudflare Pages: Pages ist eingefroren, und der
   // Astro-Cloudflare-Adapter hat Pages-Support seit v13 entfernt. Der statische
@@ -24,11 +24,17 @@
   // verhindert versehentliche Deploys in Julians upgreight-Konto.
   "account_id": "ee216d2fdff2e29b5093ae6287b5eb8f",
   "compatibility_date": "2025-05-05",
+  "main": "./src/workers/prod.ts",
   "assets": {
     "directory": "./dist",
+    "binding": "ASSETS",
+    "run_worker_first": ["/api/*"],
     // Fehlende Pfade liefern die statische 404-Seite (Astro erzeugt dist/404.html)
     // mit HTTP-404 statt eines nackten Worker-404.
     "not_found_handling": "404-page"
+  },
+  "vars": {
+    "SYSTEME_TAG_NAME": "Freebies - Download"
   },
   "observability": {
     "enabled": true

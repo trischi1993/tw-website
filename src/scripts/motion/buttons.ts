@@ -7,7 +7,7 @@ import { gsap, EASE, BP } from './util';
    a-93/a-98 (alle Breakpoints): Im Glow-Button liegen zwei Pfeile in einer
    1em-Overflow-Maske. Initial: Pfeil 1 x -131 %, Pfeil 2 x 0. Hover: Pfeil 2
    → +131 %, Pfeil 1 → 0 (je 400 ms sine.out); Out: zurück (400 ms sine.out).
-   Buttons ohne Pfeile (z. B. Navbar-CTA „0 € Angebot") sind wie im Original
+   Buttons ohne Pfeile (z. B. Navbar-CTA „Insta-Check“) sind wie im Original
    ohne Hover-Effekt.
 
    a-91/a-92: [data-underline]-Container mit Kind .link-underline__line.
