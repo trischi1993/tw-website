@@ -1093,20 +1093,6 @@
   border-radius: 50%;
   background: transparent;
   box-shadow: 0 0 4rem #8064292e;
-  transform-origin: center;
-  animation: success-check-score-pulse 2.8s ease-in-out infinite;
-  will-change: transform, box-shadow;
-}
-
-@keyframes success-check-score-pulse {
-  0%, 100% {
-    box-shadow: 0 0 4rem #8064292e;
-    transform: scale(1);
-  }
-  50% {
-    box-shadow: 0 0 5.5rem #80642952;
-    transform: scale(1.025);
-  }
 }
 
 .success-check__score-ring {
@@ -1128,6 +1114,19 @@
   stroke: var(--brand-highlight);
   stroke-linecap: round;
   filter: drop-shadow(0 0 0.35rem #8064298c);
+  animation: success-check-score-ring-pulse 2.8s ease-in-out infinite;
+  will-change: filter, stroke-width;
+}
+
+@keyframes success-check-score-ring-pulse {
+  0%, 100% {
+    stroke-width: 4;
+    filter: drop-shadow(0 0 0.35rem #8064298c);
+  }
+  50% {
+    stroke-width: 4.65;
+    filter: drop-shadow(0 0 0.7rem #b38b35b3);
+  }
 }
 
 .success-check__score-ring-value[stroke-dasharray^='0 '] {
@@ -1357,6 +1356,12 @@
   font-size: var(--text-xs);
   line-height: 1.5;
   text-align: left;
+}
+
+.success-check__download-status[data-state='success'] {
+  color: #c9ead8;
+  border-color: #3f7358;
+  background: #14251c;
 }
 
 /* Temporäre, nur für html2pdf gerenderte A4-Seiten. Jede Seite besitzt ihren
@@ -1784,6 +1789,17 @@
   .success-check__result-secondary { padding-inline: 1rem; }
   .success-check__result-primary .btn-glow__label,
   .success-check__result-secondary { font-size: 0.84rem; }
+  .success-check__result-primary .btn-glow__content {
+    min-height: 4.25rem;
+    padding-block: 0.65rem;
+  }
+  .success-check__result-primary .btn-glow__label {
+    line-height: 1.35;
+    white-space: normal;
+    overflow-wrap: anywhere;
+    text-wrap: balance;
+  }
+  .success-check__download { margin: -0.15rem 0 1.1rem; }
 }
 
 @media (prefers-reduced-motion: reduce) {

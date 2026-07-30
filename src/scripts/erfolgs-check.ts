@@ -264,6 +264,28 @@ function pdfFilename(name: string) {
   return `Instagram-Erfolgsprofil${firstName ? `-${firstName}` : ''}.pdf`;
 }
 
+function downloadPdfBlob(blob: Blob, filename: string) {
+  const isIosWebKit =
+    /iP(?:ad|hone|od)/.test(navigator.userAgent) ||
+    (navigator.platform === 'MacIntel' && navigator.maxTouchPoints > 1);
+  // iOS/WebKit behandelt application/pdf-Blob-Links teilweise als Navigation
+  // statt als Download. Als Binärdatei mit .pdf-Dateinamen landet das Profil
+  // zuverlässig im Download-Ordner der Dateien-App.
+  const downloadBlob = isIosWebKit
+    ? new Blob([blob], { type: 'application/octet-stream' })
+    : blob;
+  const objectUrl = window.URL.createObjectURL(downloadBlob);
+  const link = document.createElement('a');
+  link.href = objectUrl;
+  link.download = filename;
+  link.rel = 'noopener';
+  link.hidden = true;
+  document.body.append(link);
+  link.click();
+  link.remove();
+  window.setTimeout(() => window.URL.revokeObjectURL(objectUrl), 60_000);
+}
+
 function materialiseUppercaseForPdf(root: HTMLElement) {
   // html2canvas berechnet Textbereiche anhand des ursprünglichen Textknotens.
   // Bei CSS-uppercase wird „ß“ jedoch zu „SS“ und damit ein Zeichen länger –
@@ -507,9 +529,10 @@ async function downloadResultPdf(
       if (href) link.href = new URL(href, publicBaseUrl).href;
     });
 
-    await html2pdf()
+    const filename = pdfFilename(name);
+    const pdfBlob = await html2pdf()
       .set({
-        filename: pdfFilename(name),
+        filename,
         enableLinks: true,
         image: { type: 'jpeg', quality: 0.98 },
         html2canvas: {
@@ -527,7 +550,8 @@ async function downloadResultPdf(
         },
       })
       .from(pdfDocument)
-      .save();
+      .outputPdf('blob');
+    downloadPdfBlob(pdfBlob, filename);
   } finally {
     pdfShell.remove();
   }
@@ -990,9 +1014,21 @@ function initialiseCheck(root: HTMLElement) {
       if (status) status.hidden = true;
 
       void downloadResultPdf(resultCard, leadName)
+        .then(() => {
+          if (status) {
+            status.dataset.state = 'success';
+            status.textContent =
+              'PDF-Download gestartet – du findest die Datei in deinen Downloads.';
+            status.hidden = false;
+            window.setTimeout(() => {
+              status.hidden = true;
+            }, 6000);
+          }
+        })
         .catch((error) => {
           console.error('Erfolgs-Check PDF export failed', error);
           if (status) {
+            status.dataset.state = 'error';
             status.textContent = 'PDF-Download nicht möglich – bitte erneut versuchen.';
             status.hidden = false;
             window.setTimeout(() => {

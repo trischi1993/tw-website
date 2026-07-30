@@ -572,7 +572,7 @@ export const ERFOLGS_CHECK_RECOMMENDATIONS: ErfolgsCheckRecommendation[] = [
       href: '/all-in-one-coaching/',
     },
     secondary: {
-      label: 'Oder zuerst das E-Book holen – Die Instagram Erfolgsformel (27 €)',
+      label: 'E-Book holen – Die Instagram Erfolgsformel (27 €)',
       href: 'https://ebook.tristanweithaler.com/',
     },
     note: 'Das ALL-IN-ONE Coaching begleitet dich mit über 40 Videolektionen, 1:1 Calls und einer Praxis-Session vor Ort. Das E-Book ist eine kompakte Alternative zum Einstieg.',
