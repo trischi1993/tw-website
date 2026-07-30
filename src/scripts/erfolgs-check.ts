@@ -622,10 +622,16 @@ function initialiseCheck(root: HTMLElement) {
 
   function focusStage() {
     window.requestAnimationFrame(() => {
+      const prefersReducedMotion = window.matchMedia(
+        '(prefers-reduced-motion: reduce)',
+      ).matches;
+      const hasFinePointer = window.matchMedia(FINE_POINTER).matches;
       root.scrollIntoView({
-        behavior: window.matchMedia('(prefers-reduced-motion: reduce)').matches
-          ? 'auto'
-          : 'smooth',
+        // Auf Touch-Geräten erzeugt der lange Smooth-Scroll zusammen mit dem
+        // neu gerenderten, unterschiedlich hohen Fragenblock sichtbares
+        // Ruckeln. Dort direkt zum Anfang springen und nur die neue Karte
+        // weich einblenden; Desktop behält den bisherigen Smooth-Scroll.
+        behavior: prefersReducedMotion || !hasFinePointer ? 'instant' : 'smooth',
         block: 'start',
       });
       stageElement
@@ -792,7 +798,7 @@ function initialiseCheck(root: HTMLElement) {
             <span class="success-check__checkbox" aria-hidden="true">
               <svg viewBox="0 0 12 10"><path d="M1 5.5 4.2 8.5 11 1.5"></path></svg>
             </span>
-            <span>Ich stimme der Verarbeitung meiner Angaben zur Auswertung und Kontaktaufnahme gemäß der <a href="/datenschutz/" target="_blank" rel="noopener noreferrer">Datenschutzerklärung</a> zu.</span>
+            <span>Ich stimme der <a href="/datenschutz/" target="_blank" rel="noopener noreferrer">Datenschutzerklärung</a> sowie der Verarbeitung meiner Angaben zur Auswertung und Kontaktaufnahme zu.</span>
           </label>
 
           ${localPreview ? '<p class="success-check__local-note">Localhost-Vorschau: Deine Kontaktdaten werden nicht an das Lead-System versendet. Quiz-Ergebnis, Name und E-Mail werden zum Testen in Google Sheets protokolliert.</p>' : ''}

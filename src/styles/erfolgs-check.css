@@ -9,6 +9,7 @@
 }
 
 .success-check [hidden] { display: none !important; }
+.success-check button { touch-action: manipulation; }
 
 .success-check__ambient {
   position: absolute;
@@ -458,6 +459,8 @@
   transition: width 0.45s var(--ease-smooth);
 }
 
+.success-check [data-check-stage] { overflow-anchor: none; }
+
 .success-check__question-stage { animation: success-check-in 0.35s var(--ease-smooth); }
 
 .success-check__area-banner {
@@ -550,6 +553,7 @@
   font-size: 0.95rem;
   line-height: 1.55;
   cursor: pointer;
+  touch-action: manipulation;
   transition: border-color var(--dur-fast), background var(--dur-fast), color var(--dur-fast);
 }
 
@@ -559,7 +563,8 @@
   background: #272620;
 }
 
-.success-check__option.is-selected {
+.success-check__option.is-selected,
+.success-check__option:has(input:checked) {
   color: var(--ink);
   border-color: var(--brand);
   background: #80642917;
@@ -586,6 +591,7 @@
   border: 1.5px solid #6f6f6e;
   border-radius: 50%;
   background: transparent;
+  transition: border-color 0.14s ease, background 0.14s ease, transform 0.14s ease;
 }
 
 .success-check__radio::after {
@@ -597,15 +603,21 @@
   background: var(--ink);
   content: '';
   opacity: 0;
-  transform: translate(-50%, -50%);
+  transform: translate(-50%, -50%) scale(0.4);
+  transition: opacity 0.14s ease, transform 0.14s ease;
 }
 
-.success-check__option.is-selected .success-check__radio {
+.success-check__option.is-selected .success-check__radio,
+.success-check__option:has(input:checked) .success-check__radio {
   border-color: var(--brand);
   background: var(--brand);
 }
 
-.success-check__option.is-selected .success-check__radio::after { opacity: 1; }
+.success-check__option.is-selected .success-check__radio::after,
+.success-check__option:has(input:checked) .success-check__radio::after {
+  opacity: 1;
+  transform: translate(-50%, -50%) scale(1);
+}
 
 .success-check__option:has(input:focus-visible) {
   outline: 2px solid var(--brand);
@@ -866,9 +878,24 @@
   background: var(--brand);
   box-shadow: 0 0.8rem 2rem #00000080;
   transform: translate(-50%, -50%);
+  transform-origin: center;
+  will-change: transform;
+}
+
+.success-check__lock::before {
+  position: absolute;
+  inset: -0.2rem;
+  border: 1px solid var(--brand-highlight);
+  border-radius: 50%;
+  content: '';
+  opacity: 0;
+  pointer-events: none;
+  animation: success-check-lock-ring-pulse 2.5s ease-out infinite;
 }
 
 .success-check__lock svg {
+  position: relative;
+  z-index: 1;
   width: 1.25rem;
   fill: none;
   stroke: currentColor;
@@ -878,7 +905,20 @@
 }
 
 .success-check__lock.is-animated {
-  animation: success-check-lock-wiggle 0.8s cubic-bezier(0.36, 0.07, 0.19, 0.97) 0.18s both;
+  animation: success-check-lock-shake 5s ease-in-out infinite;
+}
+
+@keyframes success-check-lock-shake {
+  0%, 8%, 100% { transform: translate(-50%, -50%) rotate(0); }
+  1.5% { transform: translate(-50%, -50%) rotate(-7deg); }
+  3% { transform: translate(-50%, -50%) rotate(7deg); }
+  4.5% { transform: translate(-50%, -50%) rotate(-5deg); }
+  6% { transform: translate(-50%, -50%) rotate(5deg); }
+}
+
+@keyframes success-check-lock-ring-pulse {
+  0% { opacity: 0.75; transform: scale(0.9); }
+  70%, 100% { opacity: 0; transform: scale(1.55); }
 }
 
 .success-check__lead-pdf-badge {
@@ -1614,14 +1654,6 @@
   to { opacity: 1; transform: translateY(0); }
 }
 
-@keyframes success-check-lock-wiggle {
-  0%, 100% { transform: translate(-50%, -50%) rotate(0); }
-  20% { transform: translate(-50%, -50%) rotate(-8deg); }
-  40% { transform: translate(-50%, -50%) rotate(7deg); }
-  60% { transform: translate(-50%, -50%) rotate(-5deg); }
-  80% { transform: translate(-50%, -50%) rotate(3deg); }
-}
-
 @media (max-width: 767px) {
   .success-check { padding-top: calc(var(--header-h) + 3.5rem); padding-bottom: 7rem; }
   .success-check__container { width: min(100% - 8vw, 47.5rem); }
@@ -1671,6 +1703,18 @@
   .success-check__progress-copy { align-items: flex-start; }
   .success-check__progress-status { align-items: flex-end; flex-direction: column-reverse; gap: 0.15rem; }
   .success-check__progress-status em { white-space: normal; text-align: right; }
+}
+
+@media (hover: none), (pointer: coarse) {
+  .success-check__question-stage { animation-duration: 0.22s; }
+  .success-check__progress-track span { transition-duration: 0.28s; }
+  .success-check__option { transition-duration: 0.12s; }
+  .success-check__option:active {
+    color: var(--ink);
+    border-color: #80642980;
+    background: #272620;
+  }
+  .success-check__option:active .success-check__radio { transform: scale(0.9); }
 }
 
 @media (max-width: 479px) {
