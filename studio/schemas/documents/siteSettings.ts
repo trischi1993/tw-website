@@ -156,7 +156,7 @@ export default defineType({
       name: 'headerCta',
       title: 'Button in der Kopfzeile',
       description:
-        'Der goldene Button rechts in der Kopfzeile (z. B. „0 € Angebot" mit Link auf den Angebots-Abschnitt).',
+        'Der goldene Button rechts in der Kopfzeile (z. B. „Insta-Check“ mit Link auf den Erfolgs-Check).',
       type: 'object',
       group: 'navigation',
       fields: [

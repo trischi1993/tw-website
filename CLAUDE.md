@@ -10,8 +10,11 @@
 - Veröffentlichte CMS-Bilder und die fünf AIO-Video-Standbilder werden über
   `cdn.sanity.io` ausgeliefert.
 - Die fünf AIO-Modul-Hintergrundvideos werden über Bunny CDN ausgeliefert.
-- Formulare verwenden Form.taxi; es gibt aktuell kein Analytics-, Pixel- oder
-  Werbetracking.
+- Allgemeine Anfrageformulare verwenden Form.taxi. Der Instagram-Erfolgs-Check
+  überträgt Leads serverseitig über den Produktions-Worker an Systeme.io und
+  weist dort den Tag `Freebies - Download` zu; der API-Key liegt ausschließlich
+  als Cloudflare-Secret `SYSTEME_API_KEY`. Es gibt aktuell kein Analytics-,
+  Pixel- oder Werbetracking.
 
 ## Verbindliche Arbeitsregeln
 

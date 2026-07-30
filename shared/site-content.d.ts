@@ -14,7 +14,7 @@ import type {
    (SiteImage); make-seed ist reines JS und ignoriert die Deklaration.
    --------------------------------------------------------------------------- */
 
-/** SiteSettings plus Header-CTA (Glow-Button „0 € Angebot" in der Navbar). */
+/** SiteSettings plus Header-CTA (Glow-Button „Insta-Check“ in der Navbar). */
 export type SeedSiteSettings = SiteSettings & {
   headerCta: { label: string; href: string };
 };

@@ -113,7 +113,7 @@ export function buildContent({ img }) {
       { label: 'Instagram', href: 'https://www.instagram.com/tristan.weithaler/' },
       { label: 'LinkedIn', href: 'https://www.linkedin.com/in/tristan-weithaler-1b9972171/' },
     ],
-    headerCta: { label: '0 € Angebot', href: '/#0-Euro-Angebot' },
+    headerCta: { label: 'Insta-Check', href: '/#0-Euro-Angebot' },
   };
 
   /* --- Wiederkehrende FAQ-Antworten (Home + AIO teilen Texte) -------------- */
@@ -246,7 +246,7 @@ export function buildContent({ img }) {
         name: 'Instagram Erfolgs-Check',
         anchor: '0-Euro-Angebot',
         heading: 'Finde in 5 Min. heraus, wo dein Instagram noch Potenzial liegen lässt.',
-        ctaLabel: 'Zum kostenlosen Erfolgs-Check!',
+        ctaLabel: 'Zum kostenlosen Insta-Check!',
         ctaAction: 'link',
         ctaHref: '/instagram-erfolgs-check/',
         ctaNewTab: false,

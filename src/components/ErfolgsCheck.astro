@@ -14,22 +14,23 @@ import '../styles/erfolgs-check.css';
   <div class="success-check__container">
     <header class="success-check__hero" data-check-hero>
       <p class="success-check__eyebrow">
-        <span aria-hidden="true"></span> Kostenloser Selbst-Check
+        <span aria-hidden="true"></span> 100 % kostenlos · Ergebnis in nur 5 Min.
       </p>
       <h1 id="success-check-title">
         Dein persönlicher <span>Instagram-<wbr />Erfolgs‑Check</span>
       </h1>
       <p class="success-check__hero-copy">
         Fast jeder Instagram-Account lässt irgendwo Potenzial liegen – oft ohne es zu merken.
-        Dieser Selbst-Check zeigt dir in 5 Minuten, wo deine größten Hebel liegen.
+        Dieser Selbst-Check zeigt dir, wo deine größten Hebel liegen, um endlich aufs nächste
+        Level zu kommen.
       </p>
       <ul class="success-check__meta" role="list">
         <li>
           <svg viewBox="0 0 24 24" aria-hidden="true">
-            <circle cx="12" cy="12" r="9"></circle>
-            <path d="M12 7v5l3.5 2"></path>
+            <rect x="5" y="3" width="14" height="18" rx="2"></rect>
+            <path d="M9 8h6M9 12h6M9 16h4"></path>
           </svg>
-          ca. 5 Minuten
+          18 Praxisfragen
         </li>
         <li>
           <svg viewBox="0 0 24 24" aria-hidden="true">
@@ -38,13 +39,14 @@ import '../styles/erfolgs-check.css';
             <rect x="4" y="14" width="6" height="6" rx="1"></rect>
             <rect x="14" y="14" width="6" height="6" rx="1"></rect>
           </svg>
-          6 Bereiche
+          6 Erfolgsbereiche
         </li>
         <li>
           <svg viewBox="0 0 24 24" aria-hidden="true">
-            <path d="M6 20v-5M12 20V8M18 20V4"></path>
+            <path d="M7 3h7l4 4v14H7zM14 3v5h4"></path>
+            <path d="M12.5 11v6m0 0 2.5-2.5M12.5 17 10 14.5"></path>
           </svg>
-          Persönliches Ergebnisprofil
+          Direktes Ergebnis + PDF-Download
         </li>
       </ul>
     </header>
@@ -80,6 +82,33 @@ import '../styles/erfolgs-check.css';
 
     <div data-check-stage>
       <div class="success-check__start-card">
+        <div class="success-check__start-preview" aria-hidden="true">
+          <div class="success-check__start-preview-head">
+            <span>Dein Ergebnisprofil</span>
+            <small>Vorschau</small>
+          </div>
+          <div class="success-check__start-preview-score">
+            <div>
+              <strong>73%</strong>
+              <span>Gesamt-Score</span>
+            </div>
+          </div>
+          <div class="success-check__start-preview-metrics">
+            <small>Bereichs-Scores</small>
+            <div class="success-check__start-preview-metric">
+              <span><b>Strategie</b><strong>78%</strong></span>
+              <i><em style="--preview-value: 78%"></em></i>
+            </div>
+            <div class="success-check__start-preview-metric">
+              <span><b>Content</b><strong>64%</strong></span>
+              <i><em style="--preview-value: 64%"></em></i>
+            </div>
+            <div class="success-check__start-preview-metric">
+              <span><b>Analyse</b><strong>58%</strong></span>
+              <i><em style="--preview-value: 58%"></em></i>
+            </div>
+          </div>
+        </div>
         <div class="success-check__area-grid">
           {
             ERFOLGS_CHECK_AREAS.map((area, index) => (
@@ -111,7 +140,15 @@ import '../styles/erfolgs-check.css';
             </span>
           </span>
         </button>
-        <small>Kostenlos · keine Vorbereitung nötig</small>
+        <small>100 % kostenlos · in nur 5 Minuten zum Ergebnis</small>
+        <button
+          class="success-check__mobile-start-link"
+          type="button"
+          data-check-start
+        >
+          <span>Jetzt Check starten</span>
+          <img src={arrowIcon.src} alt="" aria-hidden="true" />
+        </button>
       </div>
     </div>
 

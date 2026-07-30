@@ -91,6 +91,22 @@ const menuItems = [{ label: 'Startseite', href: '/' }, ...settings.nav];
             <span class="btn-glow__circle" aria-hidden="true" data-glow-circle="" />
             <span class="btn-glow__wrapper">
               <span class="btn-glow__content">
+                <svg
+                  class="navbar__cta-gift"
+                  viewBox="0 0 24 24"
+                  fill="none"
+                  stroke="currentColor"
+                  stroke-width="1.7"
+                  stroke-linecap="round"
+                  stroke-linejoin="round"
+                  aria-hidden="true"
+                >
+                  <rect x="3" y="8" width="18" height="4" rx="1" />
+                  <path d="M12 8v13" />
+                  <path d="M19 12v7a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2v-7" />
+                  <path d="M7.5 8a2.5 2.5 0 0 1 0-5C11 3 12 8 12 8Z" />
+                  <path d="M16.5 8a2.5 2.5 0 0 0 0-5C13 3 12 8 12 8Z" />
+                </svg>
                 <span class="btn-glow__label">{settings.headerCta.label}</span>
               </span>
             </span>
@@ -187,6 +203,13 @@ const menuItems = [{ label: 'Startseite', href: '/' }, ...settings.nav];
     font-weight: 300;
   }
   .navbar__link:hover { color: var(--ink); }
+  .navbar__cta .btn-glow__content { gap: 0.55rem; }
+  .navbar__cta-gift {
+    width: 1.2rem;
+    height: 1.2rem;
+    color: var(--brand-readable);
+    flex: none;
+  }
 
   /* --- Burger (nur ≤991, wie im Original; Linien-Morph macht menu.ts) ------ */
   .navbar__burger {
