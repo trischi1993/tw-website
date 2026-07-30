@@ -132,7 +132,7 @@
   border: 1px solid #30302f;
   border-radius: var(--radius-card);
   background: linear-gradient(145deg, #1b1b1a 0%, #151515 100%);
-  box-shadow: 0 2rem 6rem #0000003d;
+  box-shadow: 0 0 2rem #00000024;
 }
 
 .success-check__start-card {
