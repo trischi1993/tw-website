@@ -251,7 +251,10 @@ function resultLink(cta: ErfolgsCheckCta, primary = false) {
   const attributes = `href="${cta.href}"${external ? ' target="_blank" rel="noopener noreferrer"' : ''}`;
   return primary
     ? `<a class="btn-glow success-check__result-primary" ${attributes} data-check-glow>${glowButtonContent(cta.label)}</a>`
-    : `<a class="button success-check__result-secondary" ${attributes}>${cta.label}<span aria-hidden="true">→</span></a>`;
+    : `<a class="button success-check__result-secondary" ${attributes} data-check-underline>
+        <span class="success-check__button-underline"><span class="link-underline__label">${cta.label}</span><span class="link-underline__line" aria-hidden="true"></span></span>
+        <span aria-hidden="true">→</span>
+      </a>`;
 }
 
 function pdfFilename(name: string) {
@@ -593,11 +596,13 @@ function initialiseCheck(root: HTMLElement) {
   const stageElement = stageContainer;
   const startMarkup = stageElement.innerHTML;
   const isLocalhost = ['localhost', '127.0.0.1'].includes(window.location.hostname);
+  const checkParams = new URLSearchParams(window.location.search);
   // Nur der ausdrücklich aufgerufene Test-Link darf lokal echte Systeme.io-Leads
   // erzeugen. Der normale Localhost bleibt weiterhin ein sicherer UI-Vorschau-Modus.
   const systemeTestEnabled =
-    isLocalhost && new URLSearchParams(window.location.search).get('systeme-test') === '1';
+    isLocalhost && checkParams.get('systeme-test') === '1';
   const localPreview = isLocalhost && !systemeTestEnabled;
+  const localLeadPreview = localPreview && checkParams.get('lead-preview') === '1';
   let currentQuestion = 0;
   let answers = Array<number>(ERFOLGS_CHECK_QUESTIONS.length).fill(-1);
   let leadName = '';
@@ -642,6 +647,32 @@ function initialiseCheck(root: HTMLElement) {
         },
       );
     });
+
+    stageElement.querySelectorAll<HTMLElement>('[data-check-underline]').forEach((button) => {
+      if (button.dataset.checkUnderlineReady === 'true') return;
+      button.dataset.checkUnderlineReady = 'true';
+
+      const line = button.querySelector<HTMLElement>('.link-underline__line');
+      if (!line || window.matchMedia('(prefers-reduced-motion: reduce)').matches) return;
+
+      button.addEventListener('mouseenter', () => {
+        gsap.set(line, { x: 0, xPercent: -101 });
+        gsap.to(line, {
+          xPercent: 0,
+          duration: 0.3,
+          ease: EASE.outSine,
+          overwrite: 'auto',
+        });
+      });
+      button.addEventListener('mouseleave', () => {
+        gsap.to(line, {
+          xPercent: 101,
+          duration: 0.2,
+          ease: EASE.outSine,
+          overwrite: 'auto',
+        });
+      });
+    });
   }
 
   function focusStage() {
@@ -664,25 +695,28 @@ function initialiseCheck(root: HTMLElement) {
     });
   }
 
-  function animateLeadLock() {
-    const lock = stageElement.querySelector<HTMLElement>('[data-check-lock]');
-    if (!lock || window.matchMedia('(prefers-reduced-motion: reduce)').matches) return;
+  function animateUnlockList() {
+    const panel = stageElement.querySelector<HTMLElement>('[data-check-unlock-panel]');
+    if (!panel) return;
 
-    const animate = () => lock.classList.add('is-animated');
-    if (!('IntersectionObserver' in window)) {
-      animate();
+    const reveal = () => panel.classList.add('is-visible');
+    if (
+      window.matchMedia('(prefers-reduced-motion: reduce)').matches ||
+      !('IntersectionObserver' in window)
+    ) {
+      reveal();
       return;
     }
 
     const observer = new IntersectionObserver(
       (entries) => {
         if (!entries.some((entry) => entry.isIntersecting)) return;
-        animate();
+        reveal();
         observer.disconnect();
       },
-      { threshold: 0.6 },
+      { threshold: 0.35 },
     );
-    observer.observe(lock);
+    observer.observe(panel);
   }
 
   function setChrome(label: string, percentage: number, motivation = '') {
@@ -742,8 +776,9 @@ function initialiseCheck(root: HTMLElement) {
               .join('')}
           </div>
           <div class="success-check__navigation">
-            <button class="button success-check__back-button" type="button" data-check-back${currentQuestion === 0 ? ' disabled' : ''}>
-              <span aria-hidden="true">←</span> Zurück
+            <button class="button success-check__back-button" type="button" data-check-back data-check-underline${currentQuestion === 0 ? ' disabled' : ''}>
+              <span aria-hidden="true">←</span>
+              <span class="success-check__button-underline"><span class="link-underline__label">Zurück</span><span class="link-underline__line" aria-hidden="true"></span></span>
             </button>
             <button class="btn-glow success-check__next-button" type="button" data-check-next data-check-glow${selectedAnswer < 0 ? ' disabled' : ''}>
               ${glowButtonContent(
@@ -768,13 +803,13 @@ function initialiseCheck(root: HTMLElement) {
           <span class="success-check__complete-icon" aria-hidden="true">
             <svg viewBox="0 0 24 24"><path d="m6 12.5 4 4L18.5 8"></path></svg>
           </span>
-          <p class="success-check__kicker">Deine Auswertung ist fertig</p>
+          <p class="success-check__kicker">Geschafft – jetzt wird es spannend</p>
           <h2 tabindex="-1" data-check-heading>Dein persönliches Ergebnis ist bereit.</h2>
-          <p>Nur noch ein Schritt: Trag deinen Namen und deine E-Mail-Adresse ein, um dein persönliches Ergebnisprofil freizuschalten. Dich erwarten dein Gesamt-Score, alle 6 Bereichswerte und deine größten Wachstumspotenziale – inklusive persönlicher Tipps und Empfehlungen. Zusätzlich kannst du dein vollständiges Profil als PDF herunterladen.</p>
+          <p>Letzter Schritt: Trag kurz deinen Namen und deine E-Mail-Adresse ein und schalte dein Ergebnisprofil kostenlos frei.</p>
         </div>
 
-        <div class="success-check__lead-preview" aria-hidden="true">
-          <div class="success-check__lead-preview-profile">
+        <div class="success-check__lead-preview">
+          <div class="success-check__lead-preview-profile" aria-hidden="true">
             <div class="success-check__lead-preview-score" style="--preview-score:${result.percentage}%">
               <div><strong>${result.percentage}%</strong><span>Gesamt-Score</span></div>
             </div>
@@ -789,16 +824,31 @@ function initialiseCheck(root: HTMLElement) {
               </div>
             </div>
           </div>
-          <span class="success-check__lock" data-check-lock>
-            <svg viewBox="0 0 24 24"><rect x="5" y="10" width="14" height="11" rx="2"></rect><path d="M8 10V7a4 4 0 0 1 8 0v3"></path></svg>
-          </span>
-          <span class="success-check__lead-pdf-badge">
-            <svg viewBox="0 0 24 24">
-              <path d="M12 3v12m0 0 4-4m-4 4-4-4M5 20h14"></path>
-            </svg>
-            <span class="success-check__lead-pdf-label--full">PDF-Download inklusive</span>
-            <span class="success-check__lead-pdf-label--compact">PDF inklusive</span>
-          </span>
+          <div class="success-check__unlock-panel" data-check-unlock-panel>
+            <h3>Das schaltest du jetzt frei</h3>
+            <ul class="success-check__unlock-list" role="list">
+              <li style="--unlock-delay:0.17s;--unlock-shake-delay:0s">
+                <span class="success-check__unlock-icon" aria-hidden="true"><svg viewBox="0 0 24 24"><rect x="5" y="10" width="14" height="11" rx="2"></rect><path d="M8 10V7a4 4 0 0 1 8 0v3"></path></svg></span>
+                <span>Dein persönlicher Gesamt-Score</span>
+              </li>
+              <li style="--unlock-delay:0.29s;--unlock-shake-delay:0.38s">
+                <span class="success-check__unlock-icon" aria-hidden="true"><svg viewBox="0 0 24 24"><rect x="5" y="10" width="14" height="11" rx="2"></rect><path d="M8 10V7a4 4 0 0 1 8 0v3"></path></svg></span>
+                <span>Alle 6 Bereiche übersichtlich bewertet</span>
+              </li>
+              <li style="--unlock-delay:0.41s;--unlock-shake-delay:0.76s">
+                <span class="success-check__unlock-icon" aria-hidden="true"><svg viewBox="0 0 24 24"><rect x="5" y="10" width="14" height="11" rx="2"></rect><path d="M8 10V7a4 4 0 0 1 8 0v3"></path></svg></span>
+                <span>Deine größten Wachstumspotenziale</span>
+              </li>
+              <li style="--unlock-delay:0.53s;--unlock-shake-delay:1.14s">
+                <span class="success-check__unlock-icon" aria-hidden="true"><svg viewBox="0 0 24 24"><rect x="5" y="10" width="14" height="11" rx="2"></rect><path d="M8 10V7a4 4 0 0 1 8 0v3"></path></svg></span>
+                <span>Konkrete Tipps und Empfehlungen</span>
+              </li>
+              <li style="--unlock-delay:0.65s;--unlock-shake-delay:1.52s">
+                <span class="success-check__unlock-icon" aria-hidden="true"><svg viewBox="0 0 24 24"><rect x="5" y="10" width="14" height="11" rx="2"></rect><path d="M8 10V7a4 4 0 0 1 8 0v3"></path></svg></span>
+                <span>Dein vollständiges Ergebnisprofil als PDF</span>
+              </li>
+            </ul>
+          </div>
         </div>
 
         <form class="success-check__lead-form" data-check-lead-form novalidate>
@@ -829,8 +879,9 @@ function initialiseCheck(root: HTMLElement) {
 
           <p class="success-check__form-error" role="alert" data-check-form-error hidden></p>
           <div class="success-check__lead-actions">
-            <button class="button success-check__back-button" type="button" data-check-lead-back>
-              <span aria-hidden="true">←</span> Letzte Antwort prüfen
+            <button class="button success-check__back-button" type="button" data-check-lead-back data-check-underline>
+              <span aria-hidden="true">←</span>
+              <span class="success-check__button-underline"><span class="link-underline__label">Letzte Antwort prüfen</span><span class="link-underline__line" aria-hidden="true"></span></span>
             </button>
             <button class="btn-glow success-check__primary-button" type="submit" data-check-submit data-check-glow>
               ${glowButtonContent('Ergebnisprofil anzeigen', ' data-check-submit-label')}
@@ -839,7 +890,7 @@ function initialiseCheck(root: HTMLElement) {
         </form>
       </div>`;
     enhanceGlowButtons();
-    animateLeadLock();
+    animateUnlockList();
     focusStage();
   }
 
@@ -1142,7 +1193,12 @@ function initialiseCheck(root: HTMLElement) {
     }
   });
 
-  enhanceGlowButtons();
+  if (localLeadPreview) {
+    answers.fill(1);
+    renderLead();
+  } else {
+    enhanceGlowButtons();
+  }
 }
 
 document.querySelectorAll<HTMLElement>('[data-erfolgs-check]').forEach(initialiseCheck);

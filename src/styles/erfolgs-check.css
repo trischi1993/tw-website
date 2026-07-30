@@ -638,8 +638,22 @@
 .success-check__back-button,
 .success-check__result-secondary {
   min-height: 3rem;
+  color: var(--ink);
   font-size: var(--text-sm);
   text-align: center;
+}
+
+.success-check__button-underline {
+  display: block;
+  overflow: hidden;
+}
+
+@media (hover: hover) and (pointer: fine) {
+  .success-check__back-button:hover:not(:disabled),
+  .success-check__result-secondary:hover {
+    color: var(--ink);
+    background-color: transparent;
+  }
 }
 
 .success-check__mobile-start-link {
@@ -761,7 +775,7 @@
 .success-check__lead-preview {
   position: relative;
   margin: 1.75rem 0;
-  min-height: 17rem;
+  min-height: 19rem;
   padding: 1.4rem;
   overflow: hidden;
   border: 1px solid #30302f;
@@ -786,8 +800,8 @@
   align-items: center;
   gap: 1.25rem;
   min-height: 14rem;
-  opacity: 0.72;
-  filter: blur(5px);
+  opacity: 0.82;
+  filter: blur(4px);
   transform: scale(1.035);
 }
 
@@ -866,96 +880,103 @@
   background: var(--brand-highlight);
 }
 
-.success-check__lock {
+.success-check__unlock-panel {
   position: absolute;
   z-index: 2;
-  inset: 50% auto auto 50%;
+  inset: 1.1rem;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 1rem 1.25rem;
+  border: 1px solid #80642980;
+  border-radius: var(--radius-media);
+  background: linear-gradient(145deg, #191815c2, #111111b8);
+  box-shadow: 0 1rem 2.5rem #00000080;
+}
+
+.success-check__unlock-panel h3,
+.success-check__unlock-list li {
+  opacity: 0;
+  transform: translateY(0.55rem);
+  transition: opacity 0.36s var(--ease-smooth), transform 0.36s var(--ease-smooth);
+}
+
+.success-check__unlock-panel.is-visible h3,
+.success-check__unlock-panel.is-visible .success-check__unlock-list li {
+  opacity: 1;
+  transform: translateY(0);
+}
+
+.success-check__unlock-panel.is-visible h3 { transition-delay: 0.08s; }
+.success-check__unlock-panel.is-visible .success-check__unlock-list li {
+  transition-delay: var(--unlock-delay);
+}
+
+.success-check__unlock-panel h3 {
+  color: var(--ink);
+  font-size: 1.15rem;
+  font-weight: 500;
+  line-height: 1.35;
+  text-align: center;
+}
+
+.success-check__unlock-list {
+  display: flex;
+  flex-direction: column;
+  gap: 0.55rem;
+  width: min(100%, 26rem);
+  margin-top: 0.9rem;
+  padding: 0;
+  list-style: none;
+}
+
+.success-check__unlock-list li {
+  display: flex;
+  align-items: center;
+  gap: 0.65rem;
+  min-width: 0;
+  color: var(--ink-2);
+  font-size: 0.9rem;
+  line-height: 1.4;
+}
+
+.success-check__unlock-icon {
   display: grid;
   place-items: center;
-  width: 3rem;
-  height: 3rem;
-  color: var(--ink);
-  border: 1px solid #806429a6;
+  flex: none;
+  width: 1.7rem;
+  height: 1.7rem;
+  color: var(--brand-readable);
+  border: 1px solid #80642973;
   border-radius: 50%;
-  background: var(--brand);
-  box-shadow: 0 0.8rem 2rem #00000080;
-  transform: translate(-50%, -50%);
-  transform-origin: center;
-  will-change: transform;
+  background: #8064291f;
 }
 
-.success-check__lock::before {
-  position: absolute;
-  inset: -0.2rem;
-  border: 1px solid var(--brand-highlight);
-  border-radius: 50%;
-  content: '';
-  opacity: 0;
-  pointer-events: none;
-  animation: success-check-lock-ring-pulse 2.5s ease-out infinite;
-}
-
-.success-check__lock svg {
-  position: relative;
-  z-index: 1;
-  width: 1.25rem;
+.success-check__unlock-icon svg {
+  width: 0.78rem;
+  height: 0.78rem;
   fill: none;
   stroke: currentColor;
-  stroke-width: 1.6;
-  stroke-linecap: round;
-  stroke-linejoin: round;
-}
-
-.success-check__lock.is-animated {
-  animation: success-check-lock-shake 5s ease-in-out infinite;
-}
-
-@keyframes success-check-lock-shake {
-  0%, 8%, 100% { transform: translate(-50%, -50%) rotate(0); }
-  1.5% { transform: translate(-50%, -50%) rotate(-7deg); }
-  3% { transform: translate(-50%, -50%) rotate(7deg); }
-  4.5% { transform: translate(-50%, -50%) rotate(-5deg); }
-  6% { transform: translate(-50%, -50%) rotate(5deg); }
-}
-
-@keyframes success-check-lock-ring-pulse {
-  0% { opacity: 0.75; transform: scale(0.9); }
-  70%, 100% { opacity: 0; transform: scale(1.55); }
-}
-
-.success-check__lead-pdf-badge {
-  position: absolute;
-  z-index: 2;
-  top: calc(50% + 2.25rem);
-  left: 50%;
-  display: inline-flex;
-  align-items: center;
-  gap: 0.45rem;
-  padding: 0.42rem 0.72rem;
-  color: var(--ink-2);
-  border: 1px solid #806429a6;
-  border-radius: var(--radius-pill);
-  background: #151513e8;
-  box-shadow: 0 0.65rem 1.5rem #00000066;
-  font-size: 0.66rem;
-  font-weight: 500;
-  letter-spacing: 0.035em;
-  line-height: 1.3;
-  white-space: nowrap;
-  transform: translateX(-50%);
-}
-
-.success-check__lead-pdf-badge svg {
-  width: 0.88rem;
-  flex: none;
-  fill: none;
-  stroke: var(--brand-readable);
   stroke-width: 1.7;
   stroke-linecap: round;
   stroke-linejoin: round;
+  transform-box: fill-box;
+  transform-origin: 50% 8%;
 }
 
-.success-check__lead-pdf-label--compact { display: none; }
+.success-check__unlock-panel.is-visible .success-check__unlock-icon svg {
+  animation: success-check-unlock-shake 5s ease-in-out calc(1.1s + var(--unlock-shake-delay)) infinite;
+}
+
+@keyframes success-check-unlock-shake {
+  0%, 6%, 100% { transform: rotate(0); }
+  1.1% { transform: rotate(-22deg); }
+  2.2% { transform: rotate(20deg); }
+  3.3% { transform: rotate(-15deg); }
+  4.4% { transform: rotate(11deg); }
+  5.2% { transform: rotate(-5deg); }
+}
 
 .success-check__lead-form {
   position: relative;
@@ -1775,13 +1796,9 @@
   .success-check__lead-preview-score { width: 8rem; height: 8rem; margin-inline: auto; }
   .success-check__lead-preview-content { text-align: center; }
   .success-check__lead-preview-areas { text-align: left; }
-  .success-check__lead-pdf-badge {
-    max-width: calc(100% - 2rem);
-    padding-inline: 0.65rem;
-    box-sizing: border-box;
-  }
-  .success-check__lead-pdf-label--full { display: none; }
-  .success-check__lead-pdf-label--compact { display: inline; }
+  .success-check__unlock-panel { inset: 0.7rem; padding: 0.9rem 0.8rem; }
+  .success-check__unlock-list { gap: 0.45rem; }
+  .success-check__unlock-list li { font-size: 0.74rem; }
   .success-check__score { width: 10rem; height: 10rem; }
   .success-check__score strong { font-size: 3rem; }
   .success-check__score-grid { grid-template-columns: 1fr; }
