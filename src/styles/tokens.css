@@ -29,10 +29,12 @@
   --icon-dot:     #686868;  /* Listen-Punkt-Icons */
   --icon-line:    #424242;  /* FAQ-Plus-Linien */
 
-  --brand:        #806429;  /* Gold/Bronze-Akzent */
-  --brand-strong: #5e4931;  /* Gold-alt (aktiv) */
-  --brand-cream:  #d8d3cc;  /* warmes Beige (Outline-Buttons) */
-  --logo-line:    #b39478;  /* Logo-Linie mobil / Interest-Icons */
+  --brand:           #806429;  /* Hauptgold: Flächen, Rahmen und Effekte */
+  --brand-readable:  #aa8630;  /* lesbares Gold: Texte und feine Icons */
+  --brand-highlight: #b38b35;  /* Highlight-Gold: Scores und Fortschritt */
+  --brand-strong:    #5e4931;  /* Gold-alt (aktiv) */
+  --brand-cream:     #d8d3cc;  /* warmes Beige (Outline-Buttons) */
+  --logo-line:       #b39478;  /* Logo-Linie mobil / Interest-Icons */
 
   --white: #ffffff;
 
