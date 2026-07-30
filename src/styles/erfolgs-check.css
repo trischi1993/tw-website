@@ -1708,13 +1708,23 @@
 @media (hover: none), (pointer: coarse) {
   .success-check__question-stage { animation-duration: 0.22s; }
   .success-check__progress-track span { transition-duration: 0.28s; }
-  .success-check__option { transition-duration: 0.12s; }
+  .success-check__option,
+  .success-check__radio,
+  .success-check__radio::after { transition: none; }
   .success-check__option:active {
     color: var(--ink);
-    border-color: #80642980;
-    background: #272620;
+    border-color: var(--brand);
+    background: #80642917;
   }
-  .success-check__option:active .success-check__radio { transform: scale(0.9); }
+  .success-check__option:active .success-check__radio {
+    border-color: var(--brand);
+    background: var(--brand);
+    transform: none;
+  }
+  .success-check__option:active .success-check__radio::after {
+    opacity: 1;
+    transform: translate(-50%, -50%) scale(1);
+  }
 }
 
 @media (max-width: 479px) {

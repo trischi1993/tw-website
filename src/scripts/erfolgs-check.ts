@@ -963,7 +963,7 @@ function initialiseCheck(root: HTMLElement) {
     }, 0);
   }
 
-  stageElement.addEventListener('change', (event) => {
+  stageElement.addEventListener('input', (event) => {
     const input = (event.target as HTMLElement).closest<HTMLInputElement>('[data-check-answer]');
     if (!input) return;
     answers[currentQuestion] = Number(input.value);
