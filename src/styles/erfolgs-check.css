@@ -1660,16 +1660,16 @@
   .success-check__hero h1 { font-size: 2.8rem; }
   .success-check__start-card {
     grid-template-areas:
-      'copy'
       'button'
       'note'
       'preview'
       'areas'
+      'copy'
       'mobile-cta';
     grid-template-columns: minmax(0, 1fr);
   }
   .success-check__mobile-start-link { display: inline-flex; }
-  .success-check__start-card > p { margin: 0 auto 1.25rem; }
+  .success-check__start-card > p { margin: 1.5rem auto 0; }
   .success-check__start-preview {
     display: grid;
     grid-template-areas:
