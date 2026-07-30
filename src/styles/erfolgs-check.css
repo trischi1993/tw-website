@@ -1066,6 +1066,20 @@
   border-radius: 50%;
   background: transparent;
   box-shadow: 0 0 4rem #8064292e;
+  transform-origin: center;
+  animation: success-check-score-pulse 2.8s ease-in-out infinite;
+  will-change: transform, box-shadow;
+}
+
+@keyframes success-check-score-pulse {
+  0%, 100% {
+    box-shadow: 0 0 4rem #8064292e;
+    transform: scale(1);
+  }
+  50% {
+    box-shadow: 0 0 5.5rem #80642952;
+    transform: scale(1.025);
+  }
 }
 
 .success-check__score-ring {
@@ -1226,6 +1240,13 @@
 .success-check__result-secondary { width: 100%; }
 
 .success-check__result-primary .btn-glow__content { width: 100%; }
+
+.success-check__result-secondary:hover,
+.success-check__result-secondary:focus-visible {
+  color: var(--ink);
+  border-color: #aa863099;
+  background-color: #80642924;
+}
 
 .success-check__or {
   display: flex;
@@ -1417,11 +1438,10 @@
 }
 
 .success-check__pdf-document .success-check__score > div {
-  display: grid;
-  grid-template-rows: auto auto;
-  place-content: center;
-  justify-items: center;
-  row-gap: 1.05rem;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
   border: 0;
   background: transparent;
   transform: translateY(-0.7rem);
@@ -1431,17 +1451,25 @@
   display: block;
   margin: 0;
   font-size: 3.25rem !important;
-  line-height: 0.82 !important;
+  line-height: 1 !important;
 }
 
 .success-check__pdf-document .success-check__score span {
   display: block;
-  margin: 0;
+  margin: 0.45rem 0 0;
   line-height: 1;
 }
 
 .success-check__pdf-document .success-check__score-grid {
   grid-template-columns: repeat(2, 1fr) !important;
+}
+
+.success-check__pdf-document .success-check__score-card {
+  row-gap: 0.55rem;
+}
+
+.success-check__pdf-document .success-check__score-track {
+  margin-top: 0.2rem;
 }
 
 .success-check__pdf-document .success-check__potential-box {
@@ -1490,8 +1518,10 @@
   height: 3.25rem;
   min-height: 3.25rem;
   padding: 0 3.25rem !important;
-  overflow: hidden;
+  overflow: visible;
   border-radius: var(--radius-pill);
+  outline: 0;
+  box-shadow: none;
   box-sizing: border-box;
   font-size: 0.82rem !important;
   line-height: 1;
@@ -1500,7 +1530,8 @@
 
 .success-check__pdf-document .success-check__result-primary.success-check__pdf-cta {
   color: var(--ink);
-  border: 1px solid #806429a6;
+  border: 0;
+  background-color: var(--brand);
   background: linear-gradient(90deg, #121212 0%, #1d1a13 62%, var(--brand) 100%);
 }
 
