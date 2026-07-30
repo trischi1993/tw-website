@@ -11,6 +11,7 @@ import * as aioLoad from './motion/aio-load';
 import * as moduleScrub from './motion/module';
 import * as bonuses from './motion/bonuses';
 import * as aboutLoad from './motion/about-load';
+import * as erfolgsCheckLoad from './motion/erfolgs-check-load';
 import * as timeline from './motion/timeline';
 import * as interests from './motion/interests';
 import * as footer from './motion/footer';
@@ -183,6 +184,7 @@ function init(): void {
   moduleScrub.init(mm);
   bonuses.init(mm);
   aboutLoad.init(mm);
+  erfolgsCheckLoad.init();
   timeline.init(mm);
   interests.init(mm);
   footer.init(mm);
@@ -211,6 +213,7 @@ function init(): void {
       navbarReplayFrame = undefined;
       aboutLoad.restartNavbar();
       aioLoad.restartNavbar();
+      erfolgsCheckLoad.restartNavbar();
     });
   };
   ScrollTrigger.addEventListener('matchMedia', queueNavbarReplay);

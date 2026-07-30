@@ -44,6 +44,17 @@ if (header && toggle && menu && panel) {
   const burgerMiddle = header.querySelector<HTMLElement>('[data-burger-middle]');
   const burgerBottom = header.querySelector<HTMLElement>('[data-burger-bottom]');
   const rightInner = header.querySelector<HTMLElement>('[data-nav-right-inner]');
+  const headerCta = header.querySelector<HTMLElement>('.navbar__cta');
+
+  // Der geöffnete Zustand schiebt den Burger an die bisherige CTA-Position
+  // und den CTA vollständig aus der Overflow-Maske. Der frühere Fixwert von
+  // 9.2rem passte nicht mehr zur aktuellen Beschriftung „Insta-Check" und ließ
+  // rechts einen schmalen Button-Rest stehen.
+  const openMenuShift = () => {
+    if (!rightInner || !headerCta) return 9.2 * 16;
+    const gap = Number.parseFloat(getComputedStyle(rightInner).columnGap) || 0;
+    return headerCta.getBoundingClientRect().width + gap;
+  };
 
   const linkDelay = (i: number) =>
     links.length === 4 ? LINK_DELAYS_4[i] : 1.0 + i * 0.1;
@@ -62,7 +73,7 @@ if (header && toggle && menu && panel) {
     tl?.kill();
     tl = gsap.timeline();
     tl.to(header, { backgroundColor: 'rgba(0,0,0,0)', duration: 0.2, ease: EASE.ease }, 0);
-    if (rightInner) tl.to(rightInner, { x: '9.2rem', duration: 0.5, ease: EASE.outQuart }, 0);
+    if (rightInner) tl.to(rightInner, { x: openMenuShift, duration: 0.5, ease: EASE.outQuart }, 0);
     tl.to(panel, { xPercent: 0, duration: 1.5, ease: EASE.inOutQuart }, 0);
     if (burgerMiddle) tl.to(burgerMiddle, { xPercent: 200, duration: 0.5, ease: EASE.outQuart }, 0.1);
     if (burgerTop) {

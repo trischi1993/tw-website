@@ -495,9 +495,11 @@ em, i { font-style: italic; }
    würden Hero/Statement nach einem Sanity-Live-Update dauerhaft verschwinden. */
 html.has-motion:not(.motion-ready) [data-anim='lines']:not([data-revealed]) { visibility: hidden; }
 
-/* Geteilter Navbar-Build - nur auf Seiten mit Load-Choreo (Home/Über-mich/AIO). */
+/* Geteilter Navbar-Build - nur auf Seiten mit Load-Choreo
+   (Home/Über-mich/AIO/Erfolgs-Check). */
 html.has-motion:not(.motion-ready):has([data-home-hero], [data-about-hero], [data-aio-hero]) [data-nav-logo-line]:not([data-revealed]) { height: 0; }
-html.has-motion:not(.motion-ready):has([data-home-hero], [data-about-hero], [data-aio-hero]) [data-nav-right]:not([data-revealed]) {
+html.has-motion:not(.motion-ready):has([data-erfolgs-check]) [data-nav-logo-line]:not([data-revealed]) { transform: scaleY(0); }
+html.has-motion:not(.motion-ready):has([data-home-hero], [data-about-hero], [data-aio-hero], [data-erfolgs-check]) [data-nav-right]:not([data-revealed]) {
   opacity: 0;
   transform: translateX(2.5rem);
 }

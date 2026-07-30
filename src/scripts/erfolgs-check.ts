@@ -675,6 +675,126 @@ function initialiseCheck(root: HTMLElement) {
     });
   }
 
+  function animateStartPreview() {
+    const preview = stageElement.querySelector<HTMLElement>('[data-check-start-preview]');
+    if (!preview || preview.dataset.checkPreviewReady === 'true') return;
+
+    const scoreText = preview.querySelector<HTMLElement>('[data-check-preview-score]');
+    const scoreRing = preview.querySelector<SVGCircleElement>('[data-check-preview-score-ring]');
+    const bars = Array.from(
+      preview.querySelectorAll<HTMLElement>('.success-check__start-preview-metric em'),
+    );
+    if (!scoreText || !scoreRing || bars.length === 0) return;
+
+    preview.dataset.checkPreviewReady = 'true';
+    const scoreTarget = Number(scoreText.dataset.previewValue ?? 73);
+    const scoreDurationMs = 3000;
+    const scoreDurationSeconds = scoreDurationMs / 1000;
+    const useNativeMobileAnimation = window.matchMedia(
+      '(max-width: 767px), (hover: none), (pointer: coarse)',
+    ).matches;
+
+    if (window.matchMedia('(prefers-reduced-motion: reduce)').matches) return;
+
+    if (useNativeMobileAnimation) {
+      scoreText.textContent = '0%';
+      preview.style.setProperty('--preview-ring-target', String(100 - scoreTarget));
+      scoreRing.style.strokeDashoffset = '100';
+      bars.forEach((bar) => {
+        bar.style.transform = 'scaleX(0)';
+      });
+    } else {
+      scoreText.textContent = '0%';
+      gsap.set(scoreRing, { strokeDashoffset: 100 });
+      gsap.set(bars, { scaleX: 0 });
+    }
+
+    const animateNativeCounter = () => {
+      const startedAt = performance.now();
+      let lastValue = -1;
+
+      const updateCounter = (timestamp: number) => {
+        const progress = Math.min((timestamp - startedAt) / scoreDurationMs, 1);
+        const easedProgress = 0.5 - Math.cos(Math.PI * progress) / 2;
+        const nextValue = Math.round(scoreTarget * easedProgress);
+
+        if (nextValue !== lastValue) {
+          scoreText.textContent = `${nextValue}%`;
+          lastValue = nextValue;
+        }
+
+        if (progress < 1) {
+          window.requestAnimationFrame(updateCounter);
+        } else {
+          scoreText.textContent = `${scoreTarget}%`;
+        }
+      };
+
+      window.requestAnimationFrame(updateCounter);
+    };
+
+    const play = () => {
+      if (preview.dataset.checkPreviewAnimated === 'true') return;
+      preview.dataset.checkPreviewAnimated = 'true';
+
+      if (useNativeMobileAnimation) {
+        window.setTimeout(() => {
+          preview.classList.add('is-native-preview-animated');
+          animateNativeCounter();
+        }, 80);
+        return;
+      }
+
+      const counter = { value: 0 };
+      let lastRenderedValue = -1;
+      const timeline = gsap.timeline({ defaults: { ease: 'sine.inOut' } });
+      timeline.to(
+        counter,
+        {
+          value: scoreTarget,
+          duration: scoreDurationSeconds,
+          onUpdate: () => {
+            const nextValue = Math.round(counter.value);
+            if (nextValue === lastRenderedValue) return;
+            scoreText.textContent = `${nextValue}%`;
+            lastRenderedValue = nextValue;
+          },
+          onComplete: () => {
+            scoreText.textContent = `${scoreTarget}%`;
+          },
+        },
+        0,
+      );
+      timeline.to(
+        scoreRing,
+        { strokeDashoffset: 100 - scoreTarget, duration: scoreDurationSeconds },
+        0,
+      );
+      bars.forEach((bar, index) => {
+        timeline.to(
+          bar,
+          { scaleX: 1, duration: 0.8, ease: 'power2.inOut' },
+          0.25 + index * 0.9,
+        );
+      });
+    };
+
+    if (!('IntersectionObserver' in window)) {
+      play();
+      return;
+    }
+
+    const observer = new IntersectionObserver(
+      (entries) => {
+        if (!entries.some((entry) => entry.isIntersecting)) return;
+        play();
+        observer.disconnect();
+      },
+      { threshold: 0.35 },
+    );
+    observer.observe(preview);
+  }
+
   function focusStage() {
     window.requestAnimationFrame(() => {
       const prefersReducedMotion = window.matchMedia(
@@ -1130,6 +1250,7 @@ function initialiseCheck(root: HTMLElement) {
       progressElement.hidden = true;
       stageElement.innerHTML = startMarkup;
       enhanceGlowButtons();
+      animateStartPreview();
       root.scrollIntoView({ behavior: 'smooth', block: 'start' });
     }
   });
@@ -1198,6 +1319,7 @@ function initialiseCheck(root: HTMLElement) {
     renderLead();
   } else {
     enhanceGlowButtons();
+    animateStartPreview();
   }
 }
 

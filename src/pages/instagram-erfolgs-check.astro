@@ -8,5 +8,23 @@ import ErfolgsCheck from '../components/ErfolgsCheck.astro';
   description="Finde in 5 Minuten heraus, wo dein Instagram-Account noch Potenzial liegen lässt – mit persönlichem Ergebnisprofil und konkreten nächsten Schritten."
   route="instagram-erfolgs-check"
 >
+  <Fragment slot="head">
+    <!-- Diese beiden Schnitte stehen direkt im sichtbaren Hero. Frühes Laden
+         verhindert den kurzen Wechsel auf eine größere iOS-Ersatzschrift. -->
+    <link
+      rel="preload"
+      href="/fonts/poppins-medium.woff2"
+      as="font"
+      type="font/woff2"
+      crossorigin
+    />
+    <link
+      rel="preload"
+      href="/fonts/poppins-semibold.woff2"
+      as="font"
+      type="font/woff2"
+      crossorigin
+    />
+  </Fragment>
   <ErfolgsCheck />
 </BaseLayout>
