@@ -557,10 +557,12 @@
   transition: border-color var(--dur-fast), background var(--dur-fast), color var(--dur-fast);
 }
 
-.success-check__option:hover {
-  color: var(--ink);
-  border-color: #80642980;
-  background: #272620;
+@media (hover: hover) and (pointer: fine) {
+  .success-check__option:hover {
+    color: var(--ink);
+    border-color: #80642980;
+    background: #272620;
+  }
 }
 
 .success-check__option.is-selected,
@@ -1711,20 +1713,6 @@
   .success-check__option,
   .success-check__radio,
   .success-check__radio::after { transition: none; }
-  .success-check__option:active {
-    color: var(--ink);
-    border-color: var(--brand);
-    background: #80642917;
-  }
-  .success-check__option:active .success-check__radio {
-    border-color: var(--brand);
-    background: var(--brand);
-    transform: none;
-  }
-  .success-check__option:active .success-check__radio::after {
-    opacity: 1;
-    transform: translate(-50%, -50%) scale(1);
-  }
 }
 
 @media (max-width: 479px) {
