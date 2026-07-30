@@ -877,6 +877,10 @@
   stroke-linejoin: round;
 }
 
+.success-check__lock.is-animated {
+  animation: success-check-lock-wiggle 0.8s cubic-bezier(0.36, 0.07, 0.19, 0.97) 0.18s both;
+}
+
 .success-check__lead-pdf-badge {
   position: absolute;
   z-index: 2;
@@ -908,6 +912,8 @@
   stroke-linecap: round;
   stroke-linejoin: round;
 }
+
+.success-check__lead-pdf-label--compact { display: none; }
 
 .success-check__lead-form {
   position: relative;
@@ -1032,27 +1038,6 @@
 }
 
 .success-check__lead-actions .btn-glow__label { font-size: var(--text-sm); }
-
-.success-check__privacy-note {
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  gap: 0.45rem;
-  margin-top: 0.9rem;
-  color: #777;
-  font-size: 0.7rem;
-  text-align: center;
-}
-
-.success-check__privacy-note svg {
-  width: 0.8rem;
-  flex: none;
-  fill: none;
-  stroke: currentColor;
-  stroke-width: 1.5;
-  stroke-linecap: round;
-  stroke-linejoin: round;
-}
 
 .success-check__result-intro { max-width: 42rem; margin-inline: auto; text-align: center; }
 
@@ -1617,6 +1602,14 @@
   to { opacity: 1; transform: translateY(0); }
 }
 
+@keyframes success-check-lock-wiggle {
+  0%, 100% { transform: translate(-50%, -50%) rotate(0); }
+  20% { transform: translate(-50%, -50%) rotate(-8deg); }
+  40% { transform: translate(-50%, -50%) rotate(7deg); }
+  60% { transform: translate(-50%, -50%) rotate(-5deg); }
+  80% { transform: translate(-50%, -50%) rotate(3deg); }
+}
+
 @media (max-width: 767px) {
   .success-check { padding-top: calc(var(--header-h) + 3.5rem); padding-bottom: 7rem; }
   .success-check__container { width: min(100% - 8vw, 47.5rem); }
@@ -1715,6 +1708,13 @@
   .success-check__lead-preview-score { width: 8rem; height: 8rem; margin-inline: auto; }
   .success-check__lead-preview-content { text-align: center; }
   .success-check__lead-preview-areas { text-align: left; }
+  .success-check__lead-pdf-badge {
+    max-width: calc(100% - 2rem);
+    padding-inline: 0.65rem;
+    box-sizing: border-box;
+  }
+  .success-check__lead-pdf-label--full { display: none; }
+  .success-check__lead-pdf-label--compact { display: inline; }
   .success-check__score { width: 10rem; height: 10rem; }
   .success-check__score strong { font-size: 3rem; }
   .success-check__score-grid { grid-template-columns: 1fr; }

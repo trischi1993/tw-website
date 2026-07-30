@@ -634,6 +634,27 @@ function initialiseCheck(root: HTMLElement) {
     });
   }
 
+  function animateLeadLock() {
+    const lock = stageElement.querySelector<HTMLElement>('[data-check-lock]');
+    if (!lock || window.matchMedia('(prefers-reduced-motion: reduce)').matches) return;
+
+    const animate = () => lock.classList.add('is-animated');
+    if (!('IntersectionObserver' in window)) {
+      animate();
+      return;
+    }
+
+    const observer = new IntersectionObserver(
+      (entries) => {
+        if (!entries.some((entry) => entry.isIntersecting)) return;
+        animate();
+        observer.disconnect();
+      },
+      { threshold: 0.6 },
+    );
+    observer.observe(lock);
+  }
+
   function setChrome(label: string, percentage: number, motivation = '') {
     heroElement.hidden = true;
     // Der kompakte Markenblock bleibt auf der Webseite verborgen, damit er
@@ -738,14 +759,15 @@ function initialiseCheck(root: HTMLElement) {
               </div>
             </div>
           </div>
-          <span class="success-check__lock">
+          <span class="success-check__lock" data-check-lock>
             <svg viewBox="0 0 24 24"><rect x="5" y="10" width="14" height="11" rx="2"></rect><path d="M8 10V7a4 4 0 0 1 8 0v3"></path></svg>
           </span>
           <span class="success-check__lead-pdf-badge">
             <svg viewBox="0 0 24 24">
               <path d="M12 3v12m0 0 4-4m-4 4-4-4M5 20h14"></path>
             </svg>
-            + PDF-Download inklusive
+            <span class="success-check__lead-pdf-label--full">PDF-Download inklusive</span>
+            <span class="success-check__lead-pdf-label--compact">PDF inklusive</span>
           </span>
         </div>
 
@@ -770,7 +792,7 @@ function initialiseCheck(root: HTMLElement) {
             <span class="success-check__checkbox" aria-hidden="true">
               <svg viewBox="0 0 12 10"><path d="M1 5.5 4.2 8.5 11 1.5"></path></svg>
             </span>
-            <span>Ich habe die <a href="/datenschutz/" target="_blank" rel="noopener noreferrer">Datenschutzerklärung</a> gelesen und bin mit der Verarbeitung meiner Angaben zur Auswertung und Kontaktaufnahme einverstanden.</span>
+            <span>Ich stimme der Verarbeitung meiner Angaben zur Auswertung und Kontaktaufnahme gemäß der <a href="/datenschutz/" target="_blank" rel="noopener noreferrer">Datenschutzerklärung</a> zu.</span>
           </label>
 
           ${localPreview ? '<p class="success-check__local-note">Localhost-Vorschau: Deine Kontaktdaten werden nicht an das Lead-System versendet. Quiz-Ergebnis, Name und E-Mail werden zum Testen in Google Sheets protokolliert.</p>' : ''}
@@ -784,13 +806,10 @@ function initialiseCheck(root: HTMLElement) {
               ${glowButtonContent('Ergebnisprofil anzeigen', ' data-check-submit-label')}
             </button>
           </div>
-          <p class="success-check__privacy-note">
-            <svg viewBox="0 0 24 24" aria-hidden="true"><rect x="5" y="10" width="14" height="11" rx="2"></rect><path d="M8 10V7a4 4 0 0 1 8 0v3"></path></svg>
-            Deine Daten werden sicher übertragen und nicht an Dritte weitergegeben.
-          </p>
         </form>
       </div>`;
     enhanceGlowButtons();
+    animateLeadLock();
     focusStage();
   }
 
