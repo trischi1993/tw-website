@@ -1721,6 +1721,14 @@
   .success-check { padding-top: calc(var(--header-h) + 2.5rem); padding-bottom: 5rem; }
   .success-check__container { width: calc(100% - 2rem); }
   .success-check__hero { margin-bottom: 1.75rem; }
+  .success-check__eyebrow {
+    gap: 0.45rem;
+    margin-bottom: 1.35rem;
+    padding: 0.4rem 0.75rem;
+    font-size: 0.68rem;
+    letter-spacing: 0.1em;
+  }
+  .success-check__eyebrow > span { width: 0.34rem; }
   .success-check__hero h1 { font-size: 2.1rem; line-height: 1.17; }
   .success-check__hero-copy { font-size: var(--text-base); }
   .success-check__meta { align-items: center; flex-direction: column; }
