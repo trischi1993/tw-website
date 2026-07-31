@@ -796,12 +796,13 @@
   overflow: hidden;
 }
 
-@media (hover: hover) and (pointer: fine) {
-  .success-check__back-button:hover:not(:disabled),
-  .success-check__result-secondary:hover {
-    color: var(--ink);
-    background-color: transparent;
-  }
+.success-check__back-button:hover:not(:disabled),
+.success-check__back-button:focus-visible,
+.success-check__back-button:active:not(:disabled),
+.success-check__result-secondary:hover {
+  color: var(--ink);
+  border-color: var(--brand-cream);
+  background-color: transparent;
 }
 
 .success-check__mobile-start-link {
@@ -1950,6 +1951,12 @@
   .success-check__option,
   .success-check__radio,
   .success-check__radio::after { transition: none; }
+  .success-check__unlock-panel h3,
+  .success-check__unlock-list li {
+    opacity: 1;
+    transform: none;
+    transition: none;
+  }
 }
 
 @media (max-width: 479px) {

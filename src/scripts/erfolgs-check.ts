@@ -795,7 +795,7 @@ function initialiseCheck(root: HTMLElement) {
     observer.observe(preview);
   }
 
-  function focusStage() {
+  function focusStage(afterPositioned?: () => void) {
     window.requestAnimationFrame(() => {
       const prefersReducedMotion = window.matchMedia(
         '(prefers-reduced-motion: reduce)',
@@ -812,6 +812,7 @@ function initialiseCheck(root: HTMLElement) {
       stageElement
         .querySelector<HTMLElement>('[data-check-heading]')
         ?.focus({ preventScroll: true });
+      if (afterPositioned) window.requestAnimationFrame(afterPositioned);
     });
   }
 
@@ -828,15 +829,43 @@ function initialiseCheck(root: HTMLElement) {
       return;
     }
 
-    const observer = new IntersectionObserver(
-      (entries) => {
-        if (!entries.some((entry) => entry.isIntersecting)) return;
-        reveal();
-        observer.disconnect();
-      },
-      { threshold: 0.35 },
-    );
-    observer.observe(panel);
+    const observePanel = () => {
+      if (!panel.isConnected) return;
+
+      const observer = new IntersectionObserver(
+        (entries) => {
+          if (!entries.some((entry) => entry.isIntersecting)) return;
+          reveal();
+          observer.disconnect();
+        },
+        { threshold: 0.35 },
+      );
+      observer.observe(panel);
+    };
+
+    const waitForMobileScroll = window.matchMedia(
+      '(max-width: 767px), (hover: none), (pointer: coarse)',
+    ).matches;
+    if (!waitForMobileScroll) {
+      observePanel();
+      return;
+    }
+
+    // Auf Touch-Geräten erst nach einem echten Abwärtsscroll beobachten. So
+    // kann der automatische Sprung zum Kartenanfang die Einblendung nicht
+    // bereits auslösen, bevor die Person die Vorschau erreicht.
+    const initialScrollY = window.scrollY;
+    const startOnScroll = () => {
+      if (!panel.isConnected) {
+        window.removeEventListener('scroll', startOnScroll);
+        return;
+      }
+      if (window.scrollY <= initialScrollY + 4) return;
+
+      window.removeEventListener('scroll', startOnScroll);
+      observePanel();
+    };
+    window.addEventListener('scroll', startOnScroll, { passive: true });
   }
 
   function setChrome(label: string, percentage: number, motivation = '') {
@@ -1010,8 +1039,7 @@ function initialiseCheck(root: HTMLElement) {
         </form>
       </div>`;
     enhanceGlowButtons();
-    animateUnlockList();
-    focusStage();
+    focusStage(animateUnlockList);
   }
 
   function renderResult() {
