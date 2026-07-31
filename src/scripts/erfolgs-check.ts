@@ -346,7 +346,7 @@ function normalisePdfScore(root: HTMLElement) {
       ?.style.setProperty('stroke-width', '4');
     ring
       .querySelector<SVGCircleElement>('.success-check__score-ring-value')
-      ?.style.setProperty('stroke-width', '6');
+      ?.style.setProperty('stroke-width', '5');
 
     // Prozentzahl und Beschriftung teilen im PDF dasselbe feste 120×120-
     // Koordinatensystem wie der Ring. Dadurch können Browser-Auflösung,
@@ -385,9 +385,9 @@ function normalisePdfRecommendationNotes(root: HTMLElement) {
   const svgNamespace = 'http://www.w3.org/2000/svg';
   const viewBoxWidth = 660;
   const viewBoxHeight = 64;
-  const fontSize = 10.9;
-  const lineHeight = 16.5;
-  const maximumLineWidth = 620;
+  const fontSize = 12;
+  const lineHeight = 18;
+  const maximumLineWidth = 630;
   const measuringContext = document.createElement('canvas').getContext('2d');
   if (measuringContext) measuringContext.font = `300 ${fontSize}px Poppins, sans-serif`;
 

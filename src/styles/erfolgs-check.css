@@ -1689,7 +1689,7 @@
   .success-check__score-ring
   circle.success-check__score-ring-value {
   stroke: var(--brand-highlight);
-  stroke-width: 6;
+  stroke-width: 5;
   filter: none;
 }
 
@@ -1796,7 +1796,7 @@
   padding: 0;
   overflow: hidden;
   box-sizing: border-box;
-  font-size: 0.68rem;
+  font-size: 0.75rem;
   line-height: 1.55;
 }
 
