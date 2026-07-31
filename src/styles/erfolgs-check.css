@@ -1265,6 +1265,31 @@
   box-shadow: 0 0 4rem #8064292e;
 }
 
+.success-check__score::after {
+  position: absolute;
+  inset: -0.2rem;
+  border: 1px solid #b38b3566;
+  border-radius: 50%;
+  box-shadow: 0 0 1.2rem #80642952;
+  opacity: 0.2;
+  pointer-events: none;
+  transform: scale(0.98);
+  animation: success-check-score-pulse 2.8s ease-in-out infinite;
+  will-change: opacity, transform;
+  content: '';
+}
+
+@keyframes success-check-score-pulse {
+  0%, 100% {
+    opacity: 0.2;
+    transform: scale(0.98);
+  }
+  50% {
+    opacity: 0.8;
+    transform: scale(1.075);
+  }
+}
+
 .success-check__score-ring {
   position: absolute;
   inset: 0;
@@ -1284,19 +1309,6 @@
   stroke: var(--brand-highlight);
   stroke-linecap: round;
   filter: drop-shadow(0 0 0.35rem #8064298c);
-  animation: success-check-score-ring-pulse 2.8s ease-in-out infinite;
-  will-change: filter, stroke-width;
-}
-
-@keyframes success-check-score-ring-pulse {
-  0%, 100% {
-    stroke-width: 4;
-    filter: drop-shadow(0 0 0.35rem #8064298c);
-  }
-  50% {
-    stroke-width: 4.65;
-    filter: drop-shadow(0 0 0.7rem #b38b35b3);
-  }
 }
 
 .success-check__score-ring-value[stroke-dasharray^='0 '] {
@@ -1490,6 +1502,7 @@
   font-size: 0.68rem;
   letter-spacing: 0.04em;
   text-align: center;
+  white-space: nowrap;
 }
 
 .success-check__download-button:hover {
@@ -1498,7 +1511,11 @@
   background: #8064290d;
 }
 
-.success-check__download-button:disabled { opacity: 0.6; cursor: wait; }
+.success-check__download-button[aria-disabled='true'] {
+  opacity: 0.6;
+  cursor: wait;
+  pointer-events: none;
+}
 
 .success-check__download-button svg {
   width: 0.9rem;
@@ -1554,13 +1571,14 @@
 }
 
 .success-check__pdf-page {
-  display: flex;
-  flex-direction: column;
+  position: relative;
+  display: block;
   width: 210mm;
-  /* Zwei Zehntel CSS-Pixel verhindern, dass html2canvas die Summe mehrerer
-     A4-Seiten aufrundet und daraus eine zusätzliche 1-Pixel-PDF-Seite baut. */
-  height: calc(297mm - 0.2px);
-  padding: 9mm 10mm 7mm;
+  /* Zwei CSS-Pixel Rundungspuffer verhindern auch bei kurzen Profilen mit nur
+     zwei Inhaltsseiten, dass html2canvas eine zusätzliche leere A4-Seite
+     anlegt. Kopf, Inhalt und Footer liegen deutlich innerhalb dieses Puffers. */
+  height: calc(297mm - 2px);
+  padding: 0;
   overflow: hidden;
   color: var(--ink);
   background: #0c0c0c;
@@ -1568,8 +1586,12 @@
 }
 
 .success-check__pdf-page-header {
-  flex: none;
-  margin: 0 auto 8mm !important;
+  position: absolute;
+  top: 9mm;
+  right: 10mm;
+  left: 10mm;
+  height: 5mm;
+  margin: 0 !important;
   color: #777;
   font-size: 0.72rem;
   font-weight: 400;
@@ -1579,22 +1601,30 @@
 }
 
 .success-check__pdf-page-body {
+  position: absolute;
+  top: 21mm;
+  right: 10mm;
+  bottom: 17mm;
+  left: 10mm;
   min-height: 0;
-  flex: 1;
 }
 
 .success-check__pdf-page-footer {
+  position: absolute;
+  right: 10mm;
+  bottom: 7mm;
+  left: 10mm;
   display: flex;
   align-items: flex-end;
   justify-content: space-between;
-  flex: none;
-  height: 5mm;
-  margin-top: 3mm;
+  height: 7mm;
+  margin: 0;
   padding: 2mm 1mm 0;
   color: #777;
   border-top: 1px solid #30302f;
   font-size: 0.58rem;
   letter-spacing: 0.04em;
+  box-sizing: border-box;
 }
 
 .success-check__pdf-page--recommendation-only .success-check__pdf-page-body {
@@ -1602,9 +1632,14 @@
 }
 
 .success-check__result-card--pdf {
+  display: block !important;
   width: 100%;
+  height: auto !important;
+  min-height: 0 !important;
+  max-height: none !important;
   margin: 0;
   padding: 8mm !important;
+  overflow: visible !important;
   border-radius: var(--radius-card) !important;
   box-sizing: border-box;
   animation: none !important;
@@ -1626,6 +1661,10 @@
   box-shadow: none !important;
 }
 
+.success-check__pdf-document .success-check__score::after {
+  content: none;
+}
+
 .success-check__pdf-document .success-check__score-ring circle {
   stroke-width: 3;
 }
@@ -1639,47 +1678,20 @@
   filter: none;
 }
 
-.success-check__pdf-document .success-check__score > div {
-  position: absolute;
-  inset: 0;
-  display: block;
-  width: 100%;
-  height: 100%;
-  border: 0;
-  background: transparent;
-  transform: none;
-}
-
-.success-check__pdf-document .success-check__score strong {
-  position: absolute;
-  top: 3.1rem;
-  right: 0;
-  left: 0;
-  display: block;
-  height: 3.45rem;
-  margin: 0;
-  font-size: 3.25rem !important;
-  line-height: 3.45rem !important;
-  text-align: center;
-}
-
-.success-check__pdf-document .success-check__score span {
-  position: absolute;
-  top: 7rem;
-  right: 0;
-  left: 0;
-  display: block;
-  margin: 0;
-  line-height: 1rem;
-  text-align: center;
-}
-
 .success-check__pdf-document .success-check__score-grid {
-  grid-template-columns: repeat(2, 1fr) !important;
+  display: flex !important;
+  flex-wrap: wrap;
+  gap: 0.75rem;
+  width: 100%;
+  height: auto !important;
 }
 
 .success-check__pdf-document .success-check__score-card {
+  flex: 0 0 calc(50% - 0.375rem);
+  width: calc(50% - 0.375rem);
+  min-width: 0;
   row-gap: 0.55rem;
+  box-sizing: border-box;
 }
 
 .success-check__pdf-document .success-check__score-track {
@@ -1727,12 +1739,11 @@
 
 .success-check__pdf-document .success-check__pdf-cta {
   position: relative;
-  display: grid !important;
-  place-items: center;
+  display: block !important;
   height: 3.25rem;
   min-height: 3.25rem;
-  padding: 0 3.25rem !important;
-  overflow: visible;
+  padding: 0 !important;
+  overflow: hidden;
   border-radius: var(--radius-pill);
   outline: 0;
   box-shadow: none;
@@ -1749,43 +1760,16 @@
   background: linear-gradient(90deg, #121212 0%, #1d1a13 62%, var(--brand) 100%);
 }
 
-.success-check__pdf-document .success-check__pdf-cta-label {
-  display: grid;
-  place-items: center;
+.success-check__pdf-document .success-check__pdf-cta-graphic {
+  display: block;
   width: 100%;
   height: 100%;
-  min-width: 0;
-  line-height: 1.25;
-  text-align: center;
-  overflow-wrap: anywhere;
-  transform: translateY(-0.45rem);
-}
-
-.success-check__pdf-document .success-check__pdf-cta-arrow {
-  position: absolute;
-  top: 0;
-  right: 1.1rem;
-  bottom: 0;
-  display: grid;
-  place-items: center;
-  width: 1.1rem;
-  color: var(--ink);
-}
-
-.success-check__pdf-document .success-check__pdf-cta-arrow svg {
-  display: block;
-  width: 1.05rem;
-  height: 1.05rem;
-  fill: none;
-  stroke: currentColor;
-  stroke-width: 1.6;
-  stroke-linecap: round;
-  stroke-linejoin: round;
+  overflow: visible;
 }
 
 .success-check__pdf-document .success-check__recommendation-note {
-  margin-top: 0.9rem;
-  padding: 0.35rem 0.9rem 1.25rem;
+  margin: 0.9rem 0 0;
+  padding: 0.75rem 0.9rem;
   font-size: 0.68rem;
   line-height: 1.55;
 }

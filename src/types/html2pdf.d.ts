@@ -16,6 +16,9 @@ declare module 'html2pdf.js' {
   interface Html2PdfWorker extends PromiseLike<unknown> {
     set(options: Html2PdfOptions): Html2PdfWorker;
     from(source: HTMLElement): Html2PdfWorker;
+    toContainer(): Html2PdfWorker;
+    toCanvas(): Html2PdfWorker;
+    toPdf(): Html2PdfWorker;
     outputPdf(type: 'blob', options?: Record<string, unknown>): PromiseLike<Blob>;
     save(filename?: string): Html2PdfWorker;
   }

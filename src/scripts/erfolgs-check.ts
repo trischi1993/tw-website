@@ -19,6 +19,14 @@ const ARROW_ICON_SRC = typeof arrowIcon === 'string' ? arrowIcon : arrowIcon.src
 const LEAD_MSG_REQUIRED = 'Bitte fülle dieses Feld aus.';
 const LEAD_MSG_EMAIL = 'Bitte gib eine gültige E-Mail-Adresse ein.';
 const LEAD_MSG_GDPR = 'Bitte akzeptiere die Datenschutzerklärung.';
+const PDF_LABEL_PREPARING = 'PDF wird vorbereitet …';
+const PDF_LABEL_READY = 'PDF jetzt downloaden';
+const PDF_LABEL_RETRY = 'PDF erneut vorbereiten';
+const PDF_PREPARATION_TIMEOUT_MS = 20_000;
+const PDF_CANVAS_TIMEOUT_MS = 45_000;
+const PDF_AUTO_PREPARATION_DELAY_MS = 600;
+const PDF_MOBILE_RENDER_SCALE = 1.35;
+const PDF_IMAGE_QUALITY = 0.98;
 
 let leadValidationErrorId = 0;
 type Html2PdfModule = typeof import('html2pdf.js');
@@ -41,6 +49,14 @@ async function loadHtml2PdfWithRetry() {
     await new Promise((resolve) => window.setTimeout(resolve, 350));
     return loadHtml2Pdf();
   }
+}
+
+async function withTimeout<T>(promise: Promise<T>, timeoutMs: number, message: string) {
+  let timeoutId = 0;
+  const timeout = new Promise<never>((_, reject) => {
+    timeoutId = window.setTimeout(() => reject(new Error(message)), timeoutMs);
+  });
+  return Promise.race([promise, timeout]).finally(() => window.clearTimeout(timeoutId));
 }
 
 interface AreaScore {
@@ -267,26 +283,29 @@ function pdfFilename(name: string) {
   return `Instagram-Erfolgsprofil${firstName ? `-${firstName}` : ''}.pdf`;
 }
 
-function downloadPdfBlob(blob: Blob, filename: string) {
-  const isIosWebKit =
+function isIosWebKitBrowser() {
+  return (
     /iP(?:ad|hone|od)/.test(navigator.userAgent) ||
-    (navigator.platform === 'MacIntel' && navigator.maxTouchPoints > 1);
+    (navigator.platform === 'MacIntel' && navigator.maxTouchPoints > 1)
+  );
+}
+
+function usesMobilePdfScale() {
+  return (
+    isIosWebKitBrowser() ||
+    /Android|Mobi/i.test(navigator.userAgent) ||
+    window.matchMedia('(max-width: 767px), (pointer: coarse)').matches
+  );
+}
+
+function createPdfDownloadUrl(blob: Blob) {
   // iOS/WebKit behandelt application/pdf-Blob-Links teilweise als Navigation
   // statt als Download. Als Binärdatei mit .pdf-Dateinamen landet das Profil
-  // zuverlässig im Download-Ordner der Dateien-App.
-  const downloadBlob = isIosWebKit
+  // nach Safaris Bestätigung zuverlässig im Download-Ordner der Dateien-App.
+  const downloadBlob = isIosWebKitBrowser()
     ? new Blob([blob], { type: 'application/octet-stream' })
     : blob;
-  const objectUrl = window.URL.createObjectURL(downloadBlob);
-  const link = document.createElement('a');
-  link.href = objectUrl;
-  link.download = filename;
-  link.rel = 'noopener';
-  link.hidden = true;
-  document.body.append(link);
-  link.click();
-  link.remove();
-  window.setTimeout(() => window.URL.revokeObjectURL(objectUrl), 60_000);
+  return window.URL.createObjectURL(downloadBlob);
 }
 
 function materialiseUppercaseForPdf(root: HTMLElement) {
@@ -311,6 +330,49 @@ function materialiseUppercaseForPdf(root: HTMLElement) {
   });
 }
 
+function normalisePdfScore(root: HTMLElement) {
+  const svgNamespace = 'http://www.w3.org/2000/svg';
+
+  root.querySelectorAll<HTMLElement>('.success-check__score').forEach((score) => {
+    const ring = score.querySelector<SVGSVGElement>('.success-check__score-ring');
+    const value = score.querySelector<HTMLElement>(':scope > div > strong')?.textContent?.trim();
+    const label = score.querySelector<HTMLElement>(':scope > div > span')?.textContent?.trim();
+    const htmlCopy = score.querySelector<HTMLElement>(':scope > div');
+    if (!ring || !value || !label || !htmlCopy) return;
+
+    // Prozentzahl und Beschriftung teilen im PDF dasselbe feste 120×120-
+    // Koordinatensystem wie der Ring. Dadurch können Browser-Auflösung,
+    // html2canvas-Skalierung und Schrift-Baselines die Zentrierung nicht mehr
+    // unabhängig voneinander verschieben.
+    const valueText = document.createElementNS(svgNamespace, 'text');
+    valueText.setAttribute('x', '60');
+    valueText.setAttribute('y', '54');
+    valueText.setAttribute('fill', '#f5f5f5');
+    valueText.setAttribute('font-family', 'Poppins, sans-serif');
+    valueText.setAttribute('font-size', '35');
+    valueText.setAttribute('font-weight', '600');
+    valueText.setAttribute('letter-spacing', '-1.1');
+    valueText.setAttribute('text-anchor', 'middle');
+    valueText.setAttribute('dominant-baseline', 'middle');
+    valueText.textContent = value;
+
+    const labelText = document.createElementNS(svgNamespace, 'text');
+    labelText.setAttribute('x', '60');
+    labelText.setAttribute('y', '80');
+    labelText.setAttribute('fill', '#aa8630');
+    labelText.setAttribute('font-family', 'Poppins, sans-serif');
+    labelText.setAttribute('font-size', '7.2');
+    labelText.setAttribute('font-weight', '600');
+    labelText.setAttribute('letter-spacing', '0.75');
+    labelText.setAttribute('text-anchor', 'middle');
+    labelText.setAttribute('dominant-baseline', 'middle');
+    labelText.textContent = label;
+
+    ring.append(valueText, labelText);
+    htmlCopy.remove();
+  });
+}
+
 function preparePdfClone<T extends HTMLElement>(source: T) {
   const clone = source.cloneNode(true) as T;
   clone.removeAttribute('id');
@@ -322,10 +384,13 @@ function preparePdfClone<T extends HTMLElement>(source: T) {
     .querySelectorAll('[aria-labelledby]')
     .forEach((element) => element.removeAttribute('aria-labelledby'));
   materialiseUppercaseForPdf(clone);
+  normalisePdfScore(clone);
   return clone;
 }
 
 function normalisePdfCtas(root: HTMLElement) {
+  const svgNamespace = 'http://www.w3.org/2000/svg';
+
   root
     .querySelectorAll<HTMLAnchorElement>(
       '.success-check__result-primary, .success-check__result-secondary',
@@ -333,15 +398,39 @@ function normalisePdfCtas(root: HTMLElement) {
     .forEach((link) => {
       const glowLabel = link.querySelector<HTMLElement>('.btn-glow__label');
       const label = (glowLabel?.textContent ?? link.textContent ?? '').replace(/→\s*$/, '').trim();
-      const labelElement = document.createElement('span');
-      labelElement.className = 'success-check__pdf-cta-label';
-      labelElement.textContent = label;
-      const arrow = document.createElement('span');
-      arrow.className = 'success-check__pdf-cta-arrow';
-      arrow.setAttribute('aria-hidden', 'true');
-      arrow.innerHTML =
-        '<svg viewBox="0 0 20 20" focusable="false"><path d="M3 10h13M11.5 5.5 16 10l-4.5 4.5"></path></svg>';
-      link.replaceChildren(labelElement, arrow);
+      const graphic = document.createElementNS(svgNamespace, 'svg');
+      graphic.classList.add('success-check__pdf-cta-graphic');
+      graphic.setAttribute('viewBox', '0 0 660 52');
+      graphic.setAttribute('preserveAspectRatio', 'none');
+      graphic.setAttribute('aria-hidden', 'true');
+      graphic.setAttribute('focusable', 'false');
+
+      // Text und Pfeil liegen im selben festen Koordinatensystem wie der
+      // Button. So bleiben alle CTA-Varianten auch in Safari/html2canvas
+      // horizontal und vertikal exakt ausgerichtet.
+      const labelText = document.createElementNS(svgNamespace, 'text');
+      labelText.setAttribute('x', '330');
+      labelText.setAttribute('y', '26');
+      labelText.setAttribute('fill', 'currentColor');
+      labelText.setAttribute('font-family', 'Poppins, sans-serif');
+      labelText.setAttribute('font-size', '13.1');
+      labelText.setAttribute('font-weight', '300');
+      labelText.setAttribute('letter-spacing', '-0.26');
+      labelText.setAttribute('text-anchor', 'middle');
+      labelText.setAttribute('dominant-baseline', 'middle');
+      labelText.textContent = label;
+
+      const arrow = document.createElementNS(svgNamespace, 'path');
+      arrow.setAttribute('d', 'M615 26h14M624.5 21.5 629 26l-4.5 4.5');
+      arrow.setAttribute('fill', 'none');
+      arrow.setAttribute('stroke', 'currentColor');
+      arrow.setAttribute('stroke-width', '1.6');
+      arrow.setAttribute('stroke-linecap', 'round');
+      arrow.setAttribute('stroke-linejoin', 'round');
+
+      graphic.append(labelText, arrow);
+      link.replaceChildren(graphic);
+      link.setAttribute('aria-label', label);
       link.removeAttribute('data-check-glow');
       link.removeAttribute('style');
       // Die Website-Glow-Klasse bringt einen animierten 1-Pixel-Rand mit.
@@ -429,14 +518,34 @@ function pdfResultBlocks(resultCard: HTMLElement) {
   );
 }
 
-async function downloadResultPdf(
+interface PreparedResultPdf {
+  blob: Blob;
+  filename: string;
+}
+
+type PdfProgressReporter = (stage: string) => void;
+
+async function createRasterResultPdf(
   resultCard: HTMLElement,
   name: string,
-) {
-  // Die Bibliothek wird erst nach der Ergebnisanzeige im Hintergrund vorgeladen.
-  // Falls dieser Abruf kurz scheitert, versucht der Klick ihn einmal erneut.
-  const { default: html2pdf } = await loadHtml2PdfWithRetry();
-  await document.fonts?.ready;
+  reportProgress?: PdfProgressReporter,
+): Promise<PreparedResultPdf> {
+  reportProgress?.('start');
+  // Vor dem unsichtbaren A4-Layout kurz auf die Website-Schrift warten. Ein
+  // defekter Font-Abruf darf den Download trotzdem nie dauerhaft blockieren.
+  if (document.fonts) {
+    reportProgress?.('fonts-wait');
+    try {
+      await withTimeout(
+        document.fonts.ready,
+        8_000,
+        'PDF font loading timed out.',
+      );
+      reportProgress?.('fonts-ready');
+    } catch {
+      reportProgress?.('fonts-timeout');
+    }
+  }
 
   const pdfShell = document.createElement('div');
   pdfShell.className = 'success-check__pdf-shell';
@@ -444,6 +553,7 @@ async function downloadResultPdf(
   pdfDocument.className = 'success-check__pdf-document';
   pdfShell.append(pdfDocument);
   document.body.append(pdfShell);
+  reportProgress?.('shell-ready');
 
   try {
     const pages: PdfPageLayout[] = [];
@@ -531,19 +641,50 @@ async function downloadResultPdf(
       const href = link.getAttribute('href');
       if (href) link.href = new URL(href, publicBaseUrl).href;
     });
+    reportProgress?.(`layout-ready-${pages.length}`);
+
+    await new Promise<void>((resolve) =>
+      requestAnimationFrame(() => requestAnimationFrame(() => resolve())),
+    );
 
     const filename = pdfFilename(name);
-    const pdfBlob = await html2pdf()
+    reportProgress?.('renderer-loading');
+    const { default: html2pdf } = await withTimeout(
+      loadHtml2PdfWithRetry(),
+      PDF_PREPARATION_TIMEOUT_MS,
+      'PDF renderer loading timed out.',
+    );
+    reportProgress?.('renderer-ready');
+    const mobileRender = usesMobilePdfScale();
+    const worker = html2pdf()
       .set({
         filename,
         enableLinks: true,
-        image: { type: 'jpeg', quality: 0.98 },
+        image: { type: 'jpeg', quality: PDF_IMAGE_QUALITY },
         html2canvas: {
-          scale: 2,
+          // 1,35× liefert auch beim späteren Betrachten am Laptop ein scharfes
+          // PDF. Der bereinigte Render-Clone und die stufenweise Verarbeitung
+          // halten den Canvas auf Mobilgeräten trotzdem zuverlässig klein.
+          scale: mobileRender ? PDF_MOBILE_RENDER_SCALE : 2,
           useCORS: true,
+          imageTimeout: 5_000,
           backgroundColor: '#0c0c0c',
           logging: false,
           windowWidth: 794,
+          // html2pdf legt vor dem Rendern eine eigene Kopie in einem Overlay
+          // an. Im html2canvas-Dokument behalten wir nur Styles und diesen
+          // Zweig; Header, Lotties und die übrige Website werden nicht erneut
+          // geklont und können Safari nicht unnötig Speicher kosten.
+          ignoreElements: (element: Element) => {
+            const renderContainer = document.querySelector('.html2pdf__container');
+            if (!renderContainer) return false;
+            return (
+              !document.head.contains(element) &&
+              element !== renderContainer &&
+              !element.contains(renderContainer) &&
+              !renderContainer.contains(element)
+            );
+          },
         },
         jsPDF: {
           unit: 'mm',
@@ -552,12 +693,51 @@ async function downloadResultPdf(
           compress: true,
         },
       })
-      .from(pdfDocument)
-      .outputPdf('blob');
-    downloadPdfBlob(pdfBlob, filename);
+      .from(pdfDocument);
+
+    reportProgress?.('container-start');
+    await withTimeout(
+      Promise.resolve(worker.toContainer()),
+      PDF_PREPARATION_TIMEOUT_MS,
+      'PDF container preparation timed out.',
+    );
+    reportProgress?.('container-ready');
+
+    reportProgress?.('canvas-start');
+    await withTimeout(
+      Promise.resolve(worker.toCanvas()),
+      PDF_CANVAS_TIMEOUT_MS,
+      'PDF canvas rendering timed out.',
+    );
+    reportProgress?.('canvas-ready');
+
+    reportProgress?.('pdf-start');
+    await withTimeout(
+      Promise.resolve(worker.toPdf()),
+      PDF_PREPARATION_TIMEOUT_MS,
+      'PDF assembly timed out.',
+    );
+    reportProgress?.('pdf-ready');
+
+    const pdfBlob = await withTimeout(
+      Promise.resolve(worker.outputPdf('blob')),
+      PDF_PREPARATION_TIMEOUT_MS,
+      'PDF output timed out.',
+    );
+    reportProgress?.(`render-ready-${pdfBlob.size}`);
+    return { blob: pdfBlob, filename };
   } finally {
     pdfShell.remove();
+    reportProgress?.('cleanup');
   }
+}
+
+async function createResultPdf(
+  resultCard: HTMLElement,
+  name: string,
+  reportProgress?: PdfProgressReporter,
+): Promise<PreparedResultPdf> {
+  return createRasterResultPdf(resultCard, name, reportProgress);
 }
 
 function initialiseCheck(root: HTMLElement) {
@@ -595,19 +775,141 @@ function initialiseCheck(root: HTMLElement) {
   const progressTrackElement = progressTrack;
   const stageElement = stageContainer;
   const startMarkup = stageElement.innerHTML;
-  const isLocalhost = ['localhost', '127.0.0.1'].includes(window.location.hostname);
+  const privateNetworkHost = /^(?:10\.\d{1,3}|192\.168\.\d{1,3}|172\.(?:1[6-9]|2\d|3[01]))\.\d{1,3}$/.test(
+    window.location.hostname,
+  );
+  const isLocalPreviewHost =
+    import.meta.env.DEV ||
+    privateNetworkHost ||
+    ['localhost', '127.0.0.1'].includes(window.location.hostname);
   const checkParams = new URLSearchParams(window.location.search);
-  // Nur der ausdrücklich aufgerufene Test-Link darf lokal echte Systeme.io-Leads
-  // erzeugen. Der normale Localhost bleibt weiterhin ein sicherer UI-Vorschau-Modus.
+  // Nur der ausdrücklich aufgerufene Test-Link darf im lokalen Dev-Server echte
+  // Systeme.io-Leads erzeugen. Die normale Vorschau bleibt ein sicherer UI-Test.
   const systemeTestEnabled =
-    isLocalhost && checkParams.get('systeme-test') === '1';
-  const localPreview = isLocalhost && !systemeTestEnabled;
+    isLocalPreviewHost && checkParams.get('systeme-test') === '1';
+  const localPreview = isLocalPreviewHost && !systemeTestEnabled;
   const localLeadPreview = localPreview && checkParams.get('lead-preview') === '1';
   let currentQuestion = 0;
   let answers = Array<number>(ERFOLGS_CHECK_QUESTIONS.length).fill(-1);
   let leadName = '';
   let leadEmail = '';
   let sheetsResultSent = false;
+  let preparedResultPdf: PreparedResultPdf | null = null;
+  let preparedResultPdfUrl: string | null = null;
+  let resultPdfPreparation: Promise<PreparedResultPdf> | null = null;
+  let resultPdfPreparationTimer = 0;
+
+  function reportLocalPdfDebug(stage: string, detail = '') {
+    if (!localPreview) return;
+    const params = new URLSearchParams({
+      stage,
+      detail: detail.slice(0, 350),
+      time: String(Date.now()),
+    });
+    void fetch(`/__pdf-debug.gif?${params}`, {
+      cache: 'no-store',
+      keepalive: true,
+      mode: 'no-cors',
+    }).catch(() => {
+      // Der lokale Static-Server beantwortet die Diagnose-URL absichtlich mit
+      // 404; entscheidend ist nur der automatisch protokollierte Request.
+    });
+  }
+
+  function clearPreparedResultPdf() {
+    preparedResultPdf = null;
+    if (preparedResultPdfUrl) window.URL.revokeObjectURL(preparedResultPdfUrl);
+    preparedResultPdfUrl = null;
+  }
+
+  function setPdfDownloadPreparing(downloadLink: HTMLAnchorElement) {
+    clearPreparedResultPdf();
+    downloadLink.removeAttribute('href');
+    downloadLink.removeAttribute('download');
+    downloadLink.setAttribute('aria-disabled', 'true');
+    downloadLink.setAttribute('aria-busy', 'true');
+    downloadLink.setAttribute('aria-label', 'PDF wird vorbereitet');
+    downloadLink.title = 'PDF wird vorbereitet';
+    downloadLink.tabIndex = -1;
+    const label = downloadLink.querySelector<HTMLElement>('[data-check-download-label]');
+    if (label) label.textContent = PDF_LABEL_PREPARING;
+  }
+
+  function setPdfDownloadReady(
+    downloadLink: HTMLAnchorElement,
+    pdf: PreparedResultPdf,
+  ) {
+    clearPreparedResultPdf();
+    const objectUrl = createPdfDownloadUrl(pdf.blob);
+    preparedResultPdf = pdf;
+    preparedResultPdfUrl = objectUrl;
+    downloadLink.href = objectUrl;
+    downloadLink.download = pdf.filename;
+    downloadLink.setAttribute('aria-disabled', 'false');
+    downloadLink.removeAttribute('aria-busy');
+    downloadLink.setAttribute(
+      'aria-label',
+      'Ergebnisprofil als PDF herunterladen',
+    );
+    downloadLink.title = 'Ergebnisprofil als PDF herunterladen';
+    downloadLink.removeAttribute('tabindex');
+    const label = downloadLink.querySelector<HTMLElement>('[data-check-download-label]');
+    if (label) label.textContent = PDF_LABEL_READY;
+  }
+
+  function setPdfDownloadRetry(downloadLink: HTMLAnchorElement) {
+    clearPreparedResultPdf();
+    downloadLink.removeAttribute('href');
+    downloadLink.removeAttribute('download');
+    downloadLink.setAttribute('aria-disabled', 'false');
+    downloadLink.removeAttribute('aria-busy');
+    downloadLink.setAttribute('aria-label', 'PDF erneut vorbereiten');
+    downloadLink.title = 'PDF erneut vorbereiten';
+    downloadLink.tabIndex = 0;
+    const label = downloadLink.querySelector<HTMLElement>('[data-check-download-label]');
+    if (label) label.textContent = PDF_LABEL_RETRY;
+  }
+
+  function startResultPdfPreparation(
+    resultCard: HTMLElement,
+    downloadLink: HTMLAnchorElement,
+    status: HTMLElement | null,
+  ) {
+    if (resultPdfPreparation) return;
+    window.clearTimeout(resultPdfPreparationTimer);
+    resultPdfPreparationTimer = 0;
+    setPdfDownloadPreparing(downloadLink);
+    if (status) status.hidden = true;
+
+    reportLocalPdfDebug('preparation-called');
+    const preparation = createResultPdf(resultCard, leadName, (stage) => {
+      reportLocalPdfDebug(stage);
+    });
+    resultPdfPreparation = preparation;
+    void preparation
+      .then((pdf) => {
+        if (resultPdfPreparation !== preparation || !downloadLink.isConnected) return;
+        resultPdfPreparation = null;
+        reportLocalPdfDebug('download-ready', String(pdf.blob.size));
+        setPdfDownloadReady(downloadLink, pdf);
+      })
+      .catch((error) => {
+        if (resultPdfPreparation !== preparation || !downloadLink.isConnected) return;
+        resultPdfPreparation = null;
+        const detail =
+          error instanceof Error
+            ? `${error.name}: ${error.message}`
+            : String(error);
+        reportLocalPdfDebug('error', detail);
+        console.error('Erfolgs-Check PDF preparation failed', error);
+        setPdfDownloadRetry(downloadLink);
+        if (status) {
+          status.dataset.state = 'error';
+          status.textContent = 'PDF-Download nicht möglich – bitte erneut versuchen.';
+          status.hidden = false;
+        }
+      });
+  }
 
   function enhanceGlowButtons() {
     const usePointerGlow = window.matchMedia(`${BP.main} and ${FINE_POINTER}`).matches;
@@ -994,7 +1296,7 @@ function initialiseCheck(root: HTMLElement) {
               </li>
               <li style="--unlock-delay:0.65s;--unlock-shake-delay:1.52s">
                 <span class="success-check__unlock-icon" aria-hidden="true"><svg viewBox="0 0 24 24"><rect x="5" y="10" width="14" height="11" rx="2"></rect><path d="M8 10V7a4 4 0 0 1 8 0v3"></path></svg></span>
-                <span>Dein vollständiges Ergebnisprofil als PDF</span>
+                <span>Dein komplettes Ergebnisprofil als PDF</span>
               </li>
             </ul>
           </div>
@@ -1024,7 +1326,7 @@ function initialiseCheck(root: HTMLElement) {
             <span>Ich stimme der <a href="/datenschutz/" target="_blank" rel="noopener noreferrer">Datenschutzerklärung</a> sowie der Verarbeitung meiner Angaben zur Auswertung und Kontaktaufnahme zu.</span>
           </label>
 
-          ${localPreview ? '<p class="success-check__local-note">Localhost-Vorschau: Deine Kontaktdaten werden nicht an das Lead-System versendet. Quiz-Ergebnis, Name und E-Mail werden zum Testen in Google Sheets protokolliert.</p>' : ''}
+          ${localPreview ? '<p class="success-check__local-note">Lokale Vorschau: Deine Kontaktdaten werden nicht an das Lead-System versendet. Quiz-Ergebnis, Name und E-Mail werden zum Testen in Google Sheets protokolliert.</p>' : ''}
 
           <p class="success-check__form-error" role="alert" data-check-form-error hidden></p>
           <div class="success-check__lead-actions">
@@ -1114,18 +1416,21 @@ function initialiseCheck(root: HTMLElement) {
     stageElement.innerHTML = `
       <article class="success-check__result-card">
         <div class="success-check__download" data-check-pdf-exclude>
-          <button
+          <a
             class="button success-check__download-button"
-            type="button"
             data-check-download
-            aria-label="Ergebnisprofil als PDF herunterladen"
-            title="Ergebnisprofil als PDF herunterladen"
+            aria-label="PDF wird vorbereitet"
+            title="PDF wird vorbereitet"
+            aria-disabled="true"
+            aria-busy="true"
+            tabindex="-1"
+            rel="noopener"
           >
             <svg viewBox="0 0 24 24" aria-hidden="true">
               <path d="M12 3v12m0 0 4-4m-4 4-4-4M5 20h14"></path>
             </svg>
-            <span data-check-download-label>PDF</span>
-          </button>
+            <span data-check-download-label>${PDF_LABEL_PREPARING}</span>
+          </a>
           <p class="success-check__download-status" role="status" data-check-download-status hidden></p>
         </div>
 
@@ -1178,12 +1483,37 @@ function initialiseCheck(root: HTMLElement) {
       </article>`;
     enhanceGlowButtons();
     focusStage();
-    window.setTimeout(() => {
-      void loadHtml2Pdf().catch(() => {
-        // Ein fehlgeschlagener Vorab-Abruf bleibt unsichtbar. Beim Klick wird
-        // der Download-Baustein über loadHtml2PdfWithRetry erneut angefordert.
+    const resultCard = stageElement.querySelector<HTMLElement>(
+      '.success-check__result-card',
+    );
+    const downloadLink = stageElement.querySelector<HTMLAnchorElement>(
+      '[data-check-download]',
+    );
+    const downloadStatus = stageElement.querySelector<HTMLElement>(
+      '[data-check-download-status]',
+    );
+    window.clearTimeout(resultPdfPreparationTimer);
+    resultPdfPreparationTimer = 0;
+    resultPdfPreparation = null;
+    clearPreparedResultPdf();
+    if (!resultCard || !downloadLink) return;
+    setPdfDownloadPreparing(downloadLink);
+
+    // Das bewährte Original-PDF wird automatisch vorbereitet. Der kurze,
+    // feste Abstand lässt Safari zuerst Ergebnis, Fokus und Positionierung
+    // abschließen; genau diese Überschneidung hatte die hängenden Läufe
+    // verursacht. Nur das Modul wird währenddessen bereits vorgeladen.
+    void loadHtml2Pdf().catch(() => {
+      // createResultPdf fordert das Modul anschließend mit Retry erneut an.
+    });
+    reportLocalPdfDebug('auto-scheduled', String(PDF_AUTO_PREPARATION_DELAY_MS));
+    resultPdfPreparationTimer = window.setTimeout(() => {
+      reportLocalPdfDebug('auto-timer-fired');
+      window.requestAnimationFrame(() => {
+        if (!resultCard.isConnected || !downloadLink.isConnected) return;
+        startResultPdfPreparation(resultCard, downloadLink, downloadStatus);
       });
-    }, 0);
+    }, PDF_AUTO_PREPARATION_DELAY_MS);
   }
 
   stageElement.addEventListener('input', (event) => {
@@ -1199,48 +1529,32 @@ function initialiseCheck(root: HTMLElement) {
 
   stageElement.addEventListener('click', (event) => {
     const target = event.target as HTMLElement;
-    const downloadButton = target.closest<HTMLButtonElement>('[data-check-download]');
-    if (downloadButton) {
+    const downloadLink = target.closest<HTMLAnchorElement>('[data-check-download]');
+    if (downloadLink) {
       const resultCard = stageElement.querySelector<HTMLElement>('.success-check__result-card');
-      const label = downloadButton.querySelector<HTMLElement>('[data-check-download-label]');
       const status = stageElement.querySelector<HTMLElement>('[data-check-download-status]');
-      if (!resultCard || downloadButton.disabled) return;
+      if (!resultCard || downloadLink.getAttribute('aria-disabled') === 'true') {
+        event.preventDefault();
+        return;
+      }
 
-      downloadButton.disabled = true;
-      downloadButton.setAttribute('aria-busy', 'true');
-      downloadButton.setAttribute('aria-label', 'PDF wird erstellt');
-      if (label) label.textContent = 'PDF …';
+      if (!preparedResultPdf) {
+        event.preventDefault();
+        if (resultPdfPreparation) return;
+        startResultPdfPreparation(resultCard, downloadLink, status);
+        return;
+      }
+
+      if (!preparedResultPdfUrl || !downloadLink.hasAttribute('href')) {
+        event.preventDefault();
+        setPdfDownloadRetry(downloadLink);
+        return;
+      }
+
+      // Der Tap landet direkt auf dem bereits vorbereiteten <a download>.
+      // Die geräteeigene Download-Rückmeldung reicht aus; ein zusätzlicher
+      // Website-Hinweis würde je nach Browser nur doppelte Hinweise erzeugen.
       if (status) status.hidden = true;
-
-      void downloadResultPdf(resultCard, leadName)
-        .then(() => {
-          if (status) {
-            status.dataset.state = 'success';
-            status.textContent =
-              'PDF-Download gestartet – du findest die Datei in deinen Downloads.';
-            status.hidden = false;
-            window.setTimeout(() => {
-              status.hidden = true;
-            }, 6000);
-          }
-        })
-        .catch((error) => {
-          console.error('Erfolgs-Check PDF export failed', error);
-          if (status) {
-            status.dataset.state = 'error';
-            status.textContent = 'PDF-Download nicht möglich – bitte erneut versuchen.';
-            status.hidden = false;
-            window.setTimeout(() => {
-              status.hidden = true;
-            }, 5000);
-          }
-        })
-        .finally(() => {
-          downloadButton.disabled = false;
-          downloadButton.removeAttribute('aria-busy');
-          downloadButton.setAttribute('aria-label', 'Ergebnisprofil als PDF herunterladen');
-          if (label) label.textContent = 'PDF';
-        });
       return;
     }
     if (target.closest('[data-check-start]')) {
@@ -1273,6 +1587,10 @@ function initialiseCheck(root: HTMLElement) {
       leadName = '';
       leadEmail = '';
       sheetsResultSent = false;
+      window.clearTimeout(resultPdfPreparationTimer);
+      resultPdfPreparationTimer = 0;
+      clearPreparedResultPdf();
+      resultPdfPreparation = null;
       heroElement.hidden = false;
       compactElement.hidden = true;
       progressElement.hidden = true;
