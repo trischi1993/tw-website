@@ -337,11 +337,16 @@ function normalisePdfScore(root: HTMLElement) {
     const htmlCopy = score.querySelector<HTMLElement>(':scope > div');
     if (!ring || !value || !label || !htmlCopy) return;
 
-    // Die Strichstärke bleibt in Desktop- und Mobile-Exports identisch und
-    // wird nicht von abweichenden Browser-SVG-Defaults beeinflusst.
-    ring.querySelectorAll('circle').forEach((circle) => {
-      circle.setAttribute('stroke-width', '4');
-    });
+    // Die Strichstärken bleiben in Desktop- und Mobile-Exports proportional
+    // identisch und werden nicht von abweichenden Browser-SVG-Defaults
+    // beeinflusst. Der goldene Fortschritt ist bewusst kräftiger als die
+    // dunkle Hintergrundspur, damit der Prozentwert sofort erkennbar ist.
+    ring
+      .querySelector<SVGCircleElement>('.success-check__score-ring-track')
+      ?.style.setProperty('stroke-width', '4');
+    ring
+      .querySelector<SVGCircleElement>('.success-check__score-ring-value')
+      ?.style.setProperty('stroke-width', '6');
 
     // Prozentzahl und Beschriftung teilen im PDF dasselbe feste 120×120-
     // Koordinatensystem wie der Ring. Dadurch können Browser-Auflösung,
@@ -420,19 +425,52 @@ function normalisePdfRecommendationNotes(root: HTMLElement) {
 
       lines.forEach((line, index) => {
         const lineText = document.createElementNS(svgNamespace, 'text');
-        const y = viewBoxHeight / 2 + (index - (lines.length - 1) / 2) * lineHeight;
         lineText.setAttribute('x', String(viewBoxWidth / 2));
-        lineText.setAttribute('y', String(y));
+        lineText.setAttribute('y', String(fontSize + index * lineHeight));
         lineText.setAttribute('fill', '#777775');
         lineText.setAttribute('font-family', 'Poppins, sans-serif');
         lineText.setAttribute('font-size', String(fontSize));
         lineText.setAttribute('font-weight', '300');
         lineText.setAttribute('letter-spacing', '-0.08');
         lineText.setAttribute('text-anchor', 'middle');
-        lineText.setAttribute('dominant-baseline', 'middle');
         lineText.textContent = line;
         graphic.append(lineText);
       });
+
+      // SVG dominant-baseline wird von html2canvas je nach Browser und
+      // Schrift sichtbar zu tief gerendert. Deshalb messen wir die wirklich
+      // geladenen Poppins-Glyphen kurz in einem unsichtbaren SVG und richten
+      // ihre gemeinsame Ober-/Unterkante exakt an der Boxmitte aus. Das gilt
+      // automatisch für zwei- und dreizeilige Empfehlungstexte.
+      const measurementHost = document.createElement('div');
+      measurementHost.setAttribute('aria-hidden', 'true');
+      Object.assign(measurementHost.style, {
+        position: 'fixed',
+        top: '0',
+        left: '-10000px',
+        width: `${viewBoxWidth}px`,
+        height: `${viewBoxHeight}px`,
+        opacity: '0',
+        pointerEvents: 'none',
+      });
+      graphic.setAttribute('width', String(viewBoxWidth));
+      graphic.setAttribute('height', String(viewBoxHeight));
+      measurementHost.append(graphic);
+      document.body.append(measurementHost);
+      const lineTexts = Array.from(graphic.querySelectorAll<SVGTextElement>('text'));
+      const bounds = lineTexts.map((lineText) => lineText.getBBox());
+      if (bounds.length > 0) {
+        const top = Math.min(...bounds.map((bound) => bound.y));
+        const bottom = Math.max(...bounds.map((bound) => bound.y + bound.height));
+        const verticalShift = viewBoxHeight / 2 - (top + bottom) / 2;
+        lineTexts.forEach((lineText) => {
+          const currentY = Number(lineText.getAttribute('y') ?? 0);
+          lineText.setAttribute('y', String(currentY + verticalShift));
+        });
+      }
+      graphic.removeAttribute('width');
+      graphic.removeAttribute('height');
+      measurementHost.remove();
 
       note.setAttribute('aria-label', text);
       note.replaceChildren(graphic);

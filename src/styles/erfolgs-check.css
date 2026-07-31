@@ -1313,8 +1313,9 @@
 
 .success-check__score-ring-track { stroke: #30302f; }
 
-.success-check__score-ring-value {
+.success-check__score-ring circle.success-check__score-ring-value {
   stroke: var(--brand-highlight);
+  stroke-width: 6;
   stroke-linecap: round;
   filter: drop-shadow(0 0 0.35rem #8064298c);
 }
@@ -1684,8 +1685,11 @@
   stroke: #343432;
 }
 
-.success-check__pdf-document .success-check__score-ring-value {
+.success-check__pdf-document
+  .success-check__score-ring
+  circle.success-check__score-ring-value {
   stroke: var(--brand-highlight);
+  stroke-width: 6;
   filter: none;
 }
 
