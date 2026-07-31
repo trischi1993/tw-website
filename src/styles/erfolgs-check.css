@@ -1668,7 +1668,7 @@
 }
 
 .success-check__pdf-document .success-check__score-ring circle {
-  stroke-width: 3;
+  stroke-width: 4;
 }
 
 .success-check__pdf-document .success-check__score-ring-track {
@@ -1776,22 +1776,22 @@
 }
 
 .success-check__pdf-document .success-check__recommendation-note {
-  display: flex;
-  align-items: center;
-  justify-content: center;
+  display: block;
+  height: 4rem;
   min-height: 4rem;
   margin: 0.9rem 0 0;
-  padding: 0.75rem 0.9rem;
+  padding: 0;
+  overflow: hidden;
   box-sizing: border-box;
   font-size: 0.68rem;
   line-height: 1.55;
 }
 
-.success-check__pdf-document .success-check__recommendation-note > span {
+.success-check__pdf-document .success-check__pdf-note-graphic {
   display: block;
   width: 100%;
-  margin: 0;
-  text-align: center;
+  height: 100%;
+  overflow: visible;
 }
 
 .success-check__pdf-document .btn-glow__circle,

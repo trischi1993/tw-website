@@ -337,6 +337,12 @@ function normalisePdfScore(root: HTMLElement) {
     const htmlCopy = score.querySelector<HTMLElement>(':scope > div');
     if (!ring || !value || !label || !htmlCopy) return;
 
+    // Die Strichstärke bleibt in Desktop- und Mobile-Exports identisch und
+    // wird nicht von abweichenden Browser-SVG-Defaults beeinflusst.
+    ring.querySelectorAll('circle').forEach((circle) => {
+      circle.setAttribute('stroke-width', '4');
+    });
+
     // Prozentzahl und Beschriftung teilen im PDF dasselbe feste 120×120-
     // Koordinatensystem wie der Ring. Dadurch können Browser-Auflösung,
     // html2canvas-Skalierung und Schrift-Baselines die Zentrierung nicht mehr
@@ -371,14 +377,65 @@ function normalisePdfScore(root: HTMLElement) {
 }
 
 function normalisePdfRecommendationNotes(root: HTMLElement) {
+  const svgNamespace = 'http://www.w3.org/2000/svg';
+  const viewBoxWidth = 660;
+  const viewBoxHeight = 64;
+  const fontSize = 10.9;
+  const lineHeight = 16.5;
+  const maximumLineWidth = 620;
+  const measuringContext = document.createElement('canvas').getContext('2d');
+  if (measuringContext) measuringContext.font = `300 ${fontSize}px Poppins, sans-serif`;
+
+  const measureText = (text: string) =>
+    measuringContext?.measureText(text).width ?? text.length * fontSize * 0.5;
+
+  const wrapText = (text: string) => {
+    const lines: string[] = [];
+    let currentLine = '';
+    text.split(/\s+/).forEach((word) => {
+      const candidate = currentLine ? `${currentLine} ${word}` : word;
+      if (currentLine && measureText(candidate) > maximumLineWidth) {
+        lines.push(currentLine);
+        currentLine = word;
+      } else {
+        currentLine = candidate;
+      }
+    });
+    if (currentLine) lines.push(currentLine);
+    return lines;
+  };
+
   root
     .querySelectorAll<HTMLElement>('.success-check__recommendation-note')
     .forEach((note) => {
       const text = note.textContent?.trim();
       if (!text) return;
-      const textContainer = document.createElement('span');
-      textContainer.textContent = text;
-      note.replaceChildren(textContainer);
+      const lines = wrapText(text);
+      const graphic = document.createElementNS(svgNamespace, 'svg');
+      graphic.classList.add('success-check__pdf-note-graphic');
+      graphic.setAttribute('viewBox', `0 0 ${viewBoxWidth} ${viewBoxHeight}`);
+      graphic.setAttribute('preserveAspectRatio', 'none');
+      graphic.setAttribute('aria-hidden', 'true');
+      graphic.setAttribute('focusable', 'false');
+
+      lines.forEach((line, index) => {
+        const lineText = document.createElementNS(svgNamespace, 'text');
+        const y = viewBoxHeight / 2 + (index - (lines.length - 1) / 2) * lineHeight;
+        lineText.setAttribute('x', String(viewBoxWidth / 2));
+        lineText.setAttribute('y', String(y));
+        lineText.setAttribute('fill', '#777775');
+        lineText.setAttribute('font-family', 'Poppins, sans-serif');
+        lineText.setAttribute('font-size', String(fontSize));
+        lineText.setAttribute('font-weight', '300');
+        lineText.setAttribute('letter-spacing', '-0.08');
+        lineText.setAttribute('text-anchor', 'middle');
+        lineText.setAttribute('dominant-baseline', 'middle');
+        lineText.textContent = line;
+        graphic.append(lineText);
+      });
+
+      note.setAttribute('aria-label', text);
+      note.replaceChildren(graphic);
     });
 }
 
