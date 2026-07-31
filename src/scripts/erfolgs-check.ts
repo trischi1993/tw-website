@@ -267,10 +267,7 @@ function resultLink(cta: ErfolgsCheckCta, primary = false) {
   const attributes = `href="${cta.href}"${external ? ' target="_blank" rel="noopener noreferrer"' : ''}`;
   return primary
     ? `<a class="btn-glow success-check__result-primary" ${attributes} data-check-glow>${glowButtonContent(cta.label)}</a>`
-    : `<a class="button success-check__result-secondary" ${attributes} data-check-underline>
-        <span class="success-check__button-underline"><span class="link-underline__label">${cta.label}</span><span class="link-underline__line" aria-hidden="true"></span></span>
-        <span aria-hidden="true">→</span>
-      </a>`;
+    : `<a class="btn-glow success-check__result-secondary" ${attributes} data-check-glow>${glowButtonContent(cta.label)}</a>`;
 }
 
 function pdfFilename(name: string) {
@@ -373,6 +370,18 @@ function normalisePdfScore(root: HTMLElement) {
   });
 }
 
+function normalisePdfRecommendationNotes(root: HTMLElement) {
+  root
+    .querySelectorAll<HTMLElement>('.success-check__recommendation-note')
+    .forEach((note) => {
+      const text = note.textContent?.trim();
+      if (!text) return;
+      const textContainer = document.createElement('span');
+      textContainer.textContent = text;
+      note.replaceChildren(textContainer);
+    });
+}
+
 function preparePdfClone<T extends HTMLElement>(source: T) {
   const clone = source.cloneNode(true) as T;
   clone.removeAttribute('id');
@@ -385,6 +394,7 @@ function preparePdfClone<T extends HTMLElement>(source: T) {
     .forEach((element) => element.removeAttribute('aria-labelledby'));
   materialiseUppercaseForPdf(clone);
   normalisePdfScore(clone);
+  normalisePdfRecommendationNotes(clone);
   return clone;
 }
 
@@ -413,7 +423,7 @@ function normalisePdfCtas(root: HTMLElement) {
       labelText.setAttribute('y', '26');
       labelText.setAttribute('fill', 'currentColor');
       labelText.setAttribute('font-family', 'Poppins, sans-serif');
-      labelText.setAttribute('font-size', '13.1');
+      labelText.setAttribute('font-size', '14.8');
       labelText.setAttribute('font-weight', '300');
       labelText.setAttribute('letter-spacing', '-0.26');
       labelText.setAttribute('text-anchor', 'middle');

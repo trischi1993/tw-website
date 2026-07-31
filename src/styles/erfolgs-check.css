@@ -511,7 +511,8 @@
 
 .success-check__primary-button,
 .success-check__next-button,
-.success-check__result-primary {
+.success-check__result-primary,
+.success-check__result-secondary {
   text-align: center;
 }
 
@@ -783,8 +784,7 @@
   margin-top: 1.5rem;
 }
 
-.success-check__back-button,
-.success-check__result-secondary {
+.success-check__back-button {
   min-height: 3rem;
   color: var(--ink);
   font-size: var(--text-sm);
@@ -798,8 +798,7 @@
 
 .success-check__back-button:hover:not(:disabled),
 .success-check__back-button:focus-visible,
-.success-check__back-button:active:not(:disabled),
-.success-check__result-secondary:hover {
+.success-check__back-button:active:not(:disabled) {
   color: var(--ink);
   border-color: var(--brand-cream);
   background-color: transparent;
@@ -1447,13 +1446,16 @@
 .success-check__result-primary,
 .success-check__result-secondary { width: 100%; }
 
-.success-check__result-primary .btn-glow__content { width: 100%; }
+.success-check__result-primary .btn-glow__content,
+.success-check__result-secondary .btn-glow__content { width: 100%; }
 
-.success-check__result-secondary:hover,
-.success-check__result-secondary:focus-visible {
-  color: var(--ink);
-  border-color: #aa863099;
-  background-color: #80642924;
+.success-check__result-secondary {
+  background: #ffffff4d;
+}
+
+.success-check__result-secondary .btn-glow__content {
+  background-color: var(--paper);
+  background-image: none;
 }
 
 .success-check__or {
@@ -1733,7 +1735,7 @@
 }
 
 .success-check__pdf-document .success-check__recommendation h3 {
-  margin-bottom: 1rem;
+  margin-bottom: 1.4rem;
   font-size: 1.35rem;
 }
 
@@ -1748,7 +1750,7 @@
   outline: 0;
   box-shadow: none;
   box-sizing: border-box;
-  font-size: 0.82rem !important;
+  font-size: 0.925rem !important;
   line-height: 1;
   text-decoration: none;
 }
@@ -1760,6 +1762,12 @@
   background: linear-gradient(90deg, #121212 0%, #1d1a13 62%, var(--brand) 100%);
 }
 
+.success-check__pdf-document .success-check__result-secondary.success-check__pdf-cta {
+  color: var(--ink);
+  border: 1.45px solid var(--brand-cream);
+  background: transparent;
+}
+
 .success-check__pdf-document .success-check__pdf-cta-graphic {
   display: block;
   width: 100%;
@@ -1768,10 +1776,22 @@
 }
 
 .success-check__pdf-document .success-check__recommendation-note {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 4rem;
   margin: 0.9rem 0 0;
   padding: 0.75rem 0.9rem;
+  box-sizing: border-box;
   font-size: 0.68rem;
   line-height: 1.55;
+}
+
+.success-check__pdf-document .success-check__recommendation-note > span {
+  display: block;
+  width: 100%;
+  margin: 0;
+  text-align: center;
 }
 
 .success-check__pdf-document .btn-glow__circle,
@@ -2020,14 +2040,14 @@
   .success-check__score strong { font-size: 3rem; }
   .success-check__score-grid { grid-template-columns: 1fr; }
   .success-check__result-primary .btn-glow__content,
-  .success-check__result-secondary { padding-inline: 1rem; }
-  .success-check__result-primary .btn-glow__label,
-  .success-check__result-secondary { font-size: 0.84rem; }
-  .success-check__result-primary .btn-glow__content {
+  .success-check__result-secondary .btn-glow__content {
     min-height: 4.25rem;
+    padding-inline: 1rem;
     padding-block: 0.65rem;
   }
-  .success-check__result-primary .btn-glow__label {
+  .success-check__result-primary .btn-glow__label,
+  .success-check__result-secondary .btn-glow__label {
+    font-size: 0.84rem;
     line-height: 1.35;
     white-space: normal;
     overflow-wrap: anywhere;
