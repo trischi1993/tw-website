@@ -1,0 +1,58 @@
+---
+import BaseLayout from '../layouts/BaseLayout.astro';
+import EbookLanding from '../components/EbookLanding.astro';
+import ogImage from '../assets/images/ebook/og.png';
+
+const BUY_URL = 'https://ebook.tristanweithaler.com/bestellformular';
+const title = 'Die Instagram Erfolgsformel – E-Book';
+const description =
+  'Lerne mit erprobten Strategien und echter Praxiserfahrung, wie du deinen Instagram-Account erfolgreich und nachhaltig aufbaust – inklusive exklusiver Boni.';
+const imageUrl = new URL(ogImage.src, Astro.site).href;
+const jsonLd = {
+  '@context': 'https://schema.org',
+  '@type': 'Book',
+  name: 'Die Instagram Erfolgsformel',
+  description,
+  image: imageUrl,
+  author: {
+    '@type': 'Person',
+    name: 'Tristan Weithaler',
+  },
+  inLanguage: 'de',
+  numberOfPages: 140,
+  bookFormat: 'https://schema.org/EBook',
+  offers: {
+    '@type': 'Offer',
+    url: BUY_URL,
+    price: '38.00',
+    priceCurrency: 'EUR',
+    availability: 'https://schema.org/InStock',
+  },
+};
+---
+
+<BaseLayout
+  title={title}
+  description={description}
+  image={ogImage.src}
+  route="e-book"
+  jsonLd={jsonLd}
+>
+  <Fragment slot="head">
+    <link
+      rel="preload"
+      href="/fonts/poppins-medium.woff2"
+      as="font"
+      type="font/woff2"
+      crossorigin
+    />
+    <link
+      rel="preload"
+      href="/fonts/poppins-semibold.woff2"
+      as="font"
+      type="font/woff2"
+      crossorigin
+    />
+  </Fragment>
+  <EbookLanding />
+</BaseLayout>

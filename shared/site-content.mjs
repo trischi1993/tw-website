@@ -101,7 +101,7 @@ export function buildContent({ img }) {
       phoneHref: 'tel:+393341799393',
     },
     nav: [
-      { label: 'Zum E-Book', href: 'https://ebook.tristanweithaler.com/' },
+      { label: 'Zum E-Book', href: '/e-book/' },
       { label: 'ALL-IN-ONE Coaching', href: '/all-in-one-coaching/' },
       { label: 'Über mich', href: '/ueber-mich/' },
     ],

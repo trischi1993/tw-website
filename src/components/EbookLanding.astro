@@ -1,0 +1,413 @@
+---
+import { Image } from 'astro:assets';
+import GlowButton from './sections/GlowButton';
+import heroImage from '../assets/images/ebook/hero.png';
+import coverImage from '../assets/images/ebook/cover.png';
+import authorImage from '../assets/images/ebook/author.jpg';
+import chaptersImage from '../assets/images/ebook/chapters.png';
+import bioCreatorImage from '../assets/images/ebook/insta-bio-creator.png';
+import bonusDownloadsImage from '../assets/images/ebook/bonus-downloads.png';
+import barbaraImage from '../assets/images/testimonials/barbara-prantl.webp';
+import naomiImage from '../assets/images/testimonials/naomi-kircher.avif';
+import buonomemesImage from '../assets/images/testimonials/buonomemes.avif';
+import '../styles/ebook.css';
+
+const BUY_URL = 'https://ebook.tristanweithaler.com/bestellformular';
+
+const benefits = [
+  {
+    number: '01',
+    title: 'Exklusive Einblicke',
+    text: 'Praxisbeispiele und ehrliche Erfahrungen aus 8 Jahren Social Media – verständlich auf den Punkt gebracht.',
+  },
+  {
+    number: '02',
+    title: 'Nachhaltige Strategien',
+    text: 'Bewährte Methoden für organische Reichweite, echte Follower und eine langfristige Monetarisierung.',
+  },
+  {
+    number: '03',
+    title: 'Step-by-Step-Anleitung',
+    text: 'Ein klarer Weg von deiner Vision und Positionierung bis zu Community, Erfolgsmessung und Umsatz.',
+  },
+  {
+    number: '04',
+    title: 'Meine größten Learnings',
+    text: 'Die Fehler und Erkenntnisse, die dir Umwege ersparen und dich schneller ins konsequente Umsetzen bringen.',
+  },
+];
+
+const chapters = [
+  ['01', 'Deine Vision', 'Das Fundament für deinen Erfolg'],
+  ['02', 'Zielgruppe & Positionierung', 'Erreiche dein Wunschpublikum'],
+  ['03', 'Social Media Branding', 'So bleibt deine Marke im Kopf'],
+  ['04', 'Social Media Strategien', 'Mit System statt Zufall'],
+  ['05', 'Kontinuität', 'Der Schlüssel zu nachhaltigem Wachstum'],
+  ['06', 'Social Media Trends', 'Erkennen und richtig nutzen'],
+  ['07', 'Erfolgsmessung', 'Daten analysieren und optimieren'],
+  ['08', 'Stories', 'Erzähle Geschichten, die bewegen'],
+  ['09', 'BrandFace', 'Mehr Authentizität, Vertrauen und Engagement'],
+  ['10', 'Community', 'Echte Verbindungen und loyale Follower'],
+  ['11', 'Monetarisierung', 'So wird deine Reichweite zu Umsatz'],
+  ['Bonus', 'Meine größten Fehler', 'Und wie du sie vermeidest'],
+];
+
+const bundle = [
+  {
+    eyebrow: 'Das E-Book',
+    title: 'Die Instagram Erfolgsformel',
+    text: '140 Seiten mit 11 Kapiteln, Bonuskapitel, Praxisbeispielen und direkt umsetzbaren Strategien.',
+    value: '160 €',
+    price: '38 €',
+    image: coverImage,
+    alt: 'Die Instagram Erfolgsformel als E-Book auf verschiedenen Geräten',
+  },
+  {
+    eyebrow: 'Bonus 01',
+    title: 'Insta BIO Creator',
+    text: 'Ein vorbereiteter ChatGPT-Prompt, mit dem du Schritt für Schritt deine perfekte Instagram-Bio erarbeitest.',
+    value: '20 €',
+    price: 'inklusive',
+    image: bioCreatorImage,
+    alt: 'Insta BIO Creator Bonus zum E-Book',
+  },
+  {
+    eyebrow: 'Bonus 02',
+    title: 'Bonus-Downloads',
+    text: 'Zusätzliche ChatGPT-Prompts, hilfreiche Tools, Content-Tipps und weitere praktische Vorlagen.',
+    value: '90 €',
+    price: 'inklusive',
+    image: bonusDownloadsImage,
+    alt: 'Bonus-Downloads mit Prompts, Tools und Content-Tipps',
+  },
+];
+
+const audiences = [
+  {
+    title: 'Selbstständige',
+    text: 'Mach deine Expertise sichtbar und nutze Social Media gezielt, um mehr Kunden und Umsatz zu gewinnen.',
+  },
+  {
+    title: 'Influencer & Content Creator',
+    text: 'Baue eine loyale Community auf, steigere deine Reichweite und lerne, wie du sie nachhaltig monetarisierst.',
+  },
+  {
+    title: 'Unternehmen',
+    text: 'Erreiche deine Zielgruppe authentisch und stärke mit einer klaren Strategie Sichtbarkeit und Markenbindung.',
+  },
+];
+
+const reviews = [
+  {
+    name: 'Barbara Prantl',
+    role: 'Hobbyköchin & Influencerin (170.000+ Follower)',
+    text: 'Ich habe mir Tristans E-Book gekauft und bin auch im persönlichen Austausch mit ihm. Die Tipps sind verständlich erklärt, praxisnah und extrem hilfreich. Gerade die Kombination aus Strategie, echten Erfahrungen und konkreten Beispielen macht das Ganze zu einem richtig starken Werkzeug für alle, die Social Media nachhaltig aufbauen möchten.',
+    image: barbaraImage,
+  },
+  {
+    name: 'Naomi Kircher',
+    role: 'Mentorin & Influencerin (18.000+ Follower)',
+    text: 'Dank Tristans wertvoller Unterstützung konnte ich meine Reichweite innerhalb eines Jahres von 2.000 auf 18.000 Follower steigern – und damit erfolgreich den Grundstein für meine Selbstständigkeit legen.',
+    image: naomiImage,
+  },
+  {
+    name: 'Buonomemes',
+    role: 'Comedian & Influencer (700.000+ Follower)',
+    text: 'Tristan überzeugte uns mit präziser Arbeit, starker Strategie und einem wertvollen Netzwerk. Sein Support war entscheidend für unseren erfolgreichen Launch – fachlich wie menschlich absolut empfehlenswert.',
+    image: buonomemesImage,
+  },
+];
+---
+
+<div class="ebook">
+  <section class="ebook-hero" aria-labelledby="ebook-hero-title">
+    <div class="ebook-hero__ambient is-one" aria-hidden="true"></div>
+    <div class="ebook-hero__ambient is-two" aria-hidden="true"></div>
+    <div class="container ebook-hero__grid">
+      <div class="ebook-hero__content" data-anim="reveal" data-offset="8">
+        <p class="ebook-eyebrow"><span aria-hidden="true"></span> Social Media mit System</p>
+        <h1 id="ebook-hero-title">
+          Die Instagram
+          <strong>Erfolgsformel</strong>
+        </h1>
+        <p class="ebook-hero__lead">Für mehr Reichweite, Follower &amp; Umsatz.</p>
+        <p class="ebook-hero__copy">
+          Deine kompakte Anleitung aus 8 Jahren Praxis und der Erfahrung aus dem Aufbau von
+          Accounts mit bis zu 200.000 Followern.
+        </p>
+        <ul class="ebook-hero__facts" role="list" aria-label="E-Book-Umfang">
+          <li><strong>140</strong><span>Seiten</span></li>
+          <li><strong>11 + 1</strong><span>Kapitel</span></li>
+          <li><strong>2</strong><span>Boni</span></li>
+        </ul>
+        <div class="ebook-hero__action">
+          <GlowButton label="Jetzt E-Book sichern" href={BUY_URL} />
+          <p><span>Gesamtwert 270 €</span><strong>heute für 38 €</strong></p>
+        </div>
+      </div>
+
+      <div class="ebook-hero__visual" data-anim="reveal" data-delay="0.15" data-offset="8">
+        <span class="ebook-hero__stamp" aria-hidden="true">8 Jahre<br />Praxis</span>
+        <Image
+          src={heroImage}
+          alt="Die Instagram Erfolgsformel mit E-Book, Smartphone und Beispielseiten"
+          widths={[480, 720, 960, 1200]}
+          sizes="(max-width: 991px) 92vw, 50vw"
+          format="webp"
+          quality={84}
+          priority
+        />
+      </div>
+    </div>
+  </section>
+
+  <section class="ebook-trust" aria-label="Bekannt aus">
+    <div class="container ebook-trust__inner">
+      <p>Bekannt aus</p>
+      <ul role="list">
+        <li>RAI Südtirol</li>
+        <li>Zett am Sonntag</li>
+        <li>Der Vinschger</li>
+        <li>Südtirol heute</li>
+        <li>Vinschgerwind</li>
+      </ul>
+    </div>
+  </section>
+
+  <section class="ebook-intro section" aria-labelledby="ebook-intro-title">
+    <div class="container">
+      <p class="ebook-kicker" data-anim="reveal">Mit System statt Zufall</p>
+      <h2 id="ebook-intro-title" data-anim="reveal" data-delay="0.08">
+        Du brauchst keine 20.000 Follower, um über Social Media etwas zu bewegen.
+        <span>Du brauchst eine klare Strategie.</span>
+      </h2>
+      <p class="ebook-intro__copy" data-anim="reveal" data-delay="0.16">
+        Dieses E-Book verbindet echte Erfahrungen mit konkreten Schritten. Damit du verstehst,
+        was hinter nachhaltigem Wachstum steckt – und endlich weißt, was als Nächstes zu tun ist.
+      </p>
+    </div>
+  </section>
+
+  <section class="ebook-benefits section is-alt" aria-labelledby="ebook-benefits-title">
+    <div class="container">
+      <div class="ebook-section-head">
+        <div>
+          <p class="ebook-kicker" data-anim="reveal">Das erwartet dich</p>
+          <h2 id="ebook-benefits-title" data-anim="reveal">Praxiswissen, das du direkt anwenden kannst.</h2>
+        </div>
+        <p data-anim="reveal">
+          Kein Theorie-Marathon, sondern ein klarer Leitfaden für deinen Social-Media-Aufbau.
+        </p>
+      </div>
+      <div class="ebook-benefits__grid">
+        {benefits.map((benefit, index) => (
+          <article class="ebook-benefit" data-anim="reveal" data-delay={String(index * 0.06)}>
+            <span>{benefit.number}</span>
+            <h3>{benefit.title}</h3>
+            <p>{benefit.text}</p>
+          </article>
+        ))}
+      </div>
+    </div>
+  </section>
+
+  <section class="ebook-author section" aria-labelledby="ebook-author-title">
+    <div class="container ebook-author__grid">
+      <div class="ebook-author__media" data-anim="reveal">
+        <Image
+          src={authorImage}
+          alt="Tristan Weithaler, Autor der Instagram Erfolgsformel"
+          widths={[480, 720, 960]}
+          sizes="(max-width: 991px) 90vw, 45vw"
+          format="webp"
+          quality={82}
+        />
+        <p>Social Media Business Coach<br /><strong>mit Herz &amp; Hands-on-Mentalität.</strong></p>
+      </div>
+      <div class="ebook-author__content">
+        <p class="ebook-kicker" data-anim="reveal">Kurz zu mir, dem Autor</p>
+        <h2 id="ebook-author-title" data-anim="reveal">Hi, ich bin Tristan.</h2>
+        <div class="ebook-author__copy" data-anim="reveal" data-delay="0.08">
+          <p>
+            Ich komme aus einem kleinen Dorf in Südtirol und habe meinen sicheren Bürojob gegen
+            kreative Freiheit getauscht – mit dem Ziel, eigene Visionen zu verwirklichen.
+          </p>
+          <p>
+            Ohne Studienabschluss, aber mit viel Praxiserfahrung, Neugier und Leidenschaft habe
+            ich mich zum Social-Media-Unternehmer entwickelt. Mit meinen Projekten und Marken
+            habe ich über 200.000 Follower aufgebaut und mehr als 150 Millionen Views generiert.
+          </p>
+          <p>
+            Die Strategien, Fehler und Learnings aus diesem Weg teile ich in meinem E-Book:
+            praxisnah, ehrlich und direkt umsetzbar.
+          </p>
+        </div>
+        <dl class="ebook-author__stats" data-anim="reveal" data-delay="0.14">
+          <div><dt>8</dt><dd>Jahre Erfahrung</dd></div>
+          <div><dt>200K+</dt><dd>Follower aufgebaut</dd></div>
+          <div><dt>150M+</dt><dd>organische Views</dd></div>
+        </dl>
+      </div>
+    </div>
+  </section>
+
+  <section class="ebook-chapters section is-alt" aria-labelledby="ebook-chapters-title">
+    <div class="container">
+      <div class="ebook-chapters__head">
+        <div>
+          <p class="ebook-kicker" data-anim="reveal">E-Book-Inhalt</p>
+          <h2 id="ebook-chapters-title" data-anim="reveal">Von deiner Vision bis zur Monetarisierung.</h2>
+        </div>
+        <p data-anim="reveal">
+          11 aufeinander aufbauende Kapitel und ein Bonuskapitel führen dich Schritt für Schritt
+          durch die wichtigsten Bereiche einer erfolgreichen Social-Media-Marke.
+        </p>
+      </div>
+      <div class="ebook-chapters__layout">
+        <div class="ebook-chapters__visual" data-anim="reveal">
+          <Image
+            src={chaptersImage}
+            alt="Auswahl verschiedener Seiten aus der Instagram Erfolgsformel"
+            widths={[420, 640, 843]}
+            sizes="(max-width: 991px) 84vw, 36vw"
+            format="webp"
+            quality={82}
+          />
+        </div>
+        <ol class="ebook-chapters__list">
+          {chapters.map(([number, title, text], index) => (
+            <li data-anim="reveal" data-delay={String((index % 3) * 0.04)}>
+              <span>{number}</span>
+              <div><h3>{title}</h3><p>{text}</p></div>
+            </li>
+          ))}
+        </ol>
+      </div>
+    </div>
+  </section>
+
+  <section class="ebook-evergreen section" aria-labelledby="ebook-evergreen-title">
+    <div class="container ebook-evergreen__inner">
+      <div class="ebook-evergreen__mark" aria-hidden="true">∞</div>
+      <div>
+        <p class="ebook-kicker" data-anim="reveal">Wissen mit Bestand</p>
+        <h2 id="ebook-evergreen-title" data-anim="reveal">Nicht noch so ein 0815-Social-Media-Buch.</h2>
+        <p data-anim="reveal" data-delay="0.08">
+          Social Media verändert sich rasant. Deshalb konzentriert sich dieses Buch auf
+          Evergreen-Strategien, die unabhängig von kurzfristigen Trends oder einzelnen
+          Algorithmus-Updates funktionieren. Die Methoden haben sich über Jahre in der Praxis
+          bewährt – für nachhaltiges Wachstum, statt jedem neuen Hype hinterherzulaufen.
+        </p>
+        <div data-anim="reveal" data-delay="0.14">
+          <GlowButton label="8 Jahre Expertise nutzen" href={BUY_URL} />
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <section class="ebook-bundle section is-alt" aria-labelledby="ebook-bundle-title">
+    <div class="container">
+      <div class="ebook-bundle__head text-center">
+        <p class="ebook-kicker" data-anim="reveal">Das Komplettpaket</p>
+        <h2 id="ebook-bundle-title" data-anim="reveal">Alles, was du für die Umsetzung brauchst.</h2>
+        <p data-anim="reveal" data-delay="0.08">
+          Zum E-Book bekommst du zwei praktische Extras ohne Aufpreis dazu.
+        </p>
+      </div>
+      <div class="ebook-bundle__grid">
+        {bundle.map((item, index) => (
+          <article class="ebook-bundle-card" data-anim="reveal" data-delay={String(index * 0.08)}>
+            <div class="ebook-bundle-card__visual">
+              <Image
+                src={item.image}
+                alt={item.alt}
+                widths={[320, 480, 640]}
+                sizes="(max-width: 767px) 90vw, (max-width: 991px) 44vw, 29vw"
+                format="webp"
+                quality={82}
+              />
+            </div>
+            <div class="ebook-bundle-card__content">
+              <p class="ebook-bundle-card__eyebrow">{item.eyebrow}</p>
+              <h3>{item.title}</h3>
+              <p>{item.text}</p>
+              <div class="ebook-bundle-card__price">
+                <span>Wert <s>{item.value}</s></span>
+                <strong>{item.price}</strong>
+              </div>
+            </div>
+          </article>
+        ))}
+      </div>
+      <div class="ebook-price" data-anim="reveal">
+        <div>
+          <p>Dein Gesamtwert</p>
+          <s>270 €</s>
+        </div>
+        <div>
+          <p>Deine Investition</p>
+          <strong>38 €</strong>
+        </div>
+        <GlowButton label="Komplettpaket holen" href={BUY_URL} />
+      </div>
+    </div>
+  </section>
+
+  <section class="ebook-audience section" aria-labelledby="ebook-audience-title">
+    <div class="container">
+      <div class="ebook-section-head">
+        <div>
+          <p class="ebook-kicker" data-anim="reveal">Für wen ist es geeignet?</p>
+          <h2 id="ebook-audience-title" data-anim="reveal">Für alle, die mit Social Media mehr erreichen wollen.</h2>
+        </div>
+      </div>
+      <div class="ebook-audience__grid">
+        {audiences.map((audience, index) => (
+          <article data-anim="reveal" data-delay={String(index * 0.08)}>
+            <span aria-hidden="true">0{index + 1}</span>
+            <h3>{audience.title}</h3>
+            <p>{audience.text}</p>
+          </article>
+        ))}
+      </div>
+    </div>
+  </section>
+
+  <section class="ebook-reviews section is-alt" aria-labelledby="ebook-reviews-title">
+    <div class="container">
+      <div class="ebook-reviews__head text-center">
+        <p class="ebook-kicker" data-anim="reveal">Erfahrungen</p>
+        <h2 id="ebook-reviews-title" data-anim="reveal">Strategien, die in der Praxis funktionieren.</h2>
+      </div>
+      <div class="ebook-reviews__grid">
+        {reviews.map((review, index) => (
+          <figure class:list={['ebook-review', { 'is-featured': index === 0 }]} data-anim="reveal" data-delay={String(index * 0.08)}>
+            <div class="ebook-review__stars" aria-label="5 von 5 Sternen">★★★★★</div>
+            <blockquote>„{review.text}“</blockquote>
+            <figcaption>
+              <Image src={review.image} alt="" width={56} height={56} format="webp" quality={82} />
+              <span><strong>{review.name}</strong><small>{review.role}</small></span>
+            </figcaption>
+          </figure>
+        ))}
+      </div>
+    </div>
+  </section>
+
+  <section class="ebook-final section" aria-labelledby="ebook-final-title">
+    <div class="ebook-final__ambient" aria-hidden="true"></div>
+    <div class="container ebook-final__inner">
+      <p class="ebook-kicker" data-anim="reveal">Auf was wartest du noch?</p>
+      <h2 id="ebook-final-title" data-anim="reveal">Jetzt mit Plan durchstarten.</h2>
+      <p data-anim="reveal" data-delay="0.08">
+        Hol dir die Instagram Erfolgsformel inklusive Insta BIO Creator und Bonus-Downloads.
+      </p>
+      <div class="ebook-final__price" data-anim="reveal" data-delay="0.12">
+        <span>Komplettpaket</span><strong>38 €</strong><s>270 € Gesamtwert</s>
+      </div>
+      <div data-anim="reveal" data-delay="0.16">
+        <GlowButton label="E-Book + Extras sichern" href={BUY_URL} />
+      </div>
+    </div>
+  </section>
+</div>

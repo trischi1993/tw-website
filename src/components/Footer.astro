@@ -6,6 +6,7 @@ import instagramIcon from '../assets/images/icon-instagram.svg';
 import linkedinIcon from '../assets/images/icon-linkedin.svg';
 import { getSiteSettings } from '../lib/content';
 import { safeHref } from '../lib/safe-href';
+import { siteNavigationHref } from '../lib/site-navigation';
 
 /**
  * Footer (Webflow section_footer, global-chrome.md §6): Dolomiten-Band auf
@@ -46,7 +47,10 @@ function lottieFor(
   return null;
 }
 
-const footerNav = [{ label: 'Startseite', href: '/' }, ...settings.nav];
+const footerNav = [{ label: 'Startseite', href: '/' }, ...settings.nav].map((item) => ({
+  ...item,
+  href: siteNavigationHref(item.href),
+}));
 const mailHref = `mailto:${contact.email}?subject=Hey%20Tristan`;
 ---
 <footer class="footer">
@@ -130,7 +134,7 @@ const mailHref = `mailto:${contact.email}?subject=Hey%20Tristan`;
                   <li class="footer__nav-mask" data-dim-item>
                     <a
                       class="footer__nav-link"
-                      href={safeHref(item.href)}
+                      href={item.href}
                       target={isExternal(item.href) ? '_blank' : undefined}
                       rel={isExternal(item.href) ? 'noopener noreferrer' : undefined}
                       data-footer-nav-link

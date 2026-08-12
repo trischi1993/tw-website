@@ -2,6 +2,7 @@
 import arrowWhite from '../assets/images/icon-arrow-white.svg';
 import { getSiteSettings } from '../lib/content';
 import { safeHref } from '../lib/safe-href';
+import { siteNavigationHref } from '../lib/site-navigation';
 import { UI as t } from '../lib/i18n';
 
 /**
@@ -17,7 +18,11 @@ const settings = await getSiteSettings();
 const isExternal = (href: string) => /^https?:\/\//.test(href);
 
 /** Fullscreen-Menü: Startseite + Hauptnavigation (global-chrome.md §5). */
-const menuItems = [{ label: 'Startseite', href: '/' }, ...settings.nav];
+const navItems = settings.nav.map((item) => ({
+  ...item,
+  href: siteNavigationHref(item.href),
+}));
+const menuItems = [{ label: 'Startseite', href: '/' }, ...navItems];
 ---
 <header class="navbar" data-site-header>
   <div class="navbar__container">
@@ -50,10 +55,10 @@ const menuItems = [{ label: 'Startseite', href: '/' }, ...settings.nav];
       <nav class="navbar__menu" aria-label={t.mainNav}>
         <ul role="list" class="navbar__list">
           {
-            settings.nav.map((item) => (
+            navItems.map((item) => (
               <li>
                 <a
-                  href={safeHref(item.href)}
+                  href={item.href}
                   class="navbar__link link-underline"
                   data-underline
                   target={isExternal(item.href) ? '_blank' : undefined}
@@ -125,7 +130,7 @@ const menuItems = [{ label: 'Startseite', href: '/' }, ...settings.nav];
     {
       menuItems.map((item) => (
         <a
-          href={safeHref(item.href)}
+          href={item.href}
           class="menu__link"
           data-menu-link
           target={isExternal(item.href) ? '_blank' : undefined}
