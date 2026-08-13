@@ -495,6 +495,18 @@ em, i { font-style: italic; }
    würden Hero/Statement nach einem Sanity-Live-Update dauerhaft verschwinden. */
 html.has-motion:not(.motion-ready) [data-anim='lines']:not([data-revealed]) { visibility: hidden; }
 
+/* E-Book-Hero: Die generischen Reveals bekommen ihre Startwerte normalerweise
+   erst aus dem Motion-Bundle. Da der Hero sofort im ersten Viewport steht,
+   wären Text und Mockup sonst einen Frame sichtbar, würden anschließend
+   ausgeblendet und erst dann animiert. Diese identischen Startwerte greifen
+   bereits vor dem ersten Paint; sobald Motion synchron übernimmt, entfällt
+   die Regel über .motion-ready. */
+html.has-motion:not(.motion-ready) .ebook-hero [data-anim='reveal']:not([data-revealed]) {
+  opacity: 0;
+  transform: translateY(1rem);
+  filter: blur(5px);
+}
+
 /* Geteilter Navbar-Build - nur auf Seiten mit Load-Choreo
    (Home/Über-mich/AIO/Erfolgs-Check). */
 html.has-motion:not(.motion-ready):has([data-home-hero], [data-about-hero], [data-aio-hero]) [data-nav-logo-line]:not([data-revealed]) { height: 0; }
