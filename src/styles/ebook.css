@@ -1496,7 +1496,7 @@
     var(--paper);
 }
 
-.ebook-price > div { display: flex; align-items: baseline; gap: 1rem; }
+.ebook-price > div { display: flex; align-items: center; gap: 1rem; }
 .ebook-price p { color: var(--ink-3); font-size: var(--text-sm); }
 .ebook-price s { color: var(--ink-2); font-size: 1.5rem; }
 .ebook-price > div strong { color: var(--brand-readable); font-size: 2.5rem; font-weight: 500; }
