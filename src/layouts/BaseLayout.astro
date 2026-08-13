@@ -15,13 +15,26 @@ interface Props {
   title: string;
   description: string;
   image?: string;
+  canonical?: string;
   noindex?: boolean;
   type?: 'website' | 'article';
   jsonLd?: Record<string, any> | Record<string, any>[];
   /** Seiten-Slug als CSS-Haken auf <main> (z. B. seiten-spezifische Overrides). */
   route?: string;
+  /** Hält Navigation und Legal-Links auf der separaten E-Book-Domain korrekt. */
+  navigationContext?: 'main' | 'ebook';
 }
-const { title, description, image, noindex, type, jsonLd, route } = Astro.props;
+const {
+  title,
+  description,
+  image,
+  canonical,
+  noindex,
+  type,
+  jsonLd,
+  route,
+  navigationContext = 'main',
+} = Astro.props;
 const settings = await getSiteSettings();
 
 // Organization auf jeder Seite: macht die Marke für Google/AI zur eindeutigen
@@ -115,6 +128,7 @@ const jsonLdArray = [orgJsonLd, ...pageJsonLd];
       title={title}
       description={description}
       image={image}
+      canonical={canonical}
       noindex={noindex}
       type={type}
       siteName={settings.siteName}
@@ -135,13 +149,13 @@ const jsonLdArray = [orgJsonLd, ...pageJsonLd];
   </head>
   <body>
     <a href="#main" class="skip-link">{UI.skipToContent}</a>
-    <Header />
+    <Header context={navigationContext} />
     {/* tabindex=-1: macht das Sprung-Ziel per Skip-Link fokussierbar (sonst
         setzen manche Browser/AT den Fokus nicht zuverlässig auf <main>). */}
     <main id="main" tabindex="-1" data-route={route || undefined}>
       <slot />
     </main>
-    <Footer />
+    <Footer context={navigationContext} />
     {/* Direkte Body-Kinder: die inert-Logik der Modals erwartet Top-Level. */}
     <CtaModal />
     <AioModal />

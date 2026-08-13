@@ -1,0 +1,393 @@
+---
+import { Image } from 'astro:assets';
+import coverImage from '../assets/images/ebook/cover.png';
+import '../styles/ebook-checkout.css';
+
+// Lokal bleibt das bestehende Formular direkt erreichbar. Im deployten
+// E-Book-Worker läuft es über denselben öffentlichen Host, damit der Wechsel
+// auf die Systeme.io-Dankeseite als Vollseiten-Navigation erkannt werden kann.
+const CHECKOUT_URL = import.meta.env.DEV
+  ? 'https://ebook.tristanweithaler.com/bestellformular'
+  : '/bestellformular';
+
+const packageItems = [
+  ['E-Book mit 140 Seiten', '11 Kapitel, Bonuskapitel und direkt umsetzbare Strategien'],
+  ['Insta BIO Creator', 'Der vorbereitete ChatGPT-Prompt für deine perfekte Instagram-Bio'],
+  ['Bonus-Downloads', 'Weitere Prompts, Tools, Content-Tipps und praktische Vorlagen'],
+];
+---
+
+<section class="ebook-checkout" aria-labelledby="ebook-checkout-title">
+  <div class="ebook-checkout__ambient is-one" aria-hidden="true"></div>
+  <div class="ebook-checkout__ambient is-two" aria-hidden="true"></div>
+
+  <div class="container ebook-checkout__inner">
+    <a class="ebook-checkout__back" href="/">
+      <svg viewBox="0 0 24 24" aria-hidden="true"><path d="m14.5 5-7 7 7 7" /></svg>
+      Zurück zum E-Book
+    </a>
+
+    <header class="ebook-checkout__hero">
+      <div>
+        <p class="ebook-checkout__kicker"><span aria-hidden="true"></span> Dein letzter Schritt</p>
+        <h1 id="ebook-checkout-title">Sicher bestellen. <strong>Direkt loslegen.</strong></h1>
+      </div>
+      <div class="ebook-checkout__hero-copy">
+        <p>
+          Schließe deine Bestellung direkt und sicher ab. Dein E-Book und alle Boni erhältst du
+          anschließend automatisch per E-Mail.
+        </p>
+        <a href="#ebook-payment-title" data-checkout-scroll>
+          <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M7 10V7a5 5 0 0 1 10 0v3M5 10h14v11H5z" /></svg>
+          Sichere Zahlungsabwicklung
+        </a>
+      </div>
+    </header>
+
+    <ol class="ebook-checkout__steps" aria-label="Bestellablauf">
+      <li class="is-complete">
+        <span aria-hidden="true"><svg viewBox="0 0 24 24"><path d="m6 12 4 4 8-9" /></svg></span>
+        <div><small>Schritt 01</small><strong>E-Book + Boni auswählen</strong></div>
+      </li>
+      <li class="is-current">
+        <span>02</span>
+        <div><small>Schritt 02</small><strong>Sicher bezahlen</strong></div>
+      </li>
+      <li>
+        <span>03</span>
+        <div><small>Schritt 03</small><strong>Sofort loslegen</strong></div>
+      </li>
+    </ol>
+
+    <div class="ebook-checkout__grid">
+      <aside class="ebook-checkout__summary" aria-labelledby="ebook-order-summary-title">
+        <div class="ebook-checkout__summary-head">
+          <p>Dein Komplettpaket</p>
+          <span>E-Book + 2 Boni</span>
+        </div>
+        <div class="ebook-checkout__summary-visual">
+          <Image
+            src={coverImage}
+            alt="Die Instagram Erfolgsformel als Komplettpaket mit Buch, Monitor und Beispielseiten"
+            widths={[320, 480, 640]}
+            sizes="(max-width: 991px) 80vw, 35vw"
+            format="webp"
+            quality={84}
+          />
+        </div>
+        <div class="ebook-checkout__summary-content">
+          <p class="ebook-checkout__summary-kicker">Die Instagram Erfolgsformel</p>
+          <h2 id="ebook-order-summary-title">Alles, was du für die Umsetzung brauchst.</h2>
+          <ul role="list">
+            {packageItems.map(([title, text]) => (
+              <li>
+                <span aria-hidden="true"><svg viewBox="0 0 24 24"><path d="m6 12 4 4 8-9" /></svg></span>
+                <div><strong>{title}</strong><p>{text}</p></div>
+              </li>
+            ))}
+          </ul>
+          <div class="ebook-checkout__delivery">
+            <span>
+              <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M3 6h18v12H3zM3 7l9 7 9-7" /></svg>
+              Sofort per E-Mail
+            </span>
+            <span>
+              <svg viewBox="0 0 24 24" aria-hidden="true"><rect x="4" y="3" width="16" height="18" rx="2" /><path d="M9 18h6" /></svg>
+              Auf allen Geräten
+            </span>
+            <span>
+              <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M7 9V3h10v6M7 17H5V9h14v8h-2M7 14h10v7H7z" /></svg>
+              Auch zum Ausdrucken
+            </span>
+          </div>
+          <div class="ebook-checkout__price">
+            <div><span>Gesamtwert</span><s>&gt;280 €</s></div>
+            <div><span>Deine Investition</span><strong>27 €</strong></div>
+          </div>
+        </div>
+      </aside>
+
+      <section class="ebook-checkout__form-column" aria-labelledby="ebook-payment-title">
+        <div class="ebook-checkout__form-head">
+          <div>
+            <p>Deine Bestellung</p>
+            <h2 id="ebook-payment-title">Kontakt &amp; Zahlung</h2>
+          </div>
+        </div>
+        <p class="ebook-checkout__form-note">
+          Trage deine Daten ein und wähle anschließend deine gewünschte Zahlungsart.
+        </p>
+
+        <div class="ebook-checkout__form-stage" data-checkout-form-stage>
+          <div class="ebook-checkout__loading" aria-hidden="true">
+            <span></span>
+            Sicheres Bestellformular wird geladen …
+          </div>
+          <div class="ebook-checkout__form-scale" data-checkout-form-scale>
+            <div class="ebook-checkout__form-clip">
+              <iframe
+                title="Bestellformular für die Instagram Erfolgsformel"
+                allow="payment *"
+                scrolling="no"
+                referrerpolicy="strict-origin-when-cross-origin"
+                data-checkout-url={CHECKOUT_URL}
+                data-checkout-form-frame
+              ></iframe>
+            </div>
+          </div>
+        </div>
+
+      </section>
+    </div>
+  </div>
+</section>
+
+<script>
+  const initCheckoutFormCrop = () => {
+    document.querySelectorAll<HTMLElement>('[data-checkout-form-stage]').forEach((stage) => {
+      if (stage.dataset.cropReady === 'true') return;
+      const scaleLayer = stage.querySelector<HTMLElement>('[data-checkout-form-scale]');
+      const clipLayer = stage.querySelector<HTMLElement>('.ebook-checkout__form-clip');
+      const frame = stage.querySelector<HTMLIFrameElement>('[data-checkout-form-frame]');
+      if (!scaleLayer || !clipLayer || !frame) return;
+
+      const checkoutUrl = frame.dataset.checkoutUrl;
+      if (!checkoutUrl) return;
+
+      stage.dataset.cropReady = 'true';
+
+      // UTM-, Affiliate- und sonstige Kampagnenparameter der Landingpage
+      // erreichen dadurch auch das eigentliche Systeme.io-Bestellformular.
+      const formUrl = new URL(checkoutUrl, window.location.href);
+      new URLSearchParams(window.location.search).forEach((value, key) => {
+        if (!formUrl.searchParams.has(key)) formUrl.searchParams.append(key, value);
+      });
+
+      let scaleFrame: number | undefined;
+      let contentHeightFrame: number | undefined;
+      let measuredCropHeight: number | undefined;
+      let observedCheckoutPanel: HTMLElement | undefined;
+      let checkoutPanelObserver: ResizeObserver | undefined;
+      let frameContentObserver: MutationObserver | undefined;
+      let contentHeightRetry: number | undefined;
+      let contentHeightAttempts = 0;
+      let lockedFrameDocument: Document | undefined;
+      let frameTouchY: number | undefined;
+
+      const updateScale = () => {
+        scaleFrame = undefined;
+        const styles = window.getComputedStyle(stage);
+        const cropWidth = Number.parseFloat(styles.getPropertyValue('--form-crop-width'));
+        const fallbackCropHeight = Number.parseFloat(styles.getPropertyValue('--form-crop-height'));
+        const cropHeight = measuredCropHeight ?? fallbackCropHeight;
+        if (!cropWidth || !cropHeight) return;
+
+        const scale = Math.min(1, stage.clientWidth / cropWidth);
+        scaleLayer.style.height = `${cropHeight}px`;
+        clipLayer.style.height = `${cropHeight}px`;
+        scaleLayer.style.transform = `scale(${scale})`;
+        const targetHeight = Math.ceil(cropHeight * scale);
+        if (Math.abs(stage.getBoundingClientRect().height - targetHeight) > 0.5) {
+          stage.style.height = `${targetHeight}px`;
+        }
+      };
+
+      const queueScaleUpdate = () => {
+        if (scaleFrame !== undefined) cancelAnimationFrame(scaleFrame);
+        scaleFrame = requestAnimationFrame(updateScale);
+      };
+
+      const updateContentHeight = () => {
+        contentHeightFrame = undefined;
+
+        try {
+          const frameDocument = frame.contentDocument;
+          if (!frameDocument || frame.contentWindow?.location.origin !== window.location.origin) return;
+
+          // Diese weiße Systeme.io-Karte enthält das komplette sichtbare
+          // Bestellformular. Beim Wechsel zu PayPal wird sie deutlich kürzer.
+          const checkoutPanel = frameDocument.querySelector<HTMLElement>('#row-4a257cd5');
+          if (!checkoutPanel) {
+            if (contentHeightAttempts < 40) {
+              contentHeightAttempts += 1;
+              window.clearTimeout(contentHeightRetry);
+              contentHeightRetry = window.setTimeout(queueContentHeightUpdate, 250);
+            }
+            return;
+          }
+
+          contentHeightAttempts = 0;
+          window.clearTimeout(contentHeightRetry);
+
+          // Die sichtbare Checkoutkarte wird im iframe selbst am oberen Rand
+          // fixiert. Selbst wenn Mobile Safari den Frame trotz deaktiviertem
+          // Scrolling verschieben will, kann dadurch kein alter Seiteninhalt
+          // oberhalb des Formulars sichtbar werden.
+          const frameStyles = window.getComputedStyle(frame);
+          const panelLeft = Math.max(0, -Number.parseFloat(frameStyles.left));
+          const cropWidth = Number.parseFloat(
+            window.getComputedStyle(stage).getPropertyValue('--form-crop-width'),
+          );
+          if (frameDocument.body) frameDocument.body.style.visibility = 'hidden';
+          checkoutPanel.style.position = 'fixed';
+          checkoutPanel.style.top = '0';
+          checkoutPanel.style.left = `${panelLeft}px`;
+          checkoutPanel.style.width = `${cropWidth}px`;
+          checkoutPanel.style.margin = '0';
+          checkoutPanel.style.zIndex = '1';
+          checkoutPanel.style.visibility = 'visible';
+          stage.classList.add('is-frame-normalized');
+
+          if (checkoutPanel !== observedCheckoutPanel) {
+            checkoutPanelObserver?.disconnect();
+            checkoutPanelObserver = new ResizeObserver(() => queueContentHeightUpdate());
+            checkoutPanelObserver.observe(checkoutPanel);
+            observedCheckoutPanel = checkoutPanel;
+          }
+
+          const styles = window.getComputedStyle(stage);
+          const bottomTrim = Number.parseFloat(
+            styles.getPropertyValue('--form-crop-bottom-trim'),
+          ) || 0;
+          const nextCropHeight = Math.max(
+            1,
+            Math.ceil(checkoutPanel.getBoundingClientRect().height - bottomTrim),
+          );
+
+          if (measuredCropHeight === undefined || Math.abs(measuredCropHeight - nextCropHeight) > 0.5) {
+            measuredCropHeight = nextCropHeight;
+            queueScaleUpdate();
+          }
+        } catch {
+          // In der lokalen Entwicklung ist das Formular cross-origin. Dort
+          // bleibt die bewährte statische Fallback-Höhe aktiv.
+        }
+      };
+
+      const queueContentHeightUpdate = () => {
+        if (contentHeightFrame !== undefined) cancelAnimationFrame(contentHeightFrame);
+        contentHeightFrame = requestAnimationFrame(updateContentHeight);
+      };
+
+      const observeFrameContent = () => {
+        try {
+          const frameDocument = frame.contentDocument;
+          const frameWindow = frame.contentWindow;
+          if (!frameDocument || !frameWindow || frameWindow.location.origin !== window.location.origin) return;
+
+          // Das eingebettete Formular darf keinen eigenen Scroll-Container
+          // bilden. Die komplette Checkoutkarte wird in der Höhe freigegeben;
+          // gescrollt wird ausschließlich auf der umgebenden Bestellseite.
+          frameDocument.documentElement.style.overflow = 'hidden';
+          frameDocument.documentElement.style.overscrollBehavior = 'none';
+          frameDocument.documentElement.style.touchAction = 'none';
+          if (frameDocument.body) frameDocument.body.style.overflow = 'hidden';
+
+          if (frameDocument !== lockedFrameDocument) {
+            lockedFrameDocument = frameDocument;
+
+            const resetFrameScroll = () => {
+              if (frameWindow.scrollX !== 0 || frameWindow.scrollY !== 0) {
+                frameWindow.scrollTo(0, 0);
+              }
+            };
+
+            frameDocument.addEventListener('touchstart', (event) => {
+              if (event.touches.length !== 1) return;
+              frameTouchY = event.touches[0]?.clientY;
+              resetFrameScroll();
+            }, { passive: true });
+
+            frameDocument.addEventListener('touchmove', (event) => {
+              if (event.touches.length !== 1 || frameTouchY === undefined) return;
+              const nextY = event.touches[0]?.clientY;
+              if (nextY === undefined) return;
+              const deltaY = frameTouchY - nextY;
+              frameTouchY = nextY;
+              event.preventDefault();
+              resetFrameScroll();
+              if (Math.abs(deltaY) > 0.5) window.scrollBy(0, deltaY);
+            }, { passive: false });
+
+            const endTouch = () => {
+              frameTouchY = undefined;
+              resetFrameScroll();
+            };
+            frameDocument.addEventListener('touchend', endTouch, { passive: true });
+            frameDocument.addEventListener('touchcancel', endTouch, { passive: true });
+            frameDocument.addEventListener('wheel', (event) => {
+              event.preventDefault();
+              resetFrameScroll();
+              window.scrollBy(0, event.deltaY);
+            }, { passive: false });
+            frameWindow.addEventListener('scroll', resetFrameScroll, { passive: true });
+            resetFrameScroll();
+          }
+
+          frameContentObserver?.disconnect();
+          frameContentObserver = new MutationObserver(() => queueContentHeightUpdate());
+          frameContentObserver.observe(frameDocument.body, { childList: true, subtree: true });
+        } catch {
+          // Cross-origin-Fallback in der lokalen Astro-Entwicklung.
+        }
+      };
+
+      frame.addEventListener('load', () => {
+        if (!frame.src || frame.src === 'about:blank') return;
+        stage.classList.add('is-loaded');
+        observeFrameContent();
+        queueContentHeightUpdate();
+
+        // Systeme.io schickt nach erfolgreicher Zahlung automatisch zum
+        // nächsten Funnelschritt `/dankeseite`. Da das Formular eingebettet
+        // ist, würde diese Seite sonst nur im beschnittenen Formularbereich
+        // erscheinen. Auf der Live-Domain sind Parent und Frame same-origin;
+        // dann heben wir die Weiterleitung auf die ganze Browserseite an.
+        try {
+          const frameLocation = frame.contentWindow?.location;
+          if (!frameLocation || frameLocation.origin !== window.location.origin) return;
+          if (!/^\/dankeseite\/?$/.test(frameLocation.pathname)) return;
+          window.location.assign(
+            `${frameLocation.pathname}${frameLocation.search}${frameLocation.hash}`,
+          );
+        } catch {
+          // Im lokalen Dev-Modus ist das externe Systeme.io-Formular bewusst
+          // cross-origin. Es bleibt dort voll nutzbar; nur die Parent-Erkennung
+          // ist aus Sicherheitsgründen des Browsers nicht möglich.
+        }
+      });
+      frame.src = formUrl.href;
+      window.addEventListener('resize', queueScaleUpdate, { passive: true });
+      window.addEventListener('orientationchange', queueScaleUpdate, { passive: true });
+      window.visualViewport?.addEventListener('resize', queueScaleUpdate, { passive: true });
+      updateScale();
+    });
+  };
+
+  const initCheckoutPaymentScroll = () => {
+    document.querySelectorAll<HTMLAnchorElement>('[data-checkout-scroll]').forEach((link) => {
+      if (link.dataset.scrollReady === 'true') return;
+      link.dataset.scrollReady = 'true';
+
+      link.addEventListener('click', (event) => {
+        const target = document.querySelector<HTMLElement>(link.hash);
+        if (!target) return;
+
+        event.preventDefault();
+        target.scrollIntoView({
+          behavior: window.matchMedia('(prefers-reduced-motion: reduce)').matches
+            ? 'auto'
+            : 'smooth',
+          block: 'start',
+        });
+      });
+    });
+  };
+
+  initCheckoutFormCrop();
+  initCheckoutPaymentScroll();
+  document.addEventListener('astro:page-load', () => {
+    initCheckoutFormCrop();
+    initCheckoutPaymentScroll();
+  });
+</script>

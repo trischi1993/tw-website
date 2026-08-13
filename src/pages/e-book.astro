@@ -3,11 +3,12 @@ import BaseLayout from '../layouts/BaseLayout.astro';
 import EbookLanding from '../components/EbookLanding.astro';
 import ogImage from '../assets/images/ebook/og.png';
 
-const BUY_URL = 'https://ebook.tristanweithaler.com/bestellformular';
+const EBOOK_ORIGIN = new URL('https://ebook.tristanweithaler.com');
+const BUY_URL = new URL('/bestellen/', EBOOK_ORIGIN).href;
 const title = 'Die Instagram Erfolgsformel – E-Book';
 const description =
   'Lerne mit erprobten Strategien und echter Praxiserfahrung, wie du deinen Instagram-Account erfolgreich und nachhaltig aufbaust – inklusive exklusiver Boni.';
-const imageUrl = new URL(ogImage.src, Astro.site).href;
+const imageUrl = new URL(ogImage.src, EBOOK_ORIGIN).href;
 const jsonLd = {
   '@context': 'https://schema.org',
   '@type': 'Book',
@@ -24,7 +25,7 @@ const jsonLd = {
   offers: {
     '@type': 'Offer',
     url: BUY_URL,
-    price: '38.00',
+    price: '27.00',
     priceCurrency: 'EUR',
     availability: 'https://schema.org/InStock',
   },
@@ -34,8 +35,10 @@ const jsonLd = {
 <BaseLayout
   title={title}
   description={description}
-  image={ogImage.src}
+  image={imageUrl}
+  canonical={EBOOK_ORIGIN.href}
   route="e-book"
+  navigationContext="ebook"
   jsonLd={jsonLd}
 >
   <Fragment slot="head">

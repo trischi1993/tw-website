@@ -1,39 +1,113 @@
 ---
 import { Image } from 'astro:assets';
 import GlowButton from './sections/GlowButton';
-import heroImage from '../assets/images/ebook/hero.png';
-import coverImage from '../assets/images/ebook/cover.png';
+import heroImage from '../assets/images/ebook/hero-v5.png';
+import heroPhoneInsightsImage from '../assets/images/ebook/hero-phone-insights-gold.png';
+import bookMockupImage from '../assets/images/ebook/book-mockup-v3.png';
 import authorImage from '../assets/images/ebook/author.jpg';
 import chaptersImage from '../assets/images/ebook/chapters.png';
-import bioCreatorImage from '../assets/images/ebook/insta-bio-creator.png';
-import bonusDownloadsImage from '../assets/images/ebook/bonus-downloads.png';
+import bioCreatorImage from '../assets/images/ebook/insta-bio-creator-v2.png';
+import bonusDownloadsImage from '../assets/images/ebook/bonus-downloads-v2.png';
+import pressVinschgerwindImage from '../assets/images/ebook/press-vinschgerwind-transparent.png';
+import pressSuedtirolHeuteImage from '../assets/images/ebook/press-suedtirol-heute-transparent.png';
+import pressRadioSuedtirolImage from '../assets/images/ebook/press-radio-suedtirol-1-transparent.png';
+import pressDerVinschgerImage from '../assets/images/ebook/press-der-vinschger-transparent.png';
+import pressZettImage from '../assets/images/ebook/press-zett-am-sonntag-transparent.png';
+import pressRaiSuedtirolImage from '../assets/images/ebook/press-rai-suedtirol-transparent.png';
+import resultOneImage from '../assets/images/ebook/result-insight-1.png';
+import resultTwoImage from '../assets/images/ebook/result-insight-2.png';
+import resultThreeImage from '../assets/images/ebook/result-insight-3.png';
+import resultFourImage from '../assets/images/ebook/result-insight-4.png';
+import resultFiveImage from '../assets/images/ebook/result-insight-5.png';
+import resultSixImage from '../assets/images/ebook/result-insight-6.png';
+import audienceSelfEmployedImage from '../assets/images/ebook/audience-self-employed.jpg';
+import audienceCreatorImage from '../assets/images/ebook/audience-creator.jpg';
+import audienceCompanyImage from '../assets/images/ebook/audience-company.jpg';
 import barbaraImage from '../assets/images/testimonials/barbara-prantl.webp';
 import naomiImage from '../assets/images/testimonials/naomi-kircher.avif';
 import buonomemesImage from '../assets/images/testimonials/buonomemes.avif';
 import '../styles/ebook.css';
 
-const BUY_URL = 'https://ebook.tristanweithaler.com/bestellformular';
+const BUY_URL = '/bestellen/';
 
 const benefits = [
   {
     number: '01',
+    icon: 'insights',
     title: 'Exklusive Einblicke',
-    text: 'Praxisbeispiele und ehrliche Erfahrungen aus 8 Jahren Social Media – verständlich auf den Punkt gebracht.',
+    text: 'Praxisbeispiele aus 8+ Jahren Social Media – ehrlich, verständlich und auf den Punkt gebracht.',
   },
   {
     number: '02',
+    icon: 'strategy',
     title: 'Nachhaltige Strategien',
     text: 'Bewährte Methoden für organische Reichweite, echte Follower und eine langfristige Monetarisierung.',
   },
   {
     number: '03',
-    title: 'Step-by-Step-Anleitung',
+    icon: 'steps',
+    title: 'Step-by-Step-Guide',
     text: 'Ein klarer Weg von deiner Vision und Positionierung bis zu Community, Erfolgsmessung und Umsatz.',
   },
   {
     number: '04',
+    icon: 'learnings',
     title: 'Meine größten Learnings',
     text: 'Die Fehler und Erkenntnisse, die dir Umwege ersparen und dich schneller ins konsequente Umsetzen bringen.',
+  },
+];
+
+const pressItems = [
+  {
+    image: pressVinschgerwindImage,
+    alt: 'Vinschgerwind',
+  },
+  {
+    image: pressSuedtirolHeuteImage,
+    alt: 'Südtirol Heute',
+  },
+  {
+    image: pressRadioSuedtirolImage,
+    alt: 'Radio Südtirol 1',
+  },
+  {
+    image: pressDerVinschgerImage,
+    alt: 'Der Vinschger',
+  },
+  {
+    image: pressZettImage,
+    alt: 'Zett am Sonntag',
+  },
+  {
+    image: pressRaiSuedtirolImage,
+    alt: 'Rai Südtirol',
+  },
+];
+
+const resultScreens = [
+  {
+    image: resultOneImage,
+    alt: 'Instagram-Ergebnis: über 15 Millionen erreichte Konten in 30 Tagen',
+  },
+  {
+    image: resultFiveImage,
+    alt: 'Instagram-Ergebnis: 61.137 Profilaktivitäten und 1.096 Klicks auf den externen Link',
+  },
+  {
+    image: resultTwoImage,
+    alt: 'Instagram-Ergebnis: über 10 Millionen Aufrufe für ein Reel',
+  },
+  {
+    image: resultThreeImage,
+    alt: 'Instagram-Ergebnis: 138.208 Follower und starkes organisches Wachstum',
+  },
+  {
+    image: resultFourImage,
+    alt: 'Instagram-Insight mit einem erfolgreichen Social-Media-Ergebnis',
+  },
+  {
+    image: resultSixImage,
+    alt: 'Instagram-Insight mit starkem Community-Wachstum',
   },
 ];
 
@@ -58,9 +132,9 @@ const bundle = [
     title: 'Die Instagram Erfolgsformel',
     text: '140 Seiten mit 11 Kapiteln, Bonuskapitel, Praxisbeispielen und direkt umsetzbaren Strategien.',
     value: '160 €',
-    price: '38 €',
-    image: coverImage,
-    alt: 'Die Instagram Erfolgsformel als E-Book auf verschiedenen Geräten',
+    price: '27 €',
+    image: bookMockupImage,
+    alt: 'Das Buch Die Instagram Erfolgsformel',
   },
   {
     eyebrow: 'Bonus 01',
@@ -75,7 +149,7 @@ const bundle = [
     eyebrow: 'Bonus 02',
     title: 'Bonus-Downloads',
     text: 'Zusätzliche ChatGPT-Prompts, hilfreiche Tools, Content-Tipps und weitere praktische Vorlagen.',
-    value: '90 €',
+    value: '>100 €',
     price: 'inklusive',
     image: bonusDownloadsImage,
     alt: 'Bonus-Downloads mit Prompts, Tools und Content-Tipps',
@@ -86,14 +160,20 @@ const audiences = [
   {
     title: 'Selbstständige',
     text: 'Mach deine Expertise sichtbar und nutze Social Media gezielt, um mehr Kunden und Umsatz zu gewinnen.',
+    image: audienceSelfEmployedImage,
+    alt: 'Selbstständiger beim Arbeiten in den Bergen',
   },
   {
     title: 'Influencer & Content Creator',
     text: 'Baue eine loyale Community auf, steigere deine Reichweite und lerne, wie du sie nachhaltig monetarisierst.',
+    image: audienceCreatorImage,
+    alt: 'Content Creator beim Fotografieren in der Natur',
   },
   {
     title: 'Unternehmen',
     text: 'Erreiche deine Zielgruppe authentisch und stärke mit einer klaren Strategie Sichtbarkeit und Markenbindung.',
+    image: audienceCompanyImage,
+    alt: 'Team bei der gemeinsamen Arbeit am Laptop',
   },
 ];
 
@@ -132,7 +212,7 @@ const reviews = [
         </h1>
         <p class="ebook-hero__lead">Für mehr Reichweite, Follower &amp; Umsatz.</p>
         <p class="ebook-hero__copy">
-          Deine kompakte Anleitung aus 8 Jahren Praxis und der Erfahrung aus dem Aufbau von
+          Deine kompakte Anleitung aus 8+ Jahren Praxis und der Erfahrung aus dem Aufbau von
           Accounts mit bis zu 200.000 Followern.
         </p>
         <ul class="ebook-hero__facts" role="list" aria-label="E-Book-Umfang">
@@ -142,12 +222,12 @@ const reviews = [
         </ul>
         <div class="ebook-hero__action">
           <GlowButton label="Jetzt E-Book sichern" href={BUY_URL} />
-          <p><span>Gesamtwert 270 €</span><strong>heute für 38 €</strong></p>
+          <p><span>Gesamtwert &gt;280 €</span><strong>heute für 27 €</strong></p>
         </div>
       </div>
 
       <div class="ebook-hero__visual" data-anim="reveal" data-delay="0.15" data-offset="8">
-        <span class="ebook-hero__stamp" aria-hidden="true">8 Jahre<br />Praxis</span>
+        <span class="ebook-hero__stamp" aria-hidden="true">8+ Jahre<br />Praxis</span>
         <Image
           src={heroImage}
           alt="Die Instagram Erfolgsformel mit E-Book, Smartphone und Beispielseiten"
@@ -157,28 +237,58 @@ const reviews = [
           quality={84}
           priority
         />
+        <div class="ebook-hero-phone-screen" aria-hidden="true">
+          <Image
+            class="ebook-hero-phone-screen__image"
+            src={heroPhoneInsightsImage}
+            alt=""
+            widths={[180, 300, 480]}
+            sizes="(max-width: 991px) 16vw, 9vw"
+            format="webp"
+            quality={90}
+          />
+          <span class="ebook-hero-phone-screen__island"></span>
+        </div>
       </div>
     </div>
   </section>
 
-  <section class="ebook-trust" aria-label="Bekannt aus">
-    <div class="container ebook-trust__inner">
-      <p>Bekannt aus</p>
-      <ul role="list">
-        <li>RAI Südtirol</li>
-        <li>Zett am Sonntag</li>
-        <li>Der Vinschger</li>
-        <li>Südtirol heute</li>
-        <li>Vinschgerwind</li>
-      </ul>
+  <section class="ebook-trust" aria-labelledby="ebook-press-title">
+    <div class="container ebook-trust__head">
+      <p id="ebook-press-title">Bekannt aus:</p>
+    </div>
+    <div class="ebook-trust__viewport">
+      <div class="ebook-trust__track">
+        {[0, 1, 2].map((copy) => (
+          <div class="ebook-trust__sequence" aria-hidden={copy > 0 ? 'true' : undefined}>
+            {pressItems.map((item) => (
+              <span class="ebook-trust__logo">
+                <Image
+                  src={item.image}
+                  alt={copy === 0 ? item.alt : ''}
+                  widths={[160, 240, 320]}
+                  sizes="160px"
+                  format="webp"
+                  quality={90}
+                />
+              </span>
+            ))}
+          </div>
+        ))}
+      </div>
     </div>
   </section>
 
   <section class="ebook-intro section" aria-labelledby="ebook-intro-title">
     <div class="container">
-      <p class="ebook-kicker" data-anim="reveal">Mit System statt Zufall</p>
-      <h2 id="ebook-intro-title" data-anim="reveal" data-delay="0.08">
-        Du brauchst keine 20.000 Follower, um über Social Media etwas zu bewegen.
+      <p class="ebook-kicker" data-anim="reveal">Wachstum beginnt mit Klarheit</p>
+      <h2
+        id="ebook-intro-title"
+        data-anim="lines"
+        data-delay="0.2"
+        data-stagger="0.5"
+      >
+        Du brauchst keine 100.000 Follower, um über Social Media etwas zu bewegen.{' '}
         <span>Du brauchst eine klare Strategie.</span>
       </h2>
       <p class="ebook-intro__copy" data-anim="reveal" data-delay="0.16">
@@ -202,11 +312,53 @@ const reviews = [
       <div class="ebook-benefits__grid">
         {benefits.map((benefit, index) => (
           <article class="ebook-benefit" data-anim="reveal" data-delay={String(index * 0.06)}>
-            <span>{benefit.number}</span>
+            <div class="ebook-benefit__top">
+              <span class="ebook-benefit__icon" aria-hidden="true">
+                {benefit.icon === 'insights' && (
+                  <svg viewBox="0 0 48 48">
+                    <rect x="5.75" y="6.75" width="36.5" height="34.5" rx="6" />
+                    <path d="m11 33 8-8 6 4 11-13" />
+                    <path d="M29.5 16H36v6.5" />
+                    <path d="M11 14h8" />
+                  </svg>
+                )}
+                {benefit.icon === 'strategy' && (
+                  <svg viewBox="0 0 48 48">
+                    <circle cx="34" cy="14" r="8" />
+                    <circle cx="34" cy="14" r="3" />
+                    <path d="M7 38c0-7 4-11 11-11h7c5 0 9-4 9-9" />
+                    <circle cx="7" cy="38" r="2.5" />
+                    <path d="M13 38h7" />
+                  </svg>
+                )}
+                {benefit.icon === 'steps' && (
+                  <svg viewBox="0 0 48 48">
+                    <rect x="7" y="8" width="34" height="32" rx="6" />
+                    <circle cx="15" cy="17" r="2.5" />
+                    <circle cx="15" cy="31" r="2.5" />
+                    <path d="M21 17h12M21 31h12M15 19.5v9" />
+                    <path d="m29 23 2.5 2.5L37 20" />
+                  </svg>
+                )}
+                {benefit.icon === 'learnings' && (
+                  <svg viewBox="0 0 48 48">
+                    <path d="M15 24.5a12 12 0 1 1 18 0c-2.5 2.2-3.7 4.1-3.7 6.5H18.7c0-2.4-1.2-4.3-3.7-6.5Z" />
+                    <path d="M19 36h10M21.5 41h5" />
+                    <path d="m20 19 3 3 5.5-6" />
+                    <path d="M24 4V1M9.5 10 7 7.5M38.5 10 41 7.5" />
+                  </svg>
+                )}
+              </span>
+              <small>{benefit.number}</small>
+            </div>
             <h3>{benefit.title}</h3>
             <p>{benefit.text}</p>
           </article>
         ))}
+      </div>
+      <div class="ebook-section-cta" data-anim="reveal" data-delay="0.12">
+        <p>140 Seiten Praxiswissen – kompakt, verständlich und direkt umsetzbar.</p>
+        <GlowButton label="Praxiswissen holen" href={BUY_URL} />
       </div>
     </div>
   </section>
@@ -243,9 +395,9 @@ const reviews = [
           </p>
         </div>
         <dl class="ebook-author__stats" data-anim="reveal" data-delay="0.14">
-          <div><dt>8</dt><dd>Jahre Erfahrung</dd></div>
-          <div><dt>200K+</dt><dd>Follower aufgebaut</dd></div>
-          <div><dt>150M+</dt><dd>organische Views</dd></div>
+          <div><dt data-ebook-count="8" data-ebook-count-suffix="+" aria-label="mehr als 8">8+</dt><dd>Jahre Erfahrung</dd></div>
+          <div><dt data-ebook-count="200" data-ebook-count-suffix="K+" aria-label="mehr als 200.000">200K+</dt><dd>Follower aufgebaut</dd></div>
+          <div><dt data-ebook-count="150" data-ebook-count-suffix="M+" aria-label="mehr als 150 Millionen">150M+</dt><dd>organische Views</dd></div>
         </dl>
       </div>
     </div>
@@ -265,14 +417,29 @@ const reviews = [
       </div>
       <div class="ebook-chapters__layout">
         <div class="ebook-chapters__visual" data-anim="reveal">
-          <Image
-            src={chaptersImage}
-            alt="Auswahl verschiedener Seiten aus der Instagram Erfolgsformel"
-            widths={[420, 640, 843]}
-            sizes="(max-width: 991px) 84vw, 36vw"
-            format="webp"
-            quality={82}
-          />
+          <div class="ebook-chapters__mockup">
+            <Image
+              class="ebook-chapters__base"
+              src={chaptersImage}
+              alt="Auswahl verschiedener Seiten aus der Instagram Erfolgsformel"
+              widths={[420, 640, 843]}
+              sizes="(max-width: 991px) 84vw, 36vw"
+              format="webp"
+              quality={82}
+            />
+            <div class="ebook-chapters-phone-screen" aria-hidden="true">
+              <Image
+                class="ebook-chapters-phone-screen__image"
+                src={heroPhoneInsightsImage}
+                alt=""
+                widths={[120, 180, 260]}
+                sizes="(max-width: 991px) 16vw, 7vw"
+                format="webp"
+                quality={90}
+              />
+              <span class="ebook-chapters-phone-screen__island"></span>
+            </div>
+          </div>
         </div>
         <ol class="ebook-chapters__list">
           {chapters.map(([number, title, text], index) => (
@@ -283,12 +450,102 @@ const reviews = [
           ))}
         </ol>
       </div>
+      <div class="ebook-section-cta is-centered" data-anim="reveal">
+        <p>Dein klarer Fahrplan von der ersten Idee bis zur Monetarisierung.</p>
+        <GlowButton label="Mit dem E-Book loslegen" href={BUY_URL} />
+      </div>
     </div>
   </section>
 
-  <section class="ebook-evergreen section" aria-labelledby="ebook-evergreen-title">
+  <section class="ebook-evergreen" aria-labelledby="ebook-evergreen-title">
     <div class="container ebook-evergreen__inner">
-      <div class="ebook-evergreen__mark" aria-hidden="true">∞</div>
+      <div class="ebook-evergreen__visual" data-anim="reveal">
+        <div
+          class="ebook-results-carousel"
+          data-ebook-carousel
+          role="region"
+          aria-roledescription="Karussell"
+          aria-label="Echte Instagram-Ergebnisse aus der Praxis"
+          data-ebook-effect="spotlight"
+        >
+          <div class="ebook-results-carousel__effect" aria-hidden="true">
+            <span class="ebook-results-carousel__spotlight"></span>
+            <span class="ebook-results-carousel__orbit is-outer"></span>
+            <span class="ebook-results-carousel__orbit is-inner"></span>
+            <span class="ebook-results-carousel__pulse"></span>
+          </div>
+          <div class="ebook-results-carousel__viewport" aria-live="polite">
+          {resultScreens.map((result, index) => (
+            <figure
+              class:list={['ebook-results-carousel__slide', { 'is-active': index === 0 }]}
+              data-ebook-slide
+              data-state={index === 0 ? '0' : index === 1 ? '1' : index === resultScreens.length - 1 ? '-1' : 'far'}
+              aria-hidden={index === 0 ? 'false' : 'true'}
+              aria-label={`${index + 1} von ${resultScreens.length}`}
+            >
+              <div class="ebook-results-carousel__device">
+                <Image
+                  src={result.image}
+                  alt={result.alt}
+                  widths={[320, 480, 640]}
+                  sizes="(max-width: 767px) 68vw, 25vw"
+                  format="webp"
+                  quality={90}
+                />
+                <span class="ebook-results-carousel__device-sheen" aria-hidden="true"></span>
+              </div>
+            </figure>
+          ))}
+          </div>
+          <div class="ebook-results-carousel__engagement" aria-hidden="true">
+            <span class="ebook-engagement-icon is-heart is-near">
+              <svg viewBox="0 0 48 48"><path d="M24 41S7 31.2 7 18.5C7 12.7 11.1 9 16.2 9c3.2 0 6.1 1.7 7.8 4.3C25.7 10.7 28.6 9 31.8 9 36.9 9 41 12.7 41 18.5 41 31.2 24 41 24 41Z" /></svg>
+            </span>
+            <span class="ebook-engagement-icon is-comment is-far">
+              <svg viewBox="0 0 48 48"><path d="M8 9h32v25H20l-10 7v-7H8V9Z" /><path d="M16 21h.1M24 21h.1M32 21h.1" /></svg>
+            </span>
+            <span class="ebook-engagement-icon is-bookmark is-far">
+              <svg viewBox="0 0 48 48"><path d="M13 6h22v36l-11-8-11 8V6Z" /></svg>
+            </span>
+            <span class="ebook-engagement-icon is-share is-near">
+              <svg viewBox="0 0 48 48"><path d="M5 22 43 6 30 43l-7-14-18-7Z" /><path d="M23 29 43 6" /></svg>
+            </span>
+          </div>
+          <div class="ebook-results-carousel__controls">
+            <button class="ebook-results-carousel__arrow is-prev" type="button" data-ebook-carousel-prev aria-label="Vorheriges Ergebnis">
+              <svg viewBox="0 0 24 24" aria-hidden="true"><path d="m14.5 5-7 7 7 7" /></svg>
+            </button>
+            <button class="ebook-results-carousel__arrow is-next" type="button" data-ebook-carousel-next aria-label="Nächstes Ergebnis">
+              <svg viewBox="0 0 24 24" aria-hidden="true"><path d="m9.5 5 7 7-7 7" /></svg>
+            </button>
+            <div class="ebook-results-carousel__dots" aria-label="Ergebnis auswählen">
+              {resultScreens.map((_, index) => (
+                <button
+                  class:list={['ebook-results-carousel__dot', { 'is-active': index === 0 }]}
+                  type="button"
+                  data-ebook-carousel-dot={index}
+                  aria-label={`Ergebnis ${index + 1} anzeigen`}
+                  aria-current={index === 0 ? 'true' : undefined}
+                ></button>
+              ))}
+            </div>
+            <p class="ebook-results-carousel__meta" aria-hidden="true">
+              <span data-ebook-carousel-current>01</span>
+              <small>/ {String(resultScreens.length).padStart(2, '0')} &nbsp; Echte Instagram-Insights</small>
+            </p>
+          </div>
+        </div>
+        <div class="ebook-effect-tester" data-ebook-effect-tester hidden>
+          <span>Mockup-Animation testen</span>
+          <div role="group" aria-label="Animationsvariante auswählen">
+            <button type="button" data-ebook-effect-button="spotlight" aria-pressed="true">Spotlight</button>
+            <button type="button" data-ebook-effect-button="orbit" aria-pressed="false">Orbit</button>
+            <button type="button" data-ebook-effect-button="pulse" aria-pressed="false">Insight-Pulse</button>
+            <button type="button" data-ebook-effect-button="engagement" aria-pressed="false">Engagement Halo</button>
+            <button type="button" data-ebook-effect-button="cinematic" aria-pressed="false">Cinematic</button>
+          </div>
+        </div>
+      </div>
       <div>
         <p class="ebook-kicker" data-anim="reveal">Wissen mit Bestand</p>
         <h2 id="ebook-evergreen-title" data-anim="reveal">Nicht noch so ein 0815-Social-Media-Buch.</h2>
@@ -298,9 +555,6 @@ const reviews = [
           Algorithmus-Updates funktionieren. Die Methoden haben sich über Jahre in der Praxis
           bewährt – für nachhaltiges Wachstum, statt jedem neuen Hype hinterherzulaufen.
         </p>
-        <div data-anim="reveal" data-delay="0.14">
-          <GlowButton label="8 Jahre Expertise nutzen" href={BUY_URL} />
-        </div>
       </div>
     </div>
   </section>
@@ -316,39 +570,53 @@ const reviews = [
       </div>
       <div class="ebook-bundle__grid">
         {bundle.map((item, index) => (
-          <article class="ebook-bundle-card" data-anim="reveal" data-delay={String(index * 0.08)}>
-            <div class="ebook-bundle-card__visual">
-              <Image
-                src={item.image}
-                alt={item.alt}
-                widths={[320, 480, 640]}
-                sizes="(max-width: 767px) 90vw, (max-width: 991px) 44vw, 29vw"
-                format="webp"
-                quality={82}
-              />
-            </div>
-            <div class="ebook-bundle-card__content">
-              <p class="ebook-bundle-card__eyebrow">{item.eyebrow}</p>
-              <h3>{item.title}</h3>
-              <p>{item.text}</p>
-              <div class="ebook-bundle-card__price">
-                <span>Wert <s>{item.value}</s></span>
-                <strong>{item.price}</strong>
+          <>
+            {index > 0 && (
+              <span
+                class="ebook-bundle__plus"
+                aria-hidden="true"
+                data-anim="reveal"
+                data-delay={String(index * 0.1 - 0.04)}
+              >+</span>
+            )}
+            <article
+              class:list={['ebook-bundle-card', { 'is-book': index === 0 }]}
+              data-anim="reveal"
+              data-delay={String(index * 0.1)}
+            >
+              <div class="ebook-bundle-card__visual">
+                <Image
+                  src={item.image}
+                  alt={item.alt}
+                  widths={[320, 480, 640, 800, 1000]}
+                  sizes="(max-width: 991px) 76vw, 25vw"
+                  format={index === 0 ? 'webp' : 'png'}
+                  quality={index === 0 ? 90 : 100}
+                />
               </div>
-            </div>
-          </article>
+              <div class="ebook-bundle-card__content">
+                <p class="ebook-bundle-card__eyebrow">{item.eyebrow}</p>
+                <h3>{item.title}</h3>
+                <p>{item.text}</p>
+                <div class="ebook-bundle-card__price">
+                  <span>Wert <s>{item.value}</s></span>
+                  <strong>{item.price}</strong>
+                </div>
+              </div>
+            </article>
+          </>
         ))}
       </div>
       <div class="ebook-price" data-anim="reveal">
         <div>
           <p>Dein Gesamtwert</p>
-          <s>270 €</s>
+          <s>&gt;280 €</s>
         </div>
         <div>
           <p>Deine Investition</p>
-          <strong>38 €</strong>
+          <strong>27 €</strong>
         </div>
-        <GlowButton label="Komplettpaket holen" href={BUY_URL} />
+        <GlowButton label="Komplettpaket auswählen" href={BUY_URL} />
       </div>
     </div>
   </section>
@@ -364,9 +632,20 @@ const reviews = [
       <div class="ebook-audience__grid">
         {audiences.map((audience, index) => (
           <article data-anim="reveal" data-delay={String(index * 0.08)}>
-            <span aria-hidden="true">0{index + 1}</span>
-            <h3>{audience.title}</h3>
-            <p>{audience.text}</p>
+            <Image
+              class="ebook-audience__image"
+              src={audience.image}
+              alt={audience.alt}
+              widths={[480, 720, 960]}
+              sizes="(max-width: 991px) 94vw, 31vw"
+              format="webp"
+              quality={82}
+            />
+            <span class="ebook-audience__number" aria-hidden="true">0{index + 1}</span>
+            <div class="ebook-audience__content">
+              <h3>{audience.title}</h3>
+              <p>{audience.text}</p>
+            </div>
           </article>
         ))}
       </div>
@@ -395,7 +674,6 @@ const reviews = [
   </section>
 
   <section class="ebook-final section" aria-labelledby="ebook-final-title">
-    <div class="ebook-final__ambient" aria-hidden="true"></div>
     <div class="container ebook-final__inner">
       <p class="ebook-kicker" data-anim="reveal">Auf was wartest du noch?</p>
       <h2 id="ebook-final-title" data-anim="reveal">Jetzt mit Plan durchstarten.</h2>
@@ -403,11 +681,35 @@ const reviews = [
         Hol dir die Instagram Erfolgsformel inklusive Insta BIO Creator und Bonus-Downloads.
       </p>
       <div class="ebook-final__price" data-anim="reveal" data-delay="0.12">
-        <span>Komplettpaket</span><strong>38 €</strong><s>270 € Gesamtwert</s>
+        <span>Komplettpaket</span><strong>27 €</strong><s>&gt;280 € Gesamtwert</s>
       </div>
       <div data-anim="reveal" data-delay="0.16">
-        <GlowButton label="E-Book + Extras sichern" href={BUY_URL} />
+        <GlowButton label="E-Book + Boni sofort erhalten" href={BUY_URL} />
       </div>
     </div>
   </section>
 </div>
+
+<script>
+  import '../scripts/ebook-carousel';
+  import '../scripts/ebook-count-up';
+
+  // Kampagnen- und Affiliate-Parameter bis zum bestehenden Systeme.io-
+  // Bestellformular mitnehmen. So bleiben bereits verschickte Links mit
+  // utm_*/sa/etc. auch nach dem Austausch der Landingpage auswertbar.
+  const preserveCheckoutParameters = () => {
+    if (!window.location.search) return;
+    const sourceParameters = new URLSearchParams(window.location.search);
+
+    document.querySelectorAll<HTMLAnchorElement>('a[href="/bestellen/"]').forEach((link) => {
+      const target = new URL(link.href);
+      sourceParameters.forEach((value, key) => {
+        if (!target.searchParams.has(key)) target.searchParams.append(key, value);
+      });
+      link.href = `${target.pathname}${target.search}${target.hash}`;
+    });
+  };
+
+  preserveCheckoutParameters();
+  document.addEventListener('astro:page-load', preserveCheckoutParameters);
+</script>

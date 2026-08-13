@@ -8,6 +8,14 @@ import { getSiteSettings } from '../lib/content';
 import { safeHref } from '../lib/safe-href';
 import { siteNavigationHref } from '../lib/site-navigation';
 
+interface Props {
+  context?: 'main' | 'ebook';
+}
+
+const { context = 'main' } = Astro.props;
+const MAIN_ORIGIN = 'https://tristanweithaler.com';
+const EBOOK_ORIGIN = 'https://ebook.tristanweithaler.com';
+
 /**
  * Footer (Webflow section_footer, global-chrome.md §6): Dolomiten-Band auf
  * #1D1D1D, Logo + Claim + Lottie-Socials links, Nav + E-Mail-Block rechts,
@@ -21,7 +29,18 @@ import { siteNavigationHref } from '../lib/site-navigation';
  */
 const settings = await getSiteSettings();
 const { contact } = settings;
-const isExternal = (href: string) => /^https?:\/\//.test(href);
+const isExternal = (href: string) => {
+  if (!/^https?:\/\//.test(href)) return false;
+  const origin = new URL(href).origin;
+  return origin !== MAIN_ORIGIN && origin !== EBOOK_ORIGIN;
+};
+const contextHref = (href: string) => {
+  const safe = siteNavigationHref(href);
+  if (context !== 'ebook') return safe;
+  if (safe === '/e-book/') return `${EBOOK_ORIGIN}/`;
+  return safe.startsWith('/') ? new URL(safe, MAIN_ORIGIN).href : safe;
+};
+const homeHref = context === 'ebook' ? `${MAIN_ORIGIN}/` : '/';
 
 /** Label → Lottie-Datei + Größe (global-chrome.md §6). */
 function lottieFor(
@@ -47,10 +66,16 @@ function lottieFor(
   return null;
 }
 
-const footerNav = [{ label: 'Startseite', href: '/' }, ...settings.nav].map((item) => ({
+const footerNav = [{ label: 'Startseite', href: homeHref }, ...settings.nav].map((item) => ({
   ...item,
-  href: siteNavigationHref(item.href),
+  href: contextHref(item.href),
 }));
+const legalLinks = context === 'ebook'
+  ? [
+      { label: 'Impressum', href: `${EBOOK_ORIGIN}/impressum` },
+      { label: 'Datenschutz', href: `${EBOOK_ORIGIN}/datenschutzerklaerung` },
+    ]
+  : settings.legalLinks;
 const mailHref = `mailto:${contact.email}?subject=Hey%20Tristan`;
 ---
 <footer class="footer">
@@ -67,7 +92,7 @@ const mailHref = `mailto:${contact.email}?subject=Hey%20Tristan`;
     <div class="container">
       <div class="footer__grid">
         <div class="footer__first">
-          <a href="/" class="footer__logo-link" aria-label={`${settings.siteName}, zur Startseite`}>
+          <a href={homeHref} class="footer__logo-link" aria-label={`${settings.siteName}, zur Startseite`}>
             <img
               class="footer__logo"
               src={logoTw.src}
@@ -165,7 +190,7 @@ const mailHref = `mailto:${contact.email}?subject=Hey%20Tristan`;
               (linksbündig unter der E-Mail-Spalte). */}
           <p class="footer__legal-links" data-footer-legal>
             {
-              settings.legalLinks.map((item, i) => (
+              legalLinks.map((item, i) => (
                 <>
                   {i > 0 && <span aria-hidden="true"> • </span>}
                   <a href={safeHref(item.href)}>{item.label}</a>

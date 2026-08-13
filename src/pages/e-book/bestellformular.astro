@@ -1,0 +1,34 @@
+---
+import BaseLayout from '../../layouts/BaseLayout.astro';
+import EbookCheckout from '../../components/EbookCheckout.astro';
+import ogImage from '../../assets/images/ebook/og.png';
+
+const title = 'E-Book sicher bestellen – Die Instagram Erfolgsformel';
+const description =
+  'Nur noch ein Schritt zu deinem Instagram-Erfolg: Sicher bezahlen und E-Book plus Boni sofort per E-Mail erhalten.';
+const EBOOK_ORIGIN = new URL('https://ebook.tristanweithaler.com');
+const imageUrl = new URL(ogImage.src, EBOOK_ORIGIN).href;
+---
+
+<BaseLayout
+  title={title}
+  description={description}
+  image={imageUrl}
+  canonical={new URL('/bestellen/', EBOOK_ORIGIN).href}
+  route="e-book-bestellformular"
+  navigationContext="ebook"
+  noindex
+>
+  <Fragment slot="head">
+    <link rel="preconnect" href="https://ebook.tristanweithaler.com" />
+    <link rel="preconnect" href="https://d3fit27i5nzkqh.cloudfront.net" crossorigin />
+    <link
+      rel="preload"
+      href="/fonts/poppins-medium.woff2"
+      as="font"
+      type="font/woff2"
+      crossorigin
+    />
+  </Fragment>
+  <EbookCheckout />
+</BaseLayout>

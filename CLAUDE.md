@@ -33,3 +33,23 @@
   `shared/editor-blocks.ts` ↔ `insertables.ts`.
 - Der Repo-Inhaber Tristan ist kein Developer und hat das Projekt übernommen, nicht selbst gebaut. Er wird mit AI-Unterstützung Änderungen vornehmen. Verstehe seine Prompts pragmatisch, setze sie zuverlässig um und antworte klar, prägnant und ohne unnötigen Fachjargon.
 - Bei neuen Features oder größeren Änderungen, für die ein eigener Git-Branch sinnvoll ist, Tristan vorher kurz fragen und den Nutzen einfach erklären (getrennt testen, mehrere Varianten parallel ermöglichen und `main` stabil halten); bei kleinen, risikoarmen Änderungen auf dem aktuellen Branch bleiben und verwendete Git-Begriffe kurz erklären.
+
+## Kritische E-Book-Live-Architektur
+
+Vor **jeder** Änderung an der E-Book-Landingpage, Bestellseite, Systeme.io,
+Cloudflare, DNS oder den zugehörigen Links zuerst
+`docs/ebook-live-architecture.md` vollständig lesen.
+
+Kurzfassung: `ebook.tristanweithaler.com` bleibt weiterhin in Systeme.io
+verbunden. Der bestehende CNAME `ebook` zeigt weiterhin auf
+`d2cegqnkw9qs8o.cloudfront.net` und steht in Cloudflare auf **Proxied**. Die
+Worker-Route `ebook.tristanweithaler.com/*` zeigt auf
+`tristanweithaler-ebook`. Der Worker liefert nur die neue Landingpage und die
+gestaltete Bestellseite selbst aus; Bestellformular, Dankeseite und Rechtstexte
+werden unverändert an Systeme.io durchgereicht.
+
+Ohne ausdrückliche Freigabe niemals die Domain aus Systeme.io entfernen, den
+CNAME ersetzen/löschen, die Route durch eine Worker-Custom-Domain ersetzen
+oder `/bestellformular` auf einen fremden Host umstellen. Die Same-Origin-Logik
+der eingebetteten Bestellseite und die automatische Vollseiten-Weiterleitung
+zur Systeme.io-Dankeseite hängen von dieser Architektur ab.

@@ -5,6 +5,14 @@ import { safeHref } from '../lib/safe-href';
 import { siteNavigationHref } from '../lib/site-navigation';
 import { UI as t } from '../lib/i18n';
 
+interface Props {
+  context?: 'main' | 'ebook';
+}
+
+const { context = 'main' } = Astro.props;
+const MAIN_ORIGIN = 'https://tristanweithaler.com';
+const EBOOK_ORIGIN = 'https://ebook.tristanweithaler.com';
+
 /**
  * Fixe Navbar (Webflow .navbar, global-chrome.md §5) — Struktur 1:1 nach dem
  * Export: Split-Wortmarke mit Overflow-Masken (Load-Anim schiebt die Texte
@@ -15,18 +23,32 @@ import { UI as t } from '../lib/i18n';
  * Menü-Logik + exakte IX2-Choreografie in src/scripts/menu.ts.
  */
 const settings = await getSiteSettings();
-const isExternal = (href: string) => /^https?:\/\//.test(href);
+const isExternal = (href: string) => {
+  if (!/^https?:\/\//.test(href)) return false;
+  const origin = new URL(href).origin;
+  return origin !== MAIN_ORIGIN && origin !== EBOOK_ORIGIN;
+};
+const contextHref = (href: string) => {
+  const safe = siteNavigationHref(href);
+  if (context !== 'ebook') return safe;
+  if (safe === '/e-book/') return `${EBOOK_ORIGIN}/`;
+  return safe.startsWith('/') ? new URL(safe, MAIN_ORIGIN).href : safe;
+};
+const homeHref = context === 'ebook' ? `${MAIN_ORIGIN}/` : '/';
 
 /** Fullscreen-Menü: Startseite + Hauptnavigation (global-chrome.md §5). */
 const navItems = settings.nav.map((item) => ({
   ...item,
-  href: siteNavigationHref(item.href),
+  href: contextHref(item.href),
 }));
-const menuItems = [{ label: 'Startseite', href: '/' }, ...navItems];
+const menuItems = [{ label: 'Startseite', href: homeHref }, ...navItems];
+const headerCtaHref = settings.headerCta
+  ? contextHref(safeHref(settings.headerCta.href))
+  : undefined;
 ---
 <header class="navbar" data-site-header>
   <div class="navbar__container">
-  <a href="/" class="navbar__logo is-desktop" aria-label={`${settings.siteName}, ${t.toStart}`}>
+  <a href={homeHref} class="navbar__logo is-desktop" aria-label={`${settings.siteName}, ${t.toStart}`}>
     <span class="navbar__logo-word is-1" aria-hidden="true">
       <span class="navbar__logo-text" data-nav-logo-text="1">Tristan</span>
     </span>
@@ -39,7 +61,7 @@ const menuItems = [{ label: 'Startseite', href: '/' }, ...navItems];
       Accessible-Name (Präfix), sonst meldet axe label-content-name-mismatch
       (sichtbarer Text „TW" nicht im aria-label enthalten). Voller Name folgt
       visually-hidden; die Gold-Linie bleibt dekorativ (aria-hidden). */}
-  <a href="/" class="navbar__logo is-mobile">
+  <a href={homeHref} class="navbar__logo is-mobile">
     <span class="navbar__logo-word is-1">
       <span class="navbar__logo-text" data-nav-logo-text="1">T</span>
     </span>
@@ -90,7 +112,7 @@ const menuItems = [{ label: 'Startseite', href: '/' }, ...navItems];
         settings.headerCta && (
           <a
             class="btn-glow navbar__cta"
-            href={safeHref(settings.headerCta.href)}
+            href={headerCtaHref}
             rel="nofollow"
             data-glow
           >

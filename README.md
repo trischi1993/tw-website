@@ -90,6 +90,7 @@ npm run dev              # Seed-Modus, kein Sanity noetig
 npm run build            # statisches Prod-Build (React-frei, verifiziert)
 npm run build:preview    # SSR-Preview-Worker-Build
 npm run deploy:prod      # vorher `npm run build`
+npm run deploy:ebook     # E-Book-Overlay; vorher `npm run build`
 npm run deploy:preview   # vorher `npm run build:preview`
 npm run provision -- --name tristanweithaler --prod-domain tristanweithaler.com --studio-host tristanweithaler
                          # Dry-Run; mit --execute anlegen (Sanity + Worker)
@@ -111,7 +112,21 @@ b6a131… nicht verwenden). Git-Remote: `trischi1993/tw-website`.
 | Worker | Build | Config | Inhalt |
 |---|---|---|---|
 | `tristanweithaler-prod` | `npm run build` | `wrangler.prod.jsonc` | statisches `dist/` + `/api/erfolgs-check-lead`; Systeme.io-Key nur als Runtime-Secret |
+| `tristanweithaler-ebook` | `npm run build` | `wrangler.ebook.jsonc` | neue E-Book-Landingpage unter `/` und neue Bestellseite unter `/bestellen/`; alle bisherigen Systeme.io-Pfade bleiben am bestehenden Ursprung |
 | `tristanweithaler-preview` | `npm run build:preview` | generiert: `dist/server/wrangler.json` | SSR, Drafts hinter Preview-Cookie |
+
+Der E-Book-Worker wird als **Route vor dem bestehenden Systeme.io-Ursprung**
+betrieben, nicht als Custom Domain. Im Livebetrieb bleibt der bestehende CNAME
+von `ebook.tristanweithaler.com` erhalten und steht in Cloudflare auf „Proxied";
+die Worker-Route `ebook.tristanweithaler.com/*` zeigt auf
+`tristanweithaler-ebook`. Ein Entfernen der Route stellt sofort den bisherigen
+reinen Systeme.io-Zustand wieder her.
+
+Die verbindliche Pfadzuordnung, Checkout-Abhängigkeiten, Änderungsverbote,
+Prüfliste und der Rückfallweg stehen in
+[`docs/ebook-live-architecture.md`](docs/ebook-live-architecture.md). Diese Datei
+vor jeder späteren E-Book-, Checkout-, Systeme.io-, DNS- oder Worker-Änderung
+vollständig lesen.
 
 Beim manuellen Preview-Deploy muss die vom Astro-Adapter erzeugte Konfiguration
 verwendet werden: `npm run deploy:preview`. `wrangler.jsonc` enthält die

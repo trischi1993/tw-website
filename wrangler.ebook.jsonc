@@ -1,0 +1,28 @@
+{
+  // Selektiver Overlay-Worker für ebook.tristanweithaler.com:
+  // `/` und `/bestellen/` kommen aus diesem Astro-Build. Alle bestehenden
+  // Systeme.io-Pfade werden im Worker unverändert an den bisherigen Ursprung
+  // weitergereicht. Der bestehende Systeme.io-CNAME bleibt dabei als Ursprung
+  // erhalten und muss im Cloudflare-DNS auf "Proxied" (orange Wolke) stehen.
+  "name": "tristanweithaler-ebook",
+  "account_id": "ee216d2fdff2e29b5093ae6287b5eb8f",
+  "compatibility_date": "2025-05-05",
+  "main": "./src/workers/ebook.ts",
+  "routes": [
+    {
+      "pattern": "ebook.tristanweithaler.com/*",
+      "zone_name": "tristanweithaler.com"
+    }
+  ],
+  "assets": {
+    "directory": "./dist",
+    "binding": "ASSETS",
+    // Muss für alle Pfade laufen: Nur so kann der Worker nicht-lokale URLs
+    // sicher zum bestehenden Systeme.io-Ursprung durchreichen.
+    "run_worker_first": true,
+    "not_found_handling": "404-page"
+  },
+  "observability": {
+    "enabled": true
+  }
+}
