@@ -94,7 +94,7 @@ function initReveal(): void {
     const offsetAttr = parseFloat(el.dataset.offset ?? '');
     const offset = Number.isFinite(offsetAttr) ? offsetAttr : 16;
     gsap.set(el, { opacity: 0, y: '1rem', filter: 'blur(5px)' });
-    onEnterOnceStable(el, offset, () => {
+    const reveal = () => {
       gsap.to(el, { opacity: 1, duration: 0.8, delay, ease: EASE.ease });
       gsap.to(el, { y: 0, duration: 0.8, delay, ease: EASE.outQuart });
       gsap.to(el, {
@@ -104,7 +104,14 @@ function initReveal(): void {
         ease: EASE.ease,
         clearProps: 'filter',
       });
-    });
+    };
+
+    // Hero-Medien auf schmalen Viewports liegen oft knapp unter dem ersten
+    // sichtbaren Bereich. Sie starten bewusst mit der Ladechoreografie statt
+    // erst beim Scroll-Eintritt, damit schnelles Scrollen sie nicht nahezu
+    // unsichtbar passieren lässt.
+    if (el.hasAttribute('data-reveal-eager')) reveal();
+    else onEnterOnceStable(el, offset, reveal);
   });
 }
 
