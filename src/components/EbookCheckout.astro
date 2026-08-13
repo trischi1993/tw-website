@@ -183,16 +183,12 @@ const packageItems = [
       let frameContentObserver: MutationObserver | undefined;
       let contentHeightRetry: number | undefined;
       let contentHeightAttempts = 0;
-      let lockedFrameDocument: Document | undefined;
-      let frameTouchY: number | undefined;
-      let frameTouchTime: number | undefined;
-      let frameTouchStartedOnControl = false;
-      let frameTouchMoved = false;
-      let frameScrollVelocity = 0;
-      let pendingParentScroll = 0;
-      let parentScrollFrame: number | undefined;
-      let momentumFrame: number | undefined;
       let scrollShieldFrame: number | undefined;
+      let shieldPointerId: number | undefined;
+      let shieldPointerStartX = 0;
+      let shieldPointerStartY = 0;
+      let shieldPointerStartedAt = 0;
+      let shieldPointerDistance = 0;
 
       const formControlSelector = [
         'input',
@@ -227,14 +223,12 @@ const packageItems = [
         const height = stageRect.height;
         const padding = 5;
 
+        // Sichere Zahlungsfelder werden von Stripe/PayPal nochmals als eigene
+        // iframes eingebettet. Nur diese Bereiche müssen echte Löcher behalten;
+        // alle normalen Systeme.io-Felder aktivieren wir per bewusstem Tap.
         const controlElements = Array.from(
-          observedCheckoutPanel.querySelectorAll<HTMLElement>(formControlSelector),
-        ).filter((element) => {
-          // Bei verschachtelten Controls reicht die Fläche des äußersten
-          // Elements. So entstehen keine sich überschneidenden SVG-Löcher.
-          const parentControl = element.parentElement?.closest(formControlSelector);
-          return !parentControl || !observedCheckoutPanel?.contains(parentControl);
-        });
+          observedCheckoutPanel.querySelectorAll<HTMLIFrameElement>('iframe'),
+        );
 
         const holes = controlElements.flatMap((element) => {
           const rect = element.getBoundingClientRect();
@@ -260,9 +254,9 @@ const packageItems = [
           return [{ left, top, right, bottom }];
         });
 
-        // Das SVG besteht aus den freien Flächen zwischen den Controls. Diese
-        // Flächen gehören zum äußeren Dokument und scrollen deshalb nativ;
-        // die ausgesparten Controls bleiben direkt im iframe anklickbar.
+        // Das SVG liegt über der gesamten sichtbaren Formularfläche. Dadurch
+        // gehört jede Wischbewegung zum äußeren Dokument und scrollt nativ.
+        // Nur sichere Drittanbieter-Zahlungsframes werden ausgespart.
         const yStops = Array.from(new Set([
           0,
           height,
@@ -303,6 +297,98 @@ const packageItems = [
         if (scrollShieldFrame !== undefined) cancelAnimationFrame(scrollShieldFrame);
         scrollShieldFrame = requestAnimationFrame(updateScrollShield);
       };
+
+      const activateFormControlAt = (clientX: number, clientY: number) => {
+        try {
+          const frameDocument = frame.contentDocument;
+          const frameWindow = frame.contentWindow;
+          if (!frameDocument || !frameWindow || frameWindow.location.origin !== window.location.origin) {
+            return;
+          }
+
+          const frameRect = frame.getBoundingClientRect();
+          if (!frameRect.width || !frameRect.height || !frame.clientWidth || !frame.clientHeight) return;
+          const frameX = (clientX - frameRect.left) / (frameRect.width / frame.clientWidth);
+          const frameY = (clientY - frameRect.top) / (frameRect.height / frame.clientHeight);
+          const hitElement = frameDocument.elementFromPoint(frameX, frameY) as HTMLElement | null;
+          if (!hitElement) return;
+
+          let control = hitElement.closest<HTMLElement>(formControlSelector);
+          if (!control || control.tagName === 'IFRAME') {
+            // Manche Systeme.io-Zahlungsoptionen sind klickbare DIVs ohne
+            // semantische Rolle. Cursor/Tabindex dienen dort als Fallback.
+            let candidate: HTMLElement | null = hitElement;
+            while (candidate && observedCheckoutPanel?.contains(candidate)) {
+              const styles = frameWindow.getComputedStyle(candidate);
+              if (candidate.tabIndex >= 0 || styles.cursor === 'pointer') {
+                control = candidate;
+                break;
+              }
+              candidate = candidate.parentElement;
+            }
+          }
+          if (!control || control.tagName === 'IFRAME') return;
+
+          const tagName = control.tagName;
+          const inputType = control.getAttribute('type')?.toLowerCase();
+          const textInput = tagName === 'TEXTAREA' || tagName === 'SELECT' ||
+            (tagName === 'INPUT' && ![
+              'button', 'checkbox', 'radio', 'submit', 'reset', 'image', 'file', 'range', 'color',
+            ].includes(inputType ?? 'text')) || control.isContentEditable;
+
+          if (textInput) {
+            control.focus({ preventScroll: true });
+            if (tagName === 'SELECT') {
+              const showPicker = (control as HTMLSelectElement).showPicker;
+              if (typeof showPicker === 'function') {
+                try {
+                  showPicker.call(control);
+                  return;
+                } catch {
+                  // Browser ohne programmgesteuerten Picker: Klick-Fallback.
+                }
+              }
+            }
+          }
+          control.click();
+        } catch {
+          // In der lokalen Entwicklung ist das Formular cross-origin.
+        }
+      };
+
+      const resetShieldPointer = () => {
+        shieldPointerId = undefined;
+        shieldPointerDistance = 0;
+      };
+
+      if (scrollShield) {
+        scrollShield.addEventListener('pointerdown', (event) => {
+          if (!event.isPrimary) return;
+          shieldPointerId = event.pointerId;
+          shieldPointerStartX = event.clientX;
+          shieldPointerStartY = event.clientY;
+          shieldPointerStartedAt = event.timeStamp;
+          shieldPointerDistance = 0;
+        }, { passive: true });
+        scrollShield.addEventListener('pointermove', (event) => {
+          if (event.pointerId !== shieldPointerId) return;
+          shieldPointerDistance = Math.max(
+            shieldPointerDistance,
+            Math.hypot(
+              event.clientX - shieldPointerStartX,
+              event.clientY - shieldPointerStartY,
+            ),
+          );
+        }, { passive: true });
+        scrollShield.addEventListener('pointerup', (event) => {
+          if (event.pointerId !== shieldPointerId) return;
+          const isTap = shieldPointerDistance < 9 && event.timeStamp - shieldPointerStartedAt < 650;
+          resetShieldPointer();
+          if (isTap) activateFormControlAt(event.clientX, event.clientY);
+        }, { passive: true });
+        scrollShield.addEventListener('pointercancel', resetShieldPointer, { passive: true });
+        scrollShield.addEventListener('click', (event) => event.preventDefault());
+      }
 
       const updateScale = () => {
         scaleFrame = undefined;
@@ -415,179 +501,8 @@ const packageItems = [
           // gescrollt wird ausschließlich auf der umgebenden Bestellseite.
           frameDocument.documentElement.style.overflow = 'hidden';
           frameDocument.documentElement.style.overscrollBehavior = 'none';
-          frameDocument.documentElement.style.touchAction = 'pan-x pinch-zoom';
           if (frameDocument.body) {
             frameDocument.body.style.overflow = 'hidden';
-            frameDocument.body.style.touchAction = 'pan-x pinch-zoom';
-          }
-
-          if (!frameDocument.getElementById('ebook-checkout-touch-guard')) {
-            const touchGuardStyle = frameDocument.createElement('style');
-            touchGuardStyle.id = 'ebook-checkout-touch-guard';
-            touchGuardStyle.textContent = `
-              #row-4a257cd5,
-              #row-4a257cd5 *:not(input):not(textarea):not(select) {
-                -webkit-user-select: none;
-                user-select: none;
-                -webkit-touch-callout: none;
-              }
-              #row-4a257cd5 input,
-              #row-4a257cd5 textarea,
-              #row-4a257cd5 select,
-              #row-4a257cd5 [contenteditable="true"] {
-                -webkit-user-select: text;
-                user-select: text;
-                -webkit-touch-callout: default;
-              }
-            `;
-            frameDocument.head?.append(touchGuardStyle);
-          }
-
-          if (frameDocument !== lockedFrameDocument) {
-            lockedFrameDocument = frameDocument;
-
-            const cancelMomentum = () => {
-              if (momentumFrame !== undefined) cancelAnimationFrame(momentumFrame);
-              momentumFrame = undefined;
-            };
-
-            const flushParentScroll = () => {
-              if (parentScrollFrame !== undefined) cancelAnimationFrame(parentScrollFrame);
-              parentScrollFrame = undefined;
-              if (Math.abs(pendingParentScroll) < 0.01) return;
-              const deltaY = pendingParentScroll;
-              pendingParentScroll = 0;
-              window.scrollBy(0, deltaY);
-            };
-
-            const queueParentScroll = (deltaY: number) => {
-              pendingParentScroll += deltaY;
-              if (parentScrollFrame !== undefined) return;
-              parentScrollFrame = requestAnimationFrame(flushParentScroll);
-            };
-
-            const startMomentum = () => {
-              cancelMomentum();
-              if (Math.abs(frameScrollVelocity) < 0.04) return;
-
-              let previousTime = performance.now();
-              const step = (time: number) => {
-                const elapsed = Math.min(32, Math.max(1, time - previousTime));
-                previousTime = time;
-
-                const previousScrollY = window.scrollY;
-                window.scrollBy(0, frameScrollVelocity * elapsed);
-                const reachedBoundary = Math.abs(window.scrollY - previousScrollY) < 0.25;
-
-                // Zeitbasierte Reibung sorgt auf schnellen und langsamen
-                // Displays für dasselbe natürliche Ausrollen.
-                frameScrollVelocity *= Math.pow(0.94, elapsed / 16.67);
-                if (reachedBoundary || Math.abs(frameScrollVelocity) < 0.025) {
-                  momentumFrame = undefined;
-                  return;
-                }
-                momentumFrame = requestAnimationFrame(step);
-              };
-
-              momentumFrame = requestAnimationFrame(step);
-            };
-
-            const touchScreenY = (touch: Touch) => {
-              // screenY bleibt stabil, während die äußere Seite und damit das
-              // iframe unter dem Finger verschoben werden. clientY aus dem
-              // iframe würde diese Bewegung fälschlich nochmals einrechnen.
-              return Number.isFinite(touch.screenY) ? touch.screenY : touch.clientY;
-            };
-
-            const isFormControl = (target: EventTarget | null) => {
-              const targetElement = target as Element | null;
-              if (typeof targetElement?.closest !== 'function') return false;
-              return Boolean(targetElement.closest(formControlSelector));
-            };
-
-            const resetFrameScroll = () => {
-              if (frameWindow.scrollX !== 0 || frameWindow.scrollY !== 0) {
-                frameWindow.scrollTo(0, 0);
-              }
-            };
-
-            frameDocument.addEventListener('touchstart', (event) => {
-              if (event.touches.length !== 1) return;
-              const touch = event.touches[0];
-              if (!touch) return;
-              frameTouchStartedOnControl = isFormControl(event.target);
-
-              // Auf Texten und freien Flächen verhindert Safari sonst nach
-              // kurzem Halten seine Textauswahl-/Loupe-Geste. Diese übernimmt
-              // die laufende Touchsequenz und blockiert danach das Scrollen.
-              // Echte Felder, Buttons, Labels und Zahlungs-iframes bleiben
-              // vollständig von diesem preventDefault ausgenommen.
-              if (!frameTouchStartedOnControl) event.preventDefault();
-              cancelMomentum();
-              frameTouchY = touchScreenY(touch);
-              frameTouchTime = event.timeStamp;
-              frameTouchMoved = false;
-              frameScrollVelocity = 0;
-              resetFrameScroll();
-            }, { passive: false, capture: true });
-
-            frameDocument.addEventListener('touchmove', (event) => {
-              if (
-                event.touches.length !== 1 ||
-                frameTouchY === undefined ||
-                frameTouchTime === undefined
-              ) return;
-              const touch = event.touches[0];
-              if (!touch) return;
-              const nextY = touchScreenY(touch);
-              const deltaY = frameTouchY - nextY;
-              const elapsed = Math.max(8, event.timeStamp - frameTouchTime);
-              frameTouchY = nextY;
-              frameTouchTime = event.timeStamp;
-              if (Math.abs(deltaY) <= 0.25) return;
-
-              frameTouchMoved = true;
-              const instantaneousVelocity = deltaY / elapsed;
-              frameScrollVelocity = (frameScrollVelocity * 0.65) + (instantaneousVelocity * 0.35);
-              event.preventDefault();
-              resetFrameScroll();
-              queueParentScroll(deltaY);
-            }, { passive: false, capture: true });
-
-            frameDocument.addEventListener('touchend', (event) => {
-              flushParentScroll();
-              const shouldUseMomentum = frameTouchMoved && frameTouchTime !== undefined &&
-                event.timeStamp - frameTouchTime < 90;
-              frameTouchY = undefined;
-              frameTouchTime = undefined;
-              frameTouchStartedOnControl = false;
-              frameTouchMoved = false;
-              resetFrameScroll();
-              if (shouldUseMomentum) startMomentum();
-            }, { passive: true, capture: true });
-            frameDocument.addEventListener('touchcancel', () => {
-              flushParentScroll();
-              cancelMomentum();
-              frameTouchY = undefined;
-              frameTouchTime = undefined;
-              frameTouchStartedOnControl = false;
-              frameTouchMoved = false;
-              frameScrollVelocity = 0;
-              resetFrameScroll();
-            }, { passive: true, capture: true });
-            frameDocument.addEventListener('wheel', (event) => {
-              event.preventDefault();
-              resetFrameScroll();
-              window.scrollBy(0, event.deltaY);
-            }, { passive: false });
-            frameDocument.addEventListener('contextmenu', (event) => {
-              if (!isFormControl(event.target)) event.preventDefault();
-            }, { capture: true });
-            frameDocument.addEventListener('selectstart', (event) => {
-              if (!isFormControl(event.target)) event.preventDefault();
-            }, { capture: true });
-            frameWindow.addEventListener('scroll', resetFrameScroll, { passive: true });
-            resetFrameScroll();
           }
 
           frameContentObserver?.disconnect();
