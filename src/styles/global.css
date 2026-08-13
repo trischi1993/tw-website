@@ -504,7 +504,6 @@ html.has-motion:not(.motion-ready) [data-anim='lines']:not([data-revealed]) { vi
 html.has-motion:not(.motion-ready) .ebook-hero [data-anim='reveal']:not([data-revealed]) {
   opacity: 0;
   transform: translateY(1rem);
-  filter: blur(5px);
 }
 
 /* Geteilter Navbar-Build - nur auf Seiten mit Load-Choreo

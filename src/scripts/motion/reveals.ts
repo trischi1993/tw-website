@@ -95,10 +95,21 @@ function initReveal(): void {
     const duration = Number.isFinite(durationAttr) ? durationAttr : 0.8;
     const offsetAttr = parseFloat(el.dataset.offset ?? '');
     const offset = Number.isFinite(offsetAttr) ? offsetAttr : 16;
-    gsap.set(el, { opacity: 0, y: '1rem', filter: 'blur(5px)' });
+    const isHeroReveal = Boolean(el.closest('.ebook-hero'));
+    gsap.set(el, isHeroReveal
+      ? { opacity: 0, y: '1rem', force3D: true, willChange: 'transform, opacity' }
+      : { opacity: 0, y: '1rem', filter: 'blur(5px)' });
     const reveal = () => {
       gsap.to(el, { opacity: 1, duration, delay, ease: EASE.ease });
-      gsap.to(el, { y: 0, duration, delay, ease: EASE.outQuart });
+      gsap.to(el, {
+        y: 0,
+        duration,
+        delay,
+        ease: EASE.outQuart,
+        force3D: isHeroReveal,
+        clearProps: isHeroReveal ? 'transform,willChange' : undefined,
+      });
+      if (isHeroReveal) return;
       gsap.to(el, {
         filter: 'blur(0px)',
         duration,
@@ -108,10 +119,9 @@ function initReveal(): void {
       });
     };
 
-    // Hero-Medien auf schmalen Viewports liegen oft knapp unter dem ersten
-    // sichtbaren Bereich. Sie starten bewusst mit der Ladechoreografie statt
-    // erst beim Scroll-Eintritt, damit schnelles Scrollen sie nicht nahezu
-    // unsichtbar passieren lässt.
+    // Eager-Hero-Elemente starten bewusst mit der Ladechoreografie statt erst
+    // beim Scroll-Eintritt. So bleibt die gestaffelte Animation ruhig, während
+    // schnelles Scrollen das Mockup nicht nahezu unsichtbar passieren lässt.
     if (el.hasAttribute('data-reveal-eager')) reveal();
     else onEnterOnceStable(el, offset, reveal);
   });
