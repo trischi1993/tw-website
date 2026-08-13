@@ -91,15 +91,17 @@ function onEnterOnceStable(el: Element, offset: number, onEnter: () => void): vo
 function initReveal(): void {
   document.querySelectorAll<HTMLElement>('[data-anim="reveal"]').forEach((el) => {
     const delay = parseFloat(el.dataset.delay ?? '') || 0;
+    const durationAttr = parseFloat(el.dataset.duration ?? '');
+    const duration = Number.isFinite(durationAttr) ? durationAttr : 0.8;
     const offsetAttr = parseFloat(el.dataset.offset ?? '');
     const offset = Number.isFinite(offsetAttr) ? offsetAttr : 16;
     gsap.set(el, { opacity: 0, y: '1rem', filter: 'blur(5px)' });
     const reveal = () => {
-      gsap.to(el, { opacity: 1, duration: 0.8, delay, ease: EASE.ease });
-      gsap.to(el, { y: 0, duration: 0.8, delay, ease: EASE.outQuart });
+      gsap.to(el, { opacity: 1, duration, delay, ease: EASE.ease });
+      gsap.to(el, { y: 0, duration, delay, ease: EASE.outQuart });
       gsap.to(el, {
         filter: 'blur(0px)',
-        duration: 0.8,
+        duration,
         delay,
         ease: EASE.ease,
         clearProps: 'filter',
