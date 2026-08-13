@@ -173,6 +173,12 @@ const packageItems = [
       let contentHeightAttempts = 0;
       let lockedFrameDocument: Document | undefined;
       let frameTouchY: number | undefined;
+      let frameTouchTime: number | undefined;
+      let frameTouchMoved = false;
+      let frameScrollVelocity = 0;
+      let pendingParentScroll = 0;
+      let parentScrollFrame: number | undefined;
+      let momentumFrame: number | undefined;
 
       const updateScale = () => {
         scaleFrame = undefined;
@@ -280,11 +286,67 @@ const packageItems = [
           // gescrollt wird ausschließlich auf der umgebenden Bestellseite.
           frameDocument.documentElement.style.overflow = 'hidden';
           frameDocument.documentElement.style.overscrollBehavior = 'none';
-          frameDocument.documentElement.style.touchAction = 'none';
-          if (frameDocument.body) frameDocument.body.style.overflow = 'hidden';
+          frameDocument.documentElement.style.touchAction = 'pan-x pinch-zoom';
+          if (frameDocument.body) {
+            frameDocument.body.style.overflow = 'hidden';
+            frameDocument.body.style.touchAction = 'pan-x pinch-zoom';
+          }
 
           if (frameDocument !== lockedFrameDocument) {
             lockedFrameDocument = frameDocument;
+
+            const cancelMomentum = () => {
+              if (momentumFrame !== undefined) cancelAnimationFrame(momentumFrame);
+              momentumFrame = undefined;
+            };
+
+            const flushParentScroll = () => {
+              if (parentScrollFrame !== undefined) cancelAnimationFrame(parentScrollFrame);
+              parentScrollFrame = undefined;
+              if (Math.abs(pendingParentScroll) < 0.01) return;
+              const deltaY = pendingParentScroll;
+              pendingParentScroll = 0;
+              window.scrollBy(0, deltaY);
+            };
+
+            const queueParentScroll = (deltaY: number) => {
+              pendingParentScroll += deltaY;
+              if (parentScrollFrame !== undefined) return;
+              parentScrollFrame = requestAnimationFrame(flushParentScroll);
+            };
+
+            const startMomentum = () => {
+              cancelMomentum();
+              if (Math.abs(frameScrollVelocity) < 0.04) return;
+
+              let previousTime = performance.now();
+              const step = (time: number) => {
+                const elapsed = Math.min(32, Math.max(1, time - previousTime));
+                previousTime = time;
+
+                const previousScrollY = window.scrollY;
+                window.scrollBy(0, frameScrollVelocity * elapsed);
+                const reachedBoundary = Math.abs(window.scrollY - previousScrollY) < 0.25;
+
+                // Zeitbasierte Reibung sorgt auf schnellen und langsamen
+                // Displays für dasselbe natürliche Ausrollen.
+                frameScrollVelocity *= Math.pow(0.94, elapsed / 16.67);
+                if (reachedBoundary || Math.abs(frameScrollVelocity) < 0.025) {
+                  momentumFrame = undefined;
+                  return;
+                }
+                momentumFrame = requestAnimationFrame(step);
+              };
+
+              momentumFrame = requestAnimationFrame(step);
+            };
+
+            const touchScreenY = (touch: Touch) => {
+              // screenY bleibt stabil, während die äußere Seite und damit das
+              // iframe unter dem Finger verschoben werden. clientY aus dem
+              // iframe würde diese Bewegung fälschlich nochmals einrechnen.
+              return Number.isFinite(touch.screenY) ? touch.screenY : touch.clientY;
+            };
 
             const resetFrameScroll = () => {
               if (frameWindow.scrollX !== 0 || frameWindow.scrollY !== 0) {
@@ -294,27 +356,58 @@ const packageItems = [
 
             frameDocument.addEventListener('touchstart', (event) => {
               if (event.touches.length !== 1) return;
-              frameTouchY = event.touches[0]?.clientY;
+              const touch = event.touches[0];
+              if (!touch) return;
+              cancelMomentum();
+              frameTouchY = touchScreenY(touch);
+              frameTouchTime = event.timeStamp;
+              frameTouchMoved = false;
+              frameScrollVelocity = 0;
               resetFrameScroll();
             }, { passive: true });
 
             frameDocument.addEventListener('touchmove', (event) => {
-              if (event.touches.length !== 1 || frameTouchY === undefined) return;
-              const nextY = event.touches[0]?.clientY;
-              if (nextY === undefined) return;
+              if (
+                event.touches.length !== 1 ||
+                frameTouchY === undefined ||
+                frameTouchTime === undefined
+              ) return;
+              const touch = event.touches[0];
+              if (!touch) return;
+              const nextY = touchScreenY(touch);
               const deltaY = frameTouchY - nextY;
+              const elapsed = Math.max(8, event.timeStamp - frameTouchTime);
               frameTouchY = nextY;
+              frameTouchTime = event.timeStamp;
+              if (Math.abs(deltaY) <= 0.25) return;
+
+              frameTouchMoved = true;
+              const instantaneousVelocity = deltaY / elapsed;
+              frameScrollVelocity = (frameScrollVelocity * 0.65) + (instantaneousVelocity * 0.35);
               event.preventDefault();
               resetFrameScroll();
-              if (Math.abs(deltaY) > 0.5) window.scrollBy(0, deltaY);
+              queueParentScroll(deltaY);
             }, { passive: false });
 
-            const endTouch = () => {
+            frameDocument.addEventListener('touchend', (event) => {
+              flushParentScroll();
+              const shouldUseMomentum = frameTouchMoved && frameTouchTime !== undefined &&
+                event.timeStamp - frameTouchTime < 90;
               frameTouchY = undefined;
+              frameTouchTime = undefined;
+              frameTouchMoved = false;
               resetFrameScroll();
-            };
-            frameDocument.addEventListener('touchend', endTouch, { passive: true });
-            frameDocument.addEventListener('touchcancel', endTouch, { passive: true });
+              if (shouldUseMomentum) startMomentum();
+            }, { passive: true });
+            frameDocument.addEventListener('touchcancel', () => {
+              flushParentScroll();
+              cancelMomentum();
+              frameTouchY = undefined;
+              frameTouchTime = undefined;
+              frameTouchMoved = false;
+              frameScrollVelocity = 0;
+              resetFrameScroll();
+            }, { passive: true });
             frameDocument.addEventListener('wheel', (event) => {
               event.preventDefault();
               resetFrameScroll();
