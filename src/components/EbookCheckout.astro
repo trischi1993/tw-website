@@ -135,6 +135,14 @@ const packageItems = [
               ></iframe>
             </div>
           </div>
+          <svg
+            class="ebook-checkout__scroll-shield"
+            data-checkout-scroll-shield
+            aria-hidden="true"
+            focusable="false"
+          >
+            <path data-checkout-scroll-shield-path></path>
+          </svg>
         </div>
 
       </section>
@@ -149,6 +157,10 @@ const packageItems = [
       const scaleLayer = stage.querySelector<HTMLElement>('[data-checkout-form-scale]');
       const clipLayer = stage.querySelector<HTMLElement>('.ebook-checkout__form-clip');
       const frame = stage.querySelector<HTMLIFrameElement>('[data-checkout-form-frame]');
+      const scrollShield = stage.querySelector<SVGSVGElement>('[data-checkout-scroll-shield]');
+      const scrollShieldPath = stage.querySelector<SVGPathElement>(
+        '[data-checkout-scroll-shield-path]',
+      );
       if (!scaleLayer || !clipLayer || !frame) return;
 
       const checkoutUrl = frame.dataset.checkoutUrl;
@@ -180,6 +192,117 @@ const packageItems = [
       let pendingParentScroll = 0;
       let parentScrollFrame: number | undefined;
       let momentumFrame: number | undefined;
+      let scrollShieldFrame: number | undefined;
+
+      const formControlSelector = [
+        'input',
+        'textarea',
+        'select',
+        'button',
+        'a[href]',
+        'label',
+        'iframe',
+        '[role="button"]',
+        '[role="checkbox"]',
+        '[role="radio"]',
+        '[contenteditable="true"]',
+        '[tabindex]:not([tabindex="-1"])',
+      ].join(',');
+
+      const updateScrollShield = () => {
+        scrollShieldFrame = undefined;
+        if (!scrollShield || !scrollShieldPath) return;
+        if (!window.matchMedia('(max-width: 767px)').matches || !observedCheckoutPanel) {
+          scrollShieldPath.setAttribute('d', '');
+          return;
+        }
+
+        const stageRect = stage.getBoundingClientRect();
+        const frameRect = frame.getBoundingClientRect();
+        if (!stageRect.width || !stageRect.height || !frame.clientWidth || !frame.clientHeight) return;
+
+        const scaleX = frameRect.width / frame.clientWidth;
+        const scaleY = frameRect.height / frame.clientHeight;
+        const width = stageRect.width;
+        const height = stageRect.height;
+        const padding = 5;
+
+        const controlElements = Array.from(
+          observedCheckoutPanel.querySelectorAll<HTMLElement>(formControlSelector),
+        ).filter((element) => {
+          // Bei verschachtelten Controls reicht die Fläche des äußersten
+          // Elements. So entstehen keine sich überschneidenden SVG-Löcher.
+          const parentControl = element.parentElement?.closest(formControlSelector);
+          return !parentControl || !observedCheckoutPanel?.contains(parentControl);
+        });
+
+        const holes = controlElements.flatMap((element) => {
+          const rect = element.getBoundingClientRect();
+          if (rect.width < 1 || rect.height < 1) return [];
+
+          const left = Math.max(
+            0,
+            frameRect.left - stageRect.left + (rect.left * scaleX) - padding,
+          );
+          const top = Math.max(
+            0,
+            frameRect.top - stageRect.top + (rect.top * scaleY) - padding,
+          );
+          const right = Math.min(
+            width,
+            frameRect.left - stageRect.left + (rect.right * scaleX) + padding,
+          );
+          const bottom = Math.min(
+            height,
+            frameRect.top - stageRect.top + (rect.bottom * scaleY) + padding,
+          );
+          if (right - left < 1 || bottom - top < 1) return [];
+          return [{ left, top, right, bottom }];
+        });
+
+        // Das SVG besteht aus den freien Flächen zwischen den Controls. Diese
+        // Flächen gehören zum äußeren Dokument und scrollen deshalb nativ;
+        // die ausgesparten Controls bleiben direkt im iframe anklickbar.
+        const yStops = Array.from(new Set([
+          0,
+          height,
+          ...holes.flatMap(({ top, bottom }) => [top, bottom]),
+        ])).sort((a, b) => a - b);
+        const pathParts: string[] = [];
+        const addRect = (left: number, top: number, rectWidth: number, rectHeight: number) => {
+          if (rectWidth < 0.5 || rectHeight < 0.5) return;
+          pathParts.push(
+            `M${left.toFixed(2)} ${top.toFixed(2)}h${rectWidth.toFixed(2)}` +
+            `v${rectHeight.toFixed(2)}h-${rectWidth.toFixed(2)}Z`,
+          );
+        };
+
+        for (let index = 0; index < yStops.length - 1; index += 1) {
+          const top = yStops[index];
+          const bottom = yStops[index + 1];
+          if (top === undefined || bottom === undefined || bottom - top < 0.5) continue;
+          const middle = (top + bottom) / 2;
+          const intervals = holes
+            .filter((hole) => hole.top < middle && hole.bottom > middle)
+            .map((hole) => [hole.left, hole.right] as [number, number])
+            .sort((a, b) => a[0] - b[0]);
+
+          let cursor = 0;
+          for (const [left, right] of intervals) {
+            if (left > cursor) addRect(cursor, top, left - cursor, bottom - top);
+            cursor = Math.max(cursor, right);
+          }
+          if (cursor < width) addRect(cursor, top, width - cursor, bottom - top);
+        }
+
+        scrollShield.setAttribute('viewBox', `0 0 ${width} ${height}`);
+        scrollShieldPath.setAttribute('d', pathParts.join(''));
+      };
+
+      const queueScrollShieldUpdate = () => {
+        if (scrollShieldFrame !== undefined) cancelAnimationFrame(scrollShieldFrame);
+        scrollShieldFrame = requestAnimationFrame(updateScrollShield);
+      };
 
       const updateScale = () => {
         scaleFrame = undefined;
@@ -197,6 +320,7 @@ const packageItems = [
         if (Math.abs(stage.getBoundingClientRect().height - targetHeight) > 0.5) {
           stage.style.height = `${targetHeight}px`;
         }
+        queueScrollShieldUpdate();
       };
 
       const queueScaleUpdate = () => {
@@ -247,9 +371,13 @@ const packageItems = [
 
           if (checkoutPanel !== observedCheckoutPanel) {
             checkoutPanelObserver?.disconnect();
-            checkoutPanelObserver = new ResizeObserver(() => queueContentHeightUpdate());
+            checkoutPanelObserver = new ResizeObserver(() => {
+              queueContentHeightUpdate();
+              queueScrollShieldUpdate();
+            });
             checkoutPanelObserver.observe(checkoutPanel);
             observedCheckoutPanel = checkoutPanel;
+            queueScrollShieldUpdate();
           }
 
           const styles = window.getComputedStyle(stage);
@@ -374,19 +502,7 @@ const packageItems = [
             const isFormControl = (target: EventTarget | null) => {
               const targetElement = target as Element | null;
               if (typeof targetElement?.closest !== 'function') return false;
-              return Boolean(targetElement.closest([
-                'input',
-                'textarea',
-                'select',
-                'button',
-                'a[href]',
-                'label',
-                'iframe',
-                '[role="button"]',
-                '[role="checkbox"]',
-                '[role="radio"]',
-                '[contenteditable="true"]',
-              ].join(',')));
+              return Boolean(targetElement.closest(formControlSelector));
             };
 
             const resetFrameScroll = () => {
@@ -475,7 +591,10 @@ const packageItems = [
           }
 
           frameContentObserver?.disconnect();
-          frameContentObserver = new MutationObserver(() => queueContentHeightUpdate());
+          frameContentObserver = new MutationObserver(() => {
+            queueContentHeightUpdate();
+            queueScrollShieldUpdate();
+          });
           frameContentObserver.observe(frameDocument.body, { childList: true, subtree: true });
         } catch {
           // Cross-origin-Fallback in der lokalen Astro-Entwicklung.
@@ -487,6 +606,7 @@ const packageItems = [
         stage.classList.add('is-loaded');
         observeFrameContent();
         queueContentHeightUpdate();
+        queueScrollShieldUpdate();
 
         // Systeme.io schickt nach erfolgreicher Zahlung automatisch zum
         // nächsten Funnelschritt `/dankeseite`. Da das Formular eingebettet
