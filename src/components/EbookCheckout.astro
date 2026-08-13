@@ -174,6 +174,7 @@ const packageItems = [
       let lockedFrameDocument: Document | undefined;
       let frameTouchY: number | undefined;
       let frameTouchTime: number | undefined;
+      let frameTouchStartedOnControl = false;
       let frameTouchMoved = false;
       let frameScrollVelocity = 0;
       let pendingParentScroll = 0;
@@ -292,6 +293,28 @@ const packageItems = [
             frameDocument.body.style.touchAction = 'pan-x pinch-zoom';
           }
 
+          if (!frameDocument.getElementById('ebook-checkout-touch-guard')) {
+            const touchGuardStyle = frameDocument.createElement('style');
+            touchGuardStyle.id = 'ebook-checkout-touch-guard';
+            touchGuardStyle.textContent = `
+              #row-4a257cd5,
+              #row-4a257cd5 *:not(input):not(textarea):not(select) {
+                -webkit-user-select: none;
+                user-select: none;
+                -webkit-touch-callout: none;
+              }
+              #row-4a257cd5 input,
+              #row-4a257cd5 textarea,
+              #row-4a257cd5 select,
+              #row-4a257cd5 [contenteditable="true"] {
+                -webkit-user-select: text;
+                user-select: text;
+                -webkit-touch-callout: default;
+              }
+            `;
+            frameDocument.head?.append(touchGuardStyle);
+          }
+
           if (frameDocument !== lockedFrameDocument) {
             lockedFrameDocument = frameDocument;
 
@@ -348,6 +371,24 @@ const packageItems = [
               return Number.isFinite(touch.screenY) ? touch.screenY : touch.clientY;
             };
 
+            const isFormControl = (target: EventTarget | null) => {
+              const targetElement = target as Element | null;
+              if (typeof targetElement?.closest !== 'function') return false;
+              return Boolean(targetElement.closest([
+                'input',
+                'textarea',
+                'select',
+                'button',
+                'a[href]',
+                'label',
+                'iframe',
+                '[role="button"]',
+                '[role="checkbox"]',
+                '[role="radio"]',
+                '[contenteditable="true"]',
+              ].join(',')));
+            };
+
             const resetFrameScroll = () => {
               if (frameWindow.scrollX !== 0 || frameWindow.scrollY !== 0) {
                 frameWindow.scrollTo(0, 0);
@@ -358,13 +399,21 @@ const packageItems = [
               if (event.touches.length !== 1) return;
               const touch = event.touches[0];
               if (!touch) return;
+              frameTouchStartedOnControl = isFormControl(event.target);
+
+              // Auf Texten und freien Flächen verhindert Safari sonst nach
+              // kurzem Halten seine Textauswahl-/Loupe-Geste. Diese übernimmt
+              // die laufende Touchsequenz und blockiert danach das Scrollen.
+              // Echte Felder, Buttons, Labels und Zahlungs-iframes bleiben
+              // vollständig von diesem preventDefault ausgenommen.
+              if (!frameTouchStartedOnControl) event.preventDefault();
               cancelMomentum();
               frameTouchY = touchScreenY(touch);
               frameTouchTime = event.timeStamp;
               frameTouchMoved = false;
               frameScrollVelocity = 0;
               resetFrameScroll();
-            }, { passive: true });
+            }, { passive: false, capture: true });
 
             frameDocument.addEventListener('touchmove', (event) => {
               if (
@@ -387,7 +436,7 @@ const packageItems = [
               event.preventDefault();
               resetFrameScroll();
               queueParentScroll(deltaY);
-            }, { passive: false });
+            }, { passive: false, capture: true });
 
             frameDocument.addEventListener('touchend', (event) => {
               flushParentScroll();
@@ -395,24 +444,32 @@ const packageItems = [
                 event.timeStamp - frameTouchTime < 90;
               frameTouchY = undefined;
               frameTouchTime = undefined;
+              frameTouchStartedOnControl = false;
               frameTouchMoved = false;
               resetFrameScroll();
               if (shouldUseMomentum) startMomentum();
-            }, { passive: true });
+            }, { passive: true, capture: true });
             frameDocument.addEventListener('touchcancel', () => {
               flushParentScroll();
               cancelMomentum();
               frameTouchY = undefined;
               frameTouchTime = undefined;
+              frameTouchStartedOnControl = false;
               frameTouchMoved = false;
               frameScrollVelocity = 0;
               resetFrameScroll();
-            }, { passive: true });
+            }, { passive: true, capture: true });
             frameDocument.addEventListener('wheel', (event) => {
               event.preventDefault();
               resetFrameScroll();
               window.scrollBy(0, event.deltaY);
             }, { passive: false });
+            frameDocument.addEventListener('contextmenu', (event) => {
+              if (!isFormControl(event.target)) event.preventDefault();
+            }, { capture: true });
+            frameDocument.addEventListener('selectstart', (event) => {
+              if (!isFormControl(event.target)) event.preventDefault();
+            }, { capture: true });
             frameWindow.addEventListener('scroll', resetFrameScroll, { passive: true });
             resetFrameScroll();
           }
