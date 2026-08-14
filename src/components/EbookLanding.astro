@@ -200,33 +200,33 @@ const reviews = [
 ---
 
 <div class="ebook">
-  <section class="ebook-hero" aria-labelledby="ebook-hero-title">
+  <section class="ebook-hero" aria-labelledby="ebook-hero-title" data-ebook-hero>
     <div class="ebook-hero__ambient is-one" aria-hidden="true"></div>
     <div class="ebook-hero__ambient is-two" aria-hidden="true"></div>
     <div class="container ebook-hero__grid">
-      <div class="ebook-hero__content" data-anim="reveal" data-reveal-eager data-delay="0.12" data-duration="1.2">
-        <p class="ebook-eyebrow">Social Media mit System</p>
-        <h1 id="ebook-hero-title">
+      <div class="ebook-hero__content">
+        <p class="ebook-eyebrow" data-ebook-heading>Social Media mit System</p>
+        <h1 id="ebook-hero-title" data-ebook-heading>
           Die Instagram
           <strong>Erfolgsformel</strong>
         </h1>
-        <p class="ebook-hero__lead">Für mehr Reichweite, Follower &amp; Umsatz.</p>
-        <p class="ebook-hero__copy">
+        <p class="ebook-hero__lead" data-ebook-intro>Für mehr Reichweite, Follower &amp; Umsatz.</p>
+        <p class="ebook-hero__copy" data-ebook-intro>
           Deine kompakte Anleitung aus 8+ Jahren Praxis und der Erfahrung aus dem Aufbau von
           Accounts mit bis zu 200.000 Followern.
         </p>
-        <ul class="ebook-hero__facts" role="list" aria-label="E-Book-Umfang">
+        <ul class="ebook-hero__facts" role="list" aria-label="E-Book-Umfang" data-ebook-facts>
           <li><strong>140</strong><span>Seiten</span></li>
           <li><strong>11 + 1</strong><span>Kapitel</span></li>
           <li><strong>2</strong><span>Boni</span></li>
         </ul>
-        <div class="ebook-hero__action">
+        <div class="ebook-hero__action" data-ebook-buttons>
           <GlowButton label="Jetzt E-Book sichern" href={BUY_URL} />
           <p><span>Gesamtwert &gt;280 €</span><strong>aktuell für nur 27 €</strong></p>
         </div>
       </div>
 
-      <div class="ebook-hero__visual" data-anim="reveal" data-delay="0.12" data-duration="1.2">
+      <div class="ebook-hero__visual" data-ebook-visual>
         <span class="ebook-hero__stamp" aria-hidden="true">8+ Jahre<br />Praxis</span>
         <Image
           src={heroImage}

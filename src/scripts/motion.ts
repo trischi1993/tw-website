@@ -8,6 +8,7 @@ import * as banner from './motion/banner';
 import * as gallery from './motion/gallery';
 import * as faqHover from './motion/faq-hover';
 import * as aioLoad from './motion/aio-load';
+import * as ebookLoad from './motion/ebook-load';
 import * as moduleScrub from './motion/module';
 import * as bonuses from './motion/bonuses';
 import * as aboutLoad from './motion/about-load';
@@ -181,6 +182,7 @@ function init(): void {
   gallery.init(mm);
   faqHover.init(mm);
   aioLoad.init(mm);
+  ebookLoad.init(mm);
   moduleScrub.init(mm);
   bonuses.init(mm);
   aboutLoad.init(mm);
@@ -213,6 +215,7 @@ function init(): void {
       navbarReplayFrame = undefined;
       aboutLoad.restartNavbar();
       aioLoad.restartNavbar();
+      ebookLoad.restartNavbar();
       erfolgsCheckLoad.restartNavbar();
     });
   };
