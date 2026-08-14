@@ -75,7 +75,7 @@ const packageItems = [
         </div>
         <div class="ebook-checkout__summary-content">
           <p class="ebook-checkout__summary-kicker">Die Instagram Erfolgsformel</p>
-          <h2 id="ebook-order-summary-title">Alles, was du für die Umsetzung brauchst.</h2>
+          <h2 id="ebook-order-summary-title">Das ist in deiner Bestellung enthalten.</h2>
           <ul role="list">
             {packageItems.map(([title, text]) => (
               <li>
@@ -207,7 +207,7 @@ const packageItems = [
       const updateScrollShield = () => {
         scrollShieldFrame = undefined;
         if (!scrollShield || !scrollShieldPath) return;
-        if (!window.matchMedia('(max-width: 767px)').matches || !observedCheckoutPanel) {
+        if (!observedCheckoutPanel) {
           scrollShieldPath.setAttribute('d', '');
           return;
         }
@@ -254,8 +254,9 @@ const packageItems = [
         });
 
         // Das SVG liegt über der gesamten sichtbaren Formularfläche. Dadurch
-        // gehört jede Wischbewegung zum äußeren Dokument und scrollt nativ.
-        // Nur sichere Drittanbieter-Zahlungsframes werden ausgespart.
+        // gehören Wisch- und Mausradbewegungen zum äußeren Dokument und
+        // scrollen nativ. Nur sichere Drittanbieter-Zahlungsframes werden
+        // ausgespart.
         const yStops = Array.from(new Set([
           0,
           height,
