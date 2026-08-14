@@ -46,7 +46,7 @@ const headerCtaHref = settings.headerCta
   ? contextHref(safeHref(settings.headerCta.href))
   : undefined;
 ---
-<header class="navbar" data-site-header>
+<header class="navbar" data-site-header data-navigation-context={context}>
   <div class="navbar__container">
   <a href={homeHref} class="navbar__logo is-desktop" aria-label={`${settings.siteName}, ${t.toStart}`}>
     <span class="navbar__logo-word is-1" aria-hidden="true">

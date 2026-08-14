@@ -55,7 +55,7 @@ const pageJsonLd = jsonLd ? (Array.isArray(jsonLd) ? jsonLd : [jsonLd]) : [];
 const jsonLdArray = [orgJsonLd, ...pageJsonLd];
 ---
 <!doctype html>
-<html lang={HTML_LANG}>
+<html lang={HTML_LANG} class:list={{ 'is-ebook-route': route === 'e-book' }}>
   <head>
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1" />
@@ -94,6 +94,24 @@ const jsonLdArray = [orgJsonLd, ...pageJsonLd];
         }
         if (window.matchMedia('(prefers-reduced-motion: reduce)').matches) return;
         el.classList.add('has-motion');
+        /* Auf der mobilen E-Book-Seite läuft nur die sichtbare Load-Choreo in
+           einem kleinen browsernativen Modul. Die Bewegung und Timings bleiben
+           wie bei AIO/Über mich, ohne dass dafür das große seitenweite Motion-
+           Bundle während der ersten Frames initialisiert werden muss. */
+        if (
+          el.classList.contains('is-ebook-route') &&
+          window.matchMedia('(max-width: 767px)').matches
+        ) {
+          el.classList.add('ebook-mobile-motion');
+          window.addEventListener('load', function () {
+            setTimeout(function () {
+              if (!el.classList.contains('motion-ready')) {
+                el.classList.remove('has-motion', 'ebook-mobile-motion');
+              }
+            }, 1500);
+          });
+          return;
+        }
         window.addEventListener('load', function () {
           setTimeout(function () {
             if (!el.classList.contains('motion-ready')) el.classList.remove('has-motion');
@@ -164,11 +182,35 @@ const jsonLdArray = [orgJsonLd, ...pageJsonLd];
       // laufen auf jeder Seite. Das GSAP-Motion-Bundle ebenso: Footer-Reveal,
       // Underline-Wipes und der Glow-CTA im Header animieren auf jeder Seite
       // (IX2 a-87/a-91/a-141); eine Hook-Bedingung wäre immer wahr.
-      const widgetsReady = import('../scripts/widgets.ts');
+      const isMobileEbook = document.documentElement.classList.contains('ebook-mobile-motion');
+      const afterMobileHero = (load: () => Promise<unknown>): Promise<unknown> =>
+        new Promise((resolve, reject) => {
+          const remaining = Math.max(0, 2200 - performance.now());
+          window.setTimeout(() => {
+            const run = () => void load().then(resolve, reject);
+            if ('requestIdleCallback' in window) {
+              window.requestIdleCallback(run, { timeout: 1000 });
+            } else {
+              run();
+            }
+          }, remaining);
+        });
+      const widgetsReady = isMobileEbook
+        ? afterMobileHero(() => import('../scripts/widgets.ts'))
+        : import('../scripts/widgets.ts');
       // Fragmentziele erst nach dem Motion-Setup nachjustieren: ScrollTrigger
       // und Widgets verändern vor dem Ziel noch das Layout. Erst wenn beide
       // Initialisierungen abgeschlossen sind, wird der Anker final gesetzt.
-      const motionReady = import('../scripts/motion.ts');
+      const motionReady = isMobileEbook
+        ? Promise.all([
+            import('../scripts/ebook-mobile-load.ts'),
+            // Nach der mobilen Header-Choreografie das normale Motion-Bundle
+            // nachladen. ebook-load erkennt diesen Sonderpfad und überspringt
+            // ausschließlich den bereits abgespielten Header; alle Scroll-
+            // Reveals und Animationen darunter bleiben identisch erhalten.
+            afterMobileHero(() => import('../scripts/motion.ts')),
+          ])
+        : import('../scripts/motion.ts');
       Promise.allSettled([widgetsReady, motionReady]).then(() =>
         import('../scripts/hash-navigation.ts')
       );

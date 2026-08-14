@@ -1667,7 +1667,13 @@
 
 @media (max-width: 767px) {
   .ebook .ebook-kicker, .ebook .ebook-eyebrow { font-size: 0.72rem; }
-  .ebook-hero { padding-top: calc(var(--header-h) + 3rem); }
+  .ebook-hero {
+    padding-top: calc(var(--header-h) + 3rem);
+    background:
+      radial-gradient(circle at 108% 12%, color-mix(in srgb, var(--brand) 13%, transparent), transparent 47%),
+      radial-gradient(circle at -15% 88%, color-mix(in srgb, var(--brand) 7%, transparent), transparent 42%);
+  }
+  .ebook-hero__ambient { display: none; }
   .ebook-hero h1 { font-size: clamp(2.75rem, 10vw, 3.2rem); }
   .ebook-hero__lead { font-size: 1.3rem; }
   .ebook-hero__copy { font-size: var(--text-base); }
@@ -1681,6 +1687,22 @@
     font-size: 0.58rem;
     animation: none;
     will-change: auto;
+  }
+  .ebook > section:not(.ebook-hero):not(.ebook-trust) {
+    content-visibility: auto;
+    contain-intrinsic-size: auto 48rem;
+  }
+  .ebook-trust__track { animation-play-state: paused; }
+  .ebook-trust.is-in-view .ebook-trust__track { animation-play-state: running; }
+  .ebook-results-carousel__spotlight,
+  .ebook-results-carousel__orbit,
+  .ebook-engagement-icon svg {
+    animation-play-state: paused !important;
+  }
+  .ebook-results-carousel.is-in-view .ebook-results-carousel__spotlight,
+  .ebook-results-carousel.is-in-view .ebook-results-carousel__orbit,
+  .ebook-results-carousel.is-in-view .ebook-engagement-icon svg {
+    animation-play-state: running !important;
   }
   .ebook-intro, .ebook-author { padding-block: 6rem; }
   .ebook-benefits, .ebook-chapters, .ebook-bundle, .ebook-audience, .ebook-reviews { padding-block: 6rem; }

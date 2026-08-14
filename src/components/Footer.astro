@@ -107,7 +107,13 @@ const mailHref = `mailto:${contact.email}?subject=Hey%20Tristan`;
           {settings.tagline && <p class="footer__claim" data-footer-claim>{settings.tagline}</p>}
           {
             settings.social.length > 0 && (
-              <ul role="list" class="footer__social-list" data-lottie-root data-dim-group>
+              <ul
+                role="list"
+                class="footer__social-list"
+                data-lottie-root
+                data-dim-group
+                data-defer-mobile-lottie={context === 'ebook' ? '' : undefined}
+              >
                 {settings.social.map((s) => {
                   const lottie = lottieFor(s.label);
                   return (
@@ -358,20 +364,8 @@ const mailHref = `mailto:${contact.email}?subject=Hey%20Tristan`;
 <script>
   import lottie from 'lottie-web/build/player/lottie_light.js';
 
-  // Lottie-Socials wie im Webflow-Original eager laden und 1× automatisch
-  // abspielen (Embed data-loading="eager", data-autoplay="1"). Erreicht der
-  // Footer nach dem Scrollen erstmals das Sichtfeld, starten beide Icons
-  // gemeinsam noch einmal mit ihrer nativen Dauer (Instagram 1,183 s,
-  // LinkedIn 1,5 s). Hover spielt das jeweilige Icon in 600 ms neu ab
-  // (IX2 a-78: 0 → 99,8 % in 600 ms → Speed = Dauer / 0,6).
-  // Das statische SVG bleibt bis zum erfolgreichen Lottie-Start sichtbar und
-  // dient bei Import-/Netzwerkfehlern als Fallback. Die Animation spielt auf
-  // Desktop UND Touchgeraeten. Jede [data-lottie-root]-Gruppe (Footer + z. B.
-  // Über-mich-Hero) wird direkt initialisiert. Der Player wird bewusst statisch
-  // gebündelt: Ein fehlgeschlagener dynamischer Import ließ in mobilen
-  // Dev-/Preview-Sessions bislang lautlos nur das unbewegte Fallback stehen.
   const roots = document.querySelectorAll<HTMLElement>('[data-lottie-root]');
-  if (roots.length) {
+  const initializeLotties = () => {
     const initRoot = (root: HTMLElement) => {
       return Promise.all(
         Array.from(root.querySelectorAll<HTMLElement>('[data-lottie]')).map(
@@ -414,9 +408,6 @@ const mailHref = `mailto:${contact.email}?subject=Hey%20Tristan`;
 
       const startedVisible = isVisible();
       const replay = () => {
-        // Beide Animationen erst nach DOMLoaded gemeinsam zurücksetzen. So
-        // funktioniert der Replay auch bei sehr schnellem Scrollen direkt
-        // nach dem Seitenaufruf zuverlässig.
         void load.then((animations) => {
           animations.forEach((anim) => {
             anim.setSpeed(1);
@@ -426,9 +417,6 @@ const mailHref = `mailto:${contact.email}?subject=Hey%20Tristan`;
       };
 
       const armReplay = () => {
-        // Bei einem Reload direkt im Footer ist das eager Autoplay bereits der
-        // sichtbare Durchlauf. Wurde der Footer erst während des Ladens
-        // erreicht (z. B. Scroll-Restoration), spielen wir kontrolliert neu.
         if (isVisible()) {
           if (!startedVisible) replay();
           return;
@@ -442,18 +430,35 @@ const mailHref = `mailto:${contact.email}?subject=Hey%20Tristan`;
         observer.observe(root);
       };
 
-      // Erst nach dem vollständigen Layout scharfstellen. Eine Prüfung direkt
-      // beim Parsen kann den Footer kurzzeitig als sichtbar einstufen und den
-      // späteren Scroll-Replay dadurch ungewollt verbrauchen.
       if (document.readyState === 'complete') armReplay();
       else window.addEventListener('load', armReplay, { once: true });
     };
 
     roots.forEach((root) => {
-      // Bei Import-/Netzwerkfehlern bleibt das statische SVG sichtbar.
       const load = initRoot(root);
       void load.catch(() => undefined);
       if (root.classList.contains('footer__social-list')) watchFooter(root, load);
     });
+  };
+
+  const deferMobile =
+    document.documentElement.classList.contains('ebook-mobile-motion') &&
+    Array.from(roots).some((root) => root.hasAttribute('data-defer-mobile-lottie'));
+
+  if (deferMobile && 'IntersectionObserver' in window) {
+    const footer = document.querySelector<HTMLElement>('.footer');
+    if (footer) {
+      const observer = new IntersectionObserver(
+          ([entry]) => {
+            if (!entry?.isIntersecting) return;
+            observer.disconnect();
+            initializeLotties();
+          },
+        { rootMargin: '800px 0px', threshold: 0 },
+      );
+      observer.observe(footer);
+    }
+  } else if (roots.length) {
+    initializeLotties();
   }
 </script>

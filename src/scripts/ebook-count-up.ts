@@ -65,5 +65,19 @@ function initEbookCountUp(): void {
   });
 }
 
-initEbookCountUp();
+if (document.documentElement.classList.contains('ebook-mobile-motion')) {
+  const remaining = Math.max(0, 2400 - performance.now());
+  window.setTimeout(() => {
+    const initialize = () => initEbookCountUp();
+    if ('requestIdleCallback' in window) {
+      window.requestIdleCallback(initialize, { timeout: 1200 });
+    } else {
+      initialize();
+    }
+  }, remaining);
+} else {
+  initEbookCountUp();
+}
 document.addEventListener('astro:page-load', initEbookCountUp);
+
+export {};

@@ -52,6 +52,72 @@ function belongsToInitialHashScopes(element: Element): boolean {
 
 const triggers: EnterOnceTrigger[] = [];
 const pendingHashListeners: Array<() => void> = [];
+const ebookMobileQuery = window.matchMedia('(max-width: 767px)');
+const isEbookPage = Boolean(document.querySelector('[data-ebook-hero]'));
+
+interface SharedObserverGroup {
+  observer: IntersectionObserver;
+  callbacks: Map<Element, () => void>;
+}
+
+const sharedEbookObservers = new Map<number, SharedObserverGroup>();
+
+function usesSharedEbookObserver(): boolean {
+  return isEbookPage && ebookMobileQuery.matches && 'IntersectionObserver' in window;
+}
+
+/** Die E-Book-Seite besitzt deutlich mehr Reveal-Elemente als die übrigen
+ * Seiten. Mobil teilen sie sich deshalb einen nativen Observer pro Offset,
+ * statt für jedes Element eigene Scroll-/Resize-Listener anzulegen. */
+function onEnterOnceShared(
+  el: Element,
+  offsetPct: number,
+  onEnter: () => void,
+): EnterOnceTrigger {
+  if (!usesSharedEbookObserver()) return onEnterOnce(el, offsetPct, onEnter);
+
+  const offset = Math.max(0, Math.min(49, offsetPct));
+  let group = sharedEbookObservers.get(offset);
+  if (!group) {
+    const callbacks = new Map<Element, () => void>();
+    const observer = new IntersectionObserver(
+      (entries) => {
+        entries.forEach((entry) => {
+          if (!entry.isIntersecting) return;
+          const callback = callbacks.get(entry.target);
+          if (!callback) return;
+          callbacks.delete(entry.target);
+          observer.unobserve(entry.target);
+          callback();
+        });
+      },
+      {
+        rootMargin: `-${offset}% 0px -${offset}% 0px`,
+        threshold: 0,
+      },
+    );
+    group = { observer, callbacks };
+    sharedEbookObservers.set(offset, group);
+  }
+
+  group.callbacks.set(el, onEnter);
+  group.observer.observe(el);
+  let stopped = false;
+
+  return {
+    kill: () => {
+      if (stopped) return;
+      stopped = true;
+      group?.callbacks.delete(el);
+      group?.observer.unobserve(el);
+      if (group?.callbacks.size === 0) {
+        group.observer.disconnect();
+        sharedEbookObservers.delete(offset);
+      }
+    },
+  };
+}
+
 // FAQ a-107 ist pro Seitenaufruf einmalig: Bereits eingeblendete Zeilen bleiben
 // bei einem responsiven Neuaufbau sichtbar. Noch nie gezeigte Zeilen behalten
 // ihren Trigger und werden geprüft, falls sie im neuen Format sichtbar werden.
@@ -67,7 +133,7 @@ function onEnterOnceStable(el: Element, offset: number, onEnter: () => void): vo
     !root.classList.contains('has-initial-hash') ||
     !belongsToInitialHashScopes(el)
   ) {
-    triggers.push(onEnterOnce(el, offset, onEnter));
+    triggers.push(onEnterOnceShared(el, offset, onEnter));
     return;
   }
 
@@ -81,7 +147,7 @@ function onEnterOnceStable(el: Element, offset: number, onEnter: () => void): vo
       return;
     }
 
-    triggers.push(onEnterOnce(el, offset, onEnter));
+    triggers.push(onEnterOnceShared(el, offset, onEnter));
   };
 
   window.addEventListener('lp:initial-hash-ready', onHashReady, { once: true });
@@ -96,20 +162,32 @@ function initReveal(): void {
     const offsetAttr = parseFloat(el.dataset.offset ?? '');
     const offset = Number.isFinite(offsetAttr) ? offsetAttr : 16;
     const isHeroReveal = Boolean(el.closest('.ebook-hero'));
-    gsap.set(el, isHeroReveal
-      ? { opacity: 0, y: '1rem', force3D: true, willChange: 'transform, opacity' }
-      : { opacity: 0, y: '1rem', filter: 'blur(5px)' });
+    const isLightweightEbookReveal = usesSharedEbookObserver() && !isHeroReveal;
+    const isLightweightReveal = isHeroReveal || isLightweightEbookReveal;
+    gsap.set(
+      el,
+      isHeroReveal
+        ? { opacity: 0, y: '1rem', force3D: true, willChange: 'transform, opacity' }
+        : isLightweightEbookReveal
+          ? { opacity: 0, y: '1rem' }
+          : { opacity: 0, y: '1rem', filter: 'blur(5px)' },
+    );
     const reveal = () => {
+      // will-change erst beim tatsächlichen Eintritt setzen: 60 dauerhaft
+      // vorbereitete Ebenen würden auf iPhones unnötig Grafikspeicher belegen.
+      if (isLightweightEbookReveal) {
+        gsap.set(el, { willChange: 'transform, opacity' });
+      }
       gsap.to(el, { opacity: 1, duration, delay, ease: EASE.ease });
       gsap.to(el, {
         y: 0,
         duration,
         delay,
         ease: EASE.outQuart,
-        force3D: isHeroReveal,
-        clearProps: isHeroReveal ? 'transform,willChange' : undefined,
+        force3D: isLightweightReveal,
+        clearProps: isLightweightReveal ? 'transform,willChange' : undefined,
       });
-      if (isHeroReveal) return;
+      if (isLightweightReveal) return;
       gsap.to(el, {
         filter: 'blur(0px)',
         duration,

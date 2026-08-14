@@ -445,5 +445,23 @@ function initEbookCarousels(): void {
   });
 }
 
-initEbookCarousels();
+const deferCarouselForMobileHero = () => {
+  const remaining = Math.max(0, 2400 - performance.now());
+  window.setTimeout(() => {
+    const initialize = () => initEbookCarousels();
+    if ('requestIdleCallback' in window) {
+      window.requestIdleCallback(initialize, { timeout: 1200 });
+    } else {
+      initialize();
+    }
+  }, remaining);
+};
+
+if (document.documentElement.classList.contains('ebook-mobile-motion')) {
+  deferCarouselForMobileHero();
+} else {
+  initEbookCarousels();
+}
 document.addEventListener('astro:page-load', initEbookCarousels);
+
+export {};

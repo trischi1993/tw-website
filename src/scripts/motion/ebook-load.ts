@@ -12,6 +12,11 @@ let responsiveNavbarAnimations: Animation[] = [];
 export function init(_mm: gsap.MatchMedia): void {
   const hero = document.querySelector<HTMLElement>('[data-ebook-hero]');
   if (!hero) return;
+  // Mobil spielt das kleine browsernative Startmodul dieselbe Choreografie.
+  // Wenn das vollständige Motion-Bundle nach dem Hero nachgeladen wird, darf
+  // es nur die Animationen darunter initialisieren und den Header nicht ein
+  // zweites Mal abspielen.
+  if (document.documentElement.classList.contains('ebook-mobile-motion')) return;
 
   const heading = hero.querySelector<HTMLElement>('[data-ebook-heading]');
   const intro = hero.querySelector<HTMLElement>('[data-ebook-intro]');
@@ -157,6 +162,7 @@ export function init(_mm: gsap.MatchMedia): void {
  * Navbar-Wiederholung wie auf der AIO- und Über-mich-Seite ab. */
 export function restartNavbar(): void {
   if (!document.querySelector('[data-ebook-hero]')) return;
+  if (document.documentElement.classList.contains('ebook-mobile-motion')) return;
   const logoLines = document.querySelectorAll<HTMLElement>('[data-nav-logo-line]');
   const navRight = document.querySelector<HTMLElement>('[data-nav-right]');
 
