@@ -711,7 +711,7 @@ html.has-motion .results__track { height: 200vh; }
 }
 .vhero__content { max-width: 34rem; }
 .vhero__content h1 { margin-bottom: 1rem; }
-.vhero__title-accent { color: var(--ink); font-weight: 400; }
+.vhero__title-accent { color: var(--brand-readable); font-weight: 400; }
 /* Nur der Fließtext ist schmaler; Headline und Button behalten ihre Breite. */
 .vhero__intro { max-width: 28rem; color: var(--ink-2); font-size: var(--text-md); }
 .vhero__intro p + p { margin-top: 1.4em; }
