@@ -24,6 +24,8 @@ export default function VideoHeroSection({
   // an Bunny senden und unnötige Fehler in der Browser-Konsole erzeugen.
   const playbackUrl = import.meta.env.DEV ? '' : videoUrl;
   const path = `sections[_key=="${_key}"]`;
+  const heroAccent = 'ALL-IN-ONE';
+  const accentIndex = heading.indexOf(heroAccent);
 
   return (
     <section
@@ -38,7 +40,13 @@ export default function VideoHeroSection({
           <div className="vhero__grid">
             <header className="vhero__content">
               <h1 data-aio-h1="" {...edit?.(`${path}.heading`)}>
-                {heading}
+                {accentIndex >= 0 ? (
+                  <>
+                    {heading.slice(0, accentIndex)}
+                    <span className="vhero__title-accent">{heroAccent}</span>
+                    {heading.slice(accentIndex + heroAccent.length)}
+                  </>
+                ) : heading}
               </h1>
               <div className="vhero__intro" data-aio-intro="" {...edit?.(`${path}.intro`)}>
                 <RichText value={intro} paragraphs />

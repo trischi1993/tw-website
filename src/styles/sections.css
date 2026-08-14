@@ -711,6 +711,7 @@ html.has-motion .results__track { height: 200vh; }
 }
 .vhero__content { max-width: 34rem; }
 .vhero__content h1 { margin-bottom: 1rem; }
+.vhero__title-accent { color: var(--ink); font-weight: 400; }
 /* Nur der Fließtext ist schmaler; Headline und Button behalten ihre Breite. */
 .vhero__intro { max-width: 28rem; color: var(--ink-2); font-size: var(--text-md); }
 .vhero__intro p + p { margin-top: 1.4em; }
@@ -996,7 +997,7 @@ html.has-motion .results__track { height: 200vh; }
 }
 .bonus__card img { aspect-ratio: 1; width: 100%; object-fit: cover; }
 .bonus__card-content { display: flex; flex-direction: column; flex: 1; justify-content: space-between; padding: 2rem; }
-.bonus__tag { font-size: var(--text-sm); font-weight: 600; color: var(--brand); }
+.bonus__tag { font-size: var(--text-sm); font-weight: 600; color: var(--brand-readable); }
 .bonus__card h3 { margin-top: 0.5rem; font-size: var(--h4-size); font-weight: var(--h4-weight); line-height: var(--h4-lh); }
 .bonus__card p { margin-top: 1rem; }
 .bonus__footer { margin-top: 3rem; }
