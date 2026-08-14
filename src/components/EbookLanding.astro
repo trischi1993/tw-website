@@ -1,6 +1,8 @@
 ---
 import { Image } from 'astro:assets';
 import GlowButton from './sections/GlowButton';
+import FaqSection from './sections/FaqSection';
+import type { SectionFaq } from '../lib/content/types';
 import heroImage from '../assets/images/ebook/hero-v5.png';
 import heroPhoneInsightsImage from '../assets/images/ebook/hero-phone-insights-gold.png';
 import bookMockupImage from '../assets/images/ebook/book-mockup-v3.png';
@@ -197,6 +199,131 @@ const reviews = [
     image: buonomemesImage,
   },
 ];
+
+const ebookFaq: SectionFaq = {
+  _type: 'sectionFaq',
+  _key: 'ebook-faq',
+  name: 'FAQs',
+  heading: 'FAQs',
+  items: [
+    {
+      _key: 'ebook-faq-platforms',
+      question: 'Ist das E-Book nur für Instagram geeignet?',
+      answer: [
+        {
+          _type: 'block',
+          _key: 'ebook-faq-platforms-answer-1',
+          style: 'normal',
+          markDefs: [],
+          children: [
+            {
+              _type: 'span',
+              _key: 'ebook-faq-platforms-answer-1-text',
+              text: 'Der Fokus liegt klar auf Instagram, da hier die besten Möglichkeiten für organische Reichweite und nachhaltige Monetarisierung bestehen. Deshalb beziehen sich die konkreten Praxisbeispiele und Schritt-für-Schritt-Erklärungen im E-Book auf Instagram.',
+              marks: [],
+            },
+          ],
+        },
+        {
+          _type: 'block',
+          _key: 'ebook-faq-platforms-answer-2',
+          style: 'normal',
+          markDefs: [],
+          children: [
+            {
+              _type: 'span',
+              _key: 'ebook-faq-platforms-answer-2-text',
+              text: 'Die vermittelten Strategien und Methoden lassen sich jedoch problemlos auch auf Plattformen wie Facebook, TikTok oder YouTube Shorts übertragen.',
+              marks: [],
+            },
+          ],
+        },
+      ],
+    },
+    {
+      _key: 'ebook-faq-evergreen',
+      question: 'Ist das E-Book nicht bald veraltet, weil sich Social Media ständig verändert?',
+      answer: [
+        {
+          _type: 'block',
+          _key: 'ebook-faq-evergreen-answer-1',
+          style: 'normal',
+          markDefs: [],
+          children: [
+            {
+              _type: 'span',
+              _key: 'ebook-faq-evergreen-answer-1-text',
+              text: 'Social Media entwickelt sich laufend weiter. Genau deshalb konzentriert sich das E-Book nicht auf kurzfristige Trends oder einzelne Algorithmus-Tricks, sondern auf bewährte Evergreen-Strategien. Diese grundlegenden Prinzipien funktionieren seit Jahren und werden auch künftig die Basis für nachhaltigen Reichweitenaufbau, eine starke Community und erfolgreiche Monetarisierung bilden.',
+              marks: [],
+            },
+          ],
+        },
+        {
+          _type: 'block',
+          _key: 'ebook-faq-evergreen-answer-2',
+          style: 'normal',
+          markDefs: [],
+          children: [
+            {
+              _type: 'span',
+              _key: 'ebook-faq-evergreen-answer-2-text',
+              text: 'Ein wichtiger Bestandteil ist dabei die Erfolgsmessung: Durch regelmäßige Analysen erkennst du, was aktuell funktioniert, und kannst deine Strategie gezielt optimieren. Dadurch bleibt dein Vorgehen zeitgemäß und berücksichtigt automatisch Veränderungen der Plattformen, Algorithmen und des Nutzerverhaltens.',
+              marks: [],
+            },
+          ],
+        },
+        {
+          _type: 'block',
+          _key: 'ebook-faq-evergreen-answer-3',
+          style: 'normal',
+          markDefs: [],
+          children: [
+            {
+              _type: 'span',
+              _key: 'ebook-faq-evergreen-answer-3-text',
+              text: 'Einzelne Funktionen können sich verändern – das strategische Grundgerüst bleibt jedoch relevant, anpassungsfähig und langfristig nutzbar.',
+              marks: [],
+            },
+          ],
+        },
+      ],
+    },
+    {
+      _key: 'ebook-faq-ads',
+      question: 'Behandelt das E-Book auch bezahlte Werbeanzeigen?',
+      answer: [
+        {
+          _type: 'block',
+          _key: 'ebook-faq-ads-answer-1',
+          style: 'normal',
+          markDefs: [],
+          children: [
+            {
+              _type: 'span',
+              _key: 'ebook-faq-ads-answer-1-text',
+              text: 'Der Fokus des E-Books liegt bewusst auf dem organischen Social-Media-Aufbau. Du lernst, wie du dir mit nachhaltigen Strategien Reichweite, eine starke Community und Möglichkeiten zur Monetarisierung aufbaust – ohne von einem Werbebudget abhängig zu sein.',
+              marks: [],
+            },
+          ],
+        },
+        {
+          _type: 'block',
+          _key: 'ebook-faq-ads-answer-2',
+          style: 'normal',
+          markDefs: [],
+          children: [
+            {
+              _type: 'span',
+              _key: 'ebook-faq-ads-answer-2-text',
+              text: 'Bezahlte Werbeanzeigen werden im E-Book nicht direkt behandelt. Sie können bei Bedarf jedoch optimal auf diesem stabilen organischen Fundament aufbauen und deine bestehenden Maßnahmen gezielt verstärken.',
+              marks: [],
+            },
+          ],
+        },
+      ],
+    },
+  ],
+};
 ---
 
 <div class="ebook">
@@ -563,7 +690,9 @@ const reviews = [
           Social Media verändert sich rasant. Deshalb konzentriert sich dieses Buch auf
           Evergreen-Strategien, die unabhängig von kurzfristigen Trends oder einzelnen
           Algorithmus-Updates funktionieren. Die Methoden haben sich über Jahre in der Praxis
-          bewährt – für nachhaltiges Wachstum, statt jedem neuen Hype hinterherzulaufen.
+          bewährt – für nachhaltiges Wachstum, statt jedem neuen Hype hinterherzulaufen. Auch
+          wenn die konkreten Beispiele aus Instagram stammen, lassen sich die grundlegenden
+          Strategien auch auf andere Social-Media-Plattformen übertragen.
         </p>
       </div>
     </div>
@@ -698,6 +827,8 @@ const reviews = [
       </div>
     </div>
   </section>
+
+  <FaqSection section={ebookFaq} />
 </div>
 
 <script>
