@@ -208,6 +208,71 @@ const stripNoindexFromSitemap = () => ({
   },
 });
 
+/**
+ * Nur für den lokalen Dev-Server: Das bestehende Systeme.io-Formular unter
+ * derselben Origin ausliefern wie die Astro-Bestellseite. Astros eigener Router
+ * verarbeitet unbekannte Pfade vor Vites `server.proxy`; deshalb sitzt diese
+ * schlanke Weiterleitung als frühe Vite-Middleware direkt davor.
+ *
+ * @returns {import('astro').AstroIntegration}
+ */
+const proxyEbookCheckoutInDev = () => ({
+  name: 'proxy-ebook-checkout-in-dev',
+  hooks: {
+    'astro:server:setup': ({ server }) => {
+      /** @type {import('vite').Connect.NextHandleFunction} */
+      const handleCheckoutProxy = async (request, response, next) => {
+        const requestUrl = new URL(request.url ?? '/', 'http://localhost');
+        if (!/^\/bestellformular\/?$/.test(requestUrl.pathname)) {
+          next();
+          return;
+        }
+
+        try {
+          const upstreamUrl = new URL(
+            `/bestellformular${requestUrl.search}`,
+            'https://ebook.tristanweithaler.com',
+          );
+          const headers = new Headers();
+          Object.entries(request.headers).forEach(([name, value]) => {
+            if (value === undefined || name === 'host') return;
+            headers.set(name, Array.isArray(value) ? value.join(', ') : value);
+          });
+          // Undici entpackt Antworten automatisch. Mit identity bleiben Body und
+          // Response-Header konsistent, ohne dass wir sie nachbearbeiten müssen.
+          headers.set('accept-encoding', 'identity');
+
+          const method = request.method ?? 'GET';
+          const requestBody = method === 'GET' || method === 'HEAD'
+            ? undefined
+            : Buffer.concat(await Array.fromAsync(request));
+          const upstreamResponse = await fetch(upstreamUrl, {
+            method,
+            headers,
+            body: requestBody,
+            redirect: 'manual',
+          });
+
+          response.statusCode = upstreamResponse.status;
+          upstreamResponse.headers.forEach((value, name) => {
+            if (name === 'content-length' || name === 'content-encoding' || name === 'set-cookie') return;
+            response.setHeader(name, value);
+          });
+          const setCookies = upstreamResponse.headers.getSetCookie();
+          if (setCookies.length) response.setHeader('set-cookie', setCookies);
+
+          response.end(Buffer.from(await upstreamResponse.arrayBuffer()));
+        } catch (error) {
+          next(error instanceof Error ? error : new Error('Bestellformular konnte nicht geladen werden.'));
+        }
+      };
+      // Vor Astros 404-Router einreihen; ein normales `.use()` landet bei
+      // statischen Projekten dahinter und würde den Pfad nicht mehr erreichen.
+      server.middlewares.stack.unshift({ route: '', handle: handleCheckoutProxy });
+    },
+  },
+});
+
 // https://astro.build/config
 export default defineConfig({
   // REQUIRED: set to the real production domain. Placeholder for now.
@@ -228,6 +293,7 @@ export default defineConfig({
   },
   // Einsprachige Website (Deutsch) - kein Astro-i18n-Routing.
   integrations: [
+    proxyEbookCheckoutInDev(),
     // Rendert die Section-Komponenten (.tsx) STATISCH zur Buildzeit. Solange
     // keine Seite ein client:-Directive nutzt, landet null React-JS im Output
     // (Hausregel: „kein React im Prod-Output"). Nur der Vorschau-Build

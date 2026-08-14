@@ -205,7 +205,7 @@ const reviews = [
     <div class="ebook-hero__ambient is-two" aria-hidden="true"></div>
     <div class="container ebook-hero__grid">
       <div class="ebook-hero__content" data-anim="reveal" data-reveal-eager data-delay="0.12" data-duration="1.2">
-        <p class="ebook-eyebrow"><span aria-hidden="true"></span> Social Media mit System</p>
+        <p class="ebook-eyebrow">Social Media mit System</p>
         <h1 id="ebook-hero-title">
           Die Instagram
           <strong>Erfolgsformel</strong>
@@ -226,7 +226,7 @@ const reviews = [
         </div>
       </div>
 
-      <div class="ebook-hero__visual" data-anim="reveal" data-reveal-eager data-delay="0.05" data-duration="1.35">
+      <div class="ebook-hero__visual" data-anim="reveal" data-delay="0.12" data-duration="1.2">
         <span class="ebook-hero__stamp" aria-hidden="true">8+ Jahre<br />Praxis</span>
         <Image
           src={heroImage}
@@ -292,8 +292,8 @@ const reviews = [
         <span>Du brauchst eine klare Strategie.</span>
       </h2>
       <p class="ebook-intro__copy" data-anim="reveal" data-delay="0.16">
-        Dieses E-Book verbindet echte Erfahrungen mit konkreten Schritten. Damit du verstehst,
-        was hinter nachhaltigem Wachstum steckt – und endlich weißt, was als Nächstes zu tun ist.
+        Dieses E-Book verbindet echte Erfahrungen mit konkreten Schritten. So verstehst du, was
+        hinter nachhaltigem Wachstum steckt und weißt endlich, was als Nächstes zu tun&nbsp;ist.
       </p>
     </div>
   </section>
@@ -311,7 +311,12 @@ const reviews = [
       </div>
       <div class="ebook-benefits__grid">
         {benefits.map((benefit, index) => (
-          <article class="ebook-benefit" data-anim="reveal" data-delay={String(index * 0.06)}>
+          <article
+            class="ebook-benefit"
+            data-anim="reveal"
+            data-delay={String(index * 0.06)}
+            data-ebook-mobile-benefit
+          >
             <div class="ebook-benefit__top">
               <span class="ebook-benefit__icon" aria-hidden="true">
                 {benefit.icon === 'insights' && (
@@ -693,6 +698,7 @@ const reviews = [
 <script>
   import '../scripts/ebook-carousel';
   import '../scripts/ebook-count-up';
+  import '../scripts/ebook-mobile-benefits';
 
   // Kampagnen- und Affiliate-Parameter bis zum bestehenden Systeme.io-
   // Bestellformular mitnehmen. So bleiben bereits verschickte Links mit

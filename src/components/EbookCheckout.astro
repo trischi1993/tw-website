@@ -3,12 +3,10 @@ import { Image } from 'astro:assets';
 import coverImage from '../assets/images/ebook/cover.png';
 import '../styles/ebook-checkout.css';
 
-// Lokal bleibt das bestehende Formular direkt erreichbar. Im deployten
-// E-Book-Worker läuft es über denselben öffentlichen Host, damit der Wechsel
-// auf die Systeme.io-Dankeseite als Vollseiten-Navigation erkannt werden kann.
-const CHECKOUT_URL = import.meta.env.DEV
-  ? 'https://ebook.tristanweithaler.com/bestellformular'
-  : '/bestellformular';
+// Lokal spiegelt der Dev-Server diesen Pfad; live reicht ihn der E-Book-Worker
+// an Systeme.io durch. In beiden Fällen bleiben Bestellseite und Formular auf
+// derselben Origin, sodass Höhe und Dankeseiten-Navigation zuverlässig sind.
+const CHECKOUT_URL = '/bestellformular/';
 
 const packageItems = [
   ['E-Book mit 140 Seiten', '11 Kapitel, Bonuskapitel und direkt umsetzbare Strategien'],
@@ -29,7 +27,7 @@ const packageItems = [
 
     <header class="ebook-checkout__hero">
       <div>
-        <p class="ebook-checkout__kicker"><span aria-hidden="true"></span> Dein letzter Schritt</p>
+        <p class="ebook-checkout__kicker">Dein letzter Schritt</p>
         <h1 id="ebook-checkout-title">Sicher bestellen. <strong>Direkt loslegen.</strong></h1>
       </div>
       <div class="ebook-checkout__hero-copy">
@@ -189,6 +187,7 @@ const packageItems = [
       let shieldPointerStartY = 0;
       let shieldPointerStartedAt = 0;
       let shieldPointerDistance = 0;
+      const nativeFormLayout = window.matchMedia('(max-width: 991px)');
 
       const formControlSelector = [
         'input',
@@ -390,15 +389,53 @@ const packageItems = [
         scrollShield.addEventListener('click', (event) => event.preventDefault());
       }
 
+      const syncFormGeometry = () => {
+        const styles = window.getComputedStyle(stage);
+        const configuredCropWidth = Number.parseFloat(
+          styles.getPropertyValue('--form-crop-width'),
+        );
+        const useNativeWidth = nativeFormLayout.matches;
+        const cropWidth = useNativeWidth ? stage.clientWidth : configuredCropWidth;
+        if (!cropWidth) return;
+
+        if (useNativeWidth) {
+          // In der gestapelten Tablet-/Mobile-Ansicht rendert Systeme.io in der
+          // tatsächlich verfügbaren Breite. So bleiben Schrift und Felder bei
+          // 100 %, während Querformat zusätzlichen Platz wirklich ausnutzt.
+          scaleLayer.style.width = `${cropWidth}px`;
+          clipLayer.style.width = `${cropWidth}px`;
+          frame.style.left = '0';
+          frame.style.width = `${cropWidth}px`;
+        } else {
+          scaleLayer.style.removeProperty('width');
+          clipLayer.style.removeProperty('width');
+          frame.style.removeProperty('left');
+          frame.style.removeProperty('width');
+        }
+
+        const frameStyles = window.getComputedStyle(frame);
+        const panelLeft = useNativeWidth
+          ? 0
+          : Math.max(0, -Number.parseFloat(frameStyles.left));
+        if (observedCheckoutPanel) {
+          observedCheckoutPanel.style.left = `${panelLeft}px`;
+          observedCheckoutPanel.style.width = `${cropWidth}px`;
+        }
+
+        return { cropWidth, panelLeft, useNativeWidth };
+      };
+
       const updateScale = () => {
         scaleFrame = undefined;
         const styles = window.getComputedStyle(stage);
-        const cropWidth = Number.parseFloat(styles.getPropertyValue('--form-crop-width'));
+        const geometry = syncFormGeometry();
         const fallbackCropHeight = Number.parseFloat(styles.getPropertyValue('--form-crop-height'));
         const cropHeight = measuredCropHeight ?? fallbackCropHeight;
-        if (!cropWidth || !cropHeight) return;
+        if (!geometry || !cropHeight) return;
 
-        const scale = Math.min(1, stage.clientWidth / cropWidth);
+        const scale = geometry.useNativeWidth
+          ? 1
+          : Math.min(1, stage.clientWidth / geometry.cropWidth);
         scaleLayer.style.height = `${cropHeight}px`;
         clipLayer.style.height = `${cropHeight}px`;
         scaleLayer.style.transform = `scale(${scale})`;
@@ -440,16 +477,13 @@ const packageItems = [
           // fixiert. Selbst wenn Mobile Safari den Frame trotz deaktiviertem
           // Scrolling verschieben will, kann dadurch kein alter Seiteninhalt
           // oberhalb des Formulars sichtbar werden.
-          const frameStyles = window.getComputedStyle(frame);
-          const panelLeft = Math.max(0, -Number.parseFloat(frameStyles.left));
-          const cropWidth = Number.parseFloat(
-            window.getComputedStyle(stage).getPropertyValue('--form-crop-width'),
-          );
+          const geometry = syncFormGeometry();
+          if (!geometry) return;
           if (frameDocument.body) frameDocument.body.style.visibility = 'hidden';
           checkoutPanel.style.position = 'fixed';
           checkoutPanel.style.top = '0';
-          checkoutPanel.style.left = `${panelLeft}px`;
-          checkoutPanel.style.width = `${cropWidth}px`;
+          checkoutPanel.style.left = `${geometry.panelLeft}px`;
+          checkoutPanel.style.width = `${geometry.cropWidth}px`;
           checkoutPanel.style.margin = '0';
           checkoutPanel.style.zIndex = '1';
           checkoutPanel.style.visibility = 'visible';
@@ -470,9 +504,15 @@ const packageItems = [
           const bottomTrim = Number.parseFloat(
             styles.getPropertyValue('--form-crop-bottom-trim'),
           ) || 0;
+          const panelBounds = checkoutPanel.getBoundingClientRect();
+          // scrollHeight erfasst auch den Rechtstext, falls Systeme.io ihn
+          // knapp außerhalb der normalen Kartenbox positioniert. Es wird
+          // bewusst kein fixer Puffer addiert: Der sichtbare Ausschnitt soll
+          // bei Karte und PayPal exakt an der weißen Formularbox enden.
+          const completePanelHeight = Math.max(panelBounds.height, checkoutPanel.scrollHeight);
           const nextCropHeight = Math.max(
             1,
-            Math.ceil(checkoutPanel.getBoundingClientRect().height - bottomTrim),
+            Math.ceil(completePanelHeight - bottomTrim),
           );
 
           if (measuredCropHeight === undefined || Math.abs(measuredCropHeight - nextCropHeight) > 0.5) {
@@ -483,6 +523,11 @@ const packageItems = [
           // In der lokalen Entwicklung ist das Formular cross-origin. Dort
           // bleibt die bewährte statische Fallback-Höhe aktiv.
         }
+      };
+
+      const queueViewportUpdate = () => {
+        queueScaleUpdate();
+        queueContentHeightUpdate();
       };
 
       const queueContentHeightUpdate = () => {
@@ -542,9 +587,10 @@ const packageItems = [
         }
       });
       frame.src = formUrl.href;
-      window.addEventListener('resize', queueScaleUpdate, { passive: true });
-      window.addEventListener('orientationchange', queueScaleUpdate, { passive: true });
-      window.visualViewport?.addEventListener('resize', queueScaleUpdate, { passive: true });
+      window.addEventListener('resize', queueViewportUpdate, { passive: true });
+      window.addEventListener('orientationchange', queueViewportUpdate, { passive: true });
+      window.visualViewport?.addEventListener('resize', queueViewportUpdate, { passive: true });
+      nativeFormLayout.addEventListener('change', queueViewportUpdate);
       updateScale();
     });
   };
