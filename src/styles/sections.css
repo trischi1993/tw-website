@@ -811,18 +811,17 @@ html.has-motion .results__track { height: 200vh; }
   .vhero__controls [data-action='replay'] svg { width: 1rem; height: 1rem; }
 }
 @media (max-width: 767px) {
-  .vhero__inner { min-height: auto; padding-block: 8rem; }
-  .vhero__grid { column-gap: 1rem; row-gap: 1rem; }
+  /* Ab Mobile-Querformat untereinander: Bei knapp mehr als 479px war die
+     bisherige Zweispaltenansicht zu schmal und quetschte Headline und Mockup. */
+  .vhero__inner { min-height: auto; padding-block: 8rem 4rem; }
+  .vhero__grid { grid-template-columns: 1fr; column-gap: 3rem; row-gap: 3rem; }
   .vhero__buttons { margin-top: 1.5rem; }
-  .vhero__phone { width: 10rem; }
+  .vhero__phone { width: min(70%, 18rem); margin-inline: 0; }
   .vhero__video { border-radius: 2.3rem; width: calc(100% - 0.25rem); }
 }
 @media (max-width: 479px) {
-  .vhero__inner { padding-bottom: 4rem; }
-  .vhero__grid { grid-template-columns: 1fr; column-gap: 3rem; row-gap: 3rem; }
   .vhero__content { max-width: 20rem; }
   .vhero__buttons { width: 100%; }
-  .vhero__phone { width: 70%; margin-inline: 0; }
 }
 
 /* ================= Modul-Block (Process-Step + 1:1 Coaching) ===============
@@ -1098,13 +1097,14 @@ html.has-motion .ahero__wipe { display: block; }
   .ahero__socials { margin-top: 2.5rem; }
 }
 @media (max-width: 767px) {
-  .ahero__inner { min-height: auto; padding-block: 8rem; }
-  .ahero__grid { column-gap: 1rem; row-gap: 1rem; }
+  /* Gleicher Umbruch wie beim AIO-Hero, damit beide Seiten im schmalen
+     Zwischenbereich nicht in zwei gequetschten Spalten stehen. */
+  .ahero__inner { min-height: auto; padding-block: 8rem 4rem; }
+  .ahero__grid { grid-template-columns: 1fr; column-gap: 3rem; row-gap: 3rem; }
+  .ahero__media { width: 100%; max-width: 30rem; }
   .ahero__socials { margin-top: 1.5rem; }
 }
 @media (max-width: 479px) {
-  .ahero__inner { padding-bottom: 4rem; }
-  .ahero__grid { grid-template-columns: 1fr; column-gap: 3rem; row-gap: 3rem; }
   .ahero__content { max-width: 20rem; }
   .ahero__wipe { inset: auto auto 0 0; }
 }
