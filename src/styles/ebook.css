@@ -1673,7 +1673,15 @@
   .ebook-hero__copy { font-size: var(--text-base); }
   .ebook-hero__facts { gap: 1rem; }
   .ebook-hero__action { align-items: flex-start; flex-direction: column; }
-  .ebook-hero__stamp { top: 5%; right: 1%; width: 4.6rem; padding: 0.45rem; font-size: 0.58rem; }
+  .ebook-hero__stamp {
+    top: 5%;
+    right: 1%;
+    width: 4.6rem;
+    padding: 0.45rem;
+    font-size: 0.58rem;
+    animation: none;
+    will-change: auto;
+  }
   .ebook-intro, .ebook-author { padding-block: 6rem; }
   .ebook-benefits, .ebook-chapters, .ebook-bundle, .ebook-audience, .ebook-reviews { padding-block: 6rem; }
   .ebook-intro__copy { margin-left: 0; }

@@ -13,33 +13,57 @@ export function init(_mm: gsap.MatchMedia): void {
   const hero = document.querySelector<HTMLElement>('[data-ebook-hero]');
   if (!hero) return;
 
-  const headings = hero.querySelectorAll<HTMLElement>('[data-ebook-heading]');
-  const intros = hero.querySelectorAll<HTMLElement>('[data-ebook-intro]');
+  const heading = hero.querySelector<HTMLElement>('[data-ebook-heading]');
+  const intro = hero.querySelector<HTMLElement>('[data-ebook-intro]');
   const facts = hero.querySelector<HTMLElement>('[data-ebook-facts]');
   const buttons = hero.querySelector<HTMLElement>('[data-ebook-buttons]');
   const visual = hero.querySelector<HTMLElement>('[data-ebook-visual]');
+  const visualImage = visual?.querySelector<HTMLImageElement>(':scope > img');
+  const stamp = visual?.querySelector<HTMLElement>('.ebook-hero__stamp');
   const logoLines = document.querySelectorAll<HTMLElement>('[data-nav-logo-line]');
   const navRight = document.querySelector<HTMLElement>('[data-nav-right]');
+  const isMobile = window.matchMedia('(max-width: 767px)').matches;
 
-  [...headings, ...intros, facts, buttons, visual, navRight].forEach((element) => {
+  [heading, intro, facts, buttons, visual, navRight].forEach((element) => {
     element?.setAttribute('data-revealed', '');
   });
   logoLines.forEach((line) => line.setAttribute('data-revealed', ''));
 
-  if (headings.length) gsap.set(headings, { opacity: 0, x: '2rem' });
-  if (intros.length) gsap.set(intros, { opacity: 0, x: '2rem' });
-  if (facts) gsap.set(facts, { opacity: 0, x: '2rem' });
-  if (buttons) gsap.set(buttons, { opacity: 0, x: '2rem' });
-  if (visual) gsap.set(visual, { opacity: 0 });
+  const slideTargets = [heading, intro, facts, buttons].filter(
+    (element): element is HTMLElement => Boolean(element),
+  );
+  if (slideTargets.length) {
+    gsap.set(slideTargets, {
+      opacity: 0,
+      x: '2rem',
+      force3D: true,
+      willChange: 'transform, opacity',
+    });
+  }
+  if (visual) gsap.set(visual, { opacity: 0, willChange: 'opacity' });
+  if (isMobile && stamp) {
+    gsap.set(stamp, {
+      opacity: 0,
+      y: '0.5rem',
+      scale: 0.9,
+      rotation: -3,
+      force3D: true,
+      willChange: 'transform, opacity',
+    });
+  }
   if (navRight) gsap.set(navRight, { opacity: 0, x: '2.5rem', force3D: true });
 
   logoLines.forEach((line) => {
-    const height = line.offsetHeight;
-    if (!height) return;
     gsap.fromTo(
       line,
-      { height: 0 },
-      { height, duration: 0.5, delay: 0.1, ease: EASE.outQuart, clearProps: 'height' },
+      { scaleY: 0, transformOrigin: '50% 50%' },
+      {
+        scaleY: 1,
+        duration: 0.5,
+        delay: 0.1,
+        ease: EASE.outQuart,
+        clearProps: 'transform,transformOrigin',
+      },
     );
   });
 
@@ -47,23 +71,86 @@ export function init(_mm: gsap.MatchMedia): void {
     gsap.to(navRight, { opacity: 1, duration: 1.2, delay: 0.3, ease: EASE.ease });
     gsap.to(navRight, { x: 0, duration: 1, delay: 0.3, ease: EASE.outQuart, force3D: true });
   }
-  if (headings.length) {
-    gsap.to(headings, { opacity: 1, duration: 0.75, delay: 0.4, ease: EASE.ease });
-    gsap.to(headings, { x: 0, duration: 0.75, delay: 0.4, ease: EASE.outQuart });
+  if (heading) {
+    gsap.to(heading, { opacity: 1, duration: 0.75, delay: 0.4, ease: EASE.ease });
+    gsap.to(heading, {
+      x: 0,
+      duration: 0.75,
+      delay: 0.4,
+      ease: EASE.outQuart,
+      clearProps: 'transform,willChange',
+    });
   }
-  if (intros.length) {
-    gsap.to(intros, { opacity: 1, duration: 0.75, delay: 0.6, ease: EASE.ease });
-    gsap.to(intros, { x: 0, duration: 0.75, delay: 0.6, ease: EASE.outQuart });
+  if (intro) {
+    gsap.to(intro, { opacity: 1, duration: 0.75, delay: 0.6, ease: EASE.ease });
+    gsap.to(intro, {
+      x: 0,
+      duration: 0.75,
+      delay: 0.6,
+      ease: EASE.outQuart,
+      clearProps: 'transform,willChange',
+    });
   }
   if (facts) {
     gsap.to(facts, { opacity: 1, duration: 0.75, delay: 0.8, ease: EASE.ease });
-    gsap.to(facts, { x: 0, duration: 0.75, delay: 0.8, ease: EASE.outQuart });
+    gsap.to(facts, {
+      x: 0,
+      duration: 0.75,
+      delay: 0.8,
+      ease: EASE.outQuart,
+      clearProps: 'transform,willChange',
+    });
   }
   if (buttons) {
     gsap.to(buttons, { opacity: 1, duration: 0.5, delay: 1, ease: EASE.ease });
-    gsap.to(buttons, { x: 0, duration: 0.75, delay: 1, ease: EASE.outQuart });
+    gsap.to(buttons, {
+      x: 0,
+      duration: 0.75,
+      delay: 1,
+      ease: EASE.outQuart,
+      clearProps: 'transform,willChange',
+    });
   }
-  if (visual) gsap.to(visual, { opacity: 1, duration: 0.5, delay: 1.3, ease: EASE.ease });
+
+  const revealVisual = () => {
+    if (visual) {
+      gsap.to(visual, {
+        opacity: 1,
+        duration: 0.5,
+        ease: EASE.ease,
+        clearProps: 'willChange',
+      });
+    }
+    if (isMobile && stamp) {
+      gsap.to(stamp, { opacity: 1, duration: 0.55, ease: EASE.ease });
+      gsap.to(stamp, {
+        y: 0,
+        scale: 1,
+        rotation: 8,
+        duration: 0.75,
+        ease: EASE.outQuart,
+        clearProps: 'transform,willChange',
+      });
+    }
+  };
+
+  if (isMobile) {
+    const decoded = visualImage?.decode
+      ? visualImage.decode().catch(() => undefined)
+      : Promise.resolve();
+    const choreographyDelay = new Promise<void>((resolve) => {
+      window.setTimeout(resolve, 1300);
+    });
+    void Promise.all([decoded, choreographyDelay]).then(revealVisual);
+  } else if (visual) {
+    gsap.to(visual, {
+      opacity: 1,
+      duration: 0.5,
+      delay: 1.3,
+      ease: EASE.ease,
+      clearProps: 'willChange',
+    });
+  }
 }
 
 /** Bildet beim Wechsel zwischen Desktop-/Tablet-/Mobile-Breakpoints dieselbe
@@ -78,7 +165,7 @@ export function restartNavbar(): void {
 
   logoLines.forEach((line) => {
     responsiveNavbarAnimations.push(line.animate(
-      [{ height: '0px' }, { height: '2rem' }],
+      [{ transform: 'scaleY(0)' }, { transform: 'scaleY(1)' }],
       {
         duration: 500,
         delay: 100,
