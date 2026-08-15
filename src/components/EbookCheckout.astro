@@ -307,6 +307,28 @@ const packageItems = [
         '[tabindex]:not([tabindex="-1"])',
       ].join(',');
 
+      const directInputSelector = [
+        'input',
+        'textarea',
+        'select',
+        'iframe',
+        '[contenteditable="true"]',
+      ].join(',');
+
+      const isTextEntryControl = (control: HTMLElement) => {
+        const tagName = control.tagName;
+        if (tagName === 'TEXTAREA' || tagName === 'SELECT' || control.isContentEditable) {
+          return true;
+        }
+        if (tagName !== 'INPUT') return false;
+
+        const inputType = control.getAttribute('type')?.toLowerCase() ?? 'text';
+        return ![
+          'button', 'checkbox', 'radio', 'submit', 'reset', 'image', 'file', 'range', 'color',
+          'hidden',
+        ].includes(inputType);
+      };
+
       const updateScrollShield = () => {
         scrollShieldFrame = undefined;
         if (!scrollShield || !scrollShieldPath) return;
@@ -325,12 +347,13 @@ const packageItems = [
         const height = stageRect.height;
         const padding = 5;
 
-        // Sichere Zahlungsfelder werden von Stripe/PayPal nochmals als eigene
-        // iframes eingebettet. Nur diese Bereiche müssen echte Löcher behalten;
-        // alle normalen Systeme.io-Felder aktivieren wir per bewusstem Tap.
+        // Texteingaben brauchen den echten nativen Tap im iframe. Ein aus dem
+        // Elterndokument nachgebauter focus()/click() verliert auf mobilen
+        // Browsern beim Öffnen der Tastatur sofort wieder den Fokus. Sichere
+        // Stripe-/PayPal-Felder bleiben als eigene iframes ebenfalls direkt.
         const controlElements = Array.from(
-          observedCheckoutPanel.querySelectorAll<HTMLIFrameElement>('iframe'),
-        );
+          observedCheckoutPanel.querySelectorAll<HTMLElement>(directInputSelector),
+        ).filter((element) => element.tagName === 'IFRAME' || isTextEntryControl(element));
 
         const holes = controlElements.flatMap((element) => {
           const rect = element.getBoundingClientRect();
@@ -433,11 +456,7 @@ const packageItems = [
           if (!control || control.tagName === 'IFRAME') return;
 
           const tagName = control.tagName;
-          const inputType = control.getAttribute('type')?.toLowerCase();
-          const textInput = tagName === 'TEXTAREA' || tagName === 'SELECT' ||
-            (tagName === 'INPUT' && ![
-              'button', 'checkbox', 'radio', 'submit', 'reset', 'image', 'file', 'range', 'color',
-            ].includes(inputType ?? 'text')) || control.isContentEditable;
+          const textInput = isTextEntryControl(control);
 
           if (textInput) {
             control.focus({ preventScroll: true });
@@ -630,6 +649,16 @@ const packageItems = [
       };
 
       const queueViewportUpdate = () => {
+        try {
+          const activeControl = frame.contentDocument?.activeElement as HTMLElement | null;
+          // Das Einblenden der Handytastatur verkleinert den sichtbaren
+          // Viewport. Solange ein Eingabefeld aktiv ist, darf dieser reine
+          // Tastatur-Resize das iframe nicht neu vermessen oder umpositionieren.
+          if (activeControl && isTextEntryControl(activeControl)) return;
+        } catch {
+          // Cross-origin-Fallback in der lokalen Astro-Entwicklung.
+        }
+
         queueScaleUpdate();
         queueContentHeightUpdate();
       };
