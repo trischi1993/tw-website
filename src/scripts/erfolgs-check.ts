@@ -1223,6 +1223,17 @@ function initialiseCheck(root: HTMLElement) {
     });
   }
 
+  function positionStageBeforeMobileCollapse() {
+    if (window.matchMedia(FINE_POINTER).matches) return;
+
+    // Die Lead-Seite ist auf dem Handy deutlich höher als eine Frageseite.
+    // Würde ihr Inhalt zuerst ersetzt, korrigiert Safari die nun zu große alte
+    // Scrollposition kurz sichtbar, bevor focusStage im nächsten Frame greift.
+    // Vor dem DOM-Tausch positionieren, damit Frage 18 ohne Zwischenbild wie
+    // jeder andere Rücksprung eingeblendet wird.
+    root.scrollIntoView({ behavior: 'instant', block: 'start' });
+  }
+
   function animateUnlockList() {
     const panel = stageElement.querySelector<HTMLElement>('[data-check-unlock-panel]');
     if (!panel) return;
@@ -1683,6 +1694,7 @@ function initialiseCheck(root: HTMLElement) {
     }
     if (target.closest('[data-check-lead-back]')) {
       currentQuestion = ERFOLGS_CHECK_QUESTIONS.length - 1;
+      positionStageBeforeMobileCollapse();
       renderQuestion();
       return;
     }
