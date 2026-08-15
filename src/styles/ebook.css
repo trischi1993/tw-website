@@ -543,7 +543,7 @@
 }
 
 .ebook-author__stats div { display: flex; flex-direction: column; }
-.ebook-author__stats dt { color: var(--brand); font-size: 1.8rem; font-weight: 500; }
+.ebook-author__stats dt { color: var(--brand-readable); font-size: 1.8rem; font-weight: 500; }
 .ebook-author__stats dd { color: var(--ink-3); font-size: var(--text-xs); }
 
 .ebook-chapters { padding-block: 9rem; }
