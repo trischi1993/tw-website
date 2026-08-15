@@ -191,6 +191,7 @@ const packageItems = [
       let shieldPointerStartedAt = 0;
       let shieldPointerDistance = 0;
       const nativeFormLayout = window.matchMedia('(max-width: 991px)');
+      const nativeButtonHover = window.matchMedia('(hover: hover) and (pointer: fine)');
 
       const showNavigationTransition = (message: string) => {
         if (loadingCopy) loadingCopy.textContent = message;
@@ -315,6 +316,10 @@ const packageItems = [
         '[contenteditable="true"]',
       ].join(',');
 
+      // Systeme.io vergibt für den finalen Kaufbutton dynamische IDs mit
+      // diesem stabilen Präfix und definiert darauf auch seinen :hover-Stil.
+      const paymentButtonSelector = '[id^="paymentbutton-"]';
+
       const isTextEntryControl = (control: HTMLElement) => {
         const tagName = control.tagName;
         if (tagName === 'TEXTAREA' || tagName === 'SELECT' || control.isContentEditable) {
@@ -354,6 +359,11 @@ const packageItems = [
         const controlElements = Array.from(
           observedCheckoutPanel.querySelectorAll<HTMLElement>(directInputSelector),
         ).filter((element) => element.tagName === 'IFRAME' || isTextEntryControl(element));
+        if (nativeButtonHover.matches) {
+          controlElements.push(
+            ...observedCheckoutPanel.querySelectorAll<HTMLElement>(paymentButtonSelector),
+          );
+        }
 
         const holes = controlElements.flatMap((element) => {
           const rect = element.getBoundingClientRect();
@@ -715,6 +725,7 @@ const packageItems = [
       window.addEventListener('orientationchange', queueViewportUpdate, { passive: true });
       window.visualViewport?.addEventListener('resize', queueViewportUpdate, { passive: true });
       nativeFormLayout.addEventListener('change', queueViewportUpdate);
+      nativeButtonHover.addEventListener('change', queueScrollShieldUpdate);
       updateScale();
     });
   };
