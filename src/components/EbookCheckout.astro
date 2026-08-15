@@ -686,9 +686,11 @@ const packageItems = [
 
           // Das eingebettete Formular darf keinen eigenen Scroll-Container
           // bilden. Die komplette Checkoutkarte wird in der Höhe freigegeben;
-          // gescrollt wird ausschließlich auf der umgebenden Bestellseite.
+          // gescrollt wird ausschließlich auf der umgebenden Bestellseite. Die
+          // vertikale Scrollkette bleibt dafür offen, damit Mausradbewegungen
+          // über direkten Feldern und Zahlungs-iframes nach außen weiterlaufen.
           frameDocument.documentElement.style.overflow = 'hidden';
-          frameDocument.documentElement.style.overscrollBehavior = 'none';
+          frameDocument.documentElement.style.overscrollBehaviorY = 'auto';
           if (frameDocument.body) {
             frameDocument.body.style.overflow = 'hidden';
           }
