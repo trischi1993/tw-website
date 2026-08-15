@@ -163,23 +163,11 @@
   width: 5.3rem;
   aspect-ratio: 1;
   display: grid;
-  place-items: center;
-  overflow: hidden;
-  isolation: isolate;
-  padding: 0.55rem;
-  border: 1px solid color-mix(in srgb, white 32%, transparent);
+  padding: 0.16rem;
+  border: 2px solid var(--brand);
   border-radius: 50%;
-  background: var(--brand);
-  color: white;
-  box-shadow:
-    0 1rem 2.5rem color-mix(in srgb, var(--brand) 36%, transparent),
-    inset 0 1px 0 #ffffff45;
-  font-size: 0.7rem;
-  font-weight: 600;
-  letter-spacing: 0.11em;
-  line-height: 1.25;
-  text-align: center;
-  text-transform: uppercase;
+  background: transparent;
+  box-shadow: 0 1rem 2.5rem color-mix(in srgb, var(--brand) 36%, transparent);
   transform: rotate(8deg);
   transition:
     transform 360ms var(--ease-out-expo),
@@ -189,7 +177,33 @@
   will-change: transform;
 }
 
-.ebook-hero__stamp::after {
+.ebook-hero__stamp-content {
+  position: relative;
+  width: 100%;
+  height: 100%;
+  display: grid;
+  place-items: center;
+  overflow: hidden;
+  isolation: isolate;
+  padding: 0.4rem;
+  border-radius: 50%;
+  background: radial-gradient(
+    circle at 30% 23%,
+    var(--brand-readable) 0%,
+    color-mix(in srgb, var(--brand-readable) 42%, var(--brand)) 23%,
+    var(--brand) 58%
+  );
+  color: white;
+  box-shadow: inset 0 0.08rem 0.18rem color-mix(in srgb, var(--brand-readable) 42%, transparent);
+  font-size: 0.7rem;
+  font-weight: 600;
+  letter-spacing: 0.11em;
+  line-height: 1.25;
+  text-align: center;
+  text-transform: uppercase;
+}
+
+.ebook-hero__stamp-content::after {
   content: '';
   position: absolute;
   z-index: 1;
@@ -209,14 +223,13 @@
 
 .ebook-hero__stamp:hover {
   transform: translateY(-0.2rem) rotate(5.5deg) scale(1.035);
-  border-color: color-mix(in srgb, white 52%, transparent);
+  border-color: var(--brand-readable);
   box-shadow:
     0 1.3rem 3rem color-mix(in srgb, var(--brand) 48%, transparent),
-    0 0 0 0.24rem color-mix(in srgb, var(--brand) 13%, transparent),
-    inset 0 1px 0 #ffffff66;
+    0 0 0 0.24rem color-mix(in srgb, var(--brand) 13%, transparent);
 }
 
-.ebook-hero__stamp:hover::after {
+.ebook-hero__stamp:hover .ebook-hero__stamp-content::after {
   transform: translateX(145%) rotate(8deg);
 }
 
@@ -530,7 +543,7 @@
 }
 
 .ebook-author__stats div { display: flex; flex-direction: column; }
-.ebook-author__stats dt { color: var(--brand-readable); font-size: 1.8rem; font-weight: 500; }
+.ebook-author__stats dt { color: var(--brand); font-size: 1.8rem; font-weight: 500; }
 .ebook-author__stats dd { color: var(--ink-3); font-size: var(--text-xs); }
 
 .ebook-chapters { padding-block: 9rem; }
@@ -1683,11 +1696,11 @@
     top: 5%;
     right: 1%;
     width: 4.6rem;
-    padding: 0.45rem;
-    font-size: 0.58rem;
+    padding: 0.14rem;
     animation: none;
     will-change: auto;
   }
+  .ebook-hero__stamp-content { padding: 0.34rem; font-size: 0.58rem; }
   .ebook > section:not(.ebook-hero):not(.ebook-trust) {
     content-visibility: auto;
     contain-intrinsic-size: auto 48rem;
@@ -1821,7 +1834,7 @@
 @media (prefers-reduced-motion: reduce) {
   .ebook-hero__visual > img { filter: none; }
   .ebook-hero__stamp { animation: none; transition: none; }
-  .ebook-hero__stamp::after { display: none; }
+  .ebook-hero__stamp-content::after { display: none; }
   .ebook-hero__stamp:hover { transform: rotate(8deg); }
   .ebook-trust__track { animation-play-state: paused; }
   .ebook-audience__image { transition: none; }
@@ -1854,24 +1867,19 @@
   0% {
     opacity: 0;
     transform: translateY(0.75rem) rotate(-3deg) scale(0.82);
-    box-shadow:
-      0 0 0 color-mix(in srgb, var(--brand) 0%, transparent),
-      inset 0 1px 0 #ffffff24;
+    box-shadow: 0 0 0 color-mix(in srgb, var(--brand) 0%, transparent);
   }
   58% {
     opacity: 1;
     transform: translateY(-0.12rem) rotate(10deg) scale(1.055);
     box-shadow:
       0 1.45rem 3.2rem color-mix(in srgb, var(--brand) 52%, transparent),
-      0 0 0 0.32rem color-mix(in srgb, var(--brand) 15%, transparent),
-      inset 0 1px 0 #ffffff66;
+      0 0 0 0.32rem color-mix(in srgb, var(--brand) 15%, transparent);
   }
   100% {
     opacity: 1;
     transform: rotate(8deg) scale(1);
-    box-shadow:
-      0 1rem 2.5rem color-mix(in srgb, var(--brand) 36%, transparent),
-      inset 0 1px 0 #ffffff45;
+    box-shadow: 0 1rem 2.5rem color-mix(in srgb, var(--brand) 36%, transparent);
   }
 }
 
