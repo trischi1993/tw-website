@@ -305,26 +305,48 @@
 .ebook-checkout__loading {
   position: absolute;
   z-index: 0;
-  inset: 7rem 0 auto;
+  inset: 0;
   display: flex;
   flex-direction: column;
+  justify-content: flex-start;
   align-items: center;
   gap: 1rem;
+  padding: 7rem 1.5rem 1.5rem;
+  background: white;
   color: #5f6268;
   font-size: var(--text-sm);
+  text-align: center;
   transition: opacity 180ms ease;
 }
 
-.ebook-checkout__loading span {
+.ebook-checkout__loading-spinner {
   width: 2.25rem;
   aspect-ratio: 1;
+  flex: 0 0 auto;
   border: 2px solid #00000018;
   border-top-color: var(--brand-readable);
   border-radius: 50%;
   animation: ebook-checkout-spin 800ms linear infinite;
 }
 
-.ebook-checkout__form-stage.is-loaded .ebook-checkout__loading { opacity: 0; }
+.ebook-checkout__form-stage.is-loaded .ebook-checkout__loading {
+  visibility: hidden;
+  opacity: 0;
+}
+
+.ebook-checkout__form-stage.is-frame-navigating .ebook-checkout__loading,
+.ebook-checkout__form-stage.is-redirecting .ebook-checkout__loading {
+  z-index: 3;
+  visibility: visible;
+  opacity: 1;
+}
+
+.ebook-checkout__form-stage.is-frame-navigating .ebook-checkout__form-scale,
+.ebook-checkout__form-stage.is-redirecting .ebook-checkout__form-scale,
+.ebook-checkout__form-stage.is-frame-navigating .ebook-checkout__scroll-shield,
+.ebook-checkout__form-stage.is-redirecting .ebook-checkout__scroll-shield {
+  visibility: hidden;
+}
 
 .ebook-checkout__scroll-shield {
   position: absolute;
@@ -390,7 +412,7 @@
 }
 
 @media (prefers-reduced-motion: reduce) {
-  .ebook-checkout__loading span { animation: none; }
+  .ebook-checkout__loading-spinner { animation: none; }
 }
 
 @keyframes ebook-checkout-spin { to { transform: rotate(1turn); } }

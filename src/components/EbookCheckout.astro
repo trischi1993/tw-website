@@ -117,9 +117,9 @@ const packageItems = [
         </p>
 
         <div class="ebook-checkout__form-stage" data-checkout-form-stage>
-          <div class="ebook-checkout__loading" aria-hidden="true">
-            <span></span>
-            Sicheres Bestellformular wird geladen …
+          <div class="ebook-checkout__loading" role="status" aria-live="polite">
+            <span class="ebook-checkout__loading-spinner" aria-hidden="true"></span>
+            <span data-checkout-loading-copy>Sicheres Bestellformular wird geladen …</span>
           </div>
           <div class="ebook-checkout__form-scale" data-checkout-form-scale>
             <div class="ebook-checkout__form-clip">
@@ -155,6 +155,7 @@ const packageItems = [
       const scaleLayer = stage.querySelector<HTMLElement>('[data-checkout-form-scale]');
       const clipLayer = stage.querySelector<HTMLElement>('.ebook-checkout__form-clip');
       const frame = stage.querySelector<HTMLIFrameElement>('[data-checkout-form-frame]');
+      const loadingCopy = stage.querySelector<HTMLElement>('[data-checkout-loading-copy]');
       const scrollShield = stage.querySelector<SVGSVGElement>('[data-checkout-scroll-shield]');
       const scrollShieldPath = stage.querySelector<SVGPathElement>(
         '[data-checkout-scroll-shield-path]',
@@ -181,6 +182,8 @@ const packageItems = [
       let frameContentObserver: MutationObserver | undefined;
       let contentHeightRetry: number | undefined;
       let contentHeightAttempts = 0;
+      let navigationWatchFrame: number | undefined;
+      let fullPageRedirectStarted = false;
       let scrollShieldFrame: number | undefined;
       let shieldPointerId: number | undefined;
       let shieldPointerStartX = 0;
@@ -188,6 +191,106 @@ const packageItems = [
       let shieldPointerStartedAt = 0;
       let shieldPointerDistance = 0;
       const nativeFormLayout = window.matchMedia('(max-width: 991px)');
+
+      const showNavigationTransition = (message: string) => {
+        if (loadingCopy) loadingCopy.textContent = message;
+        stage.classList.add('is-frame-navigating');
+      };
+
+      const redirectToFullThankYouUrl = (frameLocation: {
+        origin: string;
+        pathname: string;
+        search: string;
+        hash: string;
+      }) => {
+        if (fullPageRedirectStarted) return true;
+        if (frameLocation.origin !== window.location.origin) return false;
+        if (!/^\/dankeseite\/?$/.test(frameLocation.pathname)) return false;
+
+        fullPageRedirectStarted = true;
+        showNavigationTransition('Geschafft! Deine Dankesseite wird geladen …');
+        stage.classList.add('is-redirecting');
+        window.location.assign(
+          `${frameLocation.pathname}${frameLocation.search}${frameLocation.hash}`,
+        );
+        return true;
+      };
+
+      const redirectToFullThankYouPage = () => {
+        try {
+          const frameLocation = frame.contentWindow?.location;
+          return frameLocation ? redirectToFullThankYouUrl(frameLocation) : false;
+        } catch {
+          // Im lokalen Dev-Modus kann das externe Systeme.io-Formular bewusst
+          // cross-origin sein. Dann ist eine frühe Parent-Erkennung nicht möglich.
+          return false;
+        }
+      };
+
+      const watchFrameNavigation = () => {
+        navigationWatchFrame = undefined;
+        if (redirectToFullThankYouPage()) return;
+        navigationWatchFrame = requestAnimationFrame(watchFrameNavigation);
+      };
+
+      const startFrameNavigationWatch = () => {
+        if (navigationWatchFrame !== undefined || fullPageRedirectStarted) return;
+
+        try {
+          const frameLocation = frame.contentWindow?.location;
+          if (!frameLocation || frameLocation.origin !== window.location.origin) return;
+        } catch {
+          return;
+        }
+
+        navigationWatchFrame = requestAnimationFrame(watchFrameNavigation);
+      };
+
+      const stopFrameNavigationWatch = () => {
+        if (navigationWatchFrame === undefined) return;
+        cancelAnimationFrame(navigationWatchFrame);
+        navigationWatchFrame = undefined;
+      };
+
+      const guardFrameNavigation = () => {
+        try {
+          const frameWindow = frame.contentWindow;
+          if (!frameWindow || frameWindow.location.origin !== window.location.origin) return;
+
+          // Noch bevor der neue iframe-Inhalt gezeichnet wird, verschwindet das
+          // Formular hinter einem neutralen Ladezustand. Die parallele
+          // Navigationsprüfung erkennt `/dankeseite` bereits beim Wechsel der
+          // URL und hebt sie sofort auf die ganze Browserseite an.
+          const beginFrameNavigation = () => {
+            if (!fullPageRedirectStarted) {
+              showNavigationTransition('Bestellung wird abgeschlossen …');
+            }
+            startFrameNavigationWatch();
+          };
+          frameWindow.addEventListener('beforeunload', beginFrameNavigation, { once: true });
+          frameWindow.addEventListener('pagehide', beginFrameNavigation, { once: true });
+
+          // Moderne Browser melden die Zieladresse schon bei Auslösung der
+          // Navigation. So kann die Dankeseite dort ohne einen einzigen
+          // Zwischen-Render direkt im Hauptfenster geöffnet werden.
+          const frameNavigation = (frameWindow as Window & { navigation?: EventTarget }).navigation;
+          frameNavigation?.addEventListener('navigate', (event) => {
+            const destinationUrl = (event as Event & {
+              destination?: { url?: string };
+            }).destination?.url;
+            if (!destinationUrl) return;
+
+            try {
+              redirectToFullThankYouUrl(new URL(destinationUrl));
+            } catch {
+              // Ungültige oder nicht lesbare Zieladresse: Die load-Erkennung
+              // bleibt als Fallback aktiv.
+            }
+          });
+        } catch {
+          // Cross-origin-Fallback in der lokalen Astro-Entwicklung.
+        }
+      };
 
       const formControlSelector = [
         'input',
@@ -564,28 +667,19 @@ const packageItems = [
 
       frame.addEventListener('load', () => {
         if (!frame.src || frame.src === 'about:blank') return;
+
+        // Beim erfolgreichen Kauf hat die URL schon vor dem vollständigen
+        // Laden der Systeme.io-Dankeseite gewechselt. Die Prüfung steht daher
+        // bewusst vor allen Arbeiten am neuen iframe-Dokument.
+        if (redirectToFullThankYouPage()) return;
+
+        stopFrameNavigationWatch();
+        stage.classList.remove('is-frame-navigating');
         stage.classList.add('is-loaded');
         observeFrameContent();
         queueContentHeightUpdate();
         queueScrollShieldUpdate();
-
-        // Systeme.io schickt nach erfolgreicher Zahlung automatisch zum
-        // nächsten Funnelschritt `/dankeseite`. Da das Formular eingebettet
-        // ist, würde diese Seite sonst nur im beschnittenen Formularbereich
-        // erscheinen. Auf der Live-Domain sind Parent und Frame same-origin;
-        // dann heben wir die Weiterleitung auf die ganze Browserseite an.
-        try {
-          const frameLocation = frame.contentWindow?.location;
-          if (!frameLocation || frameLocation.origin !== window.location.origin) return;
-          if (!/^\/dankeseite\/?$/.test(frameLocation.pathname)) return;
-          window.location.assign(
-            `${frameLocation.pathname}${frameLocation.search}${frameLocation.hash}`,
-          );
-        } catch {
-          // Im lokalen Dev-Modus ist das externe Systeme.io-Formular bewusst
-          // cross-origin. Es bleibt dort voll nutzbar; nur die Parent-Erkennung
-          // ist aus Sicherheitsgründen des Browsers nicht möglich.
-        }
+        guardFrameNavigation();
       });
       frame.src = formUrl.href;
       window.addEventListener('resize', queueViewportUpdate, { passive: true });
