@@ -1301,7 +1301,7 @@ function initialiseCheck(root: HTMLElement) {
     progressTrackElement.setAttribute('aria-valuenow', String(percentage));
   }
 
-  function renderQuestion() {
+  function renderQuestion({ returningFromLead = false } = {}) {
     const question = ERFOLGS_CHECK_QUESTIONS[currentQuestion];
     const area = ERFOLGS_CHECK_AREAS[question.area];
     const selectedAnswer = answers[currentQuestion];
@@ -1321,7 +1321,7 @@ function initialiseCheck(root: HTMLElement) {
     );
 
     stageElement.innerHTML = `
-      <div class="success-check__question-stage">
+      <div class="success-check__question-stage${returningFromLead ? ' is-returning-from-lead' : ''}">
         <div class="success-check__area-banner">
           <span class="success-check__area-icon">${ERFOLGS_CHECK_ICONS[question.area]}</span>
           <div><strong>${area.name}</strong><span>${area.description}</span></div>
@@ -1695,7 +1695,7 @@ function initialiseCheck(root: HTMLElement) {
     if (target.closest('[data-check-lead-back]')) {
       currentQuestion = ERFOLGS_CHECK_QUESTIONS.length - 1;
       positionStageBeforeMobileCollapse();
-      renderQuestion();
+      renderQuestion({ returningFromLead: true });
       return;
     }
     if (target.closest('[data-check-restart]')) {

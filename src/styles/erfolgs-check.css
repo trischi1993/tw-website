@@ -1964,6 +1964,10 @@
 
 @media (hover: none), (pointer: coarse) {
   .success-check__question-stage { animation-duration: 0.22s; }
+  /* Beim Rücksprung von der deutlich längeren Lead-Seite ist die neue Karte
+     bereits korrekt positioniert. Ein erneuter Start bei opacity: 0 erzeugt
+     dort auf mobilen Browsern nur ein sichtbares Blinken. */
+  .success-check__question-stage.is-returning-from-lead { animation: none; }
   .success-check__progress-track span { transition-duration: 0.28s; }
   .success-check__option,
   .success-check__radio,
