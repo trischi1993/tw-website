@@ -374,6 +374,8 @@
 .ebook-benefits { padding-block: 8rem; }
 
 .ebook-benefits__grid {
+  width: 100%;
+  min-width: 0;
   display: grid;
   grid-template-columns: repeat(4, minmax(0, 1fr));
   border-top: 1px solid var(--ebook-border);
@@ -404,6 +406,8 @@
 
 .ebook-benefit {
   position: relative;
+  width: 100%;
+  min-width: 0;
   min-height: 20.5rem;
   display: flex;
   flex-direction: column;
@@ -1701,7 +1705,10 @@
     will-change: auto;
   }
   .ebook-hero__stamp-content { padding: 0.34rem; font-size: 0.58rem; }
-  .ebook > section:not(.ebook-hero):not(.ebook-trust) {
+  /* Die animierten Vorteilskarten bleiben eager gerendert. Chromium kann den
+     ersten Grid-Eintrag sonst beim Aufwecken der Section mit einem veralteten
+     horizontalen Layout zeichnen (sichtbar als fehlender linker Einzug). */
+  .ebook > section:not(.ebook-hero):not(.ebook-trust):not(.ebook-benefits) {
     content-visibility: auto;
     contain-intrinsic-size: auto 48rem;
   }
