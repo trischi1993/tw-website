@@ -87,6 +87,7 @@ const INSERT_FACTORIES: Record<EditorBlockType, () => Record<string, unknown>> =
     _type: 'sectionResults',
     _key: randomKey(),
     name: 'Zahlen & Fakten',
+    subtitle: 'meiner Accounts',
     title: 'Zahlen & Fakten',
     images: [],
   }),

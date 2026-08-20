@@ -17,6 +17,15 @@ export default defineType({
     nameField,
     anchorField,
     defineField({
+      name: 'subtitle',
+      title: t({ en: 'Subtitle', de: 'Unterzeile' }),
+      description: t({
+        en: 'Clarifies whose results are shown below the large title.',
+        de: 'Stellt unterhalb des großen Titels klar, wessen Ergebnisse gezeigt werden.',
+      }),
+      type: 'string',
+    }),
+    defineField({
       name: 'title',
       title: t({ en: 'Title', de: 'Titel' }),
       description: t({
@@ -30,8 +39,8 @@ export default defineType({
       name: 'images',
       title: t({ en: 'Proof cards', de: 'Beweis-Karten' }),
       description: t({
-        en: 'The screenshots fanned out while scrolling (original: 4).',
-        de: 'Die Screenshots, die beim Scrollen aufgefächert werden (Original: 4).',
+        en: 'The screenshots fanned out while scrolling (homepage currently: 6).',
+        de: 'Die Screenshots, die beim Scrollen aufgefächert werden (Startseite aktuell: 6).',
       }),
       type: 'array',
       of: [{ type: 'imageWithAlt' }],

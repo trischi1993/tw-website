@@ -158,18 +158,27 @@ export function buildContent({ img }) {
         _type: 'sectionValueStatement',
         _key: 'value',
         name: 'Statement',
-        text: 'Ich habe Brands mit bis zu 200.000 Followern und über 150 Millionen Views aufgebaut - 100% organisch. Heute zeige ich Menschen und Betrieben, wie sie Social Media gezielt nutzen, um ihre Vision sichtbar zu machen und erfolgreich aufzubauen.',
+        text: 'Ich habe Brands mit bis zu 200.000 Followern und über 150 Millionen Views aufgebaut – 100 % organisch. Heute zeige ich Menschen und Betrieben, wie sie Social Media authentisch und mit System nutzen, um ihre Vision sichtbar zu machen.',
       },
       {
         _type: 'sectionResults',
         _key: 'results',
         name: 'Zahlen & Fakten',
+        subtitle: 'meiner Accounts',
         title: 'Zahlen & Fakten',
         images: [
           img('results-1.avif', 'Instagram-Statistik: organisches Reichweiten-Wachstum'),
           img('results-2.avif', 'Instagram-Statistik: Follower-Entwicklung'),
           img('results-3.avif', 'Instagram-Statistik: Millionen erreichte Konten'),
           img('results-4.avif', 'Instagram-Statistik: virale Beiträge und Views'),
+          img(
+            'results-5.avif',
+            'Instagram-Profil Mindful Stays mit 115.000 Followern und millionenfach angesehenen Reels',
+          ),
+          img(
+            'results-6.avif',
+            'Instagram-Statistik mit über 1,6 Millionen Aufrufen und stark gestiegenen Profilaktivitäten',
+          ),
         ],
       },
       {

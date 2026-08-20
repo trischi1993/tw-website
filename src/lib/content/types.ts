@@ -251,9 +251,10 @@ export interface SectionValueStatement extends SectionBase {
   text: string;
 }
 
-/** „Zahlen & Fakten": geprägter Titel + 4 aufgefächerte Beweis-Karten. */
+/** „Zahlen & Fakten": geprägter Titel + aufgefächerte Beweis-Karten. */
 export interface SectionResults extends SectionBase {
   _type: 'sectionResults';
+  subtitle?: string;
   title: string;
   images: SiteImage[];
 }
