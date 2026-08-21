@@ -1571,7 +1571,7 @@
 
 .ebook-review {
   min-width: 0;
-  min-height: 32rem;
+  min-height: 27rem;
   display: flex;
   flex-direction: column;
   margin: 0;
@@ -1605,7 +1605,7 @@
 .ebook-message-wall {
   position: relative;
   min-width: 0;
-  min-height: 32rem;
+  min-height: 27rem;
   display: grid;
   grid-template-rows: minmax(0, 1fr) auto auto;
   overflow: hidden;
@@ -1653,7 +1653,7 @@
 
 .ebook-message-wall__deck {
   position: relative;
-  min-height: 26rem;
+  min-height: 21rem;
   perspective: 75rem;
   transform-style: preserve-3d;
   cursor: pointer;
