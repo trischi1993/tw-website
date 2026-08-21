@@ -158,8 +158,8 @@
 .ebook-hero__stamp {
   position: absolute;
   z-index: 4;
-  top: 7%;
-  right: 1%;
+  top: 9%;
+  right: 4%;
   width: 5.3rem;
   aspect-ratio: 1;
   display: grid;
@@ -1639,7 +1639,6 @@
   .ebook-hero__grid { grid-template-columns: minmax(0, 1fr); }
   .ebook-hero__content { max-width: 46rem; }
   .ebook-hero__visual { width: min(100%, 44rem); margin-inline: auto; }
-  .ebook-hero__stamp { top: 7%; right: 2%; }
   .ebook-intro { padding-block: 8rem; }
   .ebook-section-head, .ebook-chapters__head { grid-template-columns: 1fr; display: grid; align-items: start; gap: 1.5rem; }
   .ebook-benefits__grid { grid-template-columns: minmax(0, 1fr); }
@@ -1692,8 +1691,6 @@
   .ebook-hero__facts { gap: 1rem; }
   .ebook-hero__action { align-items: flex-start; flex-direction: column; }
   .ebook-hero__stamp {
-    top: 5%;
-    right: 1%;
     width: 4.6rem;
     padding: 0.14rem;
     animation: none;
