@@ -1582,7 +1582,7 @@
 }
 
 .ebook-review.is-featured {
-  border-color: var(--ebook-gold-line);
+  border-color: var(--brand-readable);
   background: linear-gradient(145deg, color-mix(in srgb, var(--brand) 16%, var(--paper)), var(--paper));
 }
 
@@ -1609,7 +1609,7 @@
   display: grid;
   grid-template-rows: minmax(0, 1fr) auto auto;
   overflow: hidden;
-  border: 1px solid color-mix(in srgb, var(--brand) 26%, var(--ebook-border));
+  border: 1px solid var(--brand);
   border-radius: var(--radius-card);
   outline: none;
   background:
@@ -2012,8 +2012,8 @@
   .ebook-audience__grid, .ebook-reviews__showcase { grid-template-columns: 1fr; }
   .ebook-audience__grid article { min-height: 18rem; }
   .ebook-review { min-height: auto; }
-  .ebook-review figcaption { margin-top: 2rem; }
-  .ebook-message-wall { min-height: 34rem; }
+  .ebook-review figcaption { margin-top: 0; padding-top: 1.5rem; }
+  .ebook-message-wall { min-height: 27rem; }
 }
 
 @media (max-width: 767px) {
