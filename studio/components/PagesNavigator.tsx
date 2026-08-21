@@ -4,6 +4,7 @@ import { usePresentationNavigate, usePresentationParams } from 'sanity/presentat
 import { Box, Button, Card, Flex, Label, Spinner, Stack, Text } from '@sanity/ui';
 import { HomeIcon } from '@sanity/icons/Home';
 import { DocumentIcon } from '@sanity/icons/Document';
+import { BookIcon } from '@sanity/icons/Book';
 import type { ComponentType } from 'react';
 
 /**
@@ -33,6 +34,13 @@ type PageLink = {
 // Feste Seiten (Singletons), Reihenfolge wie in der Studio-Navigation.
 const FIXED_PAGES: PageLink[] = [
   { key: 'homePage', title: 'Startseite', href: '/', doc: { type: 'homePage', id: 'homePage' }, icon: HomeIcon },
+  {
+    key: 'ebookPage',
+    title: 'E-Book Landingpage',
+    href: '/e-book/',
+    doc: { type: 'ebookPage', id: 'ebookPage' },
+    icon: BookIcon,
+  },
 ];
 
 const PAGES_QUERY = `*[_type == "page" && defined(slug.current)]{ _id, title, "slug": slug.current } | order(title asc)`;

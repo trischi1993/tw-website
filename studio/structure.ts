@@ -5,13 +5,14 @@ import { DocumentsIcon } from '@sanity/icons/Documents';
 import { CogIcon } from '@sanity/icons/Cog';
 import { CaseIcon } from '@sanity/icons/Case';
 import { DoubleQuoteIcon } from '@sanity/icons/DoubleQuote';
+import { BookIcon } from '@sanity/icons/Book';
 
 /**
  * Die IDs der Singleton-Dokumente. Diese Dokumente existieren genau einmal und
  * werden über eine feste ID adressiert, damit sie nicht dupliziert oder neu
  * angelegt werden können.
  */
-export const SINGLETONS = ['siteSettings', 'homePage'] as const;
+export const SINGLETONS = ['siteSettings', 'homePage', 'ebookPage'] as const;
 
 /**
  * Aufbau der linken Navigation im Studio (einsprachig):
@@ -34,6 +35,17 @@ export const structure: StructureResolver = (S) =>
         .id('homePage')
         .icon(HomeIcon)
         .child(S.document().schemaType('homePage').documentId('homePage').title('Startseite')),
+
+      S.listItem()
+        .title('E-Book Landingpage')
+        .id('ebookPage')
+        .icon(BookIcon)
+        .child(
+          S.document()
+            .schemaType('ebookPage')
+            .documentId('ebookPage')
+            .title('E-Book Landingpage'),
+        ),
 
       S.documentTypeListItem('page').title('Weitere Seiten').icon(DocumentsIcon),
 

@@ -9,6 +9,9 @@ Diese Datei ist die zentrale, modellunabhängige Navigations- und Arbeitsanweisu
 - Cloudflare Worker: `tristanweithaler-prod`; die Website ist live.
 - Sanity-Projekt: `45zc9nhz`, Dataset: `production`.
 - Sanity Studio: `https://tristanweithaler.sanity.studio`.
+- Die E-Book-Landingpage ist als festes Sanity-Singleton `ebookPage` angebunden.
+  Das Layout und der Checkout-Pfad bleiben im Code; redaktionelle Texte,
+  Bilder, Reihenfolgen, Produktangaben, Testimonials und FAQs kommen aus Sanity.
 - Veröffentlichte CMS-Bilder und die fünf AIO-Video-Standbilder werden über
   `cdn.sanity.io` ausgeliefert.
 - Die fünf AIO-Modul-Hintergrundvideos werden über Bunny CDN ausgeliefert.
@@ -29,6 +32,9 @@ Diese Datei ist die zentrale, modellunabhängige Navigations- und Arbeitsanweisu
   Authentifizierung fehlschlägt, stoppen und den Nutzer informieren.
 - Template-Plumbing für Sanity Preview, Click-to-edit, CSP und die zwei
   Cloudflare-Builds nur bei einem ausdrücklich darauf bezogenen Auftrag ändern.
+- Das E-Book-Singleton besitzt einen vollständigen lokalen Fallback aus
+  `shared/ebook-content.mjs`. Den kritischen Pfad `/bestellen/` niemals als
+  frei editierbares CMS-Feld auslagern.
 - Keine Domain-, DNS- oder Custom-Domain-Änderung ohne ausdrückliche Freigabe.
 - Neue Sections halten den dokumentierten Vertrag synchron:
   `types.ts` ↔ `sections.ts` ↔ Studio-Schema ↔ `SectionsList` ↔

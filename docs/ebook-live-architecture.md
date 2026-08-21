@@ -55,6 +55,41 @@ Host ein. Diese Same-Origin-Eigenschaft ist beabsichtigt:
 Darum `/bestellformular` nicht ohne gleichzeitige Überarbeitung und vollständige
 Browser-/Kauftests auf eine andere Domain oder Systeme.io-URL umstellen.
 
+## Sanity-Inhaltsarchitektur
+
+Stand: 21. August 2026
+
+- Die Landingpage wird redaktionell über das feste Sanity-Dokument
+  `ebookPage` im Dataset `production` gepflegt.
+- Das Dokument ist ein Singleton und erscheint im Studio als
+  **E-Book Landingpage**. Es kann weder dupliziert noch gelöscht werden.
+- Bearbeitbar sind SEO, Produktangaben, sichtbare Texte, Bilder, Listen,
+  Testimonials und FAQs. Der Aufbau der Seite bleibt absichtlich fest, damit
+  das conversion-optimierte Design nicht versehentlich umgebaut werden kann.
+- Checkout- und Domainpfade bleiben ausschließlich im Code. Insbesondere
+  `BUY_URL = '/bestellen/'` darf nicht als frei editierbares Sanity-Feld
+  ausgelagert werden.
+- `shared/ebook-content.mjs` ist der vollständige lokale Inhalts-Fallback und
+  zugleich die Quelle für den gezielten Ein-Dokument-Import. Existiert das
+  Sanity-Dokument noch nicht, bleibt die Landingpage dadurch unverändert
+  buildbar und auslieferbar.
+- `npm run ebook:import` im Ordner `studio/` erzeugt und importiert nur
+  `ebookPage`. Dieser Befehl ersetzt keine anderen Website-Dokumente.
+- Die Presentation-Vorschau öffnet das Dokument unter `/e-book/`. Änderungen
+  werden dort über einen sicheren Vollseiten-Refresh sichtbar; die allgemeine
+  Sections-Live-Island ist für dieses feste Sonderlayout nicht zuständig.
+- Die öffentliche E-Book-Seite wird statisch gebaut. Ein Sanity-Publish allein
+  ändert daher den laufenden Worker erst nach einem neuen E-Book-Build und
+  Deployment.
+
+### Veröffentlichungsreihenfolge
+
+1. Inhalt im Studio bearbeiten und veröffentlichen.
+2. `npm run build` ausführen und die E-Book-Seite prüfen.
+3. Erst danach mit `npm run deploy:ebook` den Worker
+   `tristanweithaler-ebook` aktualisieren.
+4. Die Pfad- und Checkout-Prüfung aus dem nächsten Abschnitt durchführen.
+
 ## Nicht ohne ausdrückliche Freigabe ändern
 
 1. Die E-Book-Domain nicht aus Systeme.io entfernen oder dort entknüpfen.

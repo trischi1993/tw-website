@@ -1,8 +1,16 @@
 import { createClient, type SanityClient } from '@sanity/client';
 import { createImageUrlBuilder } from '@sanity/image-url';
 import { getPreviewContext } from './preview-context';
-import { SECTIONS_PROJECTION, baseIdOf, mapSections } from './content/sections';
-import type { SiteSettings, HomeContent, SitePage, SiteImage, ServiceItem } from './content/types';
+import { SECTIONS_PROJECTION, baseIdOf, mapImage, mapSections } from './content/sections';
+import { ebook as ebookSeed } from './content/ebook-seed';
+import type {
+  SiteSettings,
+  HomeContent,
+  SitePage,
+  SiteImage,
+  ServiceItem,
+  EbookContent,
+} from './content/types';
 
 /* ---------------------------------------------------------------------------
    Sanity adapter - DORMANT until env vars are set.
@@ -136,6 +144,32 @@ const PAGES_QUERY = `*[_type == "page" && defined(slug.current)]{
   _id, title, "slug": slug.current, ${SEO_PROJECTION}, ${SECTIONS_PROJECTION}
 }`;
 
+const EBOOK_IMAGE = `{ alt, caption, asset->{ url, metadata{ dimensions, lqip } } }`;
+
+/**
+ * Die E-Book-Seite besitzt ein festes, conversion-optimiertes Layout. Sanity
+ * liefert deshalb kein frei sortierbares Sections-Array, sondern die Inhalte
+ * der fest benannten Bereiche. Checkout-/Domainpfade bleiben absichtlich im
+ * Code und sind nicht über das CMS veränderbar.
+ */
+const EBOOK_QUERY = `*[_type == "ebookPage"][0]{
+  _id,
+  seo{ title, description, noindex, image${EBOOK_IMAGE} },
+  product,
+  hero{ ..., image${EBOOK_IMAGE}, phoneImage${EBOOK_IMAGE} },
+  press{ ..., items[]{ ..., image${EBOOK_IMAGE} } },
+  intro,
+  benefits,
+  author{ ..., image${EBOOK_IMAGE} },
+  chapters{ ..., image${EBOOK_IMAGE}, phoneImage${EBOOK_IMAGE} },
+  evergreen{ ..., results[]{ ..., image${EBOOK_IMAGE} } },
+  bundle{ ..., items[]{ ..., image${EBOOK_IMAGE} } },
+  audience{ ..., items[]{ ..., image${EBOOK_IMAGE} } },
+  reviews{ ..., items[]{ ..., image${EBOOK_IMAGE} } },
+  finalCta,
+  faq
+}`;
+
 /* --- Mappers -------------------------------------------------------------- */
 function mapSeo(seo: any, fallbackImg?: SiteImage) {
   return {
@@ -197,4 +231,46 @@ export async function fetchAllPages(): Promise<SitePage[]> {
     seo: mapSeo(d.seo),
     sections: mapSections(d.sections),
   }));
+}
+
+/**
+ * Sanity-Daten defensiv auf den vollständigen lokalen Stand legen. So bleibt
+ * die öffentliche Seite auch während der erstmaligen CMS-Einrichtung intakt,
+ * und neu ergänzte Felder haben bis zur redaktionellen Pflege einen sicheren
+ * Default. Arrays aus Sanity gelten bewusst als maßgeblich (auch leer).
+ */
+function mergeEbookValue(defaultValue: any, rawValue: any): any {
+  if (rawValue === null || rawValue === undefined) return defaultValue;
+
+  if (rawValue?.asset?.url) return mapImage(rawValue) ?? defaultValue;
+
+  if (Array.isArray(rawValue)) {
+    if (!Array.isArray(defaultValue)) return rawValue;
+    return rawValue.map((item, index) => {
+      const fallback =
+        item && typeof item === 'object' && item._key
+          ? defaultValue.find((candidate: any) => candidate?._key === item._key)
+          : defaultValue[index];
+      return mergeEbookValue(fallback, item);
+    });
+  }
+
+  if (typeof rawValue === 'object') {
+    const base = defaultValue && typeof defaultValue === 'object' ? defaultValue : {};
+    return Object.fromEntries(
+      [...new Set([...Object.keys(base), ...Object.keys(rawValue)])].map((key) => [
+        key,
+        mergeEbookValue(base[key], rawValue[key]),
+      ]),
+    );
+  }
+
+  return rawValue;
+}
+
+export async function fetchEbook(): Promise<EbookContent> {
+  const d = await activeClient().fetch(EBOOK_QUERY);
+  if (!d) return ebookSeed;
+  const content = mergeEbookValue(ebookSeed, d) as EbookContent;
+  return { ...content, documentId: baseIdOf(d._id) };
 }

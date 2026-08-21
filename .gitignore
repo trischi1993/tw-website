@@ -33,6 +33,7 @@ pnpm-debug.log*
 studio/node_modules/
 studio/dist/
 studio/.sanity/
+studio/.generated/
 
 # Local-only work folders (add per project). Root-anchor any you add (leading /):
 # macOS core.ignorecase=true makes an unanchored "Images/" also match

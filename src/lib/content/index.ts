@@ -1,5 +1,6 @@
-import type { SiteSettings, HomeContent, SitePage, ServiceItem } from './types';
+import type { SiteSettings, HomeContent, SitePage, ServiceItem, EbookContent } from './types';
 import * as seed from './seed';
+import { ebook as ebookSeed } from './ebook-seed';
 
 /* ---------------------------------------------------------------------------
    Data access: the single seam between the site and its content source.
@@ -52,6 +53,15 @@ export async function getServices(): Promise<ServiceItem[]> {
 export async function getPageBySlug(slug: string): Promise<SitePage | undefined> {
   const all = await getAllPages();
   return all.find((p) => p.slug === slug);
+}
+
+/** Feste E-Book-Landingpage: Sanity-Singleton mit lokalem Voll-Fallback. */
+export async function getEbook(): Promise<EbookContent> {
+  if (CONTENT_SOURCE === 'sanity') {
+    const { fetchEbook } = await import('../sanity');
+    return fetchEbook();
+  }
+  return ebookSeed;
 }
 
 export { CONTENT_SOURCE };

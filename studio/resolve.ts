@@ -12,6 +12,8 @@ import { defineDocuments, defineLocations } from 'sanity/presentation';
 export const resolve = {
   mainDocuments: defineDocuments([
     { route: '/', filter: `_type == "homePage"` },
+    { route: '/e-book', filter: `_type == "ebookPage"` },
+    { route: '/e-book/', filter: `_type == "ebookPage"` },
     { route: '/:slug', filter: `_type == "page" && slug.current == $slug` },
     { route: '/:slug/', filter: `_type == "page" && slug.current == $slug` },
   ]),
@@ -22,6 +24,13 @@ export const resolve = {
       tone: 'positive',
       resolve: () => ({
         locations: [{ title: 'Startseite', href: '/' }],
+      }),
+    }),
+    ebookPage: defineLocations({
+      message: 'Diese Inhalte erscheinen auf der E-Book-Landingpage.',
+      tone: 'positive',
+      resolve: () => ({
+        locations: [{ title: 'E-Book Landingpage', href: '/e-book/' }],
       }),
     }),
     page: defineLocations({

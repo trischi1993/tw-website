@@ -1,0 +1,67 @@
+---
+import { Image } from 'astro:assets';
+import type { SiteImage } from '../lib/content/types';
+
+interface Props {
+  image?: SiteImage;
+  /** Optionaler Override, z. B. leer für dekorative/duplizierte Bilder. */
+  alt?: string;
+  class?: string;
+  widths?: number[];
+  sizes?: string;
+  format?: 'avif' | 'webp' | 'png' | 'jpg' | 'jpeg';
+  quality?: number;
+  width?: number;
+  height?: number;
+  loading?: 'lazy' | 'eager';
+  decoding?: 'sync' | 'async' | 'auto';
+  fetchpriority?: 'high' | 'low' | 'auto';
+}
+
+const {
+  image,
+  alt,
+  class: className,
+  widths,
+  sizes,
+  format = 'webp',
+  quality = 82,
+  width,
+  height,
+  loading = 'lazy',
+  decoding = 'async',
+  fetchpriority,
+} = Astro.props;
+---
+
+{
+  image?.kind === 'local' ? (
+    <Image
+      src={image.asset}
+      alt={alt ?? image.alt}
+      class={className}
+      widths={widths}
+      sizes={sizes}
+      format={format}
+      quality={quality}
+      width={width}
+      height={height}
+      loading={loading}
+      decoding={decoding}
+      fetchpriority={fetchpriority}
+    />
+  ) : image?.kind === 'remote' ? (
+    <img
+      src={image.src}
+      srcset={image.srcSet}
+      width={width ?? image.width}
+      height={height ?? image.height}
+      alt={alt ?? image.alt}
+      class={className}
+      sizes={image.srcSet ? sizes : undefined}
+      loading={loading}
+      decoding={decoding}
+      fetchpriority={fetchpriority}
+    />
+  ) : null
+}

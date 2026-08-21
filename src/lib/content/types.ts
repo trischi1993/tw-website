@@ -454,3 +454,128 @@ export interface SitePage {
   seo: PageSeo;
   sections: Section[];
 }
+
+/* --- E-Book-Landingpage (fester Aufbau, Inhalte aus Sanity) --------------- */
+
+export type EbookBenefitIcon = 'insights' | 'strategy' | 'steps' | 'learnings';
+
+export interface EbookContent {
+  /** Sanity-Basis-ID; im lokalen Fallback nicht gesetzt. */
+  documentId?: string;
+  seo: PageSeo;
+  product: {
+    name: string;
+    pageCount: number;
+    chapterCount: string;
+    bonusCount: number;
+    price: number;
+    priceCurrency: string;
+    totalValue: string;
+  };
+  hero: {
+    eyebrow: string;
+    title: string;
+    titleHighlight: string;
+    lead: string;
+    text: string;
+    ctaLabel: string;
+    pricePrefix: string;
+    priceText: string;
+    stampText: string;
+    image?: SiteImage;
+    phoneImage?: SiteImage;
+  };
+  press: {
+    heading: string;
+    items: { _key: string; image?: SiteImage }[];
+  };
+  intro: {
+    kicker: string;
+    heading: string;
+    headingHighlight: string;
+    text: string;
+  };
+  benefits: {
+    kicker: string;
+    heading: string;
+    intro: string;
+    items: { _key: string; icon: EbookBenefitIcon; title: string; text: string }[];
+    note: string;
+    ctaLabel: string;
+  };
+  author: {
+    kicker: string;
+    heading: string;
+    image?: SiteImage;
+    caption: string;
+    captionHighlight: string;
+    paragraphs: string[];
+    stats: { _key: string; value: number; suffix: string; label: string }[];
+  };
+  chapters: {
+    kicker: string;
+    heading: string;
+    intro: string;
+    image?: SiteImage;
+    phoneImage?: SiteImage;
+    items: { _key: string; number: string; title: string; text: string }[];
+    note: string;
+    ctaLabel: string;
+  };
+  evergreen: {
+    carouselLabel: string;
+    carouselMeta: string;
+    results: { _key: string; image?: SiteImage }[];
+    kicker: string;
+    heading: string;
+    text: string;
+  };
+  bundle: {
+    kicker: string;
+    heading: string;
+    intro: string;
+    items: {
+      _key: string;
+      eyebrow: string;
+      title: string;
+      text: string;
+      value: string;
+      price: string;
+      image?: SiteImage;
+    }[];
+    totalLabel: string;
+    totalValue: string;
+    priceLabel: string;
+    price: string;
+    ctaLabel: string;
+  };
+  audience: {
+    kicker: string;
+    heading: string;
+    items: { _key: string; title: string; text: string; image?: SiteImage }[];
+  };
+  reviews: {
+    kicker: string;
+    heading: string;
+    items: {
+      _key: string;
+      name: string;
+      role: string;
+      text: string;
+      image?: SiteImage;
+    }[];
+  };
+  finalCta: {
+    kicker: string;
+    heading: string;
+    text: string;
+    pricePrefix: string;
+    price: string;
+    totalValue: string;
+    ctaLabel: string;
+  };
+  faq: {
+    heading: string;
+    items: { _key: string; question: string; answer: RichText }[];
+  };
+}

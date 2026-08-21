@@ -11,6 +11,8 @@
     "deploy": "sanity deploy",
     "seed:build": "node scripts/make-seed.mjs",
     "import-seed": "npm run seed:build && sanity dataset import seed.ndjson production --replace",
+    "ebook:seed:build": "node scripts/make-ebook-seed.mjs",
+    "ebook:import": "npm run ebook:seed:build && sanity dataset import .generated/ebook-seed.ndjson production --replace",
     "migrate:module-posters": "sanity exec scripts/migrate-module-posters.mjs --with-user-token",
     "migrate:module-posters:dry-run": "sanity exec scripts/migrate-module-posters.mjs --with-user-token -- --dry-run",
     "migrate:seo-descriptions": "sanity exec scripts/update-seo-descriptions.mjs --with-user-token",

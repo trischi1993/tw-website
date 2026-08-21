@@ -1,328 +1,38 @@
 ---
-import { Image } from 'astro:assets';
+import CmsImage from './CmsImage.astro';
 import GlowButton from './sections/GlowButton';
 import FaqSection from './sections/FaqSection';
-import type { SectionFaq } from '../lib/content/types';
-import heroImage from '../assets/images/ebook/hero-v5.png';
-import heroPhoneInsightsImage from '../assets/images/ebook/hero-phone-insights-gold.png';
-import bookMockupImage from '../assets/images/ebook/book-mockup-v3.png';
-import authorImage from '../assets/images/ebook/author.jpg';
-import chaptersImage from '../assets/images/ebook/chapters.png';
-import bioCreatorImage from '../assets/images/ebook/insta-bio-creator-v2.png';
-import bonusDownloadsImage from '../assets/images/ebook/bonus-downloads-v2.png';
-import pressVinschgerwindImage from '../assets/images/ebook/press-vinschgerwind-transparent.png';
-import pressSuedtirolHeuteImage from '../assets/images/ebook/press-suedtirol-heute-transparent.png';
-import pressRadioSuedtirolImage from '../assets/images/ebook/press-radio-suedtirol-1-transparent.png';
-import pressDerVinschgerImage from '../assets/images/ebook/press-der-vinschger-transparent.png';
-import pressZettImage from '../assets/images/ebook/press-zett-am-sonntag-transparent.png';
-import pressRaiSuedtirolImage from '../assets/images/ebook/press-rai-suedtirol-transparent.png';
-import resultOneImage from '../assets/images/ebook/result-insight-1.png';
-import resultTwoImage from '../assets/images/ebook/result-insight-2.png';
-import resultThreeImage from '../assets/images/ebook/result-insight-3.png';
-import resultFourImage from '../assets/images/ebook/result-insight-4.png';
-import resultFiveImage from '../assets/images/ebook/result-insight-5.png';
-import resultSixImage from '../assets/images/ebook/result-insight-6.png';
-import audienceSelfEmployedImage from '../assets/images/ebook/audience-self-employed.jpg';
-import audienceCreatorImage from '../assets/images/ebook/audience-creator.jpg';
-import audienceCompanyImage from '../assets/images/ebook/audience-company.jpg';
-import barbaraImage from '../assets/images/testimonials/barbara-prantl.webp';
-import naomiImage from '../assets/images/testimonials/naomi-kircher.avif';
-import buonomemesImage from '../assets/images/testimonials/buonomemes.avif';
+import type { EbookContent, SectionFaq } from '../lib/content/types';
 import '../styles/ebook.css';
 
+interface Props {
+  content: EbookContent;
+}
+
+const { content } = Astro.props;
 const BUY_URL = '/bestellen/';
-
-const benefits = [
-  {
-    number: '01',
-    icon: 'insights',
-    title: 'Exklusive Einblicke',
-    text: 'Praxisbeispiele aus 8+ Jahren Social Media – ehrlich, verständlich und auf den Punkt gebracht.',
-  },
-  {
-    number: '02',
-    icon: 'strategy',
-    title: 'Nachhaltige Strategien',
-    text: 'Bewährte Methoden für organische Reichweite, echte Follower und eine langfristige Monetarisierung.',
-  },
-  {
-    number: '03',
-    icon: 'steps',
-    title: 'Step-by-Step-Guide',
-    text: 'Ein klarer Weg von deiner Vision und Positionierung bis zu Community, Erfolgsmessung und Umsatz.',
-  },
-  {
-    number: '04',
-    icon: 'learnings',
-    title: 'Meine größten Learnings',
-    text: 'Die Fehler und Erkenntnisse, die dir Umwege ersparen und dich schneller ins konsequente Umsetzen bringen.',
-  },
-];
-
-const pressItems = [
-  {
-    image: pressVinschgerwindImage,
-    alt: 'Vinschgerwind',
-  },
-  {
-    image: pressSuedtirolHeuteImage,
-    alt: 'Südtirol Heute',
-  },
-  {
-    image: pressRadioSuedtirolImage,
-    alt: 'Radio Südtirol 1',
-  },
-  {
-    image: pressDerVinschgerImage,
-    alt: 'Der Vinschger',
-  },
-  {
-    image: pressZettImage,
-    alt: 'Zett am Sonntag',
-  },
-  {
-    image: pressRaiSuedtirolImage,
-    alt: 'Rai Südtirol',
-  },
-];
-
-const resultScreens = [
-  {
-    image: resultOneImage,
-    alt: 'Instagram-Ergebnis: über 15 Millionen erreichte Konten in 30 Tagen',
-  },
-  {
-    image: resultFiveImage,
-    alt: 'Instagram-Ergebnis: 61.137 Profilaktivitäten und 1.096 Klicks auf den externen Link',
-  },
-  {
-    image: resultTwoImage,
-    alt: 'Instagram-Ergebnis: über 10 Millionen Aufrufe für ein Reel',
-  },
-  {
-    image: resultThreeImage,
-    alt: 'Instagram-Ergebnis: 138.208 Follower und starkes organisches Wachstum',
-  },
-  {
-    image: resultFourImage,
-    alt: 'Instagram-Insight mit einem erfolgreichen Social-Media-Ergebnis',
-  },
-  {
-    image: resultSixImage,
-    alt: 'Instagram-Insight mit starkem Community-Wachstum',
-  },
-];
-
-const chapters = [
-  ['01', 'Deine Vision', 'Das Fundament für deinen Erfolg'],
-  ['02', 'Zielgruppe & Positionierung', 'Erreiche dein Wunschpublikum'],
-  ['03', 'Social Media Branding', 'So bleibt deine Marke im Kopf'],
-  ['04', 'Social Media Strategien', 'Mit System statt Zufall'],
-  ['05', 'Kontinuität', 'Der Schlüssel zu nachhaltigem Wachstum'],
-  ['06', 'Social Media Trends', 'Erkennen und richtig nutzen'],
-  ['07', 'Erfolgsmessung', 'Daten analysieren und optimieren'],
-  ['08', 'Stories', 'Erzähle Geschichten, die bewegen'],
-  ['09', 'BrandFace', 'Mehr Authentizität, Vertrauen und Engagement'],
-  ['10', 'Community', 'Echte Verbindungen und loyale Follower'],
-  ['11', 'Monetarisierung', 'So wird deine Reichweite zu Umsatz'],
-  ['Bonus', 'Meine größten Fehler', 'Und wie du sie vermeidest'],
-];
-
-const bundle = [
-  {
-    eyebrow: 'Das E-Book',
-    title: 'Die Instagram Erfolgsformel',
-    text: '140 Seiten mit 11 Kapiteln, Bonuskapitel, Praxisbeispielen und direkt umsetzbaren Strategien.',
-    value: '160 €',
-    price: '27 €',
-    image: bookMockupImage,
-    alt: 'Das Buch Die Instagram Erfolgsformel',
-  },
-  {
-    eyebrow: 'Bonus 01',
-    title: 'Insta BIO Creator',
-    text: 'Ein vorbereiteter ChatGPT-Prompt, mit dem du Schritt für Schritt deine perfekte Instagram-Bio erarbeitest.',
-    value: '20 €',
-    price: 'inklusive',
-    image: bioCreatorImage,
-    alt: 'Insta BIO Creator Bonus zum E-Book',
-  },
-  {
-    eyebrow: 'Bonus 02',
-    title: 'Bonus-Downloads',
-    text: 'Zusätzliche ChatGPT-Prompts, hilfreiche Tools, Content-Tipps und weitere praktische Vorlagen.',
-    value: '>100 €',
-    price: 'inklusive',
-    image: bonusDownloadsImage,
-    alt: 'Bonus-Downloads mit Prompts, Tools und Content-Tipps',
-  },
-];
-
-const audiences = [
-  {
-    title: 'Selbstständige',
-    text: 'Mach deine Expertise sichtbar und nutze Social Media gezielt, um mehr Kunden und Umsatz zu gewinnen.',
-    image: audienceSelfEmployedImage,
-    alt: 'Selbstständiger beim Arbeiten in den Bergen',
-  },
-  {
-    title: 'Influencer & Content Creator',
-    text: 'Baue eine loyale Community auf, steigere deine Reichweite und lerne, wie du sie nachhaltig monetarisierst.',
-    image: audienceCreatorImage,
-    alt: 'Content Creator beim Fotografieren in der Natur',
-  },
-  {
-    title: 'Unternehmen',
-    text: 'Erreiche deine Zielgruppe authentisch und stärke mit einer klaren Strategie Sichtbarkeit und Markenbindung.',
-    image: audienceCompanyImage,
-    alt: 'Team bei der gemeinsamen Arbeit am Laptop',
-  },
-];
-
-const reviews = [
-  {
-    name: 'Barbara Prantl',
-    role: 'Hobbyköchin & Influencerin (170.000+ Follower)',
-    text: 'Ich habe mir Tristans E-Book gekauft und bin auch im persönlichen Austausch mit ihm. Die Tipps sind verständlich erklärt, praxisnah und extrem hilfreich. Gerade die Kombination aus Strategie, echten Erfahrungen und konkreten Beispielen macht das Ganze zu einem richtig starken Werkzeug für alle, die Social Media nachhaltig aufbauen möchten.',
-    image: barbaraImage,
-  },
-  {
-    name: 'Naomi Kircher',
-    role: 'Mentorin & Influencerin (18.000+ Follower)',
-    text: 'Dank Tristans wertvoller Unterstützung konnte ich meine Reichweite innerhalb eines Jahres von 2.000 auf 18.000 Follower steigern – und damit erfolgreich den Grundstein für meine Selbstständigkeit legen.',
-    image: naomiImage,
-  },
-  {
-    name: 'Buonomemes',
-    role: 'Comedian & Influencer (700.000+ Follower)',
-    text: 'Tristan überzeugte uns mit präziser Arbeit, starker Strategie und einem wertvollen Netzwerk. Sein Support war entscheidend für unseren erfolgreichen Launch – fachlich wie menschlich absolut empfehlenswert.',
-    image: buonomemesImage,
-  },
-];
+const {
+  product,
+  hero,
+  press,
+  intro,
+  benefits,
+  author,
+  chapters,
+  evergreen,
+  bundle,
+  audience,
+  reviews,
+  finalCta,
+  faq,
+} = content;
 
 const ebookFaq: SectionFaq = {
   _type: 'sectionFaq',
   _key: 'ebook-faq',
   name: 'FAQs',
-  heading: 'FAQs',
-  items: [
-    {
-      _key: 'ebook-faq-platforms',
-      question: 'Ist das E-Book nur für Instagram geeignet?',
-      answer: [
-        {
-          _type: 'block',
-          _key: 'ebook-faq-platforms-answer-1',
-          style: 'normal',
-          markDefs: [],
-          children: [
-            {
-              _type: 'span',
-              _key: 'ebook-faq-platforms-answer-1-text',
-              text: 'Der Fokus liegt klar auf Instagram, da hier die besten Möglichkeiten für organische Reichweite und nachhaltige Monetarisierung bestehen. Deshalb beziehen sich die konkreten Praxisbeispiele und Schritt-für-Schritt-Erklärungen im E-Book auf Instagram.',
-              marks: [],
-            },
-          ],
-        },
-        {
-          _type: 'block',
-          _key: 'ebook-faq-platforms-answer-2',
-          style: 'normal',
-          markDefs: [],
-          children: [
-            {
-              _type: 'span',
-              _key: 'ebook-faq-platforms-answer-2-text',
-              text: 'Die vermittelten Strategien und Methoden lassen sich jedoch problemlos auch auf Plattformen wie Facebook, TikTok oder YouTube Shorts übertragen.',
-              marks: [],
-            },
-          ],
-        },
-      ],
-    },
-    {
-      _key: 'ebook-faq-evergreen',
-      question: 'Ist das E-Book nicht bald veraltet, weil sich Social Media ständig verändert?',
-      answer: [
-        {
-          _type: 'block',
-          _key: 'ebook-faq-evergreen-answer-1',
-          style: 'normal',
-          markDefs: [],
-          children: [
-            {
-              _type: 'span',
-              _key: 'ebook-faq-evergreen-answer-1-text',
-              text: 'Social Media entwickelt sich laufend weiter. Genau deshalb konzentriert sich das E-Book nicht auf kurzfristige Trends oder einzelne Algorithmus-Tricks, sondern auf bewährte Evergreen-Strategien. Diese grundlegenden Prinzipien funktionieren seit Jahren und werden auch künftig die Basis für nachhaltigen Reichweitenaufbau, eine starke Community und erfolgreiche Monetarisierung bilden.',
-              marks: [],
-            },
-          ],
-        },
-        {
-          _type: 'block',
-          _key: 'ebook-faq-evergreen-answer-2',
-          style: 'normal',
-          markDefs: [],
-          children: [
-            {
-              _type: 'span',
-              _key: 'ebook-faq-evergreen-answer-2-text',
-              text: 'Ein wichtiger Bestandteil ist dabei die Erfolgsmessung: Durch regelmäßige Analysen erkennst du, was aktuell funktioniert, und kannst deine Strategie gezielt optimieren. Dadurch bleibt dein Vorgehen zeitgemäß und berücksichtigt automatisch Veränderungen der Plattformen, Algorithmen und des Nutzerverhaltens.',
-              marks: [],
-            },
-          ],
-        },
-        {
-          _type: 'block',
-          _key: 'ebook-faq-evergreen-answer-3',
-          style: 'normal',
-          markDefs: [],
-          children: [
-            {
-              _type: 'span',
-              _key: 'ebook-faq-evergreen-answer-3-text',
-              text: 'Einzelne Funktionen können sich verändern – das strategische Grundgerüst bleibt jedoch relevant, anpassungsfähig und langfristig nutzbar.',
-              marks: [],
-            },
-          ],
-        },
-      ],
-    },
-    {
-      _key: 'ebook-faq-ads',
-      question: 'Behandelt das E-Book auch bezahlte Werbeanzeigen?',
-      answer: [
-        {
-          _type: 'block',
-          _key: 'ebook-faq-ads-answer-1',
-          style: 'normal',
-          markDefs: [],
-          children: [
-            {
-              _type: 'span',
-              _key: 'ebook-faq-ads-answer-1-text',
-              text: 'Der Fokus des E-Books liegt bewusst auf dem organischen Social-Media-Aufbau. Du lernst, wie du dir mit nachhaltigen Strategien Reichweite, eine starke Community und Möglichkeiten zur Monetarisierung aufbaust – ohne von einem Werbebudget abhängig zu sein.',
-              marks: [],
-            },
-          ],
-        },
-        {
-          _type: 'block',
-          _key: 'ebook-faq-ads-answer-2',
-          style: 'normal',
-          markDefs: [],
-          children: [
-            {
-              _type: 'span',
-              _key: 'ebook-faq-ads-answer-2-text',
-              text: 'Bezahlte Werbeanzeigen werden im E-Book nicht direkt behandelt. Sie können bei Bedarf jedoch optimal auf diesem stabilen organischen Fundament aufbauen und deine bestehenden Maßnahmen gezielt verstärken.',
-              marks: [],
-            },
-          ],
-        },
-      ],
-    },
-  ],
+  heading: faq.heading,
+  items: faq.items,
 };
 ---
 
@@ -333,37 +43,37 @@ const ebookFaq: SectionFaq = {
     <div class="container ebook-hero__grid">
       <div class="ebook-hero__content">
         <div data-ebook-heading>
-          <p class="ebook-eyebrow">Social Media mit System</p>
+          <p class="ebook-eyebrow">{hero.eyebrow}</p>
           <h1 id="ebook-hero-title">
-            Die Instagram
-            <strong>Erfolgsformel</strong>
+            {hero.title}
+            <strong>{hero.titleHighlight}</strong>
           </h1>
         </div>
         <div data-ebook-intro>
-          <p class="ebook-hero__lead">Für mehr Reichweite, Follower &amp; Umsatz.</p>
-          <p class="ebook-hero__copy">
-            Deine kompakte Anleitung aus 8+ Jahren Praxis und der Erfahrung aus dem Aufbau von
-            Accounts mit bis zu 200.000 Followern.
-          </p>
+          <p class="ebook-hero__lead">{hero.lead}</p>
+          <p class="ebook-hero__copy">{hero.text}</p>
         </div>
         <ul class="ebook-hero__facts" role="list" aria-label="E-Book-Umfang" data-ebook-facts>
-          <li><strong>140</strong><span>Seiten</span></li>
-          <li><strong>11 + 1</strong><span>Kapitel</span></li>
-          <li><strong>2</strong><span>Boni</span></li>
+          <li><strong>{product.pageCount}</strong><span>Seiten</span></li>
+          <li><strong>{product.chapterCount}</strong><span>Kapitel</span></li>
+          <li><strong>{product.bonusCount}</strong><span>Boni</span></li>
         </ul>
         <div class="ebook-hero__action" data-ebook-buttons>
-          <GlowButton label="Jetzt E-Book sichern" href={BUY_URL} />
-          <p><span>Gesamtwert &gt;280 €</span><strong>aktuell für nur 27 €</strong></p>
+          <GlowButton label={hero.ctaLabel} href={BUY_URL} />
+          <p><span>{hero.pricePrefix}</span><strong>{hero.priceText}</strong></p>
         </div>
       </div>
 
       <div class="ebook-hero__visual" data-ebook-visual>
         <span class="ebook-hero__stamp" aria-hidden="true">
-          <span class="ebook-hero__stamp-content">8+ Jahre<br />Praxis</span>
+          <span class="ebook-hero__stamp-content">
+            {hero.stampText.split('\n').map((line, index) => (
+              <>{index > 0 && <br />}{line}</>
+            ))}
+          </span>
         </span>
-        <Image
-          src={heroImage}
-          alt="Die Instagram Erfolgsformel mit E-Book, Smartphone und Beispielseiten"
+        <CmsImage
+          image={hero.image}
           widths={[480, 720, 960, 1200]}
           sizes="(max-width: 991px) 92vw, 50vw"
           format="webp"
@@ -373,9 +83,9 @@ const ebookFaq: SectionFaq = {
           fetchpriority="auto"
         />
         <div class="ebook-hero-phone-screen" aria-hidden="true">
-          <Image
+          <CmsImage
             class="ebook-hero-phone-screen__image"
-            src={heroPhoneInsightsImage}
+            image={hero.phoneImage}
             alt=""
             widths={[180, 300, 480]}
             sizes="(max-width: 991px) 16vw, 9vw"
@@ -390,17 +100,17 @@ const ebookFaq: SectionFaq = {
 
   <section class="ebook-trust" aria-labelledby="ebook-press-title">
     <div class="container ebook-trust__head">
-      <p id="ebook-press-title">Bekannt aus:</p>
+      <p id="ebook-press-title">{press.heading}</p>
     </div>
     <div class="ebook-trust__viewport">
       <div class="ebook-trust__track">
         {[0, 1, 2].map((copy) => (
           <div class="ebook-trust__sequence" aria-hidden={copy > 0 ? 'true' : undefined}>
-            {pressItems.map((item) => (
+            {press.items.map((item) => (
               <span class="ebook-trust__logo">
-                <Image
-                  src={item.image}
-                  alt={copy === 0 ? item.alt : ''}
+                <CmsImage
+                  image={item.image}
+                  alt={copy === 0 ? item.image?.alt ?? '' : ''}
                   widths={[160, 240, 320]}
                   sizes="160px"
                   format="webp"
@@ -416,20 +126,17 @@ const ebookFaq: SectionFaq = {
 
   <section class="ebook-intro section" aria-labelledby="ebook-intro-title">
     <div class="container">
-      <p class="ebook-kicker" data-anim="reveal">Wachstum beginnt mit Klarheit</p>
+      <p class="ebook-kicker" data-anim="reveal">{intro.kicker}</p>
       <h2
         id="ebook-intro-title"
         data-anim="lines"
         data-delay="0.2"
         data-stagger="0.5"
       >
-        Du brauchst keine 100.000 Follower, um über Social Media etwas zu bewegen.{' '}
-        <span>Du brauchst eine klare Strategie.</span>
+        {intro.heading}{' '}
+        <span>{intro.headingHighlight}</span>
       </h2>
-      <p class="ebook-intro__copy" data-anim="reveal" data-delay="0.16">
-        Dieses E-Book verbindet echte Erfahrungen mit konkreten Schritten. So verstehst du, was
-        hinter nachhaltigem Wachstum steckt und weißt endlich, was als Nächstes zu tun&nbsp;ist.
-      </p>
+      <p class="ebook-intro__copy" data-anim="reveal" data-delay="0.16">{intro.text}</p>
     </div>
   </section>
 
@@ -437,15 +144,13 @@ const ebookFaq: SectionFaq = {
     <div class="container">
       <div class="ebook-section-head">
         <div>
-          <p class="ebook-kicker" data-anim="reveal">Das erwartet dich</p>
-          <h2 id="ebook-benefits-title" data-anim="reveal">Praxiswissen, das du direkt anwenden kannst.</h2>
+          <p class="ebook-kicker" data-anim="reveal">{benefits.kicker}</p>
+          <h2 id="ebook-benefits-title" data-anim="reveal">{benefits.heading}</h2>
         </div>
-        <p data-anim="reveal">
-          Kein Theorie-Marathon, sondern ein klarer Leitfaden für deinen Social-Media-Aufbau.
-        </p>
+        <p data-anim="reveal">{benefits.intro}</p>
       </div>
       <div class="ebook-benefits__grid">
-        {benefits.map((benefit, index) => (
+        {benefits.items.map((benefit, index) => (
           <article
             class="ebook-benefit"
             data-anim="reveal"
@@ -489,7 +194,7 @@ const ebookFaq: SectionFaq = {
                   </svg>
                 )}
               </span>
-              <small>{benefit.number}</small>
+              <small>{String(index + 1).padStart(2, '0')}</small>
             </div>
             <h3>{benefit.title}</h3>
             <p>{benefit.text}</p>
@@ -497,8 +202,8 @@ const ebookFaq: SectionFaq = {
         ))}
       </div>
       <div class="ebook-section-cta" data-anim="reveal" data-delay="0.12">
-        <p>140 Seiten Praxiswissen – kompakt, verständlich und direkt umsetzbar.</p>
-        <GlowButton label="Praxiswissen holen" href={BUY_URL} />
+        <p>{benefits.note}</p>
+        <GlowButton label={benefits.ctaLabel} href={BUY_URL} />
       </div>
     </div>
   </section>
@@ -506,38 +211,32 @@ const ebookFaq: SectionFaq = {
   <section class="ebook-author section" aria-labelledby="ebook-author-title">
     <div class="container ebook-author__grid">
       <div class="ebook-author__media" data-anim="reveal">
-        <Image
-          src={authorImage}
-          alt="Tristan Weithaler, Autor der Instagram Erfolgsformel"
+        <CmsImage
+          image={author.image}
           widths={[480, 720, 960]}
           sizes="(max-width: 991px) 90vw, 45vw"
           format="webp"
           quality={82}
         />
-        <p>Social Media Business Coach<br /><strong>mit Herz &amp; Hands-on-Mentalität.</strong></p>
+        <p>{author.caption}<br /><strong>{author.captionHighlight}</strong></p>
       </div>
       <div class="ebook-author__content">
-        <p class="ebook-kicker" data-anim="reveal">Kurz zu mir, dem Autor</p>
-        <h2 id="ebook-author-title" data-anim="reveal">Hi, ich bin Tristan.</h2>
+        <p class="ebook-kicker" data-anim="reveal">{author.kicker}</p>
+        <h2 id="ebook-author-title" data-anim="reveal">{author.heading}</h2>
         <div class="ebook-author__copy" data-anim="reveal" data-delay="0.08">
-          <p>
-            Ich komme aus einem kleinen Dorf in Südtirol und habe meinen sicheren Bürojob gegen
-            kreative Freiheit getauscht – mit dem Ziel, eigene Visionen zu verwirklichen.
-          </p>
-          <p>
-            Ohne Studienabschluss, aber mit viel Praxiserfahrung, Neugier und Leidenschaft habe
-            ich mich zum Social-Media-Unternehmer entwickelt. Mit meinen Projekten und Marken
-            habe ich über 200.000 Follower aufgebaut und mehr als 150 Millionen Views generiert.
-          </p>
-          <p>
-            Die Strategien, Fehler und Learnings aus diesem Weg teile ich in meinem E-Book:
-            praxisnah, ehrlich und direkt umsetzbar.
-          </p>
+          {author.paragraphs.map((paragraph) => <p>{paragraph}</p>)}
         </div>
         <dl class="ebook-author__stats" data-anim="reveal" data-delay="0.14">
-          <div><dt data-ebook-count="8" data-ebook-count-suffix="+" aria-label="mehr als 8">8+</dt><dd>Jahre Erfahrung</dd></div>
-          <div><dt data-ebook-count="200" data-ebook-count-suffix="K+" aria-label="mehr als 200.000">200K+</dt><dd>Follower aufgebaut</dd></div>
-          <div><dt data-ebook-count="150" data-ebook-count-suffix="M+" aria-label="mehr als 150 Millionen">150M+</dt><dd>organische Views</dd></div>
+          {author.stats.map((stat) => (
+            <div>
+              <dt
+                data-ebook-count={stat.value}
+                data-ebook-count-suffix={stat.suffix}
+                aria-label={`${stat.value}${stat.suffix}`}
+              >{stat.value}{stat.suffix}</dt>
+              <dd>{stat.label}</dd>
+            </div>
+          ))}
         </dl>
       </div>
     </div>
@@ -547,30 +246,26 @@ const ebookFaq: SectionFaq = {
     <div class="container">
       <div class="ebook-chapters__head">
         <div>
-          <p class="ebook-kicker" data-anim="reveal">E-Book-Inhalt</p>
-          <h2 id="ebook-chapters-title" data-anim="reveal">Von deiner Vision bis zur Monetarisierung.</h2>
+          <p class="ebook-kicker" data-anim="reveal">{chapters.kicker}</p>
+          <h2 id="ebook-chapters-title" data-anim="reveal">{chapters.heading}</h2>
         </div>
-        <p data-anim="reveal">
-          11 aufeinander aufbauende Kapitel und ein Bonuskapitel führen dich Schritt für Schritt
-          durch die wichtigsten Bereiche einer erfolgreichen Social-Media-Marke.
-        </p>
+        <p data-anim="reveal">{chapters.intro}</p>
       </div>
       <div class="ebook-chapters__layout">
         <div class="ebook-chapters__visual" data-anim="reveal">
           <div class="ebook-chapters__mockup">
-            <Image
+            <CmsImage
               class="ebook-chapters__base"
-              src={chaptersImage}
-              alt="Auswahl verschiedener Seiten aus der Instagram Erfolgsformel"
+              image={chapters.image}
               widths={[420, 640, 843]}
               sizes="(max-width: 991px) 84vw, 36vw"
               format="webp"
               quality={82}
             />
             <div class="ebook-chapters-phone-screen" aria-hidden="true">
-              <Image
+              <CmsImage
                 class="ebook-chapters-phone-screen__image"
-                src={heroPhoneInsightsImage}
+                image={chapters.phoneImage}
                 alt=""
                 widths={[120, 180, 260]}
                 sizes="(max-width: 991px) 16vw, 7vw"
@@ -582,17 +277,17 @@ const ebookFaq: SectionFaq = {
           </div>
         </div>
         <ol class="ebook-chapters__list">
-          {chapters.map(([number, title, text], index) => (
+          {chapters.items.map((chapter, index) => (
             <li data-anim="reveal" data-delay={String((index % 3) * 0.04)}>
-              <span>{number}</span>
-              <div><h3>{title}</h3><p>{text}</p></div>
+              <span>{chapter.number}</span>
+              <div><h3>{chapter.title}</h3><p>{chapter.text}</p></div>
             </li>
           ))}
         </ol>
       </div>
       <div class="ebook-section-cta is-centered" data-anim="reveal">
-        <p>Dein klarer Fahrplan von der ersten Idee bis zur Monetarisierung.</p>
-        <GlowButton label="Mit dem E-Book loslegen" href={BUY_URL} />
+        <p>{chapters.note}</p>
+        <GlowButton label={chapters.ctaLabel} href={BUY_URL} />
       </div>
     </div>
   </section>
@@ -605,7 +300,7 @@ const ebookFaq: SectionFaq = {
           data-ebook-carousel
           role="region"
           aria-roledescription="Karussell"
-          aria-label="Echte Instagram-Ergebnisse aus der Praxis"
+          aria-label={evergreen.carouselLabel}
           data-ebook-effect="spotlight"
         >
           <div class="ebook-results-carousel__effect" aria-hidden="true">
@@ -615,18 +310,17 @@ const ebookFaq: SectionFaq = {
             <span class="ebook-results-carousel__pulse"></span>
           </div>
           <div class="ebook-results-carousel__viewport" aria-live="polite">
-          {resultScreens.map((result, index) => (
+          {evergreen.results.map((result, index) => (
             <figure
               class:list={['ebook-results-carousel__slide', { 'is-active': index === 0 }]}
               data-ebook-slide
-              data-state={index === 0 ? '0' : index === 1 ? '1' : index === resultScreens.length - 1 ? '-1' : 'far'}
+              data-state={index === 0 ? '0' : index === 1 ? '1' : index === evergreen.results.length - 1 ? '-1' : 'far'}
               aria-hidden={index === 0 ? 'false' : 'true'}
-              aria-label={`${index + 1} von ${resultScreens.length}`}
+              aria-label={`${index + 1} von ${evergreen.results.length}`}
             >
               <div class="ebook-results-carousel__device">
-                <Image
-                  src={result.image}
-                  alt={result.alt}
+                <CmsImage
+                  image={result.image}
                   widths={[320, 480, 640]}
                   sizes="(max-width: 767px) 68vw, 25vw"
                   format="webp"
@@ -659,7 +353,7 @@ const ebookFaq: SectionFaq = {
               <svg viewBox="0 0 24 24" aria-hidden="true"><path d="m9.5 5 7 7-7 7" /></svg>
             </button>
             <div class="ebook-results-carousel__dots" aria-label="Ergebnis auswählen">
-              {resultScreens.map((_, index) => (
+              {evergreen.results.map((_, index) => (
                 <button
                   class:list={['ebook-results-carousel__dot', { 'is-active': index === 0 }]}
                   type="button"
@@ -671,7 +365,7 @@ const ebookFaq: SectionFaq = {
             </div>
             <p class="ebook-results-carousel__meta" aria-hidden="true">
               <span data-ebook-carousel-current>01</span>
-              <small>/ {String(resultScreens.length).padStart(2, '0')} &nbsp; Echte Instagram-Insights</small>
+              <small>/ {String(evergreen.results.length).padStart(2, '0')} &nbsp; {evergreen.carouselMeta}</small>
             </p>
           </div>
         </div>
@@ -687,16 +381,9 @@ const ebookFaq: SectionFaq = {
         </div>
       </div>
       <div>
-        <p class="ebook-kicker" data-anim="reveal">Wissen mit Bestand</p>
-        <h2 id="ebook-evergreen-title" data-anim="reveal">Nicht noch so ein 0815-Social-Media-Buch.</h2>
-        <p data-anim="reveal" data-delay="0.08">
-          Social Media verändert sich rasant. Deshalb konzentriert sich dieses Buch auf
-          Evergreen-Strategien, die unabhängig von kurzfristigen Trends oder einzelnen
-          Algorithmus-Updates funktionieren. Die Methoden haben sich über Jahre in der Praxis
-          bewährt – für nachhaltiges Wachstum, statt jedem neuen Hype hinterherzulaufen. Auch
-          wenn die konkreten Beispiele aus Instagram stammen, lassen sich die grundlegenden
-          Strategien auch auf andere Social-Media-Plattformen übertragen.
-        </p>
+        <p class="ebook-kicker" data-anim="reveal">{evergreen.kicker}</p>
+        <h2 id="ebook-evergreen-title" data-anim="reveal">{evergreen.heading}</h2>
+        <p data-anim="reveal" data-delay="0.08">{evergreen.text}</p>
       </div>
     </div>
   </section>
@@ -704,14 +391,12 @@ const ebookFaq: SectionFaq = {
   <section class="ebook-bundle section is-alt" aria-labelledby="ebook-bundle-title">
     <div class="container">
       <div class="ebook-bundle__head text-center">
-        <p class="ebook-kicker" data-anim="reveal">Das Komplettpaket</p>
-        <h2 id="ebook-bundle-title" data-anim="reveal">Alles, was du für die Umsetzung brauchst.</h2>
-        <p data-anim="reveal" data-delay="0.08">
-          Zum E-Book bekommst du zwei praktische Extras ohne Aufpreis dazu.
-        </p>
+        <p class="ebook-kicker" data-anim="reveal">{bundle.kicker}</p>
+        <h2 id="ebook-bundle-title" data-anim="reveal">{bundle.heading}</h2>
+        <p data-anim="reveal" data-delay="0.08">{bundle.intro}</p>
       </div>
       <div class="ebook-bundle__grid">
-        {bundle.map((item, index) => (
+        {bundle.items.map((item, index) => (
           <>
             {index > 0 && (
               <span
@@ -727,9 +412,8 @@ const ebookFaq: SectionFaq = {
               data-delay={String(index * 0.1)}
             >
               <div class="ebook-bundle-card__visual">
-                <Image
-                  src={item.image}
-                  alt={item.alt}
+                <CmsImage
+                  image={item.image}
                   widths={[320, 480, 640, 800, 1000]}
                   sizes="(max-width: 991px) 76vw, 25vw"
                   format={index === 0 ? 'webp' : 'png'}
@@ -751,14 +435,14 @@ const ebookFaq: SectionFaq = {
       </div>
       <div class="ebook-price" data-anim="reveal">
         <div>
-          <p>Dein Gesamtwert</p>
-          <s>&gt;280 €</s>
+          <p>{bundle.totalLabel}</p>
+          <s>{bundle.totalValue}</s>
         </div>
         <div>
-          <p>Deine Investition</p>
-          <strong>27 €</strong>
+          <p>{bundle.priceLabel}</p>
+          <strong>{bundle.price}</strong>
         </div>
-        <GlowButton label="Komplettpaket auswählen" href={BUY_URL} />
+        <GlowButton label={bundle.ctaLabel} href={BUY_URL} />
       </div>
     </div>
   </section>
@@ -767,17 +451,16 @@ const ebookFaq: SectionFaq = {
     <div class="container">
       <div class="ebook-section-head">
         <div>
-          <p class="ebook-kicker" data-anim="reveal">Für wen ist es geeignet?</p>
-          <h2 id="ebook-audience-title" data-anim="reveal">Für alle, die mit Social Media mehr erreichen wollen.</h2>
+          <p class="ebook-kicker" data-anim="reveal">{audience.kicker}</p>
+          <h2 id="ebook-audience-title" data-anim="reveal">{audience.heading}</h2>
         </div>
       </div>
       <div class="ebook-audience__grid">
-        {audiences.map((audience, index) => (
+        {audience.items.map((audienceItem, index) => (
           <article data-anim="reveal" data-delay={String(index * 0.08)}>
-            <Image
+            <CmsImage
               class="ebook-audience__image"
-              src={audience.image}
-              alt={audience.alt}
+              image={audienceItem.image}
               widths={[480, 720, 960]}
               sizes="(max-width: 991px) 94vw, 31vw"
               format="webp"
@@ -785,8 +468,8 @@ const ebookFaq: SectionFaq = {
             />
             <span class="ebook-audience__number" aria-hidden="true">0{index + 1}</span>
             <div class="ebook-audience__content">
-              <h3>{audience.title}</h3>
-              <p>{audience.text}</p>
+              <h3>{audienceItem.title}</h3>
+              <p>{audienceItem.text}</p>
             </div>
           </article>
         ))}
@@ -797,16 +480,16 @@ const ebookFaq: SectionFaq = {
   <section class="ebook-reviews section is-alt" aria-labelledby="ebook-reviews-title">
     <div class="container">
       <div class="ebook-reviews__head text-center">
-        <p class="ebook-kicker" data-anim="reveal">Erfahrungen</p>
-        <h2 id="ebook-reviews-title" data-anim="reveal">Strategien, die in der Praxis funktionieren.</h2>
+        <p class="ebook-kicker" data-anim="reveal">{reviews.kicker}</p>
+        <h2 id="ebook-reviews-title" data-anim="reveal">{reviews.heading}</h2>
       </div>
       <div class="ebook-reviews__grid">
-        {reviews.map((review, index) => (
+        {reviews.items.map((review, index) => (
           <figure class:list={['ebook-review', { 'is-featured': index === 0 }]} data-anim="reveal" data-delay={String(index * 0.08)}>
             <div class="ebook-review__stars" aria-label="5 von 5 Sternen">★★★★★</div>
             <blockquote>„{review.text}“</blockquote>
             <figcaption>
-              <Image src={review.image} alt="" width={56} height={56} format="webp" quality={82} />
+              <CmsImage image={review.image} alt="" width={56} height={56} format="webp" quality={82} />
               <span><strong>{review.name}</strong><small>{review.role}</small></span>
             </figcaption>
           </figure>
@@ -817,16 +500,14 @@ const ebookFaq: SectionFaq = {
 
   <section class="ebook-final section" aria-labelledby="ebook-final-title">
     <div class="container ebook-final__inner">
-      <p class="ebook-kicker" data-anim="reveal">Auf was wartest du noch?</p>
-      <h2 id="ebook-final-title" data-anim="reveal">Jetzt mit Plan durchstarten.</h2>
-      <p data-anim="reveal" data-delay="0.08">
-        Hol dir die Instagram Erfolgsformel inklusive Insta BIO Creator und Bonus-Downloads.
-      </p>
+      <p class="ebook-kicker" data-anim="reveal">{finalCta.kicker}</p>
+      <h2 id="ebook-final-title" data-anim="reveal">{finalCta.heading}</h2>
+      <p data-anim="reveal" data-delay="0.08">{finalCta.text}</p>
       <div class="ebook-final__price" data-anim="reveal" data-delay="0.12">
-        <span>Komplettpaket für nur</span><strong>27 €</strong><s>&gt;280 € Gesamtwert</s>
+        <span>{finalCta.pricePrefix}</span><strong>{finalCta.price}</strong><s>{finalCta.totalValue}</s>
       </div>
       <div data-anim="reveal" data-delay="0.16">
-        <GlowButton label="E-Book + Boni sofort erhalten" href={BUY_URL} />
+        <GlowButton label={finalCta.ctaLabel} href={BUY_URL} />
       </div>
     </div>
   </section>

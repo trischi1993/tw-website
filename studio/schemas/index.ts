@@ -3,6 +3,7 @@ import type { SchemaTypeDefinition } from 'sanity';
 /* --- Dokumente ------------------------------------------------------------ */
 import siteSettings from './documents/siteSettings';
 import homePage from './documents/homePage';
+import ebookPage from './documents/ebookPage';
 import page from './documents/page';
 import service from './documents/service';
 import testimonial from './documents/testimonial';
@@ -44,6 +45,7 @@ export const schemaTypes: SchemaTypeDefinition[] = [
   // Dokumente
   siteSettings,
   homePage,
+  ebookPage,
   page,
   service,
   testimonial,
