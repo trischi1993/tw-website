@@ -2097,8 +2097,20 @@
   .ebook-chapters__mockup { width: min(90%, 32rem); }
   .ebook-chapters__list { grid-template-columns: 1fr; }
   .ebook-chapters__list li { min-height: auto; }
-  .ebook-evergreen__inner { grid-template-columns: 1fr; gap: 2.5rem; min-height: auto; padding-block: 6rem; }
-  .ebook-evergreen__visual { min-height: 38rem; }
+  .ebook-evergreen__inner {
+    grid-template-columns: 1fr;
+    gap: 0;
+    min-height: auto;
+    padding-block: 5rem;
+  }
+  .ebook-evergreen__inner > div:last-child { order: 1; }
+  .ebook-evergreen__inner > div:last-child > p:not(.ebook-kicker) { margin-top: 1.25rem; }
+  .ebook-evergreen__visual {
+    order: 2;
+    width: 100%;
+    min-height: 0;
+    margin-top: 3.5rem;
+  }
   .ebook-results-carousel { width: min(78vw, 20rem); touch-action: pan-y pinch-zoom; }
   .ebook-results-carousel__arrow.is-prev { left: -0.75rem; }
   .ebook-results-carousel__arrow.is-next { right: -0.75rem; }
@@ -2164,6 +2176,8 @@
   .ebook-trust__sequence { gap: 0.75rem; padding-right: 0.75rem; }
   .ebook-trust__logo { width: 8.75rem; height: 3.75rem; padding: 0.65rem 0.85rem; }
   .ebook-results-carousel { width: min(80vw, 18.5rem); }
+  .ebook-evergreen__inner { padding-block: 4.5rem; }
+  .ebook-evergreen__visual { margin-top: 3rem; }
   .ebook-results-carousel__arrow { width: 2.75rem; }
   .ebook-results-carousel__arrow.is-prev { left: -0.5rem; }
   .ebook-results-carousel__arrow.is-next { right: -0.5rem; }
