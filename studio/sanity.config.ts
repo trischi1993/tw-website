@@ -40,10 +40,14 @@ function studioLayout(props: LayoutProps) {
  */
 const projectId = process.env.SANITY_STUDIO_PROJECT_ID;
 const dataset = process.env.SANITY_STUDIO_DATASET || 'production';
-const previewUrl = process.env.SANITY_STUDIO_PREVIEW_URL || 'http://localhost:4321';
+const localPreviewUrl = 'http://localhost:4321';
+const deployedPreviewUrl = 'https://tristanweithaler-preview.tristanweithaler.workers.dev';
+const previewUrl =
+  process.env.SANITY_STUDIO_PREVIEW_URL ||
+  (process.env.NODE_ENV === 'development' ? localPreviewUrl : deployedPreviewUrl);
 const previewOrigins = [
-  'http://localhost:4321',
-  'https://tristanweithaler-preview.tristanweithaler.workers.dev',
+  localPreviewUrl,
+  deployedPreviewUrl,
 ];
 
 const singletonSet = new Set<string>(SINGLETONS);
