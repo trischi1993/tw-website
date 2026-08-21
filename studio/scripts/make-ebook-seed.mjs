@@ -36,7 +36,7 @@ const memberTypes = {
   'evergreen.results': 'item',
   'bundle.items': 'item',
   'audience.items': 'item',
-  'reviews.items': 'review',
+  'reviews.messages': 'message',
   'faq.items': 'item',
 };
 

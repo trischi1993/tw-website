@@ -34,6 +34,9 @@ const ebookFaq: SectionFaq = {
   heading: faq.heading,
   items: faq.items,
 };
+
+const reviewMessageCount = reviews.messages.length;
+const reviewMessageDigits = String(reviewMessageCount).length;
 ---
 
 <div class="ebook">
@@ -318,7 +321,12 @@ const ebookFaq: SectionFaq = {
               aria-hidden={index === 0 ? 'false' : 'true'}
               aria-label={`${index + 1} von ${evergreen.results.length}`}
             >
-              <div class="ebook-results-carousel__device">
+              <div
+                class:list={[
+                  'ebook-results-carousel__device',
+                  { 'is-full-frame': result._key === 'mindful-stays-profile' },
+                ]}
+              >
                 <CmsImage
                   image={result.image}
                   widths={[320, 480, 640]}
@@ -483,17 +491,87 @@ const ebookFaq: SectionFaq = {
         <p class="ebook-kicker" data-anim="reveal">{reviews.kicker}</p>
         <h2 id="ebook-reviews-title" data-anim="reveal">{reviews.heading}</h2>
       </div>
-      <div class="ebook-reviews__grid">
-        {reviews.items.map((review, index) => (
-          <figure class:list={['ebook-review', { 'is-featured': index === 0 }]} data-anim="reveal" data-delay={String(index * 0.08)}>
-            <div class="ebook-review__stars" aria-label="5 von 5 Sternen">★★★★★</div>
-            <blockquote>„{review.text}“</blockquote>
-            <figcaption>
-              <CmsImage image={review.image} alt="" width={56} height={56} format="webp" quality={82} />
-              <span><strong>{review.name}</strong><small>{review.role}</small></span>
-            </figcaption>
-          </figure>
-        ))}
+      <div class="ebook-reviews__showcase">
+        <figure class="ebook-review is-featured" data-anim="reveal">
+          <div class="ebook-review__stars" aria-label="5 von 5 Sternen">★★★★★</div>
+          <blockquote>„{reviews.featured.text}“</blockquote>
+          <figcaption>
+            <CmsImage image={reviews.featured.image} alt="" width={56} height={56} format="webp" quality={82} />
+            <span><strong>{reviews.featured.name}</strong><small>{reviews.featured.role}</small></span>
+          </figcaption>
+        </figure>
+
+        <div
+          class="ebook-message-wall"
+          data-ebook-message-wall
+          data-message-digits={reviewMessageDigits}
+          style={`--message-count: ${reviewMessageCount}`}
+          data-anim="reveal"
+          data-delay="0.08"
+          tabindex="0"
+          role="region"
+          aria-label={`${reviewMessageCount} Nachrichten von E-Book-Käuferinnen und -Käufern`}
+        >
+          <div class="ebook-message-wall__deck" data-ebook-message-deck>
+            <span class="ebook-message-wall__glow" aria-hidden="true"></span>
+            {reviews.messages.map((message, index) => {
+              const initialState = index === 0
+                ? '0'
+                : index === 1
+                  ? '1'
+                  : index === 2
+                    ? '2'
+                    : index === reviewMessageCount - 1
+                      ? '-1'
+                      : index === reviewMessageCount - 2
+                        ? '-2'
+                        : 'hidden';
+
+              return (
+                <figure
+                  class="ebook-message"
+                  data-ebook-message
+                  data-state={initialState}
+                  aria-hidden={index === 0 ? 'false' : 'true'}
+                >
+                  <CmsImage
+                    image={message.image}
+                    widths={[420, 700, 1000]}
+                    sizes="(max-width: 767px) 88vw, 46vw"
+                    format="webp"
+                    quality={90}
+                  />
+                </figure>
+              );
+            })}
+          </div>
+
+          <div class="ebook-message-wall__footer">
+            <div>
+              <p><span aria-hidden="true"></span>Echte Käufer-Nachrichten</p>
+              <small><span class="is-hover-copy">Hover pausiert den Wechsel</span><span class="is-tap-copy" data-ebook-message-tap-hint>Läuft automatisch · Tippen zum Pausieren</span></small>
+            </div>
+            <div class="ebook-message-wall__controls">
+              <button type="button" data-ebook-message-prev aria-label="Vorherige Käufer-Nachricht">
+                <svg viewBox="0 0 20 20" aria-hidden="true"><path d="m12.5 4.5-5 5.5 5 5.5" /></svg>
+              </button>
+              <span aria-live="polite">
+                <strong data-ebook-message-index>{String(1).padStart(reviewMessageDigits, '0')}</strong>
+                <i>/</i>
+                {String(reviewMessageCount).padStart(reviewMessageDigits, '0')}
+              </span>
+              <button type="button" data-ebook-message-next aria-label="Nächste Käufer-Nachricht">
+                <svg viewBox="0 0 20 20" aria-hidden="true"><path d="m7.5 4.5 5 5.5-5 5.5" /></svg>
+              </button>
+            </div>
+          </div>
+
+          <div class="ebook-message-wall__queue" aria-hidden="true">
+            {reviews.messages.map((_, index) => (
+              <span class:list={{ 'is-active': index === 0 }} data-ebook-message-dot></span>
+            ))}
+          </div>
+        </div>
       </div>
     </div>
   </section>
@@ -518,6 +596,7 @@ const ebookFaq: SectionFaq = {
 <script>
   import '../scripts/ebook-carousel';
   import '../scripts/ebook-count-up';
+  import '../scripts/ebook-message-wall';
   import '../scripts/ebook-mobile-benefits';
 
   // Kampagnen- und Affiliate-Parameter bis zum bestehenden Systeme.io-

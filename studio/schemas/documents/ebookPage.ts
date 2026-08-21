@@ -387,20 +387,28 @@ export default defineType({
         requiredString('kicker', 'Kleine Überschrift'),
         requiredString('heading', 'Überschrift'),
         defineField({
-          name: 'items',
-          title: 'Rezensionen',
+          name: 'featured',
+          title: 'Hervorgehobene Rezension',
+          type: 'object',
+          fields: [
+            requiredString('name', 'Name'),
+            requiredString('role', 'Rolle/Einordnung'),
+            requiredString('text', 'Zitat', 6),
+            imageField('image', 'Portrait'),
+          ],
+          validation: (R) => R.required(),
+          preview: { select: { title: 'name', subtitle: 'role', media: 'image.asset' } },
+        }),
+        defineField({
+          name: 'messages',
+          title: 'Käufer-Nachrichten',
           type: 'array',
           of: [
             {
               type: 'object',
-              name: 'review',
-              fields: [
-                requiredString('name', 'Name'),
-                requiredString('role', 'Rolle/Einordnung'),
-                requiredString('text', 'Zitat', 6),
-                imageField('image', 'Portrait'),
-              ],
-              preview: { select: { title: 'name', subtitle: 'role', media: 'image.asset' } },
+              name: 'message',
+              fields: [imageField('image', 'Freigestellte PN')],
+              preview: { select: { title: 'image.alt', media: 'image.asset' } },
             },
           ],
           validation: (R) => R.required().min(1),

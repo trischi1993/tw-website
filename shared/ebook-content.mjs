@@ -220,7 +220,21 @@ export function buildEbookContent({ img }) {
           _key: 'community',
           image: img(
             'ebook/result-insight-6.png',
-            'Instagram-Insight mit starkem Community-Wachstum',
+            'Instagram-Reel-Ergebnis: 1.766.701 Aufrufe, 838.627 erreichte Konten und 99,9 Prozent Nicht-Follower',
+          ),
+        },
+        {
+          _key: 'mindful-stays',
+          image: img(
+            'ebook/result-insight-7.png',
+            'Instagram-Ergebnis von Mindful Stays: 19 Millionen Reel-Aufrufe, 588.862 Likes und 10.592 gespeicherte Beiträge',
+          ),
+        },
+        {
+          _key: 'mindful-stays-profile',
+          image: img(
+            'results-5.avif',
+            'Instagram-Profil Mindful Stays mit 115.000 Followern und millionenfach angesehenen Reels',
           ),
         },
       ],
@@ -298,27 +312,89 @@ export function buildEbookContent({ img }) {
     reviews: {
       kicker: 'Erfahrungen',
       heading: 'Strategien, die in der Praxis funktionieren.',
-      items: [
+      featured: {
+        name: 'Barbara Prantl',
+        role: 'Hobbyköchin & Influencerin (170.000+ Follower)',
+        text: 'Ich habe mir Tristans E-Book gekauft und bin auch im persönlichen Austausch mit ihm. Die Tipps sind verständlich erklärt, praxisnah und extrem hilfreich. Gerade die Kombination aus Strategie, echten Erfahrungen und konkreten Beispielen macht das Ganze zu einem richtig starken Werkzeug für alle, die Social Media nachhaltig aufbauen möchten.',
+        image: img('testimonials/barbara-prantl.webp', 'Barbara Prantl'),
+      },
+      messages: [
         {
-          _key: 'barbara-prantl',
-          name: 'Barbara Prantl',
-          role: 'Hobbyköchin & Influencerin (170.000+ Follower)',
-          text: 'Ich habe mir Tristans E-Book gekauft und bin auch im persönlichen Austausch mit ihm. Die Tipps sind verständlich erklärt, praxisnah und extrem hilfreich. Gerade die Kombination aus Strategie, echten Erfahrungen und konkreten Beispielen macht das Ganze zu einem richtig starken Werkzeug für alle, die Social Media nachhaltig aufbauen möchten.',
-          image: img('testimonials/barbara-prantl.webp', 'Barbara Prantl'),
+          _key: 'reach-doubled',
+          image: img(
+            'ebook/messages/reach-doubled.png',
+            'Käufernachricht: Die Content-Funnel-Strategie aus dem E-Book hat die Reichweite in drei Wochen verdoppelt.',
+          ),
         },
         {
-          _key: 'naomi-kircher',
-          name: 'Naomi Kircher',
-          role: 'Mentorin & Influencerin (18.000+ Follower)',
-          text: 'Dank Tristans wertvoller Unterstützung konnte ich meine Reichweite innerhalb eines Jahres von 2.000 auf 18.000 Follower steigern – und damit erfolgreich den Grundstein für meine Selbstständigkeit legen.',
-          image: img('testimonials/naomi-kircher.avif', 'Naomi Kircher'),
+          _key: 'structure',
+          image: img(
+            'ebook/messages/structure.png',
+            'Käufernachricht: Das E-Book ist schön, gut strukturiert und steckt voller Wissen und Herzblut.',
+          ),
         },
         {
-          _key: 'buonomemes',
-          name: 'Buonomemes',
-          role: 'Comedian & Influencer (700.000+ Follower)',
-          text: 'Tristan überzeugte uns mit präziser Arbeit, starker Strategie und einem wertvollen Netzwerk. Sein Support war entscheidend für unseren erfolgreichen Launch – fachlich wie menschlich absolut empfehlenswert.',
-          image: img('testimonials/buonomemes.avif', 'Buonomemes'),
+          _key: 'first-impression',
+          image: img(
+            'ebook/messages/first-impression.png',
+            'Käufernachricht: Der erste Eindruck ist mega und die Arbeit wird ausdrücklich gelobt.',
+          ),
+        },
+        {
+          _key: 'first-chapters',
+          image: img(
+            'ebook/messages/first-chapters.png',
+            'Käufernachricht: Schon nach den ersten drei Kapiteln wurde viel aus dem E-Book mitgenommen.',
+          ),
+        },
+        {
+          _key: 'bought-mega',
+          image: img(
+            'ebook/messages/bought-mega.png',
+            'Käufernachricht: Direkt nach dem Kauf ist der erste Eindruck mega.',
+          ),
+        },
+        {
+          _key: 'value-experience',
+          image: img(
+            'ebook/messages/value-experience.png',
+            'Käufernachricht: Das E-Book bietet viel Mehrwert, Wissen und wertvolle Erfahrungen.',
+          ),
+        },
+        {
+          _key: 'bought-excited',
+          image: img(
+            'ebook/messages/bought-excited.png',
+            'Käufernachricht: Freude über den Kauf und den günstigen Zugang zum E-Book.',
+          ),
+        },
+        {
+          _key: 'posting-is-fun',
+          image: img(
+            'ebook/messages/posting-is-fun.png',
+            'Käufernachricht: Die Kombination aus Tipps, Einblicken und E-Book macht das Posten leichter und wieder motivierend.',
+          ),
+        },
+        {
+          _key: 'clarity-and-bought',
+          image: img(
+            'ebook/messages/clarity-and-bought.png',
+            'Käufernachricht: Mehr Klarheit über den Start und Vorfreude auf das gekaufte E-Book.',
+          ),
+        },
+        {
+          _key: 'recommendation',
+          image: img(
+            'ebook/messages/recommendation.png',
+            'Käufernachricht: Das E-Book wurde aufgrund einer begeisterten Empfehlung gekauft.',
+          ),
+        },
+        {
+          _key: 'ready-to-implement',
+          image: img(
+            'ebook/messages/ready-to-implement.png',
+            'Käufernachricht: Das E-Book wurde gekauft und die Umsetzung kann beginnen.',
+          ),
         },
       ],
     },

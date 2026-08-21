@@ -557,13 +557,13 @@ export interface EbookContent {
   reviews: {
     kicker: string;
     heading: string;
-    items: {
-      _key: string;
+    featured: {
       name: string;
       role: string;
       text: string;
       image?: SiteImage;
-    }[];
+    };
+    messages: { _key: string; image?: SiteImage }[];
   };
   finalCta: {
     kicker: string;

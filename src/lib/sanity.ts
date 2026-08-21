@@ -165,7 +165,12 @@ const EBOOK_QUERY = `*[_type == "ebookPage"][0]{
   evergreen{ ..., results[]{ ..., image${EBOOK_IMAGE} } },
   bundle{ ..., items[]{ ..., image${EBOOK_IMAGE} } },
   audience{ ..., items[]{ ..., image${EBOOK_IMAGE} } },
-  reviews{ ..., items[]{ ..., image${EBOOK_IMAGE} } },
+  reviews{
+    kicker,
+    heading,
+    featured{ ..., image${EBOOK_IMAGE} },
+    messages[]{ ..., image${EBOOK_IMAGE} }
+  },
   finalCta,
   faq
 }`;
@@ -272,5 +277,19 @@ export async function fetchEbook(): Promise<EbookContent> {
   const d = await activeClient().fetch(EBOOK_QUERY);
   if (!d) return ebookSeed;
   const content = mergeEbookValue(ebookSeed, d) as EbookContent;
-  return { ...content, documentId: baseIdOf(d._id) };
+  const localResultAdditions = ebookSeed.evergreen.results.filter(
+    (result) => result._key === 'mindful-stays-profile',
+  );
+  const results = [
+    ...content.evergreen.results,
+    ...localResultAdditions.filter(
+      (addition) => !content.evergreen.results.some((result) => result._key === addition._key),
+    ),
+  ];
+
+  return {
+    ...content,
+    documentId: baseIdOf(d._id),
+    evergreen: { ...content.evergreen, results },
+  };
 }
