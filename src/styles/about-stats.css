@@ -1,0 +1,63 @@
+/* Kennzahlenleiste im Ueber-mich-Hero. Sie sitzt bewusst ueber die gesamte
+   Containerbreite, damit sechs kurze Nachweise ruhig und lesbar bleiben. */
+.ahero__inner {
+  flex-direction: column;
+}
+
+.ahero__stats {
+  display: grid;
+  grid-template-columns: repeat(6, minmax(0, 1fr));
+  width: 100%;
+  margin-top: clamp(2.5rem, 5vh, 4rem);
+  padding-block: 1.75rem;
+  border-top: 1px solid color-mix(in srgb, var(--brand-readable) 35%, transparent);
+  border-bottom: 1px solid color-mix(in srgb, var(--brand-readable) 35%, transparent);
+}
+
+.ahero__stat {
+  min-width: 0;
+  padding-right: clamp(1rem, 2vw, 2rem);
+}
+
+.ahero__stat dt {
+  color: var(--ink);
+  font-size: clamp(1.75rem, 2.5vw, 2.35rem);
+  font-weight: 500;
+  line-height: 1;
+  letter-spacing: -0.025em;
+  font-variant-numeric: tabular-nums;
+}
+
+.ahero__stat dd {
+  margin-top: 0.55rem;
+  color: var(--ink-3);
+  font-size: var(--text-xs);
+  line-height: 1.45;
+}
+
+/* Kleinere Laptops und Tablets: sechs Spalten werden zu eng, deshalb zwei
+   gleichmaessige Dreierreihen mit genug Raum fuer die Beschriftungen. */
+@media (max-width: 991px) {
+  .ahero__stats {
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+    gap: 1.75rem 1rem;
+    margin-top: 2.5rem;
+  }
+}
+
+/* Smartphone-Hochformat: drei gleichmaessige Zweierreihen. */
+@media (max-width: 479px) {
+  .ahero__stats {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 1.5rem 0.75rem;
+    padding-block: 1.5rem;
+  }
+
+  .ahero__stat {
+    padding-right: 0;
+  }
+
+  .ahero__stat dt {
+    font-size: 1.75rem;
+  }
+}

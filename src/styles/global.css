@@ -1,6 +1,7 @@
 @import './fonts.css';
 @import './tokens.css';
 @import './sections.css';
+@import './about-stats.css';
 
 /* ---------------------------------------------------------------------------
    Reset (modern, minimal)
@@ -520,6 +521,7 @@ html.has-motion:not(.motion-ready) [data-hero-scroll]:not([data-revealed]) { opa
 html.has-motion:not(.motion-ready) [data-about-hero] h1:not([data-revealed]) { opacity: 0; transform: translateX(2rem); }
 html.has-motion:not(.motion-ready) [data-about-hero] .ahero__intro:not([data-revealed]) { opacity: 0; transform: translateX(2rem); }
 html.has-motion:not(.motion-ready) [data-about-hero] .ahero__socials:not([data-revealed]) { opacity: 0; transform: translateX(2rem); }
+html.has-motion:not(.motion-ready) [data-about-hero] .ahero__stats:not([data-revealed]) { opacity: 0; transform: translateY(1rem); }
 
 /* AIO (Hero-intern, self-scoped über die data-aio-*-Attribute). */
 html.has-motion:not(.motion-ready) [data-aio-h1]:not([data-revealed]) { opacity: 0; transform: translateX(2rem); }

@@ -32,6 +32,15 @@ const LOTTIE: Record<
   },
 };
 
+const EXPERIENCE_STATS = [
+  { value: 150, suffix: 'M+', label: 'organische Views' },
+  { value: 200, suffix: 'K+', label: 'Follower aufgebaut' },
+  { value: 100, suffix: '+', label: 'Menschen unterstützt' },
+  { value: 8, suffix: '+', label: 'Jahre Erfahrung' },
+  { value: 4, suffix: '', label: 'eigene Marken aufgebaut' },
+  { value: 3, suffix: '', label: 'Bücher veröffentlicht' },
+] as const;
+
 /**
  * Über-mich-Hero: H1 + Vorstellung + Social-Icons links, Portrait (2:3) rechts.
  * Die Load-Choreografie (IX2 a-125: H1/Intro/Navbar einfahren, Whipe-Fläche
@@ -105,6 +114,20 @@ export default function PortraitHeroSection({
               <div className="ahero__wipe" data-ahero-wipe="" aria-hidden="true" />
             </div>
           </div>
+          <dl className="ahero__stats" data-about-stats="">
+            {EXPERIENCE_STATS.map((stat) => (
+              <div className="ahero__stat" key={stat.label}>
+                <dt
+                  data-about-count={stat.value}
+                  data-about-count-suffix={stat.suffix}
+                  aria-label={`${stat.value}${stat.suffix}`}
+                >
+                  {stat.value}{stat.suffix}
+                </dt>
+                <dd>{stat.label}</dd>
+              </div>
+            ))}
+          </dl>
         </div>
       </div>
     </section>
