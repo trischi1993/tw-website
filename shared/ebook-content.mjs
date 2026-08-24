@@ -50,7 +50,7 @@ export function buildEbookContent({ img }) {
       ctaLabel: 'Jetzt E-Book sichern',
       pricePrefix: 'Gesamtwert >280 €',
       priceText: 'aktuell für nur 27 €',
-      stampText: '8+ Jahre\nPraxis',
+      stampText: 'E-Book\n+ Boni',
       image: img(
         'ebook/hero-v5.png',
         'Die Instagram Erfolgsformel mit E-Book, Smartphone und Beispielseiten',

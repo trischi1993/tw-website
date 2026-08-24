@@ -167,7 +167,7 @@
   border: 2px solid var(--brand);
   border-radius: 50%;
   background: transparent;
-  box-shadow: 0 1rem 2.5rem color-mix(in srgb, var(--brand) 36%, transparent);
+  box-shadow: 0 0 2.5rem color-mix(in srgb, var(--brand) 36%, transparent);
   transform: rotate(8deg);
   transition:
     transform 360ms var(--ease-out-expo),
@@ -225,7 +225,7 @@
   transform: translateY(-0.2rem) rotate(5.5deg) scale(1.035);
   border-color: var(--brand-readable);
   box-shadow:
-    0 1.3rem 3rem color-mix(in srgb, var(--brand) 48%, transparent),
+    0 0 3rem color-mix(in srgb, var(--brand) 48%, transparent),
     0 0 0 0.24rem color-mix(in srgb, var(--brand) 13%, transparent);
 }
 
@@ -2255,13 +2255,13 @@
     opacity: 1;
     transform: translateY(-0.12rem) rotate(10deg) scale(1.055);
     box-shadow:
-      0 1.45rem 3.2rem color-mix(in srgb, var(--brand) 52%, transparent),
+      0 0 3.2rem color-mix(in srgb, var(--brand) 52%, transparent),
       0 0 0 0.32rem color-mix(in srgb, var(--brand) 15%, transparent);
   }
   100% {
     opacity: 1;
     transform: rotate(8deg) scale(1);
-    box-shadow: 0 1rem 2.5rem color-mix(in srgb, var(--brand) 36%, transparent);
+    box-shadow: 0 0 2.5rem color-mix(in srgb, var(--brand) 36%, transparent);
   }
 }
 
