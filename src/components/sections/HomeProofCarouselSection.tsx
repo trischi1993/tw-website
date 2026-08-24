@@ -28,7 +28,7 @@ const OWN_RESULTS: ProofCard[] = [
       {
         src: '/images/home-results/tristan-profile.jpg',
         alt: 'Instagram-Profil von Tristan Weithaler mit mehr als 8.800 Followern',
-        badge: '2 Postings pro Woche',
+        badge: '100 % organisch',
         profileCrop: 'tristan',
       },
     ],
@@ -69,7 +69,7 @@ const OWN_RESULTS: ProofCard[] = [
       {
         src: '/images/home-results/tristan-leads.webp',
         alt: 'Instagram-Beitragsstatistik eines Posts von Tristan Weithaler',
-        badge: '1 Post',
+        badge: 'Content → Leads',
       },
     ],
   },
@@ -77,7 +77,7 @@ const OWN_RESULTS: ProofCard[] = [
     kind: 'own',
     source: 'Tristan Weithaler · Personal Brand',
     value: '1,7 Mio. Views',
-    label: 'mit nur einem Reel',
+    label: 'und +2.000 neue Follower mit nur einem Reel',
     images: [
       {
         src: '/images/home-results/tristan-backpack-reel.webp',
