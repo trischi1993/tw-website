@@ -1540,12 +1540,15 @@ html.has-motion .ahero__wipe { display: block; }
   white-space: nowrap;
 }
 .home-proof__carousel {
+  --home-proof-edge: clamp(1rem, 2.5vw, 3rem);
   display: flex;
   gap: 1.5rem;
-  margin-right: calc(var(--container-padding) * -1);
-  padding: 0.15rem var(--container-padding) 0.5rem 0.15rem;
+  width: 100vw;
+  margin-left: calc(50% - 50vw);
+  padding: 0.15rem var(--home-proof-edge) 0.5rem;
   overflow-x: auto;
   overscroll-behavior-inline: contain;
+  scroll-padding-inline: var(--home-proof-edge);
   scroll-snap-type: x mandatory;
   scrollbar-width: none;
   touch-action: pan-x pan-y;

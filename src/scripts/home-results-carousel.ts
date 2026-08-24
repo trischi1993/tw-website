@@ -53,9 +53,12 @@ function initAutoCarousel(carousel: HTMLElement): void {
 
     const carouselBounds = carousel.getBoundingClientRect();
     const cardBounds = card.getBoundingClientRect();
+    const scrollPaddingStart = Number.parseFloat(
+      window.getComputedStyle(carousel).scrollPaddingLeft,
+    ) || 0;
     const maxScroll = Math.max(0, carousel.scrollWidth - carousel.clientWidth);
     const target = clamp(
-      carousel.scrollLeft + cardBounds.left - carouselBounds.left,
+      carousel.scrollLeft + cardBounds.left - carouselBounds.left - scrollPaddingStart,
       0,
       maxScroll,
     );
