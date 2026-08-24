@@ -3,9 +3,9 @@ import type { EditAttr } from './SectionsList';
 import Img from './Img';
 import GlowButton from './GlowButton';
 
-/** Alternative Startseiten-Variante: Wie bei nomira.ch scrollt der Hero normal
- * aus dem Viewport, während Bild, Titel und CTA mit getrennten Geschwindigkeiten
- * nach oben laufen. Auf Desktop öffnet sich der Bildrahmen zusätzlich subtil. */
+/** Alternative Startseiten-Variante: Der Bildrahmen bleibt als ruhiger Anker
+ * stabil, während Bild, Titel und CTA mit getrennten Geschwindigkeiten aus dem
+ * Viewport laufen. Eine leichte Abdunklung übergibt an den Ergebnistext. */
 export default function HomeHeroSection({
   section,
   edit,
@@ -59,72 +59,61 @@ export default function HomeHeroSection({
           <div className="hhero__tweak" data-parallax-tweak="">
             <div className="hhero__tweak-head">
               <span>Hero Motion</span>
-              <small>Editorial Reveal</small>
+              <small>Cinematic Hold</small>
             </div>
             <label className="hhero__tweak-row">
-              <span>Bildweg <output data-parallax-image-output="">−120 px</output></span>
+              <span>Bildweg <output data-parallax-image-output="">−40 px</output></span>
               <input
                 type="range"
                 min="0"
-                max="200"
+                max="120"
                 step="5"
-                defaultValue="120"
+                defaultValue="40"
                 data-parallax-image=""
               />
             </label>
             <label className="hhero__tweak-row">
-              <span>Titelweg <output data-parallax-title-output="">−280 px</output></span>
-              <input
-                type="range"
-                min="0"
-                max="400"
-                step="10"
-                defaultValue="280"
-                data-parallax-title=""
-              />
-            </label>
-            <label className="hhero__tweak-row">
-              <span>CTA-Weg <output data-parallax-secondary-output="">−220 px</output></span>
+              <span>Titelweg <output data-parallax-title-output="">−220 px</output></span>
               <input
                 type="range"
                 min="0"
                 max="320"
                 step="10"
                 defaultValue="220"
+                data-parallax-title=""
+              />
+            </label>
+            <label className="hhero__tweak-row">
+              <span>CTA-Weg <output data-parallax-secondary-output="">−160 px</output></span>
+              <input
+                type="range"
+                min="0"
+                max="240"
+                step="10"
+                defaultValue="160"
                 data-parallax-secondary=""
               />
             </label>
             <label className="hhero__tweak-row">
-              <span>Glättung <output data-parallax-scrub-output="">0,7 s</output></span>
+              <span>Glättung <output data-parallax-scrub-output="">0,45 s</output></span>
               <input
                 type="range"
                 min="0.1"
-                max="2"
-                step="0.1"
-                defaultValue="0.7"
+                max="1"
+                step="0.05"
+                defaultValue="0.45"
                 data-parallax-scrub=""
               />
             </label>
             <label className="hhero__tweak-row">
-              <span>Frame-Öffnung <output data-parallax-frame-output="">48 → 56 %</output></span>
+              <span>Abdunklung <output data-parallax-dim-output="">20 %</output></span>
               <input
                 type="range"
                 min="0"
-                max="14"
-                step="1"
-                defaultValue="8"
-                data-parallax-frame=""
-              />
-            </label>
-            <label className="hhero__tweak-row">
-              <span>Bild-Zoom <output data-parallax-zoom-output="">104 → 100 %</output></span>
-              <input
-                type="range"
-                min="0"
-                max="8"
-                step="0.5"
-                defaultValue="4"
-                data-parallax-zoom=""
+                max="40"
+                step="5"
+                defaultValue="20"
+                data-parallax-dim=""
               />
             </label>
           </div>
