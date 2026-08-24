@@ -95,13 +95,13 @@ export default function HomeHeroSection({
               />
             </label>
             <label className="hhero__tweak-row">
-              <span>Glättung <output data-parallax-scrub-output="">1,0 s</output></span>
+              <span>Glättung <output data-parallax-scrub-output="">0,7 s</output></span>
               <input
                 type="range"
                 min="0.1"
                 max="2"
                 step="0.1"
-                defaultValue="1"
+                defaultValue="0.7"
                 data-parallax-scrub=""
               />
             </label>

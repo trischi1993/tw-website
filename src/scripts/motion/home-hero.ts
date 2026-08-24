@@ -4,7 +4,7 @@ const DEFAULTS = {
   image: 120,
   title: 280,
   secondary: 220,
-  scrub: 1,
+  scrub: 0.7,
 } as const;
 
 type MotionProfile = {
@@ -20,13 +20,13 @@ const PROFILES = {
     image: 70 / DEFAULTS.image,
     title: 170 / DEFAULTS.title,
     secondary: 130 / DEFAULTS.secondary,
-    scrub: 0.5,
+    scrub: 0.5 / DEFAULTS.scrub,
   },
   mobile: {
     image: 40 / DEFAULTS.image,
     title: 80 / DEFAULTS.title,
     secondary: 60 / DEFAULTS.secondary,
-    scrub: 0.3,
+    scrub: 0.3 / DEFAULTS.scrub,
   },
 } satisfies Record<string, MotionProfile>;
 
@@ -39,7 +39,7 @@ const readNumber = (input: HTMLInputElement | null, fallback: number) => {
  * Parallax-Prinzip nach nomira.ch (Referenzstand 2026-08-24):
  * - kein Pinning; der Hero scrollt normal aus dem Viewport;
  * - Trigger von `top top` bis `bottom top`, lineare Bewegung;
- * - Desktop: Bild -120 px, Titel -280 px, Begleitebene -220 px, Scrub 1 s;
+ * - Desktop: Bild -120 px, Titel -280 px, Begleitebene -220 px, Scrub 0,7 s;
  * - Tablet: -70 / -170 / -130 px, Scrub 0,5 s;
  * - Mobile: -40 / -80 / -60 px, Scrub 0,3 s.
  *
