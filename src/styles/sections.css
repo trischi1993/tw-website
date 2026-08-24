@@ -171,6 +171,7 @@
   }
   .hhero__content { margin-inline: 5%; } /* max-width bleibt 40rem (Original) */
   .hhero__buttons { margin-top: 2.5rem; }
+  .hhero__scroll { display: none; }
   .hhero__media { position: static; width: 100% !important; }
   .hhero__media-frame { height: auto; padding-top: 100%; }
   .hhero__parallax-layer { inset: -13% 0; }
@@ -180,7 +181,6 @@
   .hhero__sticky { padding-top: 6rem; }
   .hhero__content { max-width: 30rem; }
   .hhero__buttons { margin-top: 2rem; }
-  .hhero__scroll { display: none; }
 }
 @media (max-width: 479px) {
   .hhero__h1 { font-size: 2.9rem; }
