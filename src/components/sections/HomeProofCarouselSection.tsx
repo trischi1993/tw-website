@@ -28,7 +28,6 @@ const OWN_RESULTS: ProofCard[] = [
       {
         src: '/images/home-results/tristan-profile.jpg',
         alt: 'Instagram-Profil von Tristan Weithaler mit mehr als 8.800 Followern',
-        badge: '8.800+ Follower',
         profileCrop: 'tristan',
       },
     ],
@@ -37,12 +36,12 @@ const OWN_RESULTS: ProofCard[] = [
     kind: 'own',
     source: 'Mindful Stays · Travel Brand',
     value: '115.000',
-    label: 'Follower organisch aufgebaut',
+    label: 'Follower – Account strategisch und inhaltlich weiterentwickelt',
     images: [
       {
         src: '/images/home-results/mindful-stays-profile.webp',
         alt: 'Instagram-Profil von Mindful Stays mit 115.000 Followern',
-        badge: '115.000 Follower',
+        badge: 'Reels bis 11,1 Mio. Views',
         profileCrop: 'mindful',
       },
     ],
@@ -56,7 +55,7 @@ const OWN_RESULTS: ProofCard[] = [
       {
         src: '/images/home-results/southtyrolian-profile.jpg',
         alt: 'Instagram-Profil von Southtyrolian mit mehr als 200.000 Followern',
-        badge: '200.000+ Follower',
+        badge: '+150.000 Follower',
       },
     ],
   },
@@ -69,20 +68,19 @@ const OWN_RESULTS: ProofCard[] = [
       {
         src: '/images/home-results/tristan-leads.webp',
         alt: 'Instagram-Beitragsstatistik eines Posts von Tristan Weithaler',
-        badge: '300+ Leads',
       },
     ],
   },
   {
     kind: 'own',
     source: 'Tristan Weithaler · Personal Brand',
-    value: '1.000 → 1,7 Mio.',
-    label: 'Views mit einem Reel',
+    value: '1,7 Mio. Views',
+    label: 'mit nur einem Reel',
     images: [
       {
         src: '/images/home-results/tristan-backpack-reel.webp',
-        alt: 'Reel von Tristan Weithaler mit Rucksack und 1.766.701 Aufrufen',
-        badge: '1,7 Mio. Views',
+        alt: 'Reel von Tristan Weithaler mit Rucksack, 1.766.701 Aufrufen und mehr als 2.000 neuen Followern',
+        badge: '+2.000 Follower',
         cropAtCircle: true,
       },
     ],
@@ -235,7 +233,7 @@ export default function HomeProofCarouselSection({
     >
       <div className="container">
         <header className="home-proof__head" data-anim="reveal">
-          <h2>Genug erzählt. Lass die Ergebnisse sprechen.</h2>
+          <h2>Aus der Praxis. Lass die Ergebnisse sprechen.</h2>
           <div className="home-proof__legend" aria-label="Ergebnisgruppe auswählen">
             <button
               type="button"
