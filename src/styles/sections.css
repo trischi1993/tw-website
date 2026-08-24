@@ -1647,7 +1647,7 @@ html.has-motion .ahero__wipe { display: block; }
   transform: translateY(-5.8%);
 }
 .home-proof-card__media figure.is-mindful-profile-cropped img {
-  height: 108%;
+  height: 110%;
   transform: translateY(-5.8%);
 }
 .home-proof-card__media.is-comparison figure:first-of-type {
