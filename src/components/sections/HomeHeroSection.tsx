@@ -3,17 +3,9 @@ import type { EditAttr } from './SectionsList';
 import Img from './Img';
 import GlowButton from './GlowButton';
 
-/**
- * Startseiten-Hero, 1:1 nach Webflow-Export (.section_home-hero):
- * - H1 mit Zeilen-Reveal (Line-Script: data-anim="lines", speed 0.9, delay 0.1
- *   - startet früh/parallel zum Nav-Build; Reveal-Charakter bleibt).
- * - Buttons (.button-group) + Scroll-Indikator + Wipe-Fläche werden von der
- *   Load-Choreografie animiert (motion/home-load.ts, IX2 a-105).
- * - Desktop: 300vh-Strecke, Sticky-Content; die Bildspalte (40 % Breite)
- *   wächst über den unsichtbaren Trigger auf 100 % (motion/home-hero.ts,
- *   IX2 a-108); Scroll-Indikator-Loop (a-109).
- * Layout-Mechanik: sections.css (.hhero), ohne JS statisch voll sichtbar.
- */
+/** Alternative Startseiten-Variante: Der Bildrahmen bleibt horizontal stabil.
+ * GSAP bewegt ausschließlich den übergroßen Bildinhalt vertikal und erzeugt
+ * damit einen echten, über das Tweak-Panel regelbaren Parallax-Effekt. */
 export default function HomeHeroSection({
   section,
   edit,
@@ -51,19 +43,36 @@ export default function HomeHeroSection({
           </div>
           <div className="hhero__media" data-hero-media="">
             <div className="hhero__media-frame">
-              <Img
-                image={image}
-                loading="eager"
-                fetchPriority="high"
-                quality={90}
-                /* Desktop scrubbt das Bild von 40 auf 100vw. Auf Mobile liegt
-                   das 150% hohe Cover-Bild in einem quadratischen Frame und
-                   braucht wegen seines Querformats effektiv rund 200vw.
-                   200vw waehlt wie das Webflow-Original auch auf grossen
-                   Standard-Displays den groessten 2440px-Kandidaten. */
-                sizes="200vw"
-              />
+              <div className="hhero__parallax-layer" data-hero-parallax-layer="">
+                <Img
+                  image={image}
+                  loading="eager"
+                  fetchPriority="high"
+                  quality={90}
+                  sizes="110vw"
+                />
+              </div>
               <div className="hhero__wipe" data-hero-wipe="" aria-hidden="true" />
+            </div>
+          </div>
+
+          <div className="hhero__tweak" data-parallax-tweak="">
+            <div className="hhero__tweak-head">
+              <span>Parallax-Intensität</span>
+              <output data-parallax-output="">55 %</output>
+            </div>
+            <input
+              type="range"
+              min="0"
+              max="100"
+              step="1"
+              defaultValue="55"
+              data-parallax-input=""
+              aria-label="Intensität des Parallax-Effekts"
+            />
+            <div className="hhero__tweak-scale" aria-hidden="true">
+              <span>Ruhig</span>
+              <span>Stark</span>
             </div>
           </div>
         </header>

@@ -185,7 +185,7 @@ function initReveal(): void {
         delay,
         ease: EASE.outQuart,
         force3D: isLightweightReveal,
-        clearProps: isLightweightReveal ? 'transform,willChange' : undefined,
+        ...(isLightweightReveal ? { clearProps: 'transform,willChange' } : {}),
       });
       if (isLightweightReveal) return;
       gsap.to(el, {

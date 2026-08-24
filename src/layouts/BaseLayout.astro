@@ -211,7 +211,8 @@ const jsonLdArray = [orgJsonLd, ...pageJsonLd];
             afterMobileHero(() => import('../scripts/motion.ts')),
           ])
         : import('../scripts/motion.ts');
-      Promise.allSettled([widgetsReady, motionReady]).then(() =>
+      const homeProofCarouselReady = import('../scripts/home-results-carousel.ts');
+      Promise.allSettled([widgetsReady, motionReady, homeProofCarouselReady]).then(() =>
         import('../scripts/hash-navigation.ts')
       );
     </script>

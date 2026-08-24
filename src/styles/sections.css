@@ -4,47 +4,38 @@
    Referenz: docs/webflow-spec/*.md. Breakpoints: 991 / 767 / 479.
    --------------------------------------------------------------------------- */
 
-/* ======================== Home-Hero (Scroll-Strecke) =======================
-   1:1 nach Webflow (.section_home-hero): 300vh-Strecke, Sticky-Content
-   (100vh) und absoluter Scrub-Trigger (100vh-300vh) nur mit aktiver
-   Animation (html.has-motion, Desktop) - ohne JS/Reduced-Motion rendert der
-   Hero statisch, das Bild ist sofort sichtbar. Die Wipe-Fläche über dem Bild
-   bekommt ihre Größe NUR per JS (motion/home-load.ts) - ohne JS unsichtbar.
-   Bildspalten-Breite 40 % → 100 % scrubbt motion/home-hero.ts (IX2 a-108). */
-.hhero { position: relative; }
+/* ======================== Home-Hero (Parallax-Variante) =====================
+   Der Bildrahmen bleibt rechts stabil. Nur das darin übergroß angelegte Bild
+   bewegt sich vertikal und erzeugt den GSAP-Parallax. Ohne JS oder bei
+   reduzierter Bewegung bleibt das komplette Motiv statisch sichtbar. */
+.hhero { position: relative; isolation: isolate; }
 .hhero__track { position: relative; }
 @media (min-width: 992px) {
-  html.has-motion .hhero__track { height: 300vh; }
-  /* Scroll-Indikator (.hhero__scroll, bottom:-14rem unter dem Content) darf am
-     Ende der 300vh-Strecke nicht unter dem gewachsenen Bild in die Folgesektion
-     ragen. Auf niedrigen Viewports reicht der -14rem-Überhang sonst über die
-     100vh-Sticky-Box hinaus. `clip` begrenzt ihn auf die Sticky-Box, ohne das
-     Sticky-Verhalten selbst zu beeinflussen (Clip am Element ≠ am Scrollcontainer). */
+  html.has-motion .hhero__track { height: 190vh; }
   .hhero__sticky { overflow: clip; }
 }
 .hhero__trigger {
   position: absolute;
   inset: 0;
-  margin-top: 100vh;
   z-index: -1;
+  pointer-events: none;
 }
 .hhero__sticky {
   position: sticky;
   top: 0;
-  height: 100vh;
+  height: 100svh;
   display: grid;
-  grid-template-columns: 1.25fr 1fr;
+  grid-template-columns: minmax(0, 1.08fr) minmax(34rem, 1fr);
   align-items: center;
+  background: var(--paper);
 }
 .hhero__content {
-  /* Webflow-w-node: Desktop justify-self end (Block sitzt rechts in der
-     1.25fr-Spalte); KEIN z-index - die wachsende Bildspalte fährt beim
-     Scrubben ÜBER den Text (Original-Paint-Order). */
   position: relative;
+  z-index: 2;
   justify-self: end;
   max-width: 40rem;
   margin-left: 5vw;
-  margin-right: 5rem;
+  margin-right: clamp(3rem, 5vw, 6rem);
 }
 .hhero__h1 { line-height: 1.2; }
 .hhero__h1-small {
@@ -58,24 +49,40 @@
 .hhero__media {
   position: absolute;
   inset: 0 0 0 auto;
-  width: 40%;
+  width: 48%;
 }
 .hhero__media-frame {
   position: relative;
   width: 100%;
   height: 100%;
   overflow: clip;
+  background: #090909;
 }
-.hhero__media img {
+.hhero__media-frame::after {
+  position: absolute;
+  z-index: 1;
+  inset: 0;
+  background: linear-gradient(90deg, rgba(12, 12, 12, 0.28), transparent 22%);
+  content: '';
+  pointer-events: none;
+}
+.hhero__parallax-layer {
+  position: absolute;
+  inset: -12% 0;
+  transform-origin: center;
+  will-change: transform;
+}
+.hhero__parallax-layer img {
   position: absolute;
   inset: 0;
   width: 100%;
   height: 100%;
   object-fit: cover;
-  object-position: 50% 100%;
+  object-position: 52% 72%;
 }
 .hhero__wipe {
   position: absolute;
+  z-index: 2;
   top: 0;
   left: 0;
   background: var(--paper);
@@ -94,6 +101,47 @@
   width: 100%;
   height: 100%;
   background: var(--ink);
+}
+.hhero__tweak {
+  position: absolute;
+  z-index: 4;
+  right: clamp(1.5rem, 3vw, 3rem);
+  bottom: clamp(1.5rem, 3vw, 3rem);
+  width: min(19rem, calc(100vw - 3rem));
+  padding: 1rem 1.1rem 0.9rem;
+  border: 1px solid rgba(255, 255, 255, 0.18);
+  border-radius: 0.85rem;
+  background: rgba(8, 8, 8, 0.78);
+  box-shadow: 0 1rem 3rem rgba(0, 0, 0, 0.28);
+  backdrop-filter: blur(16px);
+}
+.hhero__tweak-head,
+.hhero__tweak-scale {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 1rem;
+}
+.hhero__tweak-head {
+  color: var(--ink-2);
+  font-size: 0.72rem;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+}
+.hhero__tweak-head output {
+  color: var(--brand-readable);
+  font-variant-numeric: tabular-nums;
+}
+.hhero__tweak input {
+  width: 100%;
+  height: 1.1rem;
+  margin: 0.65rem 0 0.15rem;
+  accent-color: var(--brand-readable);
+  cursor: ew-resize;
+}
+.hhero__tweak-scale {
+  color: var(--ink-3);
+  font-size: 0.62rem;
 }
 @media (max-width: 991px) {
   .hhero__track { height: auto; }
@@ -115,7 +163,8 @@
   .hhero__buttons { margin-top: 2.5rem; }
   .hhero__media { position: static; width: 100% !important; }
   .hhero__media-frame { height: auto; padding-top: 100%; }
-  .hhero__media img { height: 150%; margin-top: -40%; }
+  .hhero__parallax-layer { inset: -13% 0; }
+  .hhero__parallax-layer img { object-position: 50% 73%; }
 }
 @media (max-width: 767px) {
   .hhero__sticky { padding-top: 6rem; }
@@ -126,7 +175,40 @@
 @media (max-width: 479px) {
   .hhero__h1 { font-size: 2.9rem; }
   .hhero__wipe { top: auto; bottom: 0; }
+  .hhero__tweak { right: 5%; bottom: 1rem; width: 90%; }
 }
+@media (max-width: 991px) and (max-height: 500px) and (orientation: landscape) {
+  .hhero__sticky {
+    min-height: 100svh;
+    display: grid;
+    grid-template-columns: minmax(0, 0.96fr) minmax(0, 1.04fr);
+    align-items: stretch;
+    row-gap: 0;
+    padding-top: 0;
+  }
+  .hhero__content {
+    align-self: center;
+    max-width: none;
+    margin: 4.5rem 2rem 1.5rem 5vw;
+  }
+  .hhero__h1 { font-size: clamp(2rem, 5vw, 2.75rem); }
+  .hhero__h1-small { font-size: 1.15rem; }
+  .hhero__buttons { margin-top: 1.25rem; }
+  .hhero__media {
+    position: relative;
+    width: 100% !important;
+    height: 100svh;
+  }
+  .hhero__media-frame { height: 100%; padding-top: 0; }
+  .hhero__tweak {
+    right: 1rem;
+    bottom: 0.85rem;
+    width: min(17rem, 47vw);
+    padding: 0.78rem 0.9rem 0.68rem;
+  }
+  .hhero__tweak input { margin-top: 0.45rem; }
+}
+@media (prefers-reduced-motion: reduce) { .hhero__tweak { display: none; } }
 
 /* ====================== Value-Statement (großer Absatz) ==================== */
 .value-stmt { padding-top: 13rem; padding-bottom: 5rem; }
@@ -1372,4 +1454,255 @@ html.has-motion .ahero__wipe { display: block; }
 .legal-text { padding-block: 3rem; }
 @media (max-width: 767px) {
   .legal-text { padding-block: 2rem; }
+}
+
+/* =========== Alternative Startseite: gemeinsame Erfolgs-Carousel ========== */
+.home-proof {
+  overflow: clip;
+  padding-top: 4rem;
+  padding-bottom: 11rem;
+}
+.home-proof__head {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) auto auto;
+  align-items: center;
+  gap: clamp(1rem, 3vw, 3rem);
+  margin-bottom: 1.5rem;
+}
+.home-proof__head h2 {
+  max-width: 34rem;
+  color: var(--ink-2);
+  font-size: clamp(1rem, 1.35vw, 1.2rem);
+  font-weight: 400;
+  line-height: 1.5;
+  letter-spacing: 0.01em;
+}
+.home-proof__legend {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 0.65rem;
+}
+.home-proof__legend span {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+  min-height: 2rem;
+  padding: 0.42rem 0.75rem;
+  border: 1px solid rgba(255, 255, 255, 0.13);
+  border-radius: 999px;
+  color: var(--ink-3);
+  font-size: 0.68rem;
+  letter-spacing: 0.07em;
+  text-transform: uppercase;
+}
+.home-proof__legend i {
+  width: 0.42rem;
+  height: 0.42rem;
+  border-radius: 50%;
+  background: rgba(255, 255, 255, 0.45);
+}
+.home-proof__legend .is-own {
+  border-color: rgba(170, 134, 48, 0.42);
+  color: var(--brand-readable);
+  background: rgba(170, 134, 48, 0.07);
+}
+.home-proof__legend .is-own i {
+  background: var(--brand-readable);
+  box-shadow: 0 0 0.8rem rgba(170, 134, 48, 0.45);
+}
+.home-proof__hint {
+  color: var(--ink-3);
+  font-size: 0.68rem;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  white-space: nowrap;
+}
+.home-proof__carousel {
+  display: flex;
+  gap: 1.5rem;
+  margin-right: calc(var(--container-padding) * -1);
+  padding: 0.15rem var(--container-padding) 0.5rem 0.15rem;
+  overflow-x: auto;
+  overscroll-behavior-inline: contain;
+  scroll-snap-type: x mandatory;
+  scrollbar-width: none;
+  touch-action: pan-x pan-y;
+}
+.home-proof__carousel.has-auto-scroll { scroll-snap-type: none; }
+.home-proof__carousel::-webkit-scrollbar { display: none; }
+.home-proof-card {
+  position: relative;
+  display: flex;
+  flex: 0 0 clamp(21rem, 31vw, 27rem);
+  min-width: 0;
+  flex-direction: column;
+  overflow: hidden;
+  border: 1px solid rgba(255, 255, 255, 0.14);
+  border-radius: var(--radius-card);
+  background: var(--panel);
+  box-shadow: 0 1.2rem 3.5rem rgba(0, 0, 0, 0.16);
+  scroll-snap-align: start;
+  container-type: inline-size;
+}
+.home-proof-card.is-own {
+  border-color: rgba(170, 134, 48, 0.48);
+  box-shadow:
+    inset 0 0 0 1px rgba(170, 134, 48, 0.06),
+    0 1.2rem 3.5rem rgba(0, 0, 0, 0.22);
+}
+.home-proof-card__media {
+  position: relative;
+  display: grid;
+  height: 23rem;
+  overflow: hidden;
+  background:
+    radial-gradient(circle at 50% 40%, rgba(255, 255, 255, 0.05), transparent 58%),
+    #080a0d;
+}
+.home-proof-card__media.is-comparison {
+  grid-template-rows: repeat(2, minmax(0, 1fr));
+}
+.home-proof-card__media.is-triple {
+  grid-template-columns: minmax(0, 1.05fr) minmax(0, 0.95fr);
+  grid-template-rows: repeat(2, minmax(0, 1fr));
+}
+.home-proof-card__category {
+  position: absolute;
+  z-index: 5;
+  top: 1rem;
+  left: 1rem;
+  padding: 0.48rem 0.72rem;
+  border: 1px solid rgba(255, 255, 255, 0.16);
+  border-radius: 999px;
+  color: var(--ink-2);
+  background: rgba(8, 8, 8, 0.8);
+  box-shadow: 0 0.45rem 1.5rem rgba(0, 0, 0, 0.28);
+  backdrop-filter: blur(12px);
+  font-size: 0.62rem;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+}
+.home-proof-card.is-own .home-proof-card__category {
+  border-color: rgba(198, 164, 78, 0.48);
+  color: #f0d98c;
+  background: rgba(88, 67, 20, 0.82);
+}
+.home-proof-card__media figure {
+  position: relative;
+  min-width: 0;
+  min-height: 0;
+  overflow: hidden;
+}
+.home-proof-card__media img {
+  width: 100%;
+  height: 100%;
+  min-height: 0;
+  object-fit: contain;
+}
+.home-proof-card.is-portrait .home-proof-card__media img {
+  object-fit: cover;
+  object-position: 50% 32%;
+}
+.home-proof-card__media figure.is-bottom-trimmed img {
+  transform: scale(1.012);
+  transform-origin: center;
+}
+.home-proof-card__media.is-comparison figure:first-of-type {
+  border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+}
+.home-proof-card__media.is-triple figure:first-of-type {
+  grid-row: 1 / -1;
+  border-right: 1px solid rgba(255, 255, 255, 0.1);
+  border-bottom: 0;
+}
+.home-proof-card__media.is-triple figure:nth-of-type(2) {
+  border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+}
+.home-proof-card__media figcaption {
+  position: absolute;
+  z-index: 2;
+  right: 0.8rem;
+  bottom: 0.8rem;
+  max-width: calc(100% - 1.6rem);
+  padding: 0.48rem 0.72rem;
+  border: 1px solid rgba(255, 255, 255, 0.14);
+  border-radius: 999px;
+  color: var(--ink);
+  background: rgba(5, 5, 5, 0.84);
+  box-shadow: 0 0.4rem 1.3rem rgba(0, 0, 0, 0.3);
+  font-size: 0.65rem;
+  letter-spacing: 0.02em;
+  white-space: nowrap;
+}
+.home-proof-card.is-own .home-proof-card__media figcaption {
+  border-color: rgba(198, 164, 78, 0.42);
+  color: #f0d98c;
+}
+.home-proof-card__body {
+  flex: 1;
+  min-height: 12rem;
+  padding: 1.75rem 2rem 2rem;
+  background:
+    radial-gradient(circle at 100% 0%, rgba(128, 100, 41, 0.16), transparent 48%),
+    var(--panel);
+}
+.home-proof-card.is-customer .home-proof-card__body {
+  background:
+    radial-gradient(circle at 100% 0%, rgba(255, 255, 255, 0.055), transparent 48%),
+    var(--panel);
+}
+.home-proof-card__source {
+  color: var(--ink-3);
+  font-size: 0.68rem;
+  letter-spacing: 0.08em;
+  line-height: 1.45;
+  text-transform: uppercase;
+}
+.home-proof-card__metric { margin-top: 1.2rem; }
+.home-proof-card__metric strong {
+  display: block;
+  color: var(--ink);
+  font-size: clamp(1.72rem, 8.4cqi, 2.45rem);
+  font-variant-numeric: tabular-nums;
+  font-weight: 300;
+  line-height: 1;
+  letter-spacing: -0.05em;
+  white-space: nowrap;
+}
+.home-proof-card.is-own .home-proof-card__metric strong {
+  color: var(--brand-readable);
+}
+.home-proof-card__metric span {
+  display: block;
+  max-width: 19rem;
+  margin-top: 0.9rem;
+  color: var(--ink-2);
+  line-height: 1.55;
+}
+@media (max-width: 991px) {
+  .home-proof { padding-top: 3.5rem; padding-bottom: 8rem; }
+  .home-proof__head { grid-template-columns: 1fr auto; }
+  .home-proof__legend { grid-column: 1 / -1; grid-row: 2; }
+  .home-proof__hint { grid-column: 2; grid-row: 1; }
+  .home-proof-card { flex-basis: min(72vw, 28rem); }
+}
+@media (max-width: 767px) {
+  .home-proof { padding-top: 5rem; padding-bottom: 6rem; }
+  .home-proof__head {
+    grid-template-columns: 1fr auto;
+    gap: 1rem;
+    margin-bottom: 1.25rem;
+  }
+  .home-proof__head h2 { font-size: 0.98rem; }
+  .home-proof__legend { gap: 0.45rem; }
+  .home-proof__legend span { padding-inline: 0.62rem; font-size: 0.6rem; }
+  .home-proof-card { flex-basis: 84vw; }
+  .home-proof-card__media { height: 21rem; }
+  .home-proof-card__body { min-height: 11rem; padding: 1.5rem; }
+}
+@media (max-height: 500px) and (orientation: landscape) {
+  .home-proof { padding-top: 3.5rem; padding-bottom: 4.5rem; }
+  .home-proof-card { flex-basis: min(58vw, 26rem); }
+  .home-proof-card__media { height: min(18rem, 68svh); }
 }

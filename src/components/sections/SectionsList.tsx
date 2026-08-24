@@ -2,6 +2,7 @@ import TextSection from './TextSection';
 import HomeHeroSection from './HomeHeroSection';
 import ValueStatementSection from './ValueStatementSection';
 import ResultsSection from './ResultsSection';
+import HomeProofCarouselSection from './HomeProofCarouselSection';
 import SplitCtaSection from './SplitCtaSection';
 import ServicesTabsSection from './ServicesTabsSection';
 import GalleryMarqueeSection from './GalleryMarqueeSection';
@@ -56,7 +57,9 @@ export default function SectionsList({
           case 'sectionValueStatement':
             return <ValueStatementSection key={s._key} section={s} edit={edit} />;
           case 'sectionResults':
-            return <ResultsSection key={s._key} section={s} edit={edit} />;
+            return s._key === 'results'
+              ? <HomeProofCarouselSection key={s._key} section={s} edit={edit} />
+              : <ResultsSection key={s._key} section={s} edit={edit} />;
           case 'sectionSplitCta':
             return <SplitCtaSection key={s._key} section={s} edit={edit} />;
           case 'sectionServicesTabs':
