@@ -1555,6 +1555,12 @@ html.has-motion .ahero__wipe { display: block; }
   scroll-snap-align: start;
   container-type: inline-size;
 }
+.home-proof-card.is-own {
+  border-color: rgba(170, 134, 48, 0.38);
+  box-shadow:
+    inset 0 0 0 1px rgba(170, 134, 48, 0.045),
+    0 1.2rem 3.5rem rgba(0, 0, 0, 0.18);
+}
 .home-proof-card__media {
   position: relative;
   display: grid;
@@ -1598,6 +1604,10 @@ html.has-motion .ahero__wipe { display: block; }
   content: '';
 }
 .home-proof-card.is-own .home-proof-card__category::before { background: var(--brand-readable); }
+.home-proof-card.is-own .home-proof-card__category,
+.home-proof-card.is-own .home-proof-card__media figcaption {
+  border-color: rgba(198, 164, 78, 0.34);
+}
 .home-proof-card__media figure {
   position: relative;
   min-width: 0;
@@ -1615,8 +1625,16 @@ html.has-motion .ahero__wipe { display: block; }
   transform-origin: center;
 }
 .home-proof-card__media figure.is-circle-cropped img {
-  height: 116%;
+  height: 114%;
   object-position: 50% 0;
+}
+.home-proof-card__media figure.is-tristan-profile-cropped img {
+  height: 106.5%;
+  transform: translateY(-5.8%);
+}
+.home-proof-card__media figure.is-mindful-profile-cropped img {
+  height: 108%;
+  transform: translateY(-5.8%);
 }
 .home-proof-card__media.is-comparison figure:first-of-type {
   border-bottom: 1px solid rgba(255, 255, 255, 0.1);
@@ -1650,7 +1668,7 @@ html.has-motion .ahero__wipe { display: block; }
   min-height: 12rem;
   padding: 1.75rem 2rem 2rem;
   background:
-    radial-gradient(circle at 100% 0%, rgba(255, 255, 255, 0.055), transparent 48%),
+    radial-gradient(circle at 100% 0%, rgba(128, 100, 41, 0.2), transparent 46%),
     var(--panel);
 }
 .home-proof-card__source {

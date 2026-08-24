@@ -7,6 +7,7 @@ type ProofImage = {
   badge?: string;
   trimBottom?: boolean;
   cropAtCircle?: boolean;
+  profileCrop?: 'tristan' | 'mindful';
 };
 
 type ProofCard = {
@@ -28,6 +29,7 @@ const OWN_RESULTS: ProofCard[] = [
         src: '/images/home-results/tristan-profile.jpg',
         alt: 'Instagram-Profil von Tristan Weithaler mit mehr als 8.800 Followern',
         badge: '8.800+ Follower',
+        profileCrop: 'tristan',
       },
     ],
   },
@@ -41,6 +43,7 @@ const OWN_RESULTS: ProofCard[] = [
         src: '/images/home-results/mindful-stays-profile.webp',
         alt: 'Instagram-Profil von Mindful Stays mit 115.000 Followern',
         badge: '115.000 Follower',
+        profileCrop: 'mindful',
       },
     ],
   },
@@ -276,6 +279,7 @@ export default function HomeProofCarouselSection({
                     className={[
                       image.trimBottom ? 'is-bottom-trimmed' : '',
                       image.cropAtCircle ? 'is-circle-cropped' : '',
+                      image.profileCrop ? `is-${image.profileCrop}-profile-cropped` : '',
                     ].filter(Boolean).join(' ') || undefined}
                     key={image.src}
                   >
