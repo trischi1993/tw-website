@@ -315,7 +315,7 @@ export default defineType({
 
     objectField(
       'bundle',
-      'Komplettpaket',
+      'E-Book + Boni',
       [
         requiredString('kicker', 'Kleine Überschrift'),
         requiredString('heading', 'Überschrift'),

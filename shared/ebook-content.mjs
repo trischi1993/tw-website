@@ -244,7 +244,7 @@ export function buildEbookContent({ img }) {
         'Social Media verändert sich rasant. Deshalb konzentriert sich dieses Buch auf Evergreen-Strategien, die unabhängig von kurzfristigen Trends oder einzelnen Algorithmus-Updates funktionieren. Die Methoden haben sich über Jahre in der Praxis bewährt – für nachhaltiges Wachstum, statt jedem neuen Hype hinterherzulaufen. Auch wenn die konkreten Beispiele aus Instagram stammen, lassen sich die grundlegenden Strategien auch auf andere Social-Media-Plattformen übertragen.',
     },
     bundle: {
-      kicker: 'Das Komplettpaket',
+      kicker: 'E-Book + 2 exklusive Boni',
       heading: 'Alles, was du für die Umsetzung brauchst.',
       intro: 'Zum E-Book bekommst du zwei praktische Extras ohne Aufpreis dazu.',
       items: [
@@ -283,7 +283,7 @@ export function buildEbookContent({ img }) {
       totalValue: '>280 €',
       priceLabel: 'Deine Investition',
       price: '27 €',
-      ctaLabel: 'Komplettpaket auswählen',
+      ctaLabel: 'E-Book + Boni sichern',
     },
     audience: {
       kicker: 'Für wen ist es geeignet?',
@@ -402,10 +402,10 @@ export function buildEbookContent({ img }) {
       kicker: 'Auf was wartest du noch?',
       heading: 'Jetzt mit Plan durchstarten.',
       text: 'Hol dir die Instagram Erfolgsformel inklusive Insta BIO Creator und Bonus-Downloads.',
-      pricePrefix: 'Komplettpaket für nur',
+      pricePrefix: 'Einmalig nur',
       price: '27 €',
       totalValue: '>280 € Gesamtwert',
-      ctaLabel: 'E-Book + Boni sofort erhalten',
+      ctaLabel: 'Jetzt bestellen',
     },
     faq: {
       heading: 'FAQs',
