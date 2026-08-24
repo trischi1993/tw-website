@@ -1,118 +1,141 @@
 import { BP, EASE, gsap, ScrollTrigger } from './util';
 
-const DEFAULT_INTENSITY = 55;
+const DEFAULTS = {
+  image: 120,
+  title: 280,
+  secondary: 220,
+  scrub: 1,
+} as const;
 
-const clamp = (value: number, min: number, max: number) =>
-  Math.min(max, Math.max(min, value));
+type MotionProfile = {
+  image: number;
+  title: number;
+  secondary: number;
+  scrub: number;
+};
+
+const PROFILES = {
+  desktop: { image: 1, title: 1, secondary: 1, scrub: 1 },
+  tablet: {
+    image: 70 / DEFAULTS.image,
+    title: 170 / DEFAULTS.title,
+    secondary: 130 / DEFAULTS.secondary,
+    scrub: 0.5,
+  },
+  mobile: {
+    image: 40 / DEFAULTS.image,
+    title: 80 / DEFAULTS.title,
+    secondary: 60 / DEFAULTS.secondary,
+    scrub: 0.3,
+  },
+} satisfies Record<string, MotionProfile>;
+
+const readNumber = (input: HTMLInputElement | null, fallback: number) => {
+  const value = input?.valueAsNumber;
+  return Number.isFinite(value) ? value! : fallback;
+};
 
 /**
- * Alternative Startseiten-Variante:
- * - Der Bildrahmen bleibt an seiner rechten Position und verändert weder
- *   Breite noch horizontale Position.
- * - Nur der größere Bildinhalt bewegt sich dezent entgegen der Scrollrichtung
- *   durch den Rahmen. Die Strecke ist in Pixeln begrenzt, damit der Effekt auf
- *   sehr breiten Bildschirmen nicht proportional zur Bildhöhe eskaliert.
- * - Ein Proxy-Tween liefert GSAPs geglätteten Scroll-Fortschritt; die
- *   Intensität wird bei jedem Frame aus dem sichtbaren Tweak-Regler gelesen.
- * - Mobile nutzt denselben Effekt auf der normal scrollenden Bildfläche.
+ * Parallax-Prinzip nach nomira.ch (Referenzstand 2026-08-24):
+ * - kein Pinning; der Hero scrollt normal aus dem Viewport;
+ * - Trigger von `top top` bis `bottom top`, lineare Bewegung;
+ * - Desktop: Bild -120 px, Titel -280 px, Begleitebene -220 px, Scrub 1 s;
+ * - Tablet: -70 / -170 / -130 px, Scrub 0,5 s;
+ * - Mobile: -40 / -80 / -60 px, Scrub 0,3 s.
+ *
+ * Die Desktopwerte sind im Tweak-Panel editierbar. Die kleineren Breakpoints
+ * skalieren diese Werte im gleichen Verhältnis wie die Referenzseite.
  */
 export function init(mm: gsap.MatchMedia): void {
   const hero = document.querySelector<HTMLElement>('[data-home-hero]');
   if (!hero) return;
 
-  const trigger = hero.querySelector<HTMLElement>('[data-hero-trigger]');
-  const media = hero.querySelector<HTMLElement>('[data-hero-media]');
-  const layer = hero.querySelector<HTMLElement>('[data-hero-parallax-layer]');
-  const content = hero.querySelector<HTMLElement>('.hhero__content');
-  const tweak = hero.querySelector<HTMLElement>('[data-parallax-tweak]');
-  const input = hero.querySelector<HTMLInputElement>('[data-parallax-input]');
-  const output = hero.querySelector<HTMLOutputElement>('[data-parallax-output]');
-  if (!media || !layer) return;
+  const imageLayer = hero.querySelector<HTMLElement>('[data-hero-parallax-layer]');
+  const title = hero.querySelector<HTMLElement>('.hhero__h1');
+  const secondary = hero.querySelector<HTMLElement>('.hhero__buttons');
+  const scrollWrap = hero.querySelector<HTMLElement>('[data-hero-scroll]');
+  if (!imageLayer || !title) return;
 
-  const getIntensity = () =>
-    clamp(Number(input?.value || DEFAULT_INTENSITY), 0, 100) / 100;
-  const updateOutput = () => {
-    if (output) output.textContent = `${Math.round(getIntensity() * 100)} %`;
-  };
-  updateOutput();
+  const imageInput = hero.querySelector<HTMLInputElement>('[data-parallax-image]');
+  const titleInput = hero.querySelector<HTMLInputElement>('[data-parallax-title]');
+  const secondaryInput = hero.querySelector<HTMLInputElement>('[data-parallax-secondary]');
+  const scrubInput = hero.querySelector<HTMLInputElement>('[data-parallax-scrub]');
+  const imageOutput = hero.querySelector<HTMLOutputElement>('[data-parallax-image-output]');
+  const titleOutput = hero.querySelector<HTMLOutputElement>('[data-parallax-title-output]');
+  const secondaryOutput = hero.querySelector<HTMLOutputElement>('[data-parallax-secondary-output]');
+  const scrubOutput = hero.querySelector<HTMLOutputElement>('[data-parallax-scrub-output]');
+  const inputs = [imageInput, titleInput, secondaryInput, scrubInput].filter(
+    (input): input is HTMLInputElement => Boolean(input),
+  );
 
-  const buildParallax = ({
-    scrollTrigger,
-    travelPx,
-    moveContent,
-  }: {
-    scrollTrigger: HTMLElement;
-    travelPx: number;
-    moveContent: boolean;
-  }) => {
+  const buildParallax = (profile: MotionProfile) => {
     const state = { progress: 0 };
-
+    const getValues = () => ({
+      image: readNumber(imageInput, DEFAULTS.image) * profile.image,
+      title: readNumber(titleInput, DEFAULTS.title) * profile.title,
+      secondary: readNumber(secondaryInput, DEFAULTS.secondary) * profile.secondary,
+      scrub: readNumber(scrubInput, DEFAULTS.scrub) * profile.scrub,
+    });
+    const updateOutputs = () => {
+      const values = getValues();
+      if (imageOutput) imageOutput.textContent = `−${Math.round(values.image)} px`;
+      if (titleOutput) titleOutput.textContent = `−${Math.round(values.title)} px`;
+      if (secondaryOutput) secondaryOutput.textContent = `−${Math.round(values.secondary)} px`;
+      if (scrubOutput) scrubOutput.textContent = `${values.scrub.toFixed(1).replace('.', ',')} s`;
+    };
     const apply = () => {
-      const intensity = getIntensity();
-      const imageY = (0.5 - state.progress) * travelPx * intensity;
-      gsap.set(layer, {
-        y: imageY,
-        scale: 1 + intensity * 0.012,
-        force3D: true,
-      });
-
-      if (moveContent && content) {
-        gsap.set(content, {
-          yPercent: state.progress * -7 * intensity,
-          opacity: 1 - Math.max(0, state.progress - 0.62) * 1.55,
-          force3D: true,
-        });
+      const values = getValues();
+      gsap.set(imageLayer, { y: -state.progress * values.image, force3D: true });
+      gsap.set(title, { y: -state.progress * values.title, force3D: true });
+      if (secondary) {
+        gsap.set(secondary, { y: -state.progress * values.secondary, force3D: true });
       }
-      if (moveContent && tweak) {
-        gsap.set(tweak, {
-          opacity: 1 - Math.max(0, state.progress - 0.72) * 2.4,
-        });
+      if (scrollWrap) {
+        gsap.set(scrollWrap, { y: -state.progress * values.secondary, force3D: true });
       }
     };
 
-    const animation = gsap.to(state, {
-      progress: 1,
-      paused: true,
+    const progressTo = gsap.quickTo(state, 'progress', {
+      duration: getValues().scrub,
       ease: 'none',
       onUpdate: apply,
     });
-    const scrub = ScrollTrigger.create({
-      trigger: scrollTrigger,
-      start: moveContent ? 'top top' : 'top bottom',
-      end: moveContent ? 'bottom bottom' : 'bottom top',
-      animation,
-      scrub: 0.55,
+    const trigger = ScrollTrigger.create({
+      trigger: hero,
+      start: 'top top',
+      end: 'bottom top',
+      onUpdate: (self) => {
+        progressTo.tween.duration(Math.max(0.1, getValues().scrub));
+        progressTo(self.progress);
+      },
     });
 
     const onInput = () => {
-      updateOutput();
+      updateOutputs();
       apply();
     };
-    input?.addEventListener('input', onInput);
+    inputs.forEach((input) => input.addEventListener('input', onInput));
+    state.progress = trigger.progress;
+    updateOutputs();
     apply();
 
     return () => {
-      input?.removeEventListener('input', onInput);
-      scrub.kill();
-      animation.kill();
-      layer.style.removeProperty('transform');
-      content?.style.removeProperty('transform');
-      content?.style.removeProperty('opacity');
-      tweak?.style.removeProperty('opacity');
+      inputs.forEach((input) => input.removeEventListener('input', onInput));
+      trigger.kill();
+      progressTo.tween.kill();
+      imageLayer.style.removeProperty('transform');
+      title.style.removeProperty('transform');
+      secondary?.style.removeProperty('transform');
+      scrollWrap?.style.removeProperty('transform');
     };
   };
 
-  mm.add(BP.main, () => {
-    if (!trigger) return;
-    return buildParallax({ scrollTrigger: trigger, travelPx: 96, moveContent: true });
-  });
-
-  mm.add(BP.belowMain, () =>
-    buildParallax({ scrollTrigger: media, travelPx: 64, moveContent: false }),
-  );
+  mm.add(BP.main, () => buildParallax(PROFILES.desktop));
+  mm.add(BP.medium, () => buildParallax(PROFILES.tablet));
+  mm.add(BP.small, () => buildParallax(PROFILES.mobile));
+  mm.add(BP.tiny, () => buildParallax(PROFILES.mobile));
 
   // Scroll-Indikator-Loop aus der Live-Startseite.
-  const scrollWrap = hero.querySelector<HTMLElement>('[data-hero-scroll]');
   const line = hero.querySelector<HTMLElement>('[data-hero-scroll-line]');
   if (scrollWrap && line) {
     const loop = gsap

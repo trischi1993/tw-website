@@ -4,8 +4,8 @@ import Img from './Img';
 import GlowButton from './GlowButton';
 
 /** Alternative Startseiten-Variante: Der Bildrahmen bleibt horizontal stabil.
- * GSAP bewegt ausschließlich den übergroßen Bildinhalt vertikal und erzeugt
- * damit einen echten, über das Tweak-Panel regelbaren Parallax-Effekt. */
+ * Wie bei nomira.ch scrollt der Hero normal aus dem Viewport, während Bild,
+ * Titel und CTA mit getrennten GSAP-Geschwindigkeiten nach oben laufen. */
 export default function HomeHeroSection({
   section,
   edit,
@@ -58,22 +58,53 @@ export default function HomeHeroSection({
 
           <div className="hhero__tweak" data-parallax-tweak="">
             <div className="hhero__tweak-head">
-              <span>Parallax-Intensität</span>
-              <output data-parallax-output="">55 %</output>
+              <span>Parallax · Nomira</span>
+              <small>Referenzwerte</small>
             </div>
-            <input
-              type="range"
-              min="0"
-              max="100"
-              step="1"
-              defaultValue="55"
-              data-parallax-input=""
-              aria-label="Intensität des Parallax-Effekts"
-            />
-            <div className="hhero__tweak-scale" aria-hidden="true">
-              <span>Ruhig</span>
-              <span>Stark</span>
-            </div>
+            <label className="hhero__tweak-row">
+              <span>Bildweg <output data-parallax-image-output="">−120 px</output></span>
+              <input
+                type="range"
+                min="0"
+                max="200"
+                step="5"
+                defaultValue="120"
+                data-parallax-image=""
+              />
+            </label>
+            <label className="hhero__tweak-row">
+              <span>Titelweg <output data-parallax-title-output="">−280 px</output></span>
+              <input
+                type="range"
+                min="0"
+                max="400"
+                step="10"
+                defaultValue="280"
+                data-parallax-title=""
+              />
+            </label>
+            <label className="hhero__tweak-row">
+              <span>CTA-Weg <output data-parallax-secondary-output="">−220 px</output></span>
+              <input
+                type="range"
+                min="0"
+                max="320"
+                step="10"
+                defaultValue="220"
+                data-parallax-secondary=""
+              />
+            </label>
+            <label className="hhero__tweak-row">
+              <span>Glättung <output data-parallax-scrub-output="">1,0 s</output></span>
+              <input
+                type="range"
+                min="0.1"
+                max="2"
+                step="0.1"
+                defaultValue="1"
+                data-parallax-scrub=""
+              />
+            </label>
           </div>
         </header>
         <div className="hhero__trigger" data-hero-trigger="" aria-hidden="true" />
