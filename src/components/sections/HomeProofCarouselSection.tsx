@@ -62,7 +62,7 @@ const OWN_RESULTS: ProofCard[] = [
   },
   {
     kind: 'own',
-    source: 'Tristan Weithaler · Lead-Post',
+    source: 'Tristan Weithaler · Personal Brand',
     value: '300+ Leads',
     label: 'mit nur einem Post generiert',
     images: [
