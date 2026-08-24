@@ -423,7 +423,6 @@ html.has-motion .results__track { height: 240vh; }
 .split-cta.is-plain .split-cta__media img { width: 75%; }
 @media (max-width: 991px) {
   .split-cta__grid { grid-template-columns: 1fr 1fr; column-gap: 3rem; }
-  .split-cta__eyebrow { font-size: 0.72rem; }
   .split-cta.is-glow .split-cta__grid { padding-bottom: 6rem; }
   /* Spec: 991 → 1fr/1fr gap 2rem. Eigene is-plain-Regel (0,3,0), sonst gewinnt
      die ungemedierte Basis .split-cta.is-plain .split-cta__grid (1.25fr/1fr). */
@@ -432,6 +431,7 @@ html.has-motion .results__track { height: 240vh; }
 }
 @media (max-width: 767px) {
   .split-cta__grid { grid-template-columns: 1fr; row-gap: 3rem; }
+  .split-cta__eyebrow { font-size: 0.72rem; }
   /* Spec: 767/479 → 1 Spalte, Mockup unter dem Button. Eigene is-plain-Regel
      (0,3,0), sonst überschreibt die ungemedierte Basis (1.25fr/1fr) den
      Einspalter und das Mockup bleibt (gequetscht) neben dem Text. */
@@ -1493,7 +1493,7 @@ html.has-motion .ahero__wipe { display: block; }
 .home-proof__head h2 {
   max-width: 34rem;
   color: var(--ink-2);
-  font-size: clamp(1rem, 1.35vw, 1.2rem);
+  font-size: 1.2rem;
   font-weight: 400;
   line-height: 1.5;
   letter-spacing: 0.01em;
