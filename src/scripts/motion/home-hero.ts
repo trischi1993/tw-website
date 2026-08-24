@@ -9,9 +9,11 @@ const clamp = (value: number, min: number, max: number) =>
  * Alternative Startseiten-Variante:
  * - Der Bildrahmen bleibt an seiner rechten Position und verändert weder
  *   Breite noch horizontale Position.
- * - Nur der größere Bildinhalt bewegt sich vertikal durch den Rahmen. Ein
- *   Proxy-Tween liefert GSAPs geglätteten Scroll-Fortschritt; die Intensität
- *   wird bei jedem Frame aus dem sichtbaren Tweak-Regler gelesen.
+ * - Nur der größere Bildinhalt bewegt sich dezent entgegen der Scrollrichtung
+ *   durch den Rahmen. Die Strecke ist in Pixeln begrenzt, damit der Effekt auf
+ *   sehr breiten Bildschirmen nicht proportional zur Bildhöhe eskaliert.
+ * - Ein Proxy-Tween liefert GSAPs geglätteten Scroll-Fortschritt; die
+ *   Intensität wird bei jedem Frame aus dem sichtbaren Tweak-Regler gelesen.
  * - Mobile nutzt denselben Effekt auf der normal scrollenden Bildfläche.
  */
 export function init(mm: gsap.MatchMedia): void {
@@ -36,21 +38,21 @@ export function init(mm: gsap.MatchMedia): void {
 
   const buildParallax = ({
     scrollTrigger,
-    travel,
+    travelPx,
     moveContent,
   }: {
     scrollTrigger: HTMLElement;
-    travel: number;
+    travelPx: number;
     moveContent: boolean;
   }) => {
     const state = { progress: 0 };
 
     const apply = () => {
       const intensity = getIntensity();
-      const imageY = (state.progress - 0.5) * travel * intensity;
+      const imageY = (0.5 - state.progress) * travelPx * intensity;
       gsap.set(layer, {
-        yPercent: imageY,
-        scale: 1 + intensity * 0.025,
+        y: imageY,
+        scale: 1 + intensity * 0.012,
         force3D: true,
       });
 
@@ -102,11 +104,11 @@ export function init(mm: gsap.MatchMedia): void {
 
   mm.add(BP.main, () => {
     if (!trigger) return;
-    return buildParallax({ scrollTrigger: trigger, travel: 24, moveContent: true });
+    return buildParallax({ scrollTrigger: trigger, travelPx: 96, moveContent: true });
   });
 
   mm.add(BP.belowMain, () =>
-    buildParallax({ scrollTrigger: media, travel: 18, moveContent: false }),
+    buildParallax({ scrollTrigger: media, travelPx: 64, moveContent: false }),
   );
 
   // Scroll-Indikator-Loop aus der Live-Startseite.

@@ -12,9 +12,8 @@ function initAutoCarousel(carousel: HTMLElement): void {
   if (carousel.children.length < 2) return;
 
   carousel.dataset.homeProofCarouselReady = '1';
-  if (window.matchMedia('(prefers-reduced-motion: reduce)').matches) return;
-
-  carousel.classList.add('has-auto-scroll');
+  const reducedMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+  if (!reducedMotion) carousel.classList.add('has-auto-scroll');
   const speed = 22;
   const hoverCapable = window.matchMedia('(hover: hover) and (pointer: fine)').matches;
   let direction = 1;
@@ -27,7 +26,12 @@ function initAutoCarousel(carousel: HTMLElement): void {
   let hoverHeld = false;
   let manualSession = false;
   let manualSettleAt = 0;
+  let jumpLockUntil = 0;
   let position = carousel.scrollLeft;
+  const jumpButtons = Array.from(
+    carousel.closest<HTMLElement>('[data-home-proof]')
+      ?.querySelectorAll<HTMLButtonElement>('[data-proof-jump]') ?? [],
+  );
 
   const syncPosition = () => {
     position = carousel.scrollLeft;
@@ -36,11 +40,42 @@ function initAutoCarousel(carousel: HTMLElement): void {
     syncPosition();
     resumeAt = Math.max(resumeAt, performance.now() + milliseconds);
   };
+  const setActiveJump = (kind: 'own' | 'customer') => {
+    jumpButtons.forEach((button) => {
+      const active = button.dataset.proofJump === kind;
+      button.classList.toggle('is-active', active);
+      button.setAttribute('aria-pressed', String(active));
+    });
+  };
+  const jumpToKind = (kind: 'own' | 'customer') => {
+    const card = carousel.querySelector<HTMLElement>(`[data-result-kind="${kind}"]`);
+    if (!card) return;
+
+    const carouselBounds = carousel.getBoundingClientRect();
+    const cardBounds = card.getBoundingClientRect();
+    const maxScroll = Math.max(0, carousel.scrollWidth - carousel.clientWidth);
+    const target = clamp(
+      carousel.scrollLeft + cardBounds.left - carouselBounds.left,
+      0,
+      maxScroll,
+    );
+    const now = performance.now();
+
+    manualSession = true;
+    manualSettleAt = now + 700;
+    jumpLockUntil = now + 2600;
+    resumeAt = jumpLockUntil;
+    direction = 1;
+    carousel.classList.remove('is-auto-scrolling');
+    setActiveJump(kind);
+    carousel.scrollTo({ left: target, behavior: reducedMotion ? 'auto' : 'smooth' });
+  };
   const beginManual = (source: 'pointer' | 'touch' | 'wheel') => {
     if (source === 'pointer') pointerHeld = true;
     if (source === 'touch') touchHeld = true;
     manualSession = true;
     manualSettleAt = Number.POSITIVE_INFINITY;
+    jumpLockUntil = 0;
     resumeAt = Number.POSITIVE_INFINITY;
     syncPosition();
     carousel.classList.remove('is-auto-scrolling');
@@ -52,7 +87,7 @@ function initAutoCarousel(carousel: HTMLElement): void {
     if (pointerHeld || touchHeld) return;
     const now = performance.now();
     manualSettleAt = now + 280;
-    resumeAt = now + 800;
+    resumeAt = Math.max(now + 800, jumpLockUntil);
   };
   const updateVisibility = () => {
     const nextVisible = isNearViewport(carousel, 40);
@@ -100,6 +135,12 @@ function initAutoCarousel(carousel: HTMLElement): void {
 
   window.addEventListener('scroll', updateVisibility, { passive: true });
   window.addEventListener('resize', updateVisibility, { passive: true });
+  jumpButtons.forEach((button) => {
+    button.addEventListener('click', () => {
+      const kind = button.dataset.proofJump;
+      if (kind === 'own' || kind === 'customer') jumpToKind(kind);
+    });
+  });
   if (hoverCapable) {
     carousel.addEventListener('pointerenter', () => {
       hoverHeld = true;
@@ -130,7 +171,7 @@ function initAutoCarousel(carousel: HTMLElement): void {
     if (pointerHeld || touchHeld) return;
     const now = performance.now();
     manualSettleAt = now + 280;
-    resumeAt = now + 800;
+    resumeAt = jumpLockUntil > now ? jumpLockUntil : now + 800;
   }, { passive: true });
   window.addEventListener('pointerup', () => {
     if (pointerHeld) finishManual('pointer');
@@ -142,7 +183,7 @@ function initAutoCarousel(carousel: HTMLElement): void {
     if (touchHeld) finishManual('touch');
   }, { passive: true });
 
-  window.setInterval(tick, 16);
+  if (!reducedMotion) window.setInterval(tick, 16);
 }
 
 document

@@ -1,13 +1,12 @@
 import type { SectionResults } from '../../lib/content/types';
 import type { EditAttr } from './SectionsList';
-import tristanPortrait from '../../assets/images/about-hero.avif';
-import mindfulStaysProfile from '../../assets/images/results-5.avif';
 
 type ProofImage = {
   src: string;
   alt: string;
   badge?: string;
   trimBottom?: boolean;
+  cropAtCircle?: boolean;
 };
 
 type ProofCard = {
@@ -16,7 +15,6 @@ type ProofCard = {
   value: string;
   label: string;
   images: ProofImage[];
-  layout?: 'portrait';
 };
 
 const OWN_RESULTS: ProofCard[] = [
@@ -25,11 +23,10 @@ const OWN_RESULTS: ProofCard[] = [
     source: 'Tristan Weithaler · Personal Brand',
     value: '0 → 8.800+',
     label: 'Follower mit nur zwei Postings pro Woche',
-    layout: 'portrait',
     images: [
       {
-        src: tristanPortrait.src,
-        alt: 'Portrait von Tristan Weithaler',
+        src: '/images/home-results/tristan-profile.jpg',
+        alt: 'Instagram-Profil von Tristan Weithaler mit mehr als 8.800 Followern',
         badge: '8.800+ Follower',
       },
     ],
@@ -41,7 +38,7 @@ const OWN_RESULTS: ProofCard[] = [
     label: 'Follower organisch aufgebaut',
     images: [
       {
-        src: mindfulStaysProfile.src,
+        src: '/images/home-results/mindful-stays-profile.webp',
         alt: 'Instagram-Profil von Mindful Stays mit 115.000 Followern',
         badge: '115.000 Follower',
       },
@@ -83,6 +80,7 @@ const OWN_RESULTS: ProofCard[] = [
         src: '/images/home-results/tristan-backpack-reel.webp',
         alt: 'Reel von Tristan Weithaler mit Rucksack und 1.766.701 Aufrufen',
         badge: '1,7 Mio. Views',
+        cropAtCircle: true,
       },
     ],
   },
@@ -235,9 +233,23 @@ export default function HomeProofCarouselSection({
       <div className="container">
         <header className="home-proof__head" data-anim="reveal">
           <h2>Genug erzählt. Lass die Ergebnisse sprechen.</h2>
-          <div className="home-proof__legend" aria-label="Kennzeichnung der Ergebnisse">
-            <span className="is-own"><i aria-hidden="true" /> Meine Erfolge</span>
-            <span className="is-customer"><i aria-hidden="true" /> Kundenerfolge</span>
+          <div className="home-proof__legend" aria-label="Ergebnisgruppe auswählen">
+            <button
+              type="button"
+              className="is-own is-active"
+              data-proof-jump="own"
+              aria-pressed="true"
+            >
+              <i aria-hidden="true" /> Meine Erfolge
+            </button>
+            <button
+              type="button"
+              className="is-customer"
+              data-proof-jump="customer"
+              aria-pressed="false"
+            >
+              <i aria-hidden="true" /> Kundenerfolge
+            </button>
           </div>
           <span className="home-proof__hint" aria-hidden="true">Scrollen&nbsp; →</span>
         </header>
@@ -247,9 +259,9 @@ export default function HomeProofCarouselSection({
           data-home-proof-carousel=""
           aria-label="Meine Erfolge und Kundenerfolge"
         >
-          {RESULTS.map(({ kind, source, value, label, images, layout }) => (
+          {RESULTS.map(({ kind, source, value, label, images }) => (
             <article
-              className={`home-proof-card is-${kind}${layout ? ` is-${layout}` : ''}`}
+              className={`home-proof-card is-${kind}`}
               data-result-kind={kind}
               key={`${source}-${value}`}
             >
@@ -261,7 +273,10 @@ export default function HomeProofCarouselSection({
                 </span>
                 {images.map((image) => (
                   <figure
-                    className={image.trimBottom ? 'is-bottom-trimmed' : undefined}
+                    className={[
+                      image.trimBottom ? 'is-bottom-trimmed' : '',
+                      image.cropAtCircle ? 'is-circle-cropped' : '',
+                    ].filter(Boolean).join(' ') || undefined}
                     key={image.src}
                   >
                     <img src={image.src} alt={image.alt} loading="lazy" decoding="async" />
