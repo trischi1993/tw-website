@@ -385,7 +385,15 @@ html.has-motion .results__track { height: 240vh; }
 }
 .split-cta.is-glow .split-cta__grid { padding-bottom: 8rem; }
 .split-cta__content { max-width: 27rem; }
-.split-cta__eyebrow { margin-bottom: 1rem; }
+.split-cta__eyebrow {
+  margin-bottom: 1rem;
+  color: var(--brand-readable);
+  font-size: var(--text-sm);
+  font-weight: 600;
+  letter-spacing: 0.12em;
+  line-height: 1.3;
+  text-transform: uppercase;
+}
 .split-cta__body { margin-top: 1.5rem; color: var(--ink-2); font-size: var(--text-md); } /* .spacer-small */
 .split-cta__body p + p { margin-top: 1.4em; }
 /* glow: .spacer-medium (2/1.5) · plain: .margin-medium (2/1.5/1.25) */
@@ -423,6 +431,7 @@ html.has-motion .results__track { height: 240vh; }
 }
 @media (max-width: 767px) {
   .split-cta__grid { grid-template-columns: 1fr; row-gap: 3rem; }
+  .split-cta__eyebrow { font-size: 0.72rem; }
   /* Spec: 767/479 → 1 Spalte, Mockup unter dem Button. Eigene is-plain-Regel
      (0,3,0), sonst überschreibt die ungemedierte Basis (1.25fr/1fr) den
      Einspalter und das Mockup bleibt (gequetscht) neben dem Text. */

@@ -45,8 +45,8 @@ export default function SplitCtaSection({
         <div className={`split-cta__grid${plain ? ' section' : ''}`}>
           <div className="split-cta__content">
             {_key === 'aio-teaser' && (
-              <p className="eyebrow split-cta__eyebrow" data-anim="reveal" data-offset="0">
-                Das System hinter den Ergebnissen.
+              <p className="split-cta__eyebrow" data-anim="reveal" data-offset="0">
+                Das System hinter den Ergebnissen
               </p>
             )}
             {/* IX2: glow (section_cta, e-901) Offset 0, plain (standard-layout, e-516) Offset 16 */}
