@@ -1632,8 +1632,7 @@ html.has-motion .ahero__wipe { display: block; }
   content: '';
 }
 .home-proof-card.is-own .home-proof-card__category::before { background: var(--brand-readable); }
-.home-proof-card.is-own .home-proof-card__category,
-.home-proof-card.is-own .home-proof-card__media figcaption {
+.home-proof-card.is-own .home-proof-card__category {
   border-color: rgba(198, 164, 78, 0.34);
 }
 .home-proof-card__media figure {

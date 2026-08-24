@@ -28,6 +28,7 @@ const OWN_RESULTS: ProofCard[] = [
       {
         src: '/images/home-results/tristan-profile.jpg',
         alt: 'Instagram-Profil von Tristan Weithaler mit mehr als 8.800 Followern',
+        badge: '2 Postings pro Woche',
         profileCrop: 'tristan',
       },
     ],
@@ -36,7 +37,7 @@ const OWN_RESULTS: ProofCard[] = [
     kind: 'own',
     source: 'Mindful Stays · Travel Brand',
     value: '115.000',
-    label: 'Follower – Account strategisch und inhaltlich weiterentwickelt',
+    label: 'Follower mit der eigenen Travel Brand',
     images: [
       {
         src: '/images/home-results/mindful-stays-profile.webp',
@@ -68,6 +69,7 @@ const OWN_RESULTS: ProofCard[] = [
       {
         src: '/images/home-results/tristan-leads.webp',
         alt: 'Instagram-Beitragsstatistik eines Posts von Tristan Weithaler',
+        badge: '1 Post',
       },
     ],
   },
