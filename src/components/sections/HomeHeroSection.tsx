@@ -3,9 +3,9 @@ import type { EditAttr } from './SectionsList';
 import Img from './Img';
 import GlowButton from './GlowButton';
 
-/** Alternative Startseiten-Variante: Der Bildrahmen bleibt horizontal stabil.
- * Wie bei nomira.ch scrollt der Hero normal aus dem Viewport, während Bild,
- * Titel und CTA mit getrennten GSAP-Geschwindigkeiten nach oben laufen. */
+/** Alternative Startseiten-Variante: Wie bei nomira.ch scrollt der Hero normal
+ * aus dem Viewport, während Bild, Titel und CTA mit getrennten Geschwindigkeiten
+ * nach oben laufen. Auf Desktop öffnet sich der Bildrahmen zusätzlich subtil. */
 export default function HomeHeroSection({
   section,
   edit,
@@ -58,8 +58,8 @@ export default function HomeHeroSection({
 
           <div className="hhero__tweak" data-parallax-tweak="">
             <div className="hhero__tweak-head">
-              <span>Parallax · Nomira</span>
-              <small>Referenzwerte</small>
+              <span>Hero Motion</span>
+              <small>Editorial Reveal</small>
             </div>
             <label className="hhero__tweak-row">
               <span>Bildweg <output data-parallax-image-output="">−120 px</output></span>
@@ -103,6 +103,28 @@ export default function HomeHeroSection({
                 step="0.1"
                 defaultValue="0.7"
                 data-parallax-scrub=""
+              />
+            </label>
+            <label className="hhero__tweak-row">
+              <span>Frame-Öffnung <output data-parallax-frame-output="">48 → 56 %</output></span>
+              <input
+                type="range"
+                min="0"
+                max="14"
+                step="1"
+                defaultValue="8"
+                data-parallax-frame=""
+              />
+            </label>
+            <label className="hhero__tweak-row">
+              <span>Bild-Zoom <output data-parallax-zoom-output="">104 → 100 %</output></span>
+              <input
+                type="range"
+                min="0"
+                max="8"
+                step="0.5"
+                defaultValue="4"
+                data-parallax-zoom=""
               />
             </label>
           </div>

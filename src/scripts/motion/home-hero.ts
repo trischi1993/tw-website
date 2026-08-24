@@ -5,6 +5,8 @@ const DEFAULTS = {
   title: 280,
   secondary: 220,
   scrub: 0.7,
+  frame: 8,
+  zoom: 4,
 } as const;
 
 type MotionProfile = {
@@ -12,21 +14,27 @@ type MotionProfile = {
   title: number;
   secondary: number;
   scrub: number;
+  frame: number;
+  zoom: number;
 };
 
 const PROFILES = {
-  desktop: { image: 1, title: 1, secondary: 1, scrub: 1 },
+  desktop: { image: 1, title: 1, secondary: 1, scrub: 1, frame: 1, zoom: 1 },
   tablet: {
     image: 70 / DEFAULTS.image,
     title: 170 / DEFAULTS.title,
     secondary: 130 / DEFAULTS.secondary,
     scrub: 0.5 / DEFAULTS.scrub,
+    frame: 0,
+    zoom: 0,
   },
   mobile: {
     image: 40 / DEFAULTS.image,
     title: 80 / DEFAULTS.title,
     secondary: 60 / DEFAULTS.secondary,
     scrub: 0.3 / DEFAULTS.scrub,
+    frame: 0,
+    zoom: 0,
   },
 } satisfies Record<string, MotionProfile>;
 
@@ -42,29 +50,37 @@ const readNumber = (input: HTMLInputElement | null, fallback: number) => {
  * - Desktop: Bild -120 px, Titel -280 px, Begleitebene -220 px, Scrub 0,7 s;
  * - Tablet: -70 / -170 / -130 px, Scrub 0,5 s;
  * - Mobile: -40 / -80 / -60 px, Scrub 0,3 s.
+ * - Editorial Reveal nur auf Desktop: Frame 48 -> 56 %, Bildzoom 104 -> 100 %.
  *
  * Die Desktopwerte sind im Tweak-Panel editierbar. Die kleineren Breakpoints
- * skalieren diese Werte im gleichen Verhältnis wie die Referenzseite.
+ * skalieren die Parallaxwege im gleichen Verhältnis wie die Referenzseite und
+ * behalten den vollbreiten, stabilen Bildrahmen der bestehenden Website-Logik.
  */
 export function init(mm: gsap.MatchMedia): void {
   const hero = document.querySelector<HTMLElement>('[data-home-hero]');
   if (!hero) return;
 
+  const media = hero.querySelector<HTMLElement>('[data-hero-media]');
   const imageLayer = hero.querySelector<HTMLElement>('[data-hero-parallax-layer]');
+  const image = imageLayer?.querySelector<HTMLImageElement>('img');
   const title = hero.querySelector<HTMLElement>('.hhero__h1');
   const secondary = hero.querySelector<HTMLElement>('.hhero__buttons');
   const scrollWrap = hero.querySelector<HTMLElement>('[data-hero-scroll]');
-  if (!imageLayer || !title) return;
+  if (!media || !imageLayer || !image || !title) return;
 
   const imageInput = hero.querySelector<HTMLInputElement>('[data-parallax-image]');
   const titleInput = hero.querySelector<HTMLInputElement>('[data-parallax-title]');
   const secondaryInput = hero.querySelector<HTMLInputElement>('[data-parallax-secondary]');
   const scrubInput = hero.querySelector<HTMLInputElement>('[data-parallax-scrub]');
+  const frameInput = hero.querySelector<HTMLInputElement>('[data-parallax-frame]');
+  const zoomInput = hero.querySelector<HTMLInputElement>('[data-parallax-zoom]');
   const imageOutput = hero.querySelector<HTMLOutputElement>('[data-parallax-image-output]');
   const titleOutput = hero.querySelector<HTMLOutputElement>('[data-parallax-title-output]');
   const secondaryOutput = hero.querySelector<HTMLOutputElement>('[data-parallax-secondary-output]');
   const scrubOutput = hero.querySelector<HTMLOutputElement>('[data-parallax-scrub-output]');
-  const inputs = [imageInput, titleInput, secondaryInput, scrubInput].filter(
+  const frameOutput = hero.querySelector<HTMLOutputElement>('[data-parallax-frame-output]');
+  const zoomOutput = hero.querySelector<HTMLOutputElement>('[data-parallax-zoom-output]');
+  const inputs = [imageInput, titleInput, secondaryInput, scrubInput, frameInput, zoomInput].filter(
     (input): input is HTMLInputElement => Boolean(input),
   );
 
@@ -75,6 +91,8 @@ export function init(mm: gsap.MatchMedia): void {
       title: readNumber(titleInput, DEFAULTS.title) * profile.title,
       secondary: readNumber(secondaryInput, DEFAULTS.secondary) * profile.secondary,
       scrub: readNumber(scrubInput, DEFAULTS.scrub) * profile.scrub,
+      frame: readNumber(frameInput, DEFAULTS.frame) * profile.frame,
+      zoom: readNumber(zoomInput, DEFAULTS.zoom) * profile.zoom,
     });
     const updateOutputs = () => {
       const values = getValues();
@@ -82,11 +100,32 @@ export function init(mm: gsap.MatchMedia): void {
       if (titleOutput) titleOutput.textContent = `−${Math.round(values.title)} px`;
       if (secondaryOutput) secondaryOutput.textContent = `−${Math.round(values.secondary)} px`;
       if (scrubOutput) scrubOutput.textContent = `${values.scrub.toFixed(1).replace('.', ',')} s`;
+      if (frameOutput) {
+        frameOutput.textContent = profile.frame
+          ? `48 → ${Math.round(48 + values.frame)} %`
+          : 'nur Desktop';
+      }
+      if (zoomOutput) {
+        const start = 100 + values.zoom;
+        zoomOutput.textContent = profile.zoom
+          ? `${Number.isInteger(start) ? start.toFixed(0) : start.toFixed(1).replace('.', ',')} → 100 %`
+          : 'nur Desktop';
+      }
     };
     const apply = () => {
       const values = getValues();
+      const revealProgress = 1 - Math.pow(1 - state.progress, 2);
       gsap.set(imageLayer, { y: -state.progress * values.image, force3D: true });
       gsap.set(title, { y: -state.progress * values.title, force3D: true });
+      if (profile.frame) {
+        gsap.set(media, { width: `${48 + revealProgress * values.frame}%` });
+      }
+      if (profile.zoom) {
+        gsap.set(image, {
+          scale: 1 + ((1 - revealProgress) * values.zoom) / 100,
+          force3D: true,
+        });
+      }
       if (secondary) {
         gsap.set(secondary, { y: -state.progress * values.secondary, force3D: true });
       }
@@ -123,7 +162,9 @@ export function init(mm: gsap.MatchMedia): void {
       inputs.forEach((input) => input.removeEventListener('input', onInput));
       trigger.kill();
       progressTo.tween.kill();
+      media.style.removeProperty('width');
       imageLayer.style.removeProperty('transform');
+      image.style.removeProperty('transform');
       title.style.removeProperty('transform');
       secondary?.style.removeProperty('transform');
       scrollWrap?.style.removeProperty('transform');
