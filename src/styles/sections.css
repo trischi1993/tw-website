@@ -1500,10 +1500,12 @@ html.has-motion .ahero__wipe { display: block; }
   gap: 0.5rem;
   min-height: 2rem;
   padding: 0.42rem 0.75rem;
-  border: 1px solid rgba(255, 255, 255, 0.13);
+  border: 1px solid rgba(255, 255, 255, 0.16);
   border-radius: 999px;
-  color: var(--ink-3);
-  background: transparent;
+  color: var(--ink-2);
+  background: rgba(8, 8, 8, 0.8);
+  box-shadow: 0 0.45rem 1.5rem rgba(0, 0, 0, 0.28);
+  backdrop-filter: blur(12px);
   cursor: pointer;
   font-family: inherit;
   font-size: 0.68rem;
@@ -1512,8 +1514,10 @@ html.has-motion .ahero__wipe { display: block; }
   transition:
     color var(--dur-fast) var(--ease-smooth),
     border-color var(--dur-fast) var(--ease-smooth),
-    background-color var(--dur-fast) var(--ease-smooth);
+    background-color var(--dur-fast) var(--ease-smooth),
+    box-shadow var(--dur-fast) var(--ease-smooth);
 }
+.home-proof__legend button.is-own { border-color: rgba(198, 164, 78, 0.34); }
 .home-proof__legend i {
   width: 0.42rem;
   height: 0.42rem;
@@ -1524,9 +1528,19 @@ html.has-motion .ahero__wipe { display: block; }
 .home-proof__legend .is-customer i { background: rgba(225, 228, 233, 0.72); }
 .home-proof__legend button:hover,
 .home-proof__legend button.is-active {
-  border-color: rgba(255, 255, 255, 0.34);
   color: var(--ink);
-  background: rgba(255, 255, 255, 0.075);
+  background: rgba(16, 16, 16, 0.92);
+}
+.home-proof__legend button.is-own:hover,
+.home-proof__legend button.is-own.is-active {
+  border-color: rgba(198, 164, 78, 0.58);
+  box-shadow:
+    inset 0 0 0 1px rgba(198, 164, 78, 0.06),
+    0 0.45rem 1.5rem rgba(0, 0, 0, 0.28);
+}
+.home-proof__legend button.is-customer:hover,
+.home-proof__legend button.is-customer.is-active {
+  border-color: rgba(225, 228, 233, 0.34);
 }
 .home-proof__legend button:focus-visible {
   outline: 2px solid var(--brand-readable);
