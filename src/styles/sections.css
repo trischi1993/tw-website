@@ -174,7 +174,13 @@
   .hhero__scroll { display: none; }
   .hhero__media { position: static; width: 100% !important; }
   .hhero__media-frame { height: auto; padding-top: 100%; }
-  .hhero__parallax-layer { inset: -13% 0; }
+  /* Ausgangsausschnitt der Live-Startseite: Das Bild ist 150 % hoch und um
+     40 % nach oben versetzt. Die zusätzliche Höhe bleibt zugleich der
+     Bewegungsraum für den Parallax-Effekt. */
+  .hhero__parallax-layer {
+    inset: -40% 0 auto;
+    height: 150%;
+  }
   .hhero__parallax-layer img { object-position: 50% 73%; }
 }
 @media (max-width: 767px) {
@@ -210,6 +216,7 @@
     height: 100svh;
   }
   .hhero__media-frame { height: 100%; padding-top: 0; }
+  .hhero__parallax-layer { inset: -13% 0; height: auto; }
   .hhero__tweak {
     right: 1rem;
     bottom: 0.85rem;
