@@ -254,7 +254,6 @@ export default function HomeProofCarouselSection({
               <i aria-hidden="true" /> Kundenerfolge
             </button>
           </div>
-          <span className="home-proof__hint" aria-hidden="true">Scrollen&nbsp; →</span>
         </header>
 
         <div

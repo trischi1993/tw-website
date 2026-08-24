@@ -183,8 +183,6 @@
     width: 100%;
   }
 }
-@media (max-width: 479px) { .value-stmt { margin-bottom: -15%; } }
-
 /* ================== Zahlen & Fakten (Karten fliegen heraus) ================
    Verlaengerte Scroll-Strecke nur mit aktiver Animation; statisch zeigt das CSS die
    Karten leicht gefächert (nth-child-Rotationen, wie Webflow-Basiszustand).
@@ -390,6 +388,10 @@ html.has-motion .results__track { height: 240vh; }
 }
 @media (max-width: 479px) {
   .split-cta.is-glow { margin-top: -15%; }
+  /* Das neue Proof-Carousel endet als eigenes Kapitel. Die historische
+     Überlappung bleibt für andere Glow-CTAs erhalten, wird hier aber bewusst
+     aufgehoben. */
+  .home-proof + .split-cta.is-glow { margin-top: 0; }
   .split-cta.is-glow .split-cta__media { width: 100%; }
   .split-cta.is-plain .split-cta__media img { width: 60%; }
 }
@@ -1429,7 +1431,7 @@ html.has-motion .ahero__wipe { display: block; }
 }
 .home-proof__head {
   display: grid;
-  grid-template-columns: minmax(0, 1fr) auto auto;
+  grid-template-columns: minmax(0, 1fr) auto;
   align-items: center;
   gap: clamp(1rem, 3vw, 3rem);
   margin-bottom: 1.5rem;
@@ -1499,13 +1501,6 @@ html.has-motion .ahero__wipe { display: block; }
 .home-proof__legend button:focus-visible {
   outline: 2px solid var(--brand-readable);
   outline-offset: 3px;
-}
-.home-proof__hint {
-  color: var(--ink-3);
-  font-size: 0.68rem;
-  letter-spacing: 0.08em;
-  text-transform: uppercase;
-  white-space: nowrap;
 }
 .home-proof__carousel {
   --home-proof-edge: clamp(1rem, 2.5vw, 3rem);
@@ -1681,15 +1676,19 @@ html.has-motion .ahero__wipe { display: block; }
   .home-proof { padding-top: 5.5rem; padding-bottom: 8rem; }
   .home-proof__head { grid-template-columns: 1fr auto; }
   .home-proof__legend { grid-column: 1 / -1; grid-row: 2; }
-  .home-proof__hint { grid-column: 2; grid-row: 1; }
   .home-proof-card { flex-basis: min(72vw, 28rem); }
 }
 @media (max-width: 767px) {
-  .home-proof { padding-top: 6rem; padding-bottom: 6rem; }
+  /* Mobile Kapitelrhythmik aus der globalen Skala:
+     Statement → Beweis = large + medium; Beweis → Angebot = large + large. */
+  .home-proof {
+    padding-top: calc(var(--section-pad-large) + var(--section-pad-medium));
+    padding-bottom: calc(var(--section-pad-large) + var(--section-pad-large));
+  }
   .home-proof__head {
     grid-template-columns: 1fr auto;
     gap: 1rem;
-    margin-bottom: 1.25rem;
+    margin-bottom: 1.75rem;
   }
   .home-proof__head h2 { font-size: 0.98rem; }
   .home-proof__legend { gap: 0.45rem; }
