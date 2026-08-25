@@ -462,7 +462,7 @@ export default function AioCustomerResultsSection() {
             </div>
             <h3>Von rund 500 Views zu wiederholten 200.000+ Reichweiten.</h3>
             <span className="aio-case-study__duration">
-              <i aria-hidden="true" /> In nur ca. 3 Monaten erreicht
+              <i aria-hidden="true" /> In nur 3 Monaten - 100% organisch
             </span>
           </header>
 
@@ -587,7 +587,7 @@ export default function AioCustomerResultsSection() {
             <span className="aio-case-study__comparison-label is-after">Nach dem Coaching</span>
 
             <span className="aio-case-study__comparison-divider" aria-hidden="true">
-              <i>
+              <i data-before-after-handle>
                 <svg viewBox="0 0 24 24" aria-hidden="true">
                   <path d="M4 12h16M8 8l-4 4 4 4M16 8l4 4-4 4" />
                 </svg>

@@ -52,7 +52,7 @@ export default function AioProgrammeSection({
             <strong>05</strong>
             <div>
               <small>Praxis vor Ort</small>
-              <span>Praxis-Coaching und Content-Produktion vor Ort</span>
+              <span>Praxis-Coaching und Content-Produktion</span>
             </div>
           </div>
         </div>

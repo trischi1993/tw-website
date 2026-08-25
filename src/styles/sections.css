@@ -823,7 +823,7 @@ html.has-motion .results__track { height: 240vh; }
 }
 .aio-programme__detail-copy ul {
   display: grid;
-  grid-template-columns: 1fr 1fr;
+  grid-template-columns: 1fr;
   gap: 0.9rem 2rem;
   margin: 0;
   padding: 0;
@@ -1042,7 +1042,11 @@ html.has-motion .results__track { height: 240vh; }
 }
 @media (max-width: 991px) {
   .aio-programme { padding-top: 6rem; padding-bottom: 6rem; }
-  .aio-programme__detail { grid-template-columns: 1fr 19rem; gap: 2.5rem; padding-left: 5rem; }
+  .aio-programme__detail {
+    grid-template-columns: 1fr 19rem;
+    gap: 2.5rem;
+    padding-left: calc(7rem - 1.35rem);
+  }
   .aio-programme__detail-copy ul { grid-template-columns: 1fr; }
   .aio-programme__detail.is-practice {
     grid-template-columns: minmax(0, 1fr) minmax(18rem, 24rem);
@@ -1093,11 +1097,14 @@ html.has-motion .results__track { height: 240vh; }
     padding: 1.5rem 0 3rem 4.25rem;
   }
   .aio-programme__visual {
-    min-height: 20rem;
-    margin-top: 2.25rem;
+    min-height: 0;
+    margin-top: 0;
     justify-content: flex-start;
   }
-  .aio-programme__visual-frame { width: min(90%, 19rem); }
+  .aio-programme__visual-frame {
+    width: min(90%, 19rem);
+    aspect-ratio: 19 / 15.5;
+  }
   .aio-programme__practice-video { min-height: 23rem; }
   .aio-programme__practice-overlay { inset: auto 1.5rem 1.5rem; flex-direction: column; align-items: flex-start; }
   .aio-programme__practice-overlay strong { font-size: 1.4rem; text-align: left; }
@@ -1351,6 +1358,10 @@ html.has-motion .results__track { height: 240vh; }
   box-shadow: 0 0.75rem 2rem rgba(0, 0, 0, 0.34);
   font-size: 1.1rem;
   font-style: normal;
+  cursor: ew-resize;
+  pointer-events: auto;
+  touch-action: none;
+  user-select: none;
   transform: translate(-50%, -50%);
   backdrop-filter: blur(10px);
 }
@@ -1370,8 +1381,8 @@ html.has-motion .results__track { height: 240vh; }
   width: 100%;
   height: 100%;
   margin: 0;
-  cursor: ew-resize;
   opacity: 0;
+  pointer-events: none;
   touch-action: pan-y;
 }
 .aio-case-study__journey:has(.aio-case-study__comparison-range:focus-visible)
