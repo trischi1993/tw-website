@@ -266,7 +266,7 @@ export default function HomeProofCarouselSection({
     >
       <div className="container">
         <header className="home-proof__head" data-anim="reveal">
-          <h2>Aus der Praxis. Lass die Ergebnisse sprechen.</h2>
+          <h2>Lass die Ergebnisse aus der Praxis sprechen.</h2>
           <div className="home-proof__legend" aria-label="Ergebnisgruppe auswählen">
             <button
               type="button"
