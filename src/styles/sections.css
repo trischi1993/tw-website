@@ -361,6 +361,20 @@ html.has-motion .results__track { height: 240vh; }
   .split-cta.is-plain .split-cta__media { justify-content: flex-start; }
   .split-cta.is-plain .split-cta__media img { width: 50%; }
 }
+@media (max-width: 950px) and (max-height: 500px) and (orientation: landscape) {
+  /* Der Startseiten-AIO-Teaser bleibt bei schmaler Landschafts-Hoehe
+     gestapelt: Text zuerst, Mockup darunter. Andere Split-CTAs behalten ihre
+     jeweilige Tablet-Struktur. */
+  .home-proof + .split-cta.is-glow .split-cta__grid {
+    grid-template-columns: minmax(0, 1fr);
+    row-gap: 3rem;
+  }
+  .home-proof + .split-cta.is-glow .split-cta__content { max-width: 42rem; }
+  .home-proof + .split-cta.is-glow .split-cta__media {
+    width: min(82%, 42rem);
+    justify-content: flex-start;
+  }
+}
 @media (max-width: 479px) {
   .split-cta.is-glow { margin-top: -15%; }
   /* Das neue Proof-Carousel endet als eigenes Kapitel. Die historische
