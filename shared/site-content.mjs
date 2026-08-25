@@ -668,7 +668,7 @@ export function buildContent({ img }) {
         titleRowText: 'Deine Resultate',
         bannerWord: 'Resultate',
         bannerGold: true,
-        heading: 'Nach dem Programm wirst du...',
+        heading: 'Nach dem Coaching-Programm wirst du...',
         bullets: [
           'Die Social-Media-Grundlagen sicher beherrschen.',
           'Deine Zielgruppe kennen und gezielt ansprechen.',
