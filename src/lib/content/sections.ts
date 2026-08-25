@@ -56,6 +56,9 @@ export const SECTIONS_PROJECTION = `sections[]{
   _type == "sectionHomeHero" => { headingSmall, headingLarge, ctaLabel, image${IMG} },
   _type == "sectionValueStatement" => { text },
   _type == "sectionResults" => {
+    heading,
+    ownLabel,
+    customerLabel,
     subtitle,
     title,
     images[]${IMG},
@@ -397,11 +400,14 @@ export function mapSection(s: any): Section | null {
       return {
         ...base,
         _type: 'sectionResults',
+        heading: str(s.heading),
+        ownLabel: str(s.ownLabel),
+        customerLabel: str(s.customerLabel),
         subtitle: str(s.subtitle),
-        title: str(s.title) ?? '',
+        title: str(s.title),
         images: (Array.isArray(s.images) ? s.images : [])
           .map((i: any) => mapImage(i))
-          .filter(Boolean) as SectionResults['images'],
+          .filter(Boolean) as NonNullable<SectionResults['images']>,
         aioCustomerResults: mapAioCustomerResults(s.aioCustomerResults),
       };
 

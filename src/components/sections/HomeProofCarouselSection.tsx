@@ -227,7 +227,13 @@ export default function HomeProofCarouselSection({
   section: SectionResults;
   edit?: EditAttr;
 }) {
-  const { _key, anchor } = section;
+  const {
+    _key,
+    anchor,
+    heading = 'Lass Ergebnisse aus der Praxis sprechen.',
+    ownLabel = 'Meine Erfolge',
+    customerLabel = 'Kundenerfolge',
+  } = section;
   const path = `sections[_key=="${_key}"]`;
   const customerResultCopy =
     section.aioCustomerResults ?? DEFAULT_AIO_CUSTOMER_RESULTS;
@@ -256,7 +262,7 @@ export default function HomeProofCarouselSection({
     >
       <div className="container">
         <header className="home-proof__head" data-anim="reveal">
-          <h2>Lass die Ergebnisse aus der Praxis sprechen.</h2>
+          <h2>{heading}</h2>
           <div className="home-proof__legend" aria-label="Ergebnisgruppe auswählen">
             <button
               type="button"
@@ -264,7 +270,7 @@ export default function HomeProofCarouselSection({
               data-proof-jump="own"
               aria-pressed="true"
             >
-              <i aria-hidden="true" /> Meine Erfolge
+              <i aria-hidden="true" /> {ownLabel}
             </button>
             <button
               type="button"
@@ -272,7 +278,7 @@ export default function HomeProofCarouselSection({
               data-proof-jump="customer"
               aria-pressed="false"
             >
-              <i aria-hidden="true" /> Kundenerfolge
+              <i aria-hidden="true" /> {customerLabel}
             </button>
           </div>
         </header>

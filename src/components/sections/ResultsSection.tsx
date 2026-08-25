@@ -30,7 +30,7 @@ export default function ResultsSection({
   section: SectionResults;
   edit?: EditAttr;
 }) {
-  const { _key, anchor, subtitle, title, images } = section;
+  const { _key, anchor, subtitle, title = '', images = [] } = section;
   const path = `sections[_key=="${_key}"]`;
   const contextSubtitle =
     subtitle || (_key === 'results' ? 'meiner Accounts' : undefined);

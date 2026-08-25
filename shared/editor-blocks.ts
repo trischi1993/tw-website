@@ -15,7 +15,7 @@ export const EDITOR_BLOCKS = [
   { type: 'sectionText', title: { de: 'Text-Abschnitt', en: 'Text section' }, category: 'section' },
   { type: 'sectionHomeHero', title: { de: 'Hero (Startseite)', en: 'Home hero' }, category: 'section' },
   { type: 'sectionValueStatement', title: { de: 'Großes Statement', en: 'Value statement' }, category: 'section' },
-  { type: 'sectionResults', title: { de: 'Zahlen & Fakten', en: 'Results cards' }, category: 'section' },
+  { type: 'sectionResults', title: { de: 'Meine Erfolge & Kundenerfolge', en: 'Own & customer results' }, category: 'section' },
   { type: 'sectionSplitCta', title: { de: 'Text + Bild mit CTA', en: 'Split CTA' }, category: 'section' },
   { type: 'sectionServicesTabs', title: { de: 'Coachings (Tabs)', en: 'Services tabs' }, category: 'section' },
   { type: 'sectionGalleryMarquee', title: { de: 'Bild-Galerie (Laufband)', en: 'Gallery marquee' }, category: 'section' },

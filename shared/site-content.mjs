@@ -163,23 +163,10 @@ export function buildContent({ img }) {
       {
         _type: 'sectionResults',
         _key: 'results',
-        name: 'Zahlen & Fakten',
-        subtitle: 'meiner Accounts',
-        title: 'Zahlen & Fakten',
-        images: [
-          img('results-1.avif', 'Instagram-Statistik: organisches Reichweiten-Wachstum'),
-          img('results-2.avif', 'Instagram-Statistik: Follower-Entwicklung'),
-          img('results-3.avif', 'Instagram-Statistik: Millionen erreichte Konten'),
-          img('results-4.avif', 'Instagram-Statistik: virale Beiträge und Views'),
-          img(
-            'results-5.avif',
-            'Instagram-Profil Mindful Stays mit 115.000 Followern und millionenfach angesehenen Reels',
-          ),
-          img(
-            'results-6.avif',
-            'Instagram-Statistik mit über 1,6 Millionen Aufrufen und stark gestiegenen Profilaktivitäten',
-          ),
-        ],
+        name: 'Meine Erfolge und Kundenerfolge',
+        heading: 'Lass Ergebnisse aus der Praxis sprechen.',
+        ownLabel: 'Meine Erfolge',
+        customerLabel: 'Kundenerfolge',
       },
       {
         _type: 'sectionSplitCta',

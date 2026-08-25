@@ -254,6 +254,10 @@ function init(): void {
     orientationSettleTimer = window.setTimeout(() => {
       restartAfterBreakpointChange();
       refreshEnterOnce();
+      // iOS liefert die endgültige Landscape-Höhe erst nach dem Drehen. Da
+      // Touch-Resizes oben bewusst nicht automatisch refreshen, muss GSAP die
+      // Hero-/ScrollTrigger-Strecken nach der stabilen Phase neu vermessen.
+      ScrollTrigger.refresh();
     }, 600);
   });
 

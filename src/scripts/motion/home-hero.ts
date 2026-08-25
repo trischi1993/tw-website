@@ -7,6 +7,8 @@ const DEFAULTS = {
   scrub: 0.45,
 } as const;
 
+const RETURN_SCRUB_MULTIPLIER = 1.3;
+
 type MotionProfile = {
   image: number;
   title: number;
@@ -35,6 +37,7 @@ const PROFILES = {
  * - kein Pinning; der Hero scrollt normal aus dem Viewport;
  * - der Bildrahmen bleibt bei 48 %, ohne horizontale Öffnung und ohne Zoom;
  * - Desktop: Bild -40 px, Titel -220 px, Begleitebene -160 px, Scrub 0,45 s;
+ * - beim Zurückscrollen läuft der Scrub bewusst etwas weicher aus;
  * - Tablet und Mobile behalten ihre vollbreite Bildlogik.
  * Die kleineren Breakpoints skalieren die Parallaxwege zurückhaltend und
  * reagieren direkter auf Scroll.
@@ -70,14 +73,22 @@ export function init(mm: gsap.MatchMedia): void {
 
     const progressTo = gsap.quickTo(state, 'progress', {
       duration: values.scrub,
-      ease: 'none',
+      ease: 'power1.out',
       onUpdate: apply,
     });
+    let direction = 1;
     const trigger = ScrollTrigger.create({
       trigger: hero,
       start: 'top top',
       end: 'bottom top',
       onUpdate: (self) => {
+        const nextDirection = self.direction < 0 ? -1 : 1;
+        if (nextDirection !== direction) {
+          direction = nextDirection;
+          progressTo.tween.duration(
+            values.scrub * (direction < 0 ? RETURN_SCRUB_MULTIPLIER : 1),
+          );
+        }
         progressTo(self.progress);
       },
     });

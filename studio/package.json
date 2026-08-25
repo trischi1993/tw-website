@@ -20,7 +20,9 @@
     "migrate:aio-customer-results": "sanity exec scripts/migrate-aio-customer-results.mjs --with-user-token",
     "migrate:aio-customer-results:dry-run": "sanity exec scripts/migrate-aio-customer-results.mjs --with-user-token -- --dry-run",
     "migrate:aio-complete-content": "sanity exec scripts/migrate-aio-complete-content.mjs --with-user-token",
-    "migrate:aio-complete-content:dry-run": "sanity exec scripts/migrate-aio-complete-content.mjs --with-user-token -- --dry-run"
+    "migrate:aio-complete-content:dry-run": "sanity exec scripts/migrate-aio-complete-content.mjs --with-user-token -- --dry-run",
+    "migrate:home-proof": "sanity exec scripts/update-home-proof-section.mjs --with-user-token",
+    "migrate:home-proof:dry-run": "sanity exec scripts/update-home-proof-section.mjs --with-user-token -- --dry-run"
   },
   "dependencies": {
     "@sanity/comlink": "4.0.1",
