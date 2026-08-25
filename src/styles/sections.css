@@ -1839,7 +1839,7 @@ html.has-motion .results__track { height: 240vh; }
 }
 .aio-results__outcomes {
   display: grid;
-  grid-template-columns: minmax(17rem, 0.75fr) minmax(0, 1.25fr);
+  grid-template-columns: minmax(20rem, 0.9fr) minmax(0, 1.1fr);
   gap: clamp(3rem, 7vw, 8rem);
   margin-bottom: 7rem;
   padding: 4rem 0;
@@ -1847,7 +1847,7 @@ html.has-motion .results__track { height: 240vh; }
   border-bottom: 1px solid var(--paper-2);
 }
 .aio-results__outcomes h3 {
-  max-width: 28rem;
+  max-width: 32rem;
   font-size: var(--h2-size);
   font-weight: var(--h2-weight);
   line-height: var(--h2-lh);
