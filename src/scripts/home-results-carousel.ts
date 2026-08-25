@@ -36,23 +36,29 @@ function enableMouseDrag(
 
   carousel.addEventListener('pointerdown', (event) => {
     if (event.pointerType !== 'mouse' || event.button !== 0) return;
+    if (
+      event.target instanceof Element
+      && event.target.closest('a, button, input, textarea, select, label, [role="button"]')
+    ) return;
     pointerId = event.pointerId;
     startX = event.clientX;
     startScrollLeft = carousel.scrollLeft;
     moved = false;
     begin();
-    try {
-      carousel.setPointerCapture(event.pointerId);
-    } catch {
-      // Moderne Desktop-Browser unterstützen Pointer-Capture; der Window-
-      // Listener beendet die Geste als Fallback trotzdem zuverlässig.
-    }
   });
   carousel.addEventListener('pointermove', (event) => {
     if (event.pointerId !== pointerId) return;
     const deltaX = event.clientX - startX;
     if (!moved && Math.abs(deltaX) < 4) return;
-    moved = true;
+    if (!moved) {
+      moved = true;
+      try {
+        carousel.setPointerCapture(event.pointerId);
+      } catch {
+        // Falls der Pointer das Element bereits verlassen hat, beendet der
+        // Window-Listener die Geste weiterhin zuverlässig.
+      }
+    }
     carousel.classList.add('is-pointer-dragging');
     event.preventDefault();
     const maxScroll = Math.max(0, carousel.scrollWidth - carousel.clientWidth);
