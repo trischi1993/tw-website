@@ -1,5 +1,11 @@
 import GlowButton from './GlowButton';
 import type { CSSProperties } from 'react';
+import type {
+  AioCustomerResultKey,
+  SectionModule,
+} from '../../lib/content/types';
+import { DEFAULT_AIO_CUSTOMER_RESULTS } from '../../lib/content/aio-customer-results';
+import type { EditAttr } from './SectionsList';
 
 type ResultBadgePosition =
   | 'top-left'
@@ -12,93 +18,74 @@ type ResultBadgePosition =
 type ResultImage = {
   src: string;
   alt: string;
-  badge?: string;
   badgePosition?: ResultBadgePosition;
   trimBottom?: boolean;
   cropChatHeader?: boolean;
 };
 
-type ResultCard = {
-  source: string;
-  value: string;
-  label: string;
+type ResultVisual = {
+  key: AioCustomerResultKey;
   images: ResultImage[];
 };
 
-const RESULTS: ResultCard[] = [
+const RESULT_VISUALS: ResultVisual[] = [
   {
-    source: 'Friedrich · Metallkünstler',
-    value: '1.600 → 400.000+',
-    label: 'Views hochskaliert und +1.200 neue Follower in nur 4 Tagen',
+    key: 'friedrich',
     images: [
-      { src: '/images/aio-results/friedrich-result.jpg', alt: 'Kundennachricht über starkes Followerwachstum und mehrere erfolgreiche Reels', badge: '+1.200 Follower', badgePosition: 'top-left' },
-      { src: '/images/aio-results/friedrich-views.jpg', alt: 'Drei Reels von Friedrich mit mehr als 400.000 Aufrufen', badge: '+400.000 Views', badgePosition: 'top-left' },
+      { src: '/images/aio-results/friedrich-result.jpg', alt: 'Kundennachricht über starkes Followerwachstum und mehrere erfolgreiche Reels', badgePosition: 'top-left' },
+      { src: '/images/aio-results/friedrich-views.jpg', alt: 'Drei Reels von Friedrich mit mehr als 400.000 Aufrufen', badgePosition: 'top-left' },
     ],
   },
   {
-    source: 'Christina Starke · DIY & Interior',
-    value: '50.000 → 129.000',
-    label: 'Follower seit der gemeinsamen Account-Analyse',
+    key: 'christina',
     images: [
-      { src: '/images/aio-results/christina-profile.jpg', alt: 'Christina Starkes Instagram-Profil mit 129.000 Followern', badge: '+79.000 Follower', badgePosition: 'top-right' },
-      { src: '/images/aio-results/christina-growth.jpg', alt: 'Kundennachricht von Christina Starke über mehr als 50.000 neue Follower', badge: 'Mehrere Mio. Views', badgePosition: 'top-left' },
+      { src: '/images/aio-results/christina-profile.jpg', alt: 'Christina Starkes Instagram-Profil mit 129.000 Followern', badgePosition: 'top-right' },
+      { src: '/images/aio-results/christina-growth.jpg', alt: 'Kundennachricht von Christina Starke über mehr als 50.000 neue Follower', badgePosition: 'top-left' },
     ],
   },
   {
-    source: 'Chalet Lefiro · Luxury Chalet',
-    value: '2.500 → 20.400',
-    label: 'Follower in sechs Monaten und mehr Buchungsanfragen',
+    key: 'chaletLefiro',
     images: [
-      { src: '/images/aio-results/chalet-lefiro-result.jpg', alt: 'Instagram-Profil von Chalet Lefiro mit 20.400 Followern', badge: '+17.900 Follower', badgePosition: 'top-right' },
-      { src: '/images/aio-results/chalet-views.jpg', alt: 'Drei Reels von Chalet Lefiro mit bis zu 1,4 Millionen Aufrufen', badge: 'Mehrere Mio. Views', badgePosition: 'top-left', trimBottom: true },
+      { src: '/images/aio-results/chalet-lefiro-result.jpg', alt: 'Instagram-Profil von Chalet Lefiro mit 20.400 Followern', badgePosition: 'top-right' },
+      { src: '/images/aio-results/chalet-views.jpg', alt: 'Drei Reels von Chalet Lefiro mit bis zu 1,4 Millionen Aufrufen', badgePosition: 'top-left', trimBottom: true },
     ],
   },
   {
-    source: 'Naomi · Mentorin',
-    value: '2.175 → 26.800+',
-    label: 'Follower durch eine auf sie angepasste Content-Strategie',
+    key: 'naomi',
     images: [
-      { src: '/images/aio-results/naomi-before.jpg', alt: 'Naomis Instagram-Profil mit 2.175 Followern', badge: 'Vorher', badgePosition: 'top-right' },
-      { src: '/images/aio-results/naomi-after.jpg', alt: 'Naomis Instagram-Profil mit 26.800 Followern', badge: '+24.626 Follower', badgePosition: 'top-right' },
+      { src: '/images/aio-results/naomi-before.jpg', alt: 'Naomis Instagram-Profil mit 2.175 Followern', badgePosition: 'top-right' },
+      { src: '/images/aio-results/naomi-after.jpg', alt: 'Naomis Instagram-Profil mit 26.800 Followern', badgePosition: 'top-right' },
     ],
   },
   {
-    source: 'Naturnser Alm',
-    value: '146.000+',
-    label: 'Views mit dem gemeinsam produzierten Video',
+    key: 'naturnserAlm',
     images: [
-      { src: '/images/aio-results/naturnser-alm-reel.jpg', alt: 'Das beim Praxis-Coaching produzierte Reel der Naturnser Alm mit mehr als 146.000 Aufrufen', badge: '146.000+ Views', badgePosition: 'top-right' },
-      { src: '/images/aio-results/naturnser-alm-profile.jpg', alt: 'Instagram-Profil der Naturnser Alm mit 4.105 Followern', badge: '+2.800 Follower', badgePosition: 'top-right' },
+      { src: '/images/aio-results/naturnser-alm-reel.jpg', alt: 'Das beim Praxis-Coaching produzierte Reel der Naturnser Alm mit mehr als 146.000 Aufrufen', badgePosition: 'top-right' },
+      { src: '/images/aio-results/naturnser-alm-profile.jpg', alt: 'Instagram-Profil der Naturnser Alm mit 4.105 Followern', badgePosition: 'top-right' },
       { src: '/images/aio-results/naturnser-alm-result.jpg', alt: 'Kundennachricht über den Sprung von rund 1.300 auf 2.061 Follower über Nacht', cropChatHeader: true },
     ],
   },
   {
-    source: 'die Küche by Untermarzoner',
-    value: '84.000+',
-    label: 'Views mit dem gemeinsam produzierten Video',
+    key: 'untermarzoner',
     images: [
-      { src: '/images/aio-results/untermarzoner-result.jpg', alt: 'Kundennachricht über mehr als 84.000 TikTok-Aufrufe', badge: '84.000+ Views', badgePosition: 'middle-right' },
+      { src: '/images/aio-results/untermarzoner-result.jpg', alt: 'Kundennachricht über mehr als 84.000 TikTok-Aufrufe', badgePosition: 'middle-right' },
     ],
   },
   {
-    source: 'Alpin Arena Schnals',
-    value: '66.000+',
-    label: 'Views mit dem gemeinsam produzierten Video',
+    key: 'alpinArena',
     images: [
-      { src: '/images/aio-results/alpin-arena-result.jpg', alt: 'Instagram-Insights mit mehr als 66.000 organischen Aufrufen', badge: '66.000+ Views', badgePosition: 'middle-right' },
+      { src: '/images/aio-results/alpin-arena-result.jpg', alt: 'Instagram-Insights mit mehr als 66.000 organischen Aufrufen', badgePosition: 'middle-right' },
     ],
   },
 ];
 
-const STEFFI_PROOFS = [
+const STEFFI_PROOF_VISUALS = [
   {
+    copyKey: 'proofFollowers' as const,
     src: '/images/aio-results/steffi-profile.jpg',
     alt: 'Aktuelles Instagram-Profil von Steffi – Tierisch Natürlich mit 6.036 Followern',
     beforeSrc: '/images/aio-results/steffi-profile-before.jpg',
     beforeAlt: 'Früheres Instagram-Profil von Steffi – Tierisch Natürlich mit 1.773 Followern',
-    label: '+4.500 Follower',
-    value: '1.500 → 6.000+',
-    description: 'Follower innerhalb von ca. 3 Monaten',
     className: 'is-profile is-profile-comparison',
     mark: {
       width: 1179,
@@ -107,11 +94,9 @@ const STEFFI_PROOFS = [
     },
   },
   {
+    copyKey: 'proofViews' as const,
     src: '/images/aio-results/steffi-result-cropped.jpg',
     alt: 'Steffis Instagram-Dashboard mit einer Million Aufrufen in 30 Tagen',
-    label: '+974.800 Aufrufe',
-    value: '1,0 Mio.',
-    description: 'Aufrufe innerhalb von 30 Tagen',
     className: 'is-dashboard',
     mark: {
       width: 745,
@@ -120,11 +105,9 @@ const STEFFI_PROOFS = [
     },
   },
   {
+    copyKey: 'proofLeads' as const,
     src: '/images/aio-results/steffi-comments.jpg',
     alt: 'Steffis Reel mit 892 Kommentaren',
-    label: '+892 Kommentare / Leads',
-    value: '892',
-    description: 'Kommentare und direkte Lead-Signale auf einem Reel',
     className: 'is-comments',
     mark: {
       width: 1179,
@@ -132,15 +115,6 @@ const STEFFI_PROOFS = [
       circles: [{ cx: 370, cy: 1438, rx: 97, ry: 42, rotate: -2 }],
     },
   },
-];
-
-const OUTCOMES = [
-  'die Social-Media-Grundlagen sicher beherrschen.',
-  'deine Zielgruppe kennen und gezielt ansprechen.',
-  'Strategien für Reichweite, Follower und Kunden umsetzen.',
-  'Daten richtig analysieren und zur Optimierung nutzen.',
-  'wissen, wie du über Social Media Geld verdienst.',
-  'hochwertigen, leistungsstarken Content erstellen.',
 ];
 
 type CircleMark = {
@@ -309,41 +283,89 @@ const MOBILE_REEL_MARKS = {
 } satisfies Record<string, MarkLayer>;
 
 /** Lokale Konzeptvariante mit belegbaren Ergebnissen aus Kundenscreenshots. */
-export default function AioCustomerResultsSection() {
+export default function AioCustomerResultsSection({
+  section,
+  edit,
+}: {
+  section: SectionModule;
+  edit?: EditAttr;
+}) {
+  const {
+    _key,
+    titleRowText,
+    heading: outcomesHeading,
+    bullets: outcomes,
+    customerResults = DEFAULT_AIO_CUSTOMER_RESULTS,
+  } = section;
+  const path = `sections[_key=="${_key}"]`;
+  const resultCards = RESULT_VISUALS.map(({ key, images }) => ({
+    key,
+    images,
+    ...customerResults.customers[key],
+  }));
+  const steffiProofs = STEFFI_PROOF_VISUALS.map((visual) => ({
+    ...visual,
+    ...customerResults[visual.copyKey],
+  }));
+  const growth = customerResults.growthSystem;
+
   return (
-    <section className="aio-results section" id="resultate">
+    <section
+      className="aio-results section"
+      id="resultate"
+      data-section-key={edit ? _key : undefined}
+      {...edit?.(path)}
+    >
       <div className="container">
         <div className="aio-results__outcomes">
           <div className="aio-results__outcomes-head" data-anim="reveal">
-            <p className="aio-programme__eyebrow aio-section-eyebrow">Dein Ergebnis</p>
-            <h3>Nach dem Coaching wirst du...</h3>
+            <p
+              className="aio-programme__eyebrow aio-section-eyebrow"
+              {...edit?.(`${path}.titleRowText`)}
+            >
+              {titleRowText}
+            </p>
+            <h3 {...edit?.(`${path}.heading`)}>{outcomesHeading}</h3>
           </div>
           <ul data-anim="reveal" data-delay="0.1">
-            {OUTCOMES.map((outcome) => (
-              <li key={outcome}>{outcome}</li>
+            {outcomes.map((outcome, index) => (
+              <li key={`${outcome}-${index}`} {...edit?.(`${path}.bullets[${index}]`)}>
+                {outcome}
+              </li>
             ))}
           </ul>
 
           <div
             className="aio-growth-system"
             data-anim="aio-growth-system"
-            aria-label="Der Weg von relevantem Content zu Reichweite, Community und Kunden"
+            aria-label={growth.heading}
           >
             <header className="aio-growth-system__head">
               <div>
-                <h4>Von relevantem Content zu planbarem Umsatz.</h4>
+                <h4 {...edit?.(`${path}.customerResults.growthSystem.heading`)}>
+                  {growth.heading}
+                </h4>
               </div>
-              <span className="aio-growth-system__status">
-                <i aria-hidden="true" /> Dein Wachstumssystem
+              <span
+                className="aio-growth-system__status"
+                {...edit?.(`${path}.customerResults.growthSystem.status`)}
+              >
+                <i aria-hidden="true" /> {growth.status}
               </span>
             </header>
 
             <div className="aio-growth-system__stages">
               <article className="aio-growth-stage">
                 <div className="aio-growth-stage__copy">
-                  <span>01 / Reichweite</span>
-                  <h5>Sichtbarkeit aufbauen</h5>
-                  <p>Content, der die richtigen Menschen erreicht.</p>
+                  <span {...edit?.(`${path}.customerResults.growthSystem.reach.label`)}>
+                    {growth.reach.label}
+                  </span>
+                  <h5 {...edit?.(`${path}.customerResults.growthSystem.reach.heading`)}>
+                    {growth.reach.heading}
+                  </h5>
+                  <p {...edit?.(`${path}.customerResults.growthSystem.reach.text`)}>
+                    {growth.reach.text}
+                  </p>
                 </div>
                 <div className="aio-growth-stage__graphic is-reach">
                   <svg viewBox="0 0 360 170" role="img" aria-label="Ansteigende Reichweitenkurve">
@@ -371,15 +393,27 @@ export default function AioCustomerResultsSection() {
                     <circle className="aio-growth-stage__reach-glow" data-aio-growth-glow cx="348" cy="15" r="15" />
                     <circle className="aio-growth-stage__reach-point" data-aio-growth-point cx="348" cy="15" r="5" />
                   </svg>
-                  <span className="aio-growth-stage__signal" data-aio-growth-label>mehr Sichtbarkeit</span>
+                  <span
+                    className="aio-growth-stage__signal"
+                    data-aio-growth-label
+                    {...edit?.(`${path}.customerResults.growthSystem.reach.signal`)}
+                  >
+                    {growth.reach.signal}
+                  </span>
                 </div>
               </article>
 
               <article className="aio-growth-stage">
                 <div className="aio-growth-stage__copy">
-                  <span>02 / Follower</span>
-                  <h5>Community entwickeln</h5>
-                  <p>Aus Aufmerksamkeit wird echte Verbindung.</p>
+                  <span {...edit?.(`${path}.customerResults.growthSystem.community.label`)}>
+                    {growth.community.label}
+                  </span>
+                  <h5 {...edit?.(`${path}.customerResults.growthSystem.community.heading`)}>
+                    {growth.community.heading}
+                  </h5>
+                  <p {...edit?.(`${path}.customerResults.growthSystem.community.text`)}>
+                    {growth.community.text}
+                  </p>
                 </div>
                 <div className="aio-growth-stage__graphic is-community" aria-hidden="true">
                   <svg viewBox="0 0 360 170">
@@ -399,15 +433,27 @@ export default function AioCustomerResultsSection() {
                       <circle className="aio-growth-stage__core" data-aio-growth-core cx="180" cy="86" r="10" />
                     </g>
                   </svg>
-                  <span className="aio-growth-stage__signal" data-aio-growth-label>Community wächst</span>
+                  <span
+                    className="aio-growth-stage__signal"
+                    data-aio-growth-label
+                    {...edit?.(`${path}.customerResults.growthSystem.community.signal`)}
+                  >
+                    {growth.community.signal}
+                  </span>
                 </div>
               </article>
 
               <article className="aio-growth-stage">
                 <div className="aio-growth-stage__copy">
-                  <span>03 / Kunden</span>
-                  <h5>Vertrauen konvertieren</h5>
-                  <p>Ein klarer Weg vom Interesse zu passenden Kunden.</p>
+                  <span {...edit?.(`${path}.customerResults.growthSystem.customers.label`)}>
+                    {growth.customers.label}
+                  </span>
+                  <h5 {...edit?.(`${path}.customerResults.growthSystem.customers.heading`)}>
+                    {growth.customers.heading}
+                  </h5>
+                  <p {...edit?.(`${path}.customerResults.growthSystem.customers.text`)}>
+                    {growth.customers.text}
+                  </p>
                 </div>
                 <div className="aio-growth-stage__graphic is-conversion" aria-hidden="true">
                   <svg viewBox="0 0 360 170">
@@ -432,7 +478,13 @@ export default function AioCustomerResultsSection() {
                       €
                     </text>
                   </svg>
-                  <span className="aio-growth-stage__signal" data-aio-growth-label>passende Kunden</span>
+                  <span
+                    className="aio-growth-stage__signal"
+                    data-aio-growth-label
+                    {...edit?.(`${path}.customerResults.growthSystem.customers.signal`)}
+                  >
+                    {growth.customers.signal}
+                  </span>
                 </div>
               </article>
             </div>
@@ -440,31 +492,45 @@ export default function AioCustomerResultsSection() {
         </div>
 
         <header className="aio-results__head" data-anim="reveal">
-          <p className="aio-programme__eyebrow aio-section-eyebrow">Echte Kunden. Echte Entwicklung.</p>
-          <h2>Resultate, die für sich sprechen</h2>
-          <p>
-            Keine theoretischen Versprechen, sondern Ergebnisse von Menschen und Unternehmen,
-            die das Gelernte in die Praxis umgesetzt haben.
+          <p
+            className="aio-programme__eyebrow aio-section-eyebrow"
+            {...edit?.(`${path}.customerResults.eyebrow`)}
+          >
+            {customerResults.eyebrow}
           </p>
+          <h2 {...edit?.(`${path}.customerResults.heading`)}>{customerResults.heading}</h2>
+          <p {...edit?.(`${path}.customerResults.intro`)}>{customerResults.intro}</p>
         </header>
 
         <article className="aio-case-study" id="steffi-case" data-anim="aio-case-study">
           <header className="aio-case-study__head">
             <div className="aio-case-study__head-meta">
-              <p className="aio-results__source">All-In-One Coaching Fallstudie</p>
+              <p
+                className="aio-results__source"
+                {...edit?.(`${path}.customerResults.caseLabel`)}
+              >
+                {customerResults.caseLabel}
+              </p>
               <div className="aio-case-study__identity">
                 <img
                   src="/images/aio-results/steffi-avatar.jpg"
-                  alt="Steffi von Tierisch Natürlich"
+                  alt={`Porträt von ${customerResults.caseIdentity}`}
                   loading="lazy"
                   decoding="async"
                 />
-                <span>Steffi · Tierisch Natürlich</span>
+                <span {...edit?.(`${path}.customerResults.caseIdentity`)}>
+                  {customerResults.caseIdentity}
+                </span>
               </div>
             </div>
-            <h3>Von rund 500 Views zu wiederholten 200.000+ Reichweiten.</h3>
-            <span className="aio-case-study__duration">
-              <i aria-hidden="true" /> In nur 3 Monaten - 100% organisch
+            <h3 {...edit?.(`${path}.customerResults.caseHeadline`)}>
+              {customerResults.caseHeadline}
+            </h3>
+            <span
+              className="aio-case-study__duration"
+              {...edit?.(`${path}.customerResults.durationBadge`)}
+            >
+              <i aria-hidden="true" /> {customerResults.durationBadge}
             </span>
           </header>
 
@@ -474,7 +540,7 @@ export default function AioCustomerResultsSection() {
               data-aio-proof-slider
               aria-label="Dokumentierte Ergebnisse von Steffi"
             >
-              {STEFFI_PROOFS.map((proof) => (
+              {steffiProofs.map((proof) => (
                 <figure className={proof.className} key={proof.src}>
                   <div className="aio-case-study__proof-media">
                     {'beforeSrc' in proof ? (
@@ -498,11 +564,23 @@ export default function AioCustomerResultsSection() {
                         <ScreenshotMarks mark={proof.mark} />
                       </div>
                     )}
-                    <figcaption>{proof.label}</figcaption>
+                    <figcaption
+                      {...edit?.(`${path}.customerResults.${proof.copyKey}.badge`)}
+                    >
+                      {proof.badge}
+                    </figcaption>
                   </div>
                   <div className="aio-case-study__proof-metric">
-                    <strong>{proof.value}</strong>
-                    <span>{proof.description}</span>
+                    <strong
+                      {...edit?.(`${path}.customerResults.${proof.copyKey}.value`)}
+                    >
+                      {proof.value}
+                    </strong>
+                    <span
+                      {...edit?.(`${path}.customerResults.${proof.copyKey}.description`)}
+                    >
+                      {proof.description}
+                    </span>
                   </div>
                 </figure>
               ))}
@@ -514,7 +592,7 @@ export default function AioCustomerResultsSection() {
                   <path d="M15 5l-7 7 7 7" />
                 </svg>
               </button>
-              <span data-aio-proof-status aria-live="polite">1 / {STEFFI_PROOFS.length}</span>
+              <span data-aio-proof-status aria-live="polite">1 / {steffiProofs.length}</span>
               <button type="button" data-aio-proof-next aria-label="Nächstes Ergebnis">
                 <svg viewBox="0 0 24 24" aria-hidden="true">
                   <path d="M9 5l7 7-7 7" />
@@ -524,8 +602,12 @@ export default function AioCustomerResultsSection() {
           </div>
 
           <div className="aio-case-study__journey-head">
-            <strong>500 → 416.000+</strong>
-            <span>Views pro Reel im direkten Vorher-/Nachher-Vergleich</span>
+            <strong {...edit?.(`${path}.customerResults.comparisonValue`)}>
+              {customerResults.comparisonValue}
+            </strong>
+            <span {...edit?.(`${path}.customerResults.comparisonText`)}>
+              {customerResults.comparisonText}
+            </span>
           </div>
 
           <div className="aio-case-study__journey" data-before-after>
@@ -585,8 +667,18 @@ export default function AioCustomerResultsSection() {
               />
             </div>
 
-            <span className="aio-case-study__comparison-label is-before">Vor dem Coaching</span>
-            <span className="aio-case-study__comparison-label is-after">Nach dem Coaching</span>
+            <span
+              className="aio-case-study__comparison-label is-before"
+              {...edit?.(`${path}.customerResults.beforeLabel`)}
+            >
+              {customerResults.beforeLabel}
+            </span>
+            <span
+              className="aio-case-study__comparison-label is-after"
+              {...edit?.(`${path}.customerResults.afterLabel`)}
+            >
+              {customerResults.afterLabel}
+            </span>
 
             <span className="aio-case-study__comparison-divider" aria-hidden="true">
               <i data-before-after-handle>
@@ -608,43 +700,72 @@ export default function AioCustomerResultsSection() {
         </article>
 
         <div className="aio-results__more-head" data-anim="reveal">
-          <h3>Weitere Kundenerfolge</h3>
-          <span aria-hidden="true">Scrollen&nbsp; →</span>
+          <h3 {...edit?.(`${path}.customerResults.moreHeading`)}>
+            {customerResults.moreHeading}
+          </h3>
+          <span
+            aria-hidden="true"
+            {...edit?.(`${path}.customerResults.scrollLabel`)}
+          >
+            {customerResults.scrollLabel}
+          </span>
         </div>
 
         <div
           className="aio-results__grid"
           data-anim="aio-results-carousel"
-          aria-label="Weitere Kundenerfolge"
+          aria-label={customerResults.moreHeading}
         >
-          {RESULTS.map(({ source, value, label, images }) => (
-            <article className="aio-results__card" key={source}>
+          {resultCards.map(({ key, source, value, label, badges, images }) => (
+            <article className="aio-results__card" key={key}>
               <div className={`aio-results__media${images.length > 1 ? ' is-comparison' : ''}${images.length === 3 ? ' is-triple' : ''}`}>
-                {images.map((image) => (
-                  <figure
-                    className={[
-                      image.trimBottom ? 'is-bottom-trimmed' : '',
-                      image.cropChatHeader ? 'is-chat-header-cropped' : '',
-                      image.badgePosition ? `is-badge-${image.badgePosition}` : '',
-                    ].filter(Boolean).join(' ') || undefined}
-                    key={image.src}
-                  >
-                    <img
-                      src={image.src}
-                      alt={image.alt}
-                      loading="lazy"
-                      decoding="async"
-                    />
-                    {'badge' in image && image.badge && <figcaption>{image.badge}</figcaption>}
-                  </figure>
-                ))}
+                {images.map((image, imageIndex) => {
+                  const badge = badges[imageIndex];
+                  return (
+                    <figure
+                      className={[
+                        image.trimBottom ? 'is-bottom-trimmed' : '',
+                        image.cropChatHeader ? 'is-chat-header-cropped' : '',
+                        image.badgePosition ? `is-badge-${image.badgePosition}` : '',
+                      ].filter(Boolean).join(' ') || undefined}
+                      key={image.src}
+                    >
+                      <img
+                        src={image.src}
+                        alt={image.alt}
+                        loading="lazy"
+                        decoding="async"
+                      />
+                      {badge && (
+                        <figcaption
+                          {...edit?.(`${path}.customerResults.customers.${key}.badges[${imageIndex}]`)}
+                        >
+                          {badge}
+                        </figcaption>
+                      )}
+                    </figure>
+                  );
+                })}
               </div>
 
               <div className="aio-results__body">
-                <p className="aio-results__source">{source}</p>
+                <p
+                  className="aio-results__source"
+                  {...edit?.(`${path}.customerResults.customers.${key}.source`)}
+                >
+                  {source}
+                </p>
                 <div className="aio-results__metric">
-                  <strong>{value}</strong>
-                  <span>{label}</span>
+                  <strong
+                    {...edit?.(`${path}.customerResults.customers.${key}.value`)}
+                  >
+                    {value}
+                  </strong>
+                  <span
+                    {...edit?.(`${path}.customerResults.customers.${key}.label`)}
+                  >
+                    {label}
+                  </span>
                 </div>
               </div>
             </article>
@@ -652,22 +773,35 @@ export default function AioCustomerResultsSection() {
 
           <article className="aio-results__card aio-results__card--more">
             <div className="aio-results__more-visual">
-              <p>Und viele weitere meiner Kunden&nbsp;...</p>
-              <h4>
-                ... haben mit klarer Strategie ihren nächsten
-                Wachstumsschritt erreicht.
+              <p {...edit?.(`${path}.customerResults.closingIntro`)}>
+                {customerResults.closingIntro}
+              </p>
+              <h4 {...edit?.(`${path}.customerResults.closingHeading`)}>
+                {customerResults.closingHeading}
               </h4>
-              <span>Hier könnte dein Erfolg stehen.</span>
+              <span {...edit?.(`${path}.customerResults.closingHighlight`)}>
+                {customerResults.closingHighlight}
+              </span>
               <strong aria-hidden="true">+</strong>
             </div>
 
             <div className="aio-results__body aio-results__more-body">
-              <p className="aio-results__source">Dein nächster Schritt</p>
-              <p className="aio-results__more-copy">
-                Lass uns das Potenzial in deinem Account sichtbar machen.
+              <p
+                className="aio-results__source"
+                {...edit?.(`${path}.customerResults.closingSource`)}
+              >
+                {customerResults.closingSource}
+              </p>
+              <p
+                className="aio-results__more-copy"
+                {...edit?.(`${path}.customerResults.closingText`)}
+              >
+                {customerResults.closingText}
               </p>
               <div className="aio-results__more-cta">
-                <GlowButton label="Ich will auch wachsen!" action="modal-aio" />
+                <div {...edit?.(`${path}.customerResults.closingCta`)}>
+                  <GlowButton label={customerResults.closingCta} action="modal-aio" />
+                </div>
               </div>
             </div>
           </article>

@@ -1,6 +1,10 @@
-import type { SectionResults } from '../../lib/content/types';
+import type {
+  AioCustomerResultKey,
+  SectionResults,
+} from '../../lib/content/types';
 import type { EditAttr } from './SectionsList';
 import GlowButton from './GlowButton';
+import { DEFAULT_AIO_CUSTOMER_RESULTS } from '../../lib/content/aio-customer-results';
 
 type ResultBadgePosition =
   | 'top-left'
@@ -28,6 +32,11 @@ type ProofCard = {
   source: string;
   value: string;
   label: string;
+  images: ProofImage[];
+};
+
+type CustomerProofVisual = {
+  key: AioCustomerResultKey;
   images: ProofImage[];
 };
 
@@ -107,104 +116,79 @@ const OWN_RESULTS: ProofCard[] = [
   },
 ];
 
-const CUSTOMER_RESULTS: ProofCard[] = [
+const CUSTOMER_RESULT_VISUALS: CustomerProofVisual[] = [
   {
-    kind: 'customer',
-    source: 'Friedrich · Metallkünstler',
-    value: '1.600 → 400.000+',
-    label: 'Views hochskaliert und +1.200 neue Follower in nur 4 Tagen',
+    key: 'friedrich',
     images: [
       {
         src: '/images/home-results/friedrich-result.jpg',
         alt: 'Kundennachricht über starkes Followerwachstum und erfolgreiche Reels',
-        badge: '+1.200 Follower',
         badgePosition: 'top-left',
       },
       {
         src: '/images/home-results/friedrich-views.jpg',
         alt: 'Drei Reels von Friedrich mit mehr als 400.000 Aufrufen',
-        badge: '+400.000 Views',
         badgePosition: 'top-left',
       },
     ],
   },
   {
-    kind: 'customer',
-    source: 'Christina Starke · DIY & Interior',
-    value: '50.000 → 129.000',
-    label: 'Follower seit der gemeinsamen Account-Analyse',
+    key: 'christina',
     images: [
       {
         src: '/images/home-results/christina-profile.jpg',
         alt: 'Christina Starkes Instagram-Profil mit 129.000 Followern',
-        badge: '+79.000 Follower',
         badgePosition: 'top-right',
       },
       {
         src: '/images/home-results/christina-growth.jpg',
         alt: 'Nachricht von Christina Starke über ihr organisches Wachstum',
-        badge: 'Mehrere Mio. Views',
         badgePosition: 'top-left',
       },
     ],
   },
   {
-    kind: 'customer',
-    source: 'Chalet Lefiro · Luxury Chalet',
-    value: '2.500 → 20.400',
-    label: 'Follower in sechs Monaten und mehr Buchungsanfragen',
+    key: 'chaletLefiro',
     images: [
       {
         src: '/images/home-results/chalet-lefiro-result.jpg',
         alt: 'Instagram-Profil von Chalet Lefiro mit 20.400 Followern',
-        badge: '+17.900 Follower',
         badgePosition: 'top-right',
       },
       {
         src: '/images/home-results/chalet-views.jpg',
         alt: 'Reels von Chalet Lefiro mit bis zu 1,4 Millionen Aufrufen',
-        badge: 'Mehrere Mio. Views',
         badgePosition: 'top-left',
         trimBottom: true,
       },
     ],
   },
   {
-    kind: 'customer',
-    source: 'Naomi · Mentorin',
-    value: '2.175 → 26.800+',
-    label: 'Follower durch eine auf sie angepasste Content-Strategie',
+    key: 'naomi',
     images: [
       {
         src: '/images/home-results/naomi-before.jpg',
         alt: 'Naomis Instagram-Profil vor der Zusammenarbeit mit 2.175 Followern',
-        badge: 'Vorher',
         badgePosition: 'top-right',
       },
       {
         src: '/images/home-results/naomi-after.jpg',
         alt: 'Naomis Instagram-Profil nach der Zusammenarbeit mit 26.800 Followern',
-        badge: '+24.626 Follower',
         badgePosition: 'top-right',
       },
     ],
   },
   {
-    kind: 'customer',
-    source: 'Naturnser Alm',
-    value: '146.000+',
-    label: 'Views mit dem gemeinsam produzierten Video',
+    key: 'naturnserAlm',
     images: [
       {
         src: '/images/home-results/naturnser-alm-reel.jpg',
         alt: 'Das beim Praxis-Coaching produzierte Reel der Naturnser Alm',
-        badge: '146.000+ Views',
         badgePosition: 'top-right',
       },
       {
         src: '/images/home-results/naturnser-alm-profile.jpg',
         alt: 'Instagram-Profil der Naturnser Alm mit 4.105 Followern',
-        badge: '+2.800 Follower',
         badgePosition: 'top-right',
       },
       {
@@ -215,36 +199,26 @@ const CUSTOMER_RESULTS: ProofCard[] = [
     ],
   },
   {
-    kind: 'customer',
-    source: 'die Küche by Untermarzoner',
-    value: '84.000+',
-    label: 'Views mit dem gemeinsam produzierten Video',
+    key: 'untermarzoner',
     images: [
       {
         src: '/images/home-results/untermarzoner-result.jpg',
         alt: 'Kundennachricht über mehr als 84.000 TikTok-Aufrufe',
-        badge: '84.000+ Views',
         badgePosition: 'middle-right',
       },
     ],
   },
   {
-    kind: 'customer',
-    source: 'Alpin Arena Schnals',
-    value: '66.000+',
-    label: 'Views mit dem gemeinsam produzierten Video',
+    key: 'alpinArena',
     images: [
       {
         src: '/images/home-results/alpin-arena-result.jpg',
         alt: 'Instagram-Insights mit mehr als 66.000 organischen Aufrufen',
-        badge: '66.000+ Views',
         badgePosition: 'middle-right',
       },
     ],
   },
 ];
-
-const RESULTS = [...OWN_RESULTS, ...CUSTOMER_RESULTS];
 
 export default function HomeProofCarouselSection({
   section,
@@ -255,6 +229,22 @@ export default function HomeProofCarouselSection({
 }) {
   const { _key, anchor } = section;
   const path = `sections[_key=="${_key}"]`;
+  const customerResultCopy =
+    section.aioCustomerResults ?? DEFAULT_AIO_CUSTOMER_RESULTS;
+  const customerResults: ProofCard[] = CUSTOMER_RESULT_VISUALS.map(({ key, images }) => {
+    const copy = customerResultCopy.customers[key];
+    return {
+      kind: 'customer',
+      source: copy.source,
+      value: copy.value,
+      label: copy.label,
+      images: images.map((image, index) => ({
+        ...image,
+        badge: copy.badges[index],
+      })),
+    };
+  });
+  const results = [...OWN_RESULTS, ...customerResults];
 
   return (
     <section
@@ -292,7 +282,7 @@ export default function HomeProofCarouselSection({
           data-home-proof-carousel=""
           aria-label="Meine Erfolge und Kundenerfolge"
         >
-          {RESULTS.map(({ kind, source, value, label, images }) => (
+          {results.map(({ kind, source, value, label, images }) => (
             <article
               className={`home-proof-card is-${kind}`}
               data-result-kind={kind}

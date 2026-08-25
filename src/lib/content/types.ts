@@ -83,6 +83,92 @@ export interface TestimonialItem {
   image?: SiteImage;
 }
 
+export interface AioResultProofCopy {
+  badge: string;
+  value: string;
+  description: string;
+}
+
+export type AioCustomerResultKey =
+  | 'friedrich'
+  | 'christina'
+  | 'chaletLefiro'
+  | 'naomi'
+  | 'naturnserAlm'
+  | 'untermarzoner'
+  | 'alpinArena';
+
+export interface AioCustomerResultCardCopy {
+  source: string;
+  value: string;
+  label: string;
+  /** Reihenfolge entspricht den fest verdrahteten Screenshots der Karte. */
+  badges: string[];
+}
+
+export interface AioGrowthStageCopy {
+  label: string;
+  heading: string;
+  text: string;
+  signal: string;
+}
+
+/** Redaktionelle Texte des dreistufigen AIO-Wachstumssystems. */
+export interface AioGrowthSystemCopy {
+  heading: string;
+  status: string;
+  reach: AioGrowthStageCopy;
+  community: AioGrowthStageCopy;
+  customers: AioGrowthStageCopy;
+}
+
+/** Redaktionelle Inhalte des AIO-Kundenerfolge-Bereichs; Bildlayout bleibt Code. */
+export interface AioCustomerResultsContent {
+  eyebrow: string;
+  heading: string;
+  intro: string;
+  caseLabel: string;
+  caseIdentity: string;
+  caseHeadline: string;
+  durationBadge: string;
+  proofFollowers: AioResultProofCopy;
+  proofViews: AioResultProofCopy;
+  proofLeads: AioResultProofCopy;
+  comparisonValue: string;
+  comparisonText: string;
+  beforeLabel: string;
+  afterLabel: string;
+  moreHeading: string;
+  scrollLabel: string;
+  customers: Record<AioCustomerResultKey, AioCustomerResultCardCopy>;
+  closingIntro: string;
+  closingHeading: string;
+  closingHighlight: string;
+  closingSource: string;
+  closingText: string;
+  closingCta: string;
+  growthSystem: AioGrowthSystemCopy;
+}
+
+/** Redaktionelle Inhalte des kompakten AIO-Programmablaufs. */
+export interface AioProgrammeContent {
+  eyebrow: string;
+  heading: string;
+  intro: string;
+  theoryNumber: string;
+  theoryLabel: string;
+  theoryText: string;
+  practiceNumber: string;
+  practiceLabel: string;
+  practiceText: string;
+  practiceOverlay: string;
+  coachingStat: string;
+  coachingLabel: string;
+  coachingEyebrow: string;
+  coachingHeading: string;
+  coachingText: string;
+}
+
 /* --- Sections (modular, reorderable page builder) ------------------------- */
 /* Die Design-Sections der Website. Jede hat: Komponente + Fall in
    SectionsList.tsx, Projektion + Mapper-Fall in lib/content/sections.ts,
@@ -257,6 +343,8 @@ export interface SectionResults extends SectionBase {
   subtitle?: string;
   title: string;
   images: SiteImage[];
+  /** Gemeinsame AIO-Kundenerfolge fuer das Startseiten-Carousel. */
+  aioCustomerResults?: AioCustomerResultsContent;
 }
 
 /** Text links, Bild rechts, mit CTA. layout 'glow' = Gold-Blur hinterm Bild
@@ -357,6 +445,10 @@ export interface SectionModule extends SectionBase {
   videoPosterImage?: SiteImage;
   /** Legacy-/Seed-Fallback für ältere Inhalte. */
   videoPoster?: string;
+  /** Nur beim AIO-Resultate-Abschnitt ohne Modulnummer. */
+  customerResults?: AioCustomerResultsContent;
+  /** Nur beim ersten AIO-Modul: Texte des uebergeordneten Programmablaufs. */
+  programme?: AioProgrammeContent;
 }
 
 /** Bonus-Karten (3er-Reihe) + CTA. */

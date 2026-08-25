@@ -17,6 +17,8 @@ import type {
   SpaceToken,
   CtaVariant,
 } from './types';
+import { mapAioCustomerResults } from './aio-customer-results';
+import { mapAioProgramme } from './aio-programme';
 
 /* ---------------------------------------------------------------------------
    Sections-Contract: GROQ-Projektion + Mapper für das `sections[]`-Array.
@@ -53,7 +55,12 @@ export const SECTIONS_PROJECTION = `sections[]{
   ${CONTENT_PROJECTION},
   _type == "sectionHomeHero" => { headingSmall, headingLarge, ctaLabel, image${IMG} },
   _type == "sectionValueStatement" => { text },
-  _type == "sectionResults" => { subtitle, title, images[]${IMG} },
+  _type == "sectionResults" => {
+    subtitle,
+    title,
+    images[]${IMG},
+    "aioCustomerResults": *[_type == "page" && slug.current == "all-in-one-coaching"][0].sections[_key == "resultate"][0].customerResults
+  },
   _type == "sectionSplitCta" => { heading, body, ctaLabel, ctaAction, ctaHref, ctaNewTab, layout, image${IMG} },
   _type == "sectionServicesTabs" => { heading, subtext, tabLabelPersonal, tabLabelBusiness, limit, ctaModalLabel, calendlyLabel, calendlyUrl, ${SERVICES_SUB} },
   _type == "sectionGalleryMarquee" => { heading, titlesVisible, ctaLabel, ctaHref, items[]{ _key, title, image${IMG} } },
@@ -61,7 +68,7 @@ export const SECTIONS_PROJECTION = `sections[]{
   _type == "sectionTestimonials" => { heading, loadMoreLabel, initialCount, ${TESTIMONIALS_SUB} },
   _type == "sectionFaq" => { heading, items[]{ _key, question, answer } },
   _type == "sectionVideoHero" => { heading, intro, ctaLabel, videoUrl, mockupImage${IMG}, posterImage${IMG} },
-  _type == "sectionModule" => { titleRowText, number, bannerWord, bannerGold, heading, bullets, bulletsNowrap, image${IMG}, imageWide, coachingHeading, coachingText, videoSrc, videoPosterImage${IMG}, videoPoster },
+  _type == "sectionModule" => { titleRowText, number, bannerWord, bannerGold, heading, bullets, bulletsNowrap, customerResults, programme, image${IMG}, imageWide, coachingHeading, coachingText, videoSrc, videoPosterImage${IMG}, videoPoster },
   _type == "sectionBonuses" => { heading, intro, ctaLabel, cards[]{ _key, tag, title, text, image${IMG} } },
   _type == "sectionFinalCta" => { heading, text, ctaLabel, ctaAction, ctaHref, ctaNewTab },
   _type == "sectionPortraitHero" => { heading, intro, image${IMG}, socials[]{ _key, platform, href } },
@@ -395,6 +402,7 @@ export function mapSection(s: any): Section | null {
         images: (Array.isArray(s.images) ? s.images : [])
           .map((i: any) => mapImage(i))
           .filter(Boolean) as SectionResults['images'],
+        aioCustomerResults: mapAioCustomerResults(s.aioCustomerResults),
       };
 
     case 'sectionSplitCta':
@@ -494,6 +502,8 @@ export function mapSection(s: any): Section | null {
         heading: str(s.heading) ?? '',
         bullets: strArray(s.bullets),
         bulletsNowrap: s.bulletsNowrap === true || undefined,
+        customerResults: s.number ? undefined : mapAioCustomerResults(s.customerResults),
+        programme: s.number === '01' ? mapAioProgramme(s.programme) : undefined,
         image: mapImage(s.image),
         imageWide: s.imageWide === true || undefined,
         coachingHeading: str(s.coachingHeading),

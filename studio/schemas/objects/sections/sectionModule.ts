@@ -39,13 +39,20 @@ export default defineType({
         de: 'Das Wort, das im statischen Laufband wiederholt wird.',
       }),
       type: 'string',
-      validation: (R) => R.required(),
+      validation: (R) =>
+        R.custom((value, context) =>
+          (context.parent as { number?: string } | undefined)?.number && !value
+            ? t({ en: 'Required for program modules.', de: 'Bei Programm-Modulen erforderlich.' })
+            : true,
+        ),
+      hidden: ({ parent }) => !(parent as { number?: string } | undefined)?.number,
     }),
     defineField({
       name: 'bannerGold',
       title: t({ en: 'Last banner word in gold', de: 'Letztes Laufband-Wort in Gold' }),
       type: 'boolean',
       initialValue: false,
+      hidden: ({ parent }) => !(parent as { number?: string } | undefined)?.number,
     }),
     defineField({
       name: 'heading',
@@ -65,30 +72,54 @@ export default defineType({
       title: t({ en: 'Keep bullets on one line', de: 'Bullets nicht umbrechen' }),
       type: 'boolean',
       initialValue: false,
+      hidden: ({ parent }) => !(parent as { number?: string } | undefined)?.number,
+    }),
+    defineField({
+      name: 'customerResults',
+      title: 'Kundenerfolge – alle Texte, Zahlen & Badges',
+      description:
+        'Hier öffnen: Abschnittseinstieg, Wachstumssystem, Steffi-Fallstudie und alle sieben weiteren Kundenerfolge.',
+      type: 'aioCustomerResults',
+      options: { collapsible: true, collapsed: false },
+      hidden: ({ parent }) => Boolean((parent as { number?: string } | undefined)?.number),
+    }),
+    defineField({
+      name: 'programme',
+      title: 'Fahrplan & 1:1-Begleitung',
+      description:
+        'Texte des übergeordneten AIO-Programm-Fahrplans. Die Inhalte der einzelnen Module werden in den jeweiligen Modul-Abschnitten gepflegt.',
+      type: 'aioProgramme',
+      hidden: ({ parent }) => (parent as { number?: string } | undefined)?.number !== '01',
     }),
     defineField({
       name: 'image',
       title: t({ en: 'Image', de: 'Bild' }),
       description: t({ en: 'Sits on the gold square.', de: 'Liegt auf dem goldenen Quadrat.' }),
       type: 'imageWithAlt',
+      hidden: ({ parent }) => !(parent as { number?: string } | undefined)?.number,
     }),
     defineField({
       name: 'imageWide',
       title: t({ en: 'Wide image', de: 'Breites Bild' }),
       type: 'boolean',
       initialValue: false,
+      hidden: ({ parent }) => !(parent as { number?: string } | undefined)?.number,
     }),
     defineField({
       name: 'coachingHeading',
       title: t({ en: '1:1 part: heading (optional)', de: '1:1-Teil: Überschrift (optional)' }),
       type: 'string',
+      hidden: ({ parent }) => !(parent as { number?: string } | undefined)?.number,
     }),
     defineField({
       name: 'coachingText',
       title: t({ en: '1:1 part: text', de: '1:1-Teil: Text' }),
       type: 'text',
       rows: 3,
-      hidden: ({ parent }) => !(parent as { coachingHeading?: string } | undefined)?.coachingHeading,
+      hidden: ({ parent }) => {
+        const module = parent as { number?: string; coachingHeading?: string } | undefined;
+        return !module?.number || !module.coachingHeading;
+      },
     }),
     defineField({
       name: 'videoSrc',
@@ -98,7 +129,10 @@ export default defineType({
         de: 'Direkte MP4-URL, z. B. von Bunny CDN.',
       }),
       type: 'string',
-      hidden: ({ parent }) => !(parent as { coachingHeading?: string } | undefined)?.coachingHeading,
+      hidden: ({ parent }) => {
+        const module = parent as { number?: string; coachingHeading?: string } | undefined;
+        return !module?.number || !module.coachingHeading;
+      },
     }),
     defineField({
       name: 'videoPosterImage',
@@ -108,7 +142,10 @@ export default defineType({
         de: 'Standbild hier hochladen. Sanity hostet und liefert es über das eigene Bild-CDN aus.',
       }),
       type: 'imageWithAlt',
-      hidden: ({ parent }) => !(parent as { coachingHeading?: string } | undefined)?.coachingHeading,
+      hidden: ({ parent }) => {
+        const module = parent as { number?: string; coachingHeading?: string } | undefined;
+        return !module?.number || !module.coachingHeading;
+      },
     }),
     defineField({
       name: 'videoPoster',

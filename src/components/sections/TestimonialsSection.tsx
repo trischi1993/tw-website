@@ -44,10 +44,18 @@ export default function TestimonialsSection({
       {...edit?.(path)}
     >
       <div className="reviews__banner" aria-hidden="true">
-        <span className="reviews__banner-line" data-banner-top="">
+        <span
+          className="reviews__banner-line"
+          data-banner-top=""
+          {...edit?.(`${path}.heading`)}
+        >
           {heading}
         </span>
-        <span className="reviews__banner-line is-shadow" data-banner-bottom="">
+        <span
+          className="reviews__banner-line is-shadow"
+          data-banner-bottom=""
+          {...edit?.(`${path}.heading`)}
+        >
           {heading}
         </span>
       </div>
@@ -83,7 +91,9 @@ export default function TestimonialsSection({
         {testimonials.length > initialCount && (
           <div className="reviews__more">
             <button type="button" className="link-underline" data-load-more="" data-underline="">
-              <span className="link-underline__label">{loadMoreLabel}</span>
+              <span className="link-underline__label" {...edit?.(`${path}.loadMoreLabel`)}>
+                {loadMoreLabel}
+              </span>
               <span className="link-underline__line" aria-hidden="true" />
             </button>
           </div>

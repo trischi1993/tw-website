@@ -36,10 +36,6 @@ export default function GalleryMarqueeSection({
     if (!titlesVisible && i === 0) return 0;
     return i % 2 ? 40 : -40;
   };
-  const displayHeading = !titlesVisible && _key === 'pillars'
-    ? 'Gesamtüberblick des Programms'
-    : heading;
-
   return (
     <section
       id={anchor || undefined}
@@ -51,7 +47,7 @@ export default function GalleryMarqueeSection({
       <div className="container container--md gallery__head">
         <div className="gallery__head-mask">
           <h2 data-anim="reveal" {...edit?.(`${path}.heading`)}>
-            {displayHeading}
+            {heading}
           </h2>
         </div>
       </div>
@@ -82,13 +78,22 @@ export default function GalleryMarqueeSection({
                 (titlesVisible ? (
                   <div className="gallery__item-text">
                     <div className="gallery__item-mask">
-                      <h3 className="gallery__item-title" data-marquee-title="">
+                      <h3
+                        className="gallery__item-title"
+                        data-marquee-title=""
+                        {...edit?.(`${path}.items[_key=="${item._key}"].title`)}
+                      >
                         {item.title}
                       </h3>
                     </div>
                   </div>
                 ) : (
-                  <h3 className="visually-hidden">{item.title}</h3>
+                  <h3
+                    className="visually-hidden"
+                    {...edit?.(`${path}.items[_key=="${item._key}"].title`)}
+                  >
+                    {item.title}
+                  </h3>
                 ))}
             </div>
           ))}
@@ -97,7 +102,10 @@ export default function GalleryMarqueeSection({
       {ctaLabel && ctaHref && (
         <div className="gallery__footer">
           <a className="link-underline" href={safeHref(ctaHref)} data-underline="main">
-            <span className="link-underline__label gallery__footer-label">
+            <span
+              className="link-underline__label gallery__footer-label"
+              {...edit?.(`${path}.ctaLabel`)}
+            >
               {ctaLabel}
               {titlesVisible && (
                 <span className="gallery__footer-arrow" aria-hidden="true">
