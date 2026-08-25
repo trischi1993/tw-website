@@ -339,7 +339,7 @@ export default function HomeProofCarouselSection({
             <div className="home-proof-card__more-visual">
               <p>Und viele weitere meiner Kunden&nbsp;...</p>
               <h3>
-                ... haben mit einer klaren Strategie ihren nächsten
+                ... haben mit klarer Strategie ihren nächsten
                 Wachstumsschritt erreicht.
               </h3>
               <span>Hier könnte dein Erfolg stehen.</span>
@@ -349,7 +349,7 @@ export default function HomeProofCarouselSection({
             <div className="home-proof-card__body home-proof-card__more-body">
               <p className="home-proof-card__source">Dein nächster Schritt</p>
               <p className="home-proof-card__more-copy">
-                Lass uns gemeinsam herausfinden, welches Potenzial in deinem Account steckt.
+                Lass uns das Potenzial in deinem Account sichtbar machen.
               </p>
               <div className="home-proof-card__more-cta">
                 <GlowButton label="Ich will auch wachsen!" action="modal" />
