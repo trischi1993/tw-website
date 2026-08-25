@@ -6,6 +6,79 @@ const isNearViewport = (element: HTMLElement, margin = 80) => {
   return bounds.bottom >= -margin && bounds.top <= window.innerHeight + margin;
 };
 
+function enableMouseDrag(
+  carousel: HTMLElement,
+  begin: () => void,
+  finish: () => void,
+): void {
+  let pointerId: number | null = null;
+  let startX = 0;
+  let startScrollLeft = 0;
+  let moved = false;
+  let suppressClickUntil = 0;
+
+  const end = (event: PointerEvent) => {
+    if (event.pointerId !== pointerId) return;
+    const shouldSuppressClick = moved;
+    pointerId = null;
+    moved = false;
+    carousel.classList.remove('is-pointer-dragging');
+    try {
+      if (carousel.hasPointerCapture(event.pointerId)) {
+        carousel.releasePointerCapture(event.pointerId);
+      }
+    } catch {
+      // Der Browser kann den Capture beim Verlassen des Fensters bereits lösen.
+    }
+    if (shouldSuppressClick) suppressClickUntil = performance.now() + 350;
+    finish();
+  };
+
+  carousel.addEventListener('pointerdown', (event) => {
+    if (event.pointerType !== 'mouse' || event.button !== 0) return;
+    if (
+      event.target instanceof Element
+      && event.target.closest('a, button, input, textarea, select, label, [role="button"]')
+    ) return;
+    pointerId = event.pointerId;
+    startX = event.clientX;
+    startScrollLeft = carousel.scrollLeft;
+    moved = false;
+    begin();
+  });
+  carousel.addEventListener('pointermove', (event) => {
+    if (event.pointerId !== pointerId) return;
+    const deltaX = event.clientX - startX;
+    if (!moved && Math.abs(deltaX) < 4) return;
+    if (!moved) {
+      moved = true;
+      try {
+        carousel.setPointerCapture(event.pointerId);
+      } catch {
+        // Falls der Pointer das Element bereits verlassen hat, beendet der
+        // Window-Listener die Geste weiterhin zuverlässig.
+      }
+    }
+    carousel.classList.add('is-pointer-dragging');
+    event.preventDefault();
+    const maxScroll = Math.max(0, carousel.scrollWidth - carousel.clientWidth);
+    carousel.scrollLeft = clamp(startScrollLeft - deltaX, 0, maxScroll);
+  });
+  carousel.addEventListener('pointerup', end);
+  carousel.addEventListener('pointercancel', end);
+  window.addEventListener('pointerup', end, { passive: true });
+  window.addEventListener('pointercancel', end, { passive: true });
+  carousel.addEventListener('dragstart', (event) => {
+    if (pointerId !== null) event.preventDefault();
+  });
+  carousel.addEventListener('click', (event) => {
+    if (performance.now() > suppressClickUntil) return;
+    suppressClickUntil = 0;
+    event.preventDefault();
+    event.stopPropagation();
+  }, true);
+}
+
 /** Bedienlogik aus dem Carousel „Weitere Kundenerfolge“ der AIO-Seite. */
 function initAutoCarousel(carousel: HTMLElement): void {
   if (carousel.dataset.homeProofCarouselReady === '1') return;
@@ -156,9 +229,11 @@ function initAutoCarousel(carousel: HTMLElement): void {
     });
   }
 
-  carousel.addEventListener('pointerdown', () => beginManual('pointer'), { passive: true });
-  carousel.addEventListener('pointerup', () => finishManual('pointer'), { passive: true });
-  carousel.addEventListener('pointercancel', () => finishManual('pointer'), { passive: true });
+  enableMouseDrag(
+    carousel,
+    () => beginManual('pointer'),
+    () => finishManual('pointer'),
+  );
   carousel.addEventListener('touchstart', () => beginManual('touch'), { passive: true });
   carousel.addEventListener('touchend', () => finishManual('touch'), { passive: true });
   carousel.addEventListener('touchcancel', () => finishManual('touch'), { passive: true });
@@ -175,9 +250,6 @@ function initAutoCarousel(carousel: HTMLElement): void {
     const now = performance.now();
     manualSettleAt = now + 280;
     resumeAt = jumpLockUntil > now ? jumpLockUntil : now + 800;
-  }, { passive: true });
-  window.addEventListener('pointerup', () => {
-    if (pointerHeld) finishManual('pointer');
   }, { passive: true });
   window.addEventListener('touchend', () => {
     if (touchHeld) finishManual('touch');
