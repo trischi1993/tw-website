@@ -240,6 +240,724 @@ function initGrowLines(): void {
   });
 }
 
+function initAioProgrammeOverview(): void {
+  document.querySelectorAll<HTMLElement>('[data-anim="aio-programme-overview"]').forEach((overview) => {
+    const cards = overview.querySelectorAll<HTMLElement>(':scope > div');
+    const numbers = overview.querySelectorAll<HTMLElement>(':scope > div > strong');
+    const copies = overview.querySelectorAll<HTMLElement>(':scope > div > div');
+    if (!cards.length) return;
+
+    gsap.set(cards, { opacity: 0, y: '1.25rem', scale: 0.985 });
+    gsap.set(numbers, { opacity: 0, scale: 0.9, transformOrigin: 'center' });
+    gsap.set(copies, { opacity: 0, x: '0.65rem' });
+
+    onEnterOnceStable(overview, 12, () => {
+      const timeline = gsap.timeline();
+      timeline
+        .to(cards, {
+          opacity: 1,
+          y: 0,
+          scale: 1,
+          duration: 0.8,
+          stagger: 0.12,
+          ease: EASE.outQuart,
+        })
+        .to(numbers, {
+          opacity: 1,
+          scale: 1,
+          duration: 0.48,
+          stagger: 0.12,
+          ease: 'back.out(1.6)',
+        }, '<0.12')
+        .to(copies, {
+          opacity: 1,
+          x: 0,
+          duration: 0.6,
+          stagger: 0.12,
+          ease: EASE.outQuart,
+        }, '<0.04');
+    });
+  });
+}
+
+function initAioProgrammeModules(): void {
+  document.querySelectorAll<HTMLElement>('[data-anim="aio-programme-modules"]').forEach((list) => {
+    const modules = list.querySelectorAll<HTMLElement>('.aio-programme__module');
+    if (!modules.length) return;
+
+    gsap.set(modules, { opacity: 0, y: '1rem' });
+    // Erst starten, wenn die Modulliste deutlich im Viewport steht. Mit dem
+    // früheren 10-%-Offset lief die Staffelung bereits am unteren Bildschirmrand
+    // und war beim eigentlichen Hinunterscrollen nahezu abgeschlossen.
+    onEnterOnceStable(list, 34, () => {
+      gsap.to(modules, {
+        opacity: 1,
+        y: 0,
+        duration: 0.7,
+        stagger: 0.09,
+        ease: EASE.outQuart,
+      });
+    });
+  });
+}
+
+function initAioCaseStudies(): void {
+  document.querySelectorAll<HTMLElement>('[data-anim="aio-case-study"]').forEach((study) => {
+    const head = study.querySelector<HTMLElement>('.aio-case-study__head');
+    const journey = study.querySelector<HTMLElement>('.aio-case-study__journey');
+    const proofs = study.querySelectorAll<HTMLElement>('.aio-case-study__proofs figure');
+    const metrics = study.querySelectorAll<HTMLElement>('.aio-case-study__metrics > div');
+    const pieces = [head, ...proofs, ...metrics, journey].filter(Boolean) as HTMLElement[];
+
+    gsap.set(study, { opacity: 0, y: '1.25rem' });
+    gsap.set(pieces, { opacity: 0, y: '0.75rem' });
+    onEnterOnceStable(study, 10, () => {
+      const timeline = gsap.timeline();
+      timeline
+        .to(study, { opacity: 1, y: 0, duration: 0.75, ease: EASE.outQuart })
+        .to(pieces, {
+          opacity: 1,
+          y: 0,
+          duration: 0.58,
+          stagger: 0.065,
+          ease: EASE.outQuart,
+        }, '-=0.35');
+    });
+  });
+}
+
+function initBeforeAfterComparisons(): void {
+  document.querySelectorAll<HTMLElement>('[data-before-after]').forEach((comparison) => {
+    const range = comparison.querySelector<HTMLInputElement>('[data-before-after-range]');
+    const beforeLabel = comparison.querySelector<HTMLElement>('.aio-case-study__comparison-label.is-before');
+    const afterLabel = comparison.querySelector<HTMLElement>('.aio-case-study__comparison-label.is-after');
+    if (!range) return;
+
+    let hasInteracted = false;
+    let activePointerId: number | null = null;
+    let activeTouchId: number | null = null;
+    let touchStartX = 0;
+    let touchStartY = 0;
+    let isTouchDragging = false;
+    let hintTimeline: gsap.core.Timeline | null = null;
+
+    const update = () => {
+      const value = Number(range.value);
+      const dividerPosition = comparison.clientWidth * value / 100;
+      const beforeLabelEdge = beforeLabel
+        ? beforeLabel.offsetLeft + beforeLabel.offsetWidth + 8
+        : 0;
+      const afterLabelEdge = afterLabel ? afterLabel.offsetLeft - 8 : comparison.clientWidth;
+
+      comparison.style.setProperty('--comparison-position', `${value}%`);
+      comparison.classList.toggle('is-before-label-hidden', dividerPosition <= beforeLabelEdge);
+      comparison.classList.toggle('is-after-label-hidden', dividerPosition >= afterLabelEdge);
+    };
+
+    const cancelHint = () => {
+      hasInteracted = true;
+      hintTimeline?.kill();
+      hintTimeline = null;
+    };
+    const onInput = () => {
+      cancelHint();
+      update();
+    };
+    const setFromClientX = (clientX: number) => {
+      const bounds = comparison.getBoundingClientRect();
+      if (!bounds.width) return;
+      const value = Math.min(100, Math.max(0, ((clientX - bounds.left) / bounds.width) * 100));
+      range.value = value.toFixed(2);
+      update();
+    };
+    const onPointerDown = (event: PointerEvent) => {
+      cancelHint();
+      activePointerId = event.pointerId;
+      try {
+        range.setPointerCapture?.(event.pointerId);
+      } catch {
+        // Safari can reject pointer capture while native range handling is active.
+      }
+      setFromClientX(event.clientX);
+    };
+    const onPointerMove = (event: PointerEvent) => {
+      if (activePointerId !== event.pointerId) return;
+      setFromClientX(event.clientX);
+    };
+    const onPointerEnd = (event: PointerEvent) => {
+      if (activePointerId !== event.pointerId) return;
+      activePointerId = null;
+      if (range.hasPointerCapture?.(event.pointerId)) range.releasePointerCapture(event.pointerId);
+    };
+    const getActiveTouch = (touches: TouchList) => {
+      if (activeTouchId === null) return null;
+      return Array.from(touches).find((touch) => touch.identifier === activeTouchId) ?? null;
+    };
+    const onTouchStart = (event: TouchEvent) => {
+      const touch = event.changedTouches[0];
+      if (!touch) return;
+      cancelHint();
+      activeTouchId = touch.identifier;
+      touchStartX = touch.clientX;
+      touchStartY = touch.clientY;
+      isTouchDragging = false;
+    };
+    const onTouchMove = (event: TouchEvent) => {
+      const touch = getActiveTouch(event.touches);
+      if (!touch) return;
+
+      const distanceX = touch.clientX - touchStartX;
+      const distanceY = touch.clientY - touchStartY;
+      if (!isTouchDragging) {
+        if (Math.abs(distanceX) < 5 && Math.abs(distanceY) < 5) return;
+        if (Math.abs(distanceY) > Math.abs(distanceX)) {
+          activeTouchId = null;
+          return;
+        }
+        isTouchDragging = true;
+      }
+
+      event.preventDefault();
+      setFromClientX(touch.clientX);
+    };
+    const onTouchEnd = (event: TouchEvent) => {
+      const touch = getActiveTouch(event.changedTouches);
+      if (!touch) return;
+      if (!isTouchDragging) setFromClientX(touch.clientX);
+      activeTouchId = null;
+      isTouchDragging = false;
+    };
+
+    update();
+    range.addEventListener('input', onInput);
+    range.addEventListener('pointerdown', onPointerDown);
+    range.addEventListener('pointermove', onPointerMove);
+    range.addEventListener('pointerup', onPointerEnd);
+    range.addEventListener('pointercancel', onPointerEnd);
+    range.addEventListener('keydown', cancelHint);
+    comparison.addEventListener('touchstart', onTouchStart, { passive: true });
+    comparison.addEventListener('touchmove', onTouchMove, { passive: false });
+    comparison.addEventListener('touchend', onTouchEnd, { passive: true });
+    comparison.addEventListener('touchcancel', onTouchEnd, { passive: true });
+
+    // Dieser kurze Hinweis ist zugleich eine Bedienhilfe und bleibt deshalb
+    // auch auf iOS aktiv, wenn das System reduzierte Bewegung meldet.
+    onEnterOnceStable(comparison, 8, () => {
+      if (hasInteracted) return;
+
+      const position = { value: Number(range.value) };
+      const setPosition = () => {
+        range.value = position.value.toFixed(2);
+        update();
+      };
+
+      // Ein kurzer, einmaliger "Drag-Hinweis": Der Trenner bewegt sich
+      // sichtbar in beide Richtungen und kehrt danach in die Mitte zurueck.
+      hintTimeline = gsap.timeline({ delay: 0.18 });
+      hintTimeline
+        .to(position, { value: 43, duration: 0.32, ease: 'power2.inOut', onUpdate: setPosition })
+        .to(position, { value: 57, duration: 0.5, ease: 'power2.inOut', onUpdate: setPosition })
+        .to(position, {
+          value: 50,
+          duration: 0.34,
+          ease: 'power2.out',
+          onUpdate: setPosition,
+          onComplete: () => {
+            hintTimeline = null;
+          },
+        });
+    });
+
+    const resizeObserver = new ResizeObserver(update);
+    resizeObserver.observe(comparison);
+    triggers.push({
+      kill: () => {
+        hintTimeline?.kill();
+        resizeObserver.disconnect();
+        range.removeEventListener('input', onInput);
+        range.removeEventListener('pointerdown', onPointerDown);
+        range.removeEventListener('pointermove', onPointerMove);
+        range.removeEventListener('pointerup', onPointerEnd);
+        range.removeEventListener('pointercancel', onPointerEnd);
+        range.removeEventListener('keydown', cancelHint);
+        comparison.removeEventListener('touchstart', onTouchStart);
+        comparison.removeEventListener('touchmove', onTouchMove);
+        comparison.removeEventListener('touchend', onTouchEnd);
+        comparison.removeEventListener('touchcancel', onTouchEnd);
+      },
+    });
+  });
+}
+
+function initAioResultsCarousels(animateEntrance = true): void {
+  document
+    .querySelectorAll<HTMLElement>(
+      '[data-anim="aio-results-carousel"], [data-anim="aio-proof-carousel"]',
+    )
+    .forEach((carousel) => {
+    const isProofCarousel = carousel.matches('[data-anim="aio-proof-carousel"]');
+    const cards = carousel.querySelectorAll<HTMLElement>(
+      isProofCarousel ? ':scope > figure' : '.aio-results__card',
+    );
+    if (!cards.length) return;
+
+    let direction = 1;
+    let pointerPaused = false;
+    let focusPaused = false;
+    let visible = false;
+    let autoReady = false;
+    let resumeTimer = 0;
+    let scrollTween: gsap.core.Tween | null = null;
+    let revealTimeline: gsap.core.Timeline | null = null;
+    const scrollPosition = { value: carousel.scrollLeft };
+    const hoverCapable = window.matchMedia('(hover: hover) and (pointer: fine)').matches;
+    carousel.classList.add('has-auto-scroll');
+
+    const stopAutoScroll = () => {
+      scrollTween?.kill();
+      scrollTween = null;
+      scrollPosition.value = carousel.scrollLeft;
+      carousel.classList.remove('is-auto-scrolling');
+    };
+    const clearResumeTimer = () => {
+      window.clearTimeout(resumeTimer);
+      resumeTimer = 0;
+    };
+    const canAutoScroll = () =>
+      autoReady &&
+      visible &&
+      !pointerPaused &&
+      !focusPaused &&
+      !(hoverCapable && carousel.matches(':hover'));
+    const startAutoScroll = () => {
+      clearResumeTimer();
+      stopAutoScroll();
+      if (!canAutoScroll()) return;
+
+      const maxScroll = carousel.scrollWidth - carousel.clientWidth;
+      if (maxScroll <= 1) return;
+
+      const target = direction > 0 ? maxScroll : 0;
+      const distance = Math.abs(target - carousel.scrollLeft);
+      if (distance <= 1) {
+        direction *= -1;
+        resumeTimer = window.setTimeout(startAutoScroll, 850);
+        return;
+      }
+
+      carousel.classList.add('is-auto-scrolling');
+      scrollPosition.value = carousel.scrollLeft;
+      scrollTween = gsap.to(scrollPosition, {
+        value: target,
+        duration: Math.max(distance / (isProofCarousel ? 19 : 22), 0.2),
+        ease: 'none',
+        overwrite: 'auto',
+        onUpdate: () => {
+          carousel.scrollLeft = scrollPosition.value;
+        },
+        onComplete: () => {
+          scrollTween = null;
+          carousel.classList.remove('is-auto-scrolling');
+          direction *= -1;
+          resumeTimer = window.setTimeout(startAutoScroll, 850);
+        },
+      });
+    };
+    const resumeAfter = (duration = 1200) => {
+      clearResumeTimer();
+      stopAutoScroll();
+      resumeTimer = window.setTimeout(startAutoScroll, duration);
+    };
+    const onPointerEnter = (event: PointerEvent) => {
+      if (event.pointerType === 'mouse') {
+        pointerPaused = true;
+        clearResumeTimer();
+        stopAutoScroll();
+      }
+    };
+    const onPointerLeave = (event: PointerEvent) => {
+      if (event.pointerType === 'mouse') {
+        pointerPaused = false;
+        resumeAfter(300);
+      }
+    };
+    const onPointerDown = () => {
+      pointerPaused = true;
+      clearResumeTimer();
+      stopAutoScroll();
+    };
+    const onPointerUp = () => {
+      pointerPaused = false;
+      resumeAfter(1000);
+    };
+    const onGlobalPointerEnd = () => {
+      if (!pointerPaused) return;
+      pointerPaused = false;
+      resumeAfter(750);
+    };
+    const onFocusIn = () => {
+      focusPaused = true;
+      clearResumeTimer();
+      stopAutoScroll();
+    };
+    const onFocusOut = () => {
+      focusPaused = false;
+      resumeAfter(300);
+    };
+    const onManualScroll = () => resumeAfter(1200);
+
+    const visibilityObserver = 'IntersectionObserver' in window
+      ? new IntersectionObserver(
+          ([entry]) => {
+            visible = Boolean(entry?.isIntersecting);
+            if (visible) resumeAfter(180);
+            else {
+              clearResumeTimer();
+              stopAutoScroll();
+            }
+          },
+          { threshold: 0.04 },
+        )
+      : null;
+
+    if (visibilityObserver) visibilityObserver.observe(carousel);
+    else visible = true;
+
+    carousel.addEventListener('pointerenter', onPointerEnter);
+    carousel.addEventListener('pointerleave', onPointerLeave);
+    carousel.addEventListener('pointerdown', onPointerDown, { passive: true });
+    carousel.addEventListener('pointerup', onPointerUp, { passive: true });
+    carousel.addEventListener('pointercancel', onPointerUp, { passive: true });
+    window.addEventListener('pointerup', onGlobalPointerEnd);
+    window.addEventListener('pointercancel', onGlobalPointerEnd);
+    window.addEventListener('touchend', onGlobalPointerEnd, { passive: true });
+    window.addEventListener('touchcancel', onGlobalPointerEnd, { passive: true });
+    carousel.addEventListener('focusin', onFocusIn);
+    carousel.addEventListener('focusout', onFocusOut);
+    carousel.addEventListener('wheel', onManualScroll, { passive: true });
+    carousel.addEventListener('touchmove', onManualScroll, { passive: true });
+
+    triggers.push({
+      kill: () => {
+        clearResumeTimer();
+        stopAutoScroll();
+        revealTimeline?.kill();
+        visibilityObserver?.disconnect();
+        carousel.classList.remove('has-auto-scroll');
+        carousel.removeEventListener('pointerenter', onPointerEnter);
+        carousel.removeEventListener('pointerleave', onPointerLeave);
+        carousel.removeEventListener('pointerdown', onPointerDown);
+        carousel.removeEventListener('pointerup', onPointerUp);
+        carousel.removeEventListener('pointercancel', onPointerUp);
+        window.removeEventListener('pointerup', onGlobalPointerEnd);
+        window.removeEventListener('pointercancel', onGlobalPointerEnd);
+        window.removeEventListener('touchend', onGlobalPointerEnd);
+        window.removeEventListener('touchcancel', onGlobalPointerEnd);
+        carousel.removeEventListener('focusin', onFocusIn);
+        carousel.removeEventListener('focusout', onFocusOut);
+        carousel.removeEventListener('wheel', onManualScroll);
+        carousel.removeEventListener('touchmove', onManualScroll);
+      },
+    });
+
+    if (isProofCarousel || !animateEntrance) {
+      // Die Belege werden bereits zusammen mit der Fallstudie eingeblendet.
+      // Hier wird auf schmalen Ansichten nur dieselbe ruhige Auto-Scroll-
+      // Mechanik wie bei den weiteren Kundenerfolgen ergänzt. Im statischen
+      // Reduced-Motion-Pfad bleibt der Inhalt ebenfalls sofort sichtbar; nur
+      // die funktionale, vom Nutzer angeforderte Scroll-Mechanik wird aktiv.
+      autoReady = true;
+      if (visible) resumeAfter(300);
+      return;
+    }
+
+    gsap.set(carousel, { opacity: 0, y: '1rem' });
+    gsap.set(cards, { opacity: 0, y: '0.85rem' });
+    onEnterOnceStable(carousel, 8, () => {
+      revealTimeline = gsap.timeline({
+        onComplete: () => {
+          autoReady = true;
+          resumeAfter(300);
+        },
+      });
+      revealTimeline
+        .to(carousel, { opacity: 1, y: 0, duration: 0.65, ease: EASE.outQuart })
+        .to(cards, {
+          opacity: 1,
+          y: 0,
+          duration: 0.55,
+          stagger: 0.055,
+          ease: EASE.outQuart,
+        }, '-=0.34');
+    });
+  });
+}
+
+function initAioGrowthSystem(): void {
+  document.querySelectorAll<HTMLElement>('[data-anim="aio-growth-system"]').forEach((system) => {
+    const stages = system.querySelectorAll<HTMLElement>('.aio-growth-stage');
+    const statusDot = system.querySelector<HTMLElement>('.aio-growth-system__status i');
+    const reachLine = system.querySelector<SVGPathElement>('[data-aio-growth-line]');
+    const reachArea = system.querySelector<SVGPathElement>('[data-aio-growth-area]');
+    const reachPoint = system.querySelector<SVGCircleElement>('[data-aio-growth-point]');
+    const reachGlow = system.querySelector<SVGCircleElement>('[data-aio-growth-glow]');
+    const reachGraphic = system.querySelector<HTMLElement>('.aio-growth-stage__graphic.is-reach');
+    const orbits = system.querySelectorAll<SVGCircleElement>('[data-aio-growth-orbit]');
+    const network = system.querySelector<SVGPathElement>('[data-aio-growth-network]');
+    const networkNodes = system.querySelectorAll<SVGCircleElement>('[data-aio-growth-nodes] circle');
+    const networkHalo = system.querySelector<SVGCircleElement>('[data-aio-growth-halo]');
+    const networkCore = system.querySelector<SVGCircleElement>('[data-aio-growth-core]');
+    const flows = system.querySelectorAll<SVGPathElement>('[data-aio-growth-flow]');
+    const sources = system.querySelectorAll<SVGRectElement>('[data-aio-growth-sources] rect');
+    const conversion = system.querySelectorAll<SVGCircleElement>('[data-aio-growth-conversion]');
+    const currency = system.querySelector<SVGTextElement>('[data-aio-growth-currency]');
+    const labels = system.querySelectorAll<HTMLElement>('[data-aio-growth-label]');
+    const preparePathDraw = (path: SVGPathElement) => {
+      // Die Diagramm-Pfade sind per pathLength="1" normalisiert. In diesem
+      // Fall muss auch das Dash-Muster mit derselben logischen Laenge arbeiten;
+      // die physische getTotalLength()-Laenge wuerde durch die Normalisierung
+      // vervielfacht und liesse den Pfad optisch bereits komplett erscheinen.
+      const declaredLength = Number.parseFloat(path.getAttribute('pathLength') ?? '');
+      const length = Number.isFinite(declaredLength) && declaredLength > 0
+        ? declaredLength
+        : path.getTotalLength();
+      gsap.set(path, {
+        strokeDasharray: `${length} ${length}`,
+        strokeDashoffset: length,
+      });
+      return length;
+    };
+
+    gsap.set(system, { opacity: 0, y: '1.5rem' });
+    gsap.set(stages, { opacity: 0, y: '1rem' });
+    if (statusDot) gsap.set(statusDot, { opacity: 0.35, scale: 0.55 });
+    if (reachLine) preparePathDraw(reachLine);
+    if (reachArea) {
+      gsap.set(reachArea, {
+        opacity: 0,
+        clipPath: 'inset(0 100% 0 0)',
+      });
+    }
+    if (reachPoint) gsap.set(reachPoint, { opacity: 0, scale: 0, transformOrigin: 'center' });
+    if (reachGlow) gsap.set(reachGlow, { opacity: 0, scale: 0.3, transformOrigin: 'center' });
+    if (orbits.length) gsap.set(orbits, { opacity: 0, scale: 0.82, transformOrigin: 'center' });
+    if (network) preparePathDraw(network);
+    if (networkNodes.length) gsap.set(networkNodes, { opacity: 0, scale: 0, transformOrigin: 'center' });
+    if (networkHalo) gsap.set(networkHalo, { opacity: 0, scale: 0.4, transformOrigin: 'center' });
+    if (networkCore) gsap.set(networkCore, { opacity: 0, scale: 0, transformOrigin: 'center' });
+    flows.forEach(preparePathDraw);
+    if (sources.length) gsap.set(sources, { opacity: 0, scale: 0.55, transformOrigin: 'center' });
+    if (conversion.length) gsap.set(conversion, { opacity: 0, scale: 0.4, transformOrigin: 'center' });
+    if (currency) gsap.set(currency, { opacity: 0, scale: 0.4, transformOrigin: 'center' });
+    if (labels.length) gsap.set(labels, { opacity: 0, x: '-0.5rem' });
+
+    // Eine kompakte gemeinsame Timeline hält die Reihenfolge klar, ohne dass
+    // sich die drei Schritte wie drei voneinander getrennte Animationen ziehen.
+    // Die Reichweitenkurve bleibt lang genug sichtbar, läuft aber bereits an,
+    // sobald der erste Schritt eingeblendet wird.
+    onEnterOnceStable(system, 8, () => {
+      const timeline = gsap.timeline();
+      timeline
+        .addLabel('system', 0)
+        .addLabel('reach', 0.08)
+        .addLabel('community', 1.35)
+        .addLabel('customers', 2.2)
+        .to(system, {
+          opacity: 1,
+          y: 0,
+          duration: 0.32,
+          ease: EASE.outQuart,
+        }, 'system');
+
+      if (statusDot) {
+        timeline.to(statusDot, {
+          opacity: 1,
+          scale: 1,
+          duration: 0.3,
+          ease: 'back.out(1.8)',
+        }, 'system+=0.1');
+      }
+
+      if (stages[0]) {
+        timeline.to(stages[0], {
+          opacity: 1,
+          y: 0,
+          duration: 0.4,
+          ease: EASE.outQuart,
+        }, 'reach');
+      }
+
+      if (reachGraphic && reachLine) {
+        timeline.to(reachLine, {
+          strokeDashoffset: 0,
+          duration: 0.92,
+          ease: 'power1.inOut',
+        }, 'reach+=0.22');
+        if (reachArea) {
+          timeline.to(reachArea, {
+            opacity: 1,
+            clipPath: 'inset(0 0% 0 0)',
+            duration: 0.92,
+            ease: 'power1.inOut',
+          }, 'reach+=0.22');
+        }
+        if (reachGlow) {
+          timeline
+            .to(reachGlow, {
+              opacity: 0.48,
+              scale: 1,
+              duration: 0.24,
+              ease: EASE.outQuart,
+            }, 'community-=0.1')
+            .to(reachGlow, {
+              opacity: 0.22,
+              scale: 1.35,
+              duration: 0.3,
+              repeat: 1,
+              yoyo: true,
+              ease: 'sine.inOut',
+            }, '>0.04');
+        }
+        if (reachPoint) {
+          timeline
+            .to(reachPoint, {
+              opacity: 1,
+              scale: 1,
+              duration: 0.24,
+              ease: 'back.out(2)',
+            }, 'community-=0.1')
+            .to(reachPoint, {
+              scale: 1.28,
+              duration: 0.26,
+              repeat: 1,
+              yoyo: true,
+              ease: 'sine.inOut',
+            }, '>0.03');
+        }
+        if (labels[0]) {
+          timeline.to(labels[0], {
+            opacity: 1,
+            x: 0,
+            duration: 0.3,
+            ease: EASE.outQuart,
+          }, 'community-=0.02');
+        }
+      }
+
+      if (stages[1]) {
+        timeline.to(stages[1], {
+          opacity: 1,
+          y: 0,
+          duration: 0.4,
+          ease: EASE.outQuart,
+        }, 'community');
+      }
+      if (orbits.length) {
+        timeline.to(orbits, {
+          opacity: 1,
+          scale: 1,
+          duration: 0.48,
+          stagger: 0.06,
+          ease: EASE.outQuart,
+        }, 'community+=0.17');
+      }
+      if (network) {
+        timeline.to(network, {
+          strokeDashoffset: 0,
+          duration: 0.62,
+          ease: EASE.outQuart,
+        }, 'community+=0.22');
+      }
+      if (networkHalo) {
+        timeline.to(networkHalo, {
+          opacity: 1,
+          scale: 1,
+          duration: 0.32,
+          ease: EASE.outQuart,
+        }, 'community+=0.34');
+      }
+      if (networkCore) {
+        timeline.to(networkCore, {
+          opacity: 1,
+          scale: 1,
+          duration: 0.3,
+          ease: 'back.out(1.8)',
+        }, 'community+=0.36');
+      }
+      if (networkNodes.length) {
+        timeline.to(networkNodes, {
+          opacity: 1,
+          scale: 1,
+          duration: 0.28,
+          stagger: 0.045,
+          ease: 'back.out(1.8)',
+        }, 'community+=0.38');
+      }
+      if (labels[1]) {
+        timeline.to(labels[1], {
+          opacity: 1,
+          x: 0,
+          duration: 0.3,
+          ease: EASE.outQuart,
+        }, 'customers-=0.08');
+      }
+
+      if (stages[2]) {
+        timeline.to(stages[2], {
+          opacity: 1,
+          y: 0,
+          duration: 0.4,
+          ease: EASE.outQuart,
+        }, 'customers');
+      }
+      if (sources.length) {
+        timeline.to(sources, {
+          opacity: 1,
+          scale: 1,
+          duration: 0.28,
+          stagger: 0.055,
+          ease: 'back.out(1.6)',
+        }, 'customers+=0.16');
+      }
+      if (flows.length) {
+        timeline.to(flows, {
+          strokeDashoffset: 0,
+          duration: 0.58,
+          stagger: 0.045,
+          ease: EASE.outQuart,
+        }, 'customers+=0.2');
+      }
+      if (conversion.length) {
+        timeline.to(conversion, {
+          opacity: 1,
+          scale: 1,
+          duration: 0.36,
+          stagger: 0.05,
+          ease: EASE.outQuart,
+        }, 'customers+=0.62');
+      }
+      if (currency) {
+        timeline.to(currency, {
+          opacity: 1,
+          scale: 1,
+          duration: 0.3,
+          ease: 'back.out(1.6)',
+        }, 'customers+=0.72');
+      }
+      if (labels[2]) {
+        timeline.to(labels[2], {
+          opacity: 1,
+          x: 0,
+          duration: 0.3,
+          ease: EASE.outQuart,
+        }, 'customers+=0.88');
+      }
+
+      triggers.push({ kill: () => timeline.kill() });
+    });
+  });
+}
+
 function initFaqItems(): void {
   document.querySelectorAll<HTMLElement>('[data-anim="faq-item"]').forEach((item) => {
     const top = item.querySelector<HTMLElement>('[data-faq-top]');
@@ -269,13 +987,30 @@ function build(): void {
   // bereits abgespielte Zeilen dabei bewusst sichtbar.
   const targets = document.querySelectorAll<HTMLElement>(
     '[data-anim="reveal"], [data-usp-icon], [data-usp-text], ' +
-      '[data-anim="grow-line"], [data-faq-top]',
+      '[data-anim="grow-line"], [data-faq-top], [data-anim="aio-growth-system"], ' +
+      '[data-anim="aio-programme-overview"], [data-anim="aio-programme-overview"] > div, ' +
+      '[data-anim="aio-programme-overview"] > div > strong, [data-anim="aio-programme-overview"] > div > div, ' +
+      '[data-anim="aio-programme-modules"] .aio-programme__module, ' +
+      '[data-anim="aio-case-study"], [data-anim="aio-case-study"] .aio-case-study__head, ' +
+      '[data-anim="aio-case-study"] .aio-case-study__journey figure, ' +
+      '[data-anim="aio-case-study"] .aio-case-study__proofs figure, ' +
+      '[data-anim="aio-case-study"] .aio-case-study__metrics > div, ' +
+      '[data-anim="aio-results-carousel"], [data-anim="aio-results-carousel"] .aio-results__card, ' +
+      '[data-aio-growth-line], [data-aio-growth-area], [data-aio-growth-point], ' +
+      '[data-aio-growth-glow], [data-aio-growth-orbit], [data-aio-growth-network], ' +
+      '[data-aio-growth-nodes] circle, [data-aio-growth-halo], [data-aio-growth-core], ' +
+      '[data-aio-growth-flow], [data-aio-growth-sources] rect, ' +
+      '[data-aio-growth-conversion], [data-aio-growth-currency], [data-aio-growth-label]',
   );
   gsap.killTweensOf(targets);
 
   initReveal();
   initUspRows();
   initGrowLines();
+  initAioProgrammeOverview();
+  initAioProgrammeModules();
+  initAioCaseStudies();
+  initAioGrowthSystem();
   initFaqItems();
 }
 

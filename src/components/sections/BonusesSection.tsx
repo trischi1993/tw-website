@@ -5,17 +5,18 @@ import GlowButton from './GlowButton';
 import { contentShell } from './shell';
 
 /**
- * Bonus-Karten (3er-Reihe, Gold-Tag) + Bewerbungs-CTA. Bewusst OHNE
- * Animationen: Die Live-Karten (.layout395_card) haben im Webflow-Export
- * weder data-w-id noch Events; der IX2-Hover a-130/131 zielt auf die dort
- * nicht existierende Klasse .grid_item-link (Altlast) und ist damit tot.
+ * Bonus-Karten (3er-Reihe, Gold-Tag) + Bewerbungs-CTA. Standardmäßig ohne
+ * Animation wie im Webflow-Export. Die lokale AIO-Konzeptseite kann dieselbe
+ * gemeinsame Reveal-Logik wie vergleichbare Inhaltsabschnitte zuschalten.
  */
 export default function BonusesSection({
   section,
   edit,
+  animate = false,
 }: {
   section: SectionBonuses;
   edit?: EditAttr;
+  animate?: boolean;
 }) {
   const { _key, anchor, heading, intro, cards, ctaLabel } = section;
   const path = `sections[_key=="${_key}"]`;
@@ -30,7 +31,11 @@ export default function BonusesSection({
       {...edit?.(path)}
     >
       <div className="container">
-        <div className="bonus__head">
+        <div
+          className="bonus__head"
+          data-anim={animate ? 'reveal' : undefined}
+          data-offset={animate ? '24' : undefined}
+        >
           <div className="max-w-lg align-center">
             <h2 {...edit?.(`${path}.heading`)}>
               {heading}
@@ -39,8 +44,14 @@ export default function BonusesSection({
           </div>
         </div>
         <div className="bonus__grid">
-          {cards.map((card) => (
-            <div className="bonus__card" key={card._key}>
+          {cards.map((card, index) => (
+            <div
+              className="bonus__card"
+              key={card._key}
+              data-anim={animate ? 'reveal' : undefined}
+              data-offset={animate ? '24' : undefined}
+              data-delay={animate ? String(index * 0.07) : undefined}
+            >
               <Img image={card.image} sizes="(max-width: 991px) 90vw, 26rem" />
               <div className="bonus__card-content">
                 <span className="bonus__tag">{card.tag}</span>
@@ -51,7 +62,11 @@ export default function BonusesSection({
           ))}
         </div>
         {ctaLabel && (
-          <div className="bonus__footer button-group is-center">
+          <div
+            className="bonus__footer button-group is-center"
+            data-anim={animate ? 'reveal' : undefined}
+            data-offset={animate ? '22' : undefined}
+          >
             <GlowButton label={ctaLabel} action="modal-aio" />
           </div>
         )}

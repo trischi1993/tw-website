@@ -36,6 +36,9 @@ export default function GalleryMarqueeSection({
     if (!titlesVisible && i === 0) return 0;
     return i % 2 ? 40 : -40;
   };
+  const displayHeading = !titlesVisible && _key === 'pillars'
+    ? 'Gesamtüberblick des Programms'
+    : heading;
 
   return (
     <section
@@ -48,7 +51,7 @@ export default function GalleryMarqueeSection({
       <div className="container container--md gallery__head">
         <div className="gallery__head-mask">
           <h2 data-anim="reveal" {...edit?.(`${path}.heading`)}>
-            {heading}
+            {displayHeading}
           </h2>
         </div>
       </div>

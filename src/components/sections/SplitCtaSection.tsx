@@ -42,6 +42,12 @@ export default function SplitCtaSection({
       {...edit?.(path)}
     >
       <div className={plain ? 'container container--md' : 'container'}>
+        {_key === 'aio-teaser' && (
+          <div className="split-cta__offer-divider" aria-hidden="true">
+            <span className="split-cta__offer-divider-base" />
+            <span className="split-cta__offer-divider-sweep" data-anim="grow-line" />
+          </div>
+        )}
         <div className={`split-cta__grid${plain ? ' section' : ''}`}>
           <div className="split-cta__content">
             {_key === 'aio-teaser' && (
@@ -53,13 +59,15 @@ export default function SplitCtaSection({
             <h2 data-anim="reveal" data-offset={plain ? undefined : '0'} {...edit?.(`${path}.heading`)}>
               {heading}
             </h2>
-            {body && body.length > 0 && (
-              <div className="split-cta__body" {...edit?.(`${path}.body`)}>
-                <RichText value={body} paragraphs />
+            <div className="split-cta__details">
+              {body && body.length > 0 && (
+                <div className="split-cta__body" {...edit?.(`${path}.body`)}>
+                  <RichText value={body} paragraphs />
+                </div>
+              )}
+              <div className="split-cta__buttons button-group">
+                <GlowButton label={ctaLabel} action={ctaAction} href={ctaHref} newTab={ctaNewTab} />
               </div>
-            )}
-            <div className="split-cta__buttons button-group">
-              <GlowButton label={ctaLabel} action={ctaAction} href={ctaHref} newTab={ctaNewTab} />
             </div>
           </div>
           <div className="split-cta__media">

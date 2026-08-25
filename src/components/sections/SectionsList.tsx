@@ -11,6 +11,8 @@ import TestimonialsSection from './TestimonialsSection';
 import FaqSection from './FaqSection';
 import VideoHeroSection from './VideoHeroSection';
 import ModuleSection from './ModuleSection';
+import AioProgrammeSection from './AioProgrammeSection';
+import AioCustomerResultsSection from './AioCustomerResultsSection';
 import BonusesSection from './BonusesSection';
 import FinalCtaSection from './FinalCtaSection';
 import PortraitHeroSection from './PortraitHeroSection';
@@ -46,9 +48,41 @@ export default function SectionsList({
   sections: Section[];
   edit?: EditAttr;
 }) {
+  const aioModules = sections.filter(
+    (section): section is Extract<Section, { _type: 'sectionModule' }> =>
+      section._type === 'sectionModule' && Boolean(section.number),
+  );
+  const isAioConcept =
+    sections.some((section) => section._type === 'sectionVideoHero') && aioModules.length === 5;
+  /* Reine lokale Konzeptlogik: Die fuenf einzeln gerenderten Module an ihrer
+     ersten Position durch eine kompakte Journey ersetzen. Direkt danach folgen
+     die Bonusse und erst anschliessend Ergebnisse sowie Kundenresultate.
+     CMS-Reihenfolge und Sanity-Daten bleiben unangetastet. */
+  const displaySections = isAioConcept
+    ? (() => {
+        const result = sections.find(
+          (section) => section._type === 'sectionModule' && !section.number,
+        );
+        const bonuses = sections.find((section) => section._type === 'sectionBonuses');
+        const remainingSections = sections.filter(
+          (section) => section !== result && section !== bonuses,
+        );
+        const programmeIndex = remainingSections.findIndex(
+          (section) => section._key === aioModules[0]?._key,
+        );
+        if (!result || programmeIndex < 0) return sections;
+        return [
+          ...remainingSections.slice(0, programmeIndex + 1),
+          ...(bonuses ? [bonuses] : []),
+          result,
+          ...remainingSections.slice(programmeIndex + 1),
+        ];
+      })()
+    : sections;
+
   return (
     <>
-      {sections.map((s) => {
+      {displaySections.map((s) => {
         switch (s._type) {
           case 'sectionText':
             return <TextSection key={s._key} section={s} edit={edit} />;
@@ -75,9 +109,24 @@ export default function SectionsList({
           case 'sectionVideoHero':
             return <VideoHeroSection key={s._key} section={s} edit={edit} />;
           case 'sectionModule':
+            if (isAioConcept && !s.number) {
+              return <AioCustomerResultsSection key="aio-customer-results" />;
+            }
+            if (isAioConcept && s.number) {
+              return s._key === aioModules[0]?._key ? (
+                <AioProgrammeSection key="aio-programme" modules={aioModules} edit={edit} />
+              ) : null;
+            }
             return <ModuleSection key={s._key} section={s} edit={edit} />;
           case 'sectionBonuses':
-            return <BonusesSection key={s._key} section={s} edit={edit} />;
+            return (
+              <BonusesSection
+                key={s._key}
+                section={s}
+                edit={edit}
+                animate={isAioConcept}
+              />
+            );
           case 'sectionFinalCta':
             return <FinalCtaSection key={s._key} section={s} edit={edit} />;
           case 'sectionPortraitHero':

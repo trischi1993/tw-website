@@ -26,6 +26,7 @@ export default function VideoHeroSection({
   const path = `sections[_key=="${_key}"]`;
   const heroAccent = 'ALL-IN-ONE';
   const accentIndex = heading.indexOf(heroAccent);
+  const isAioConcept = _key === 'hero' && accentIndex >= 0;
 
   return (
     <section
@@ -49,7 +50,20 @@ export default function VideoHeroSection({
                 ) : heading}
               </h1>
               <div className="vhero__intro" data-aio-intro="" {...edit?.(`${path}.intro`)}>
-                <RichText value={intro} paragraphs />
+                {isAioConcept ? (
+                  <>
+                    <p>
+                      Das Komplettpaket für Selbstständige und Unternehmen – mit über 40
+                      Videolektionen und persönlicher 1:1 Begleitung.
+                    </p>
+                    <p>
+                      Schritt für Schritt entwickelst du eine Social-Media-Präsenz, die
+                      Reichweite aufbaut, Kunden gewinnt und sich eigenständig weiterführen lässt.
+                    </p>
+                  </>
+                ) : (
+                  <RichText value={intro} paragraphs />
+                )}
               </div>
               <div className="vhero__buttons button-group" data-aio-buttons="">
                 <GlowButton label={ctaLabel} action="modal-aio" />

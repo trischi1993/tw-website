@@ -198,6 +198,11 @@ const jsonLdArray = [orgJsonLd, ...pageJsonLd];
       const widgetsReady = isMobileEbook
         ? afterMobileHero(() => import('../scripts/widgets.ts'))
         : import('../scripts/widgets.ts');
+      // Die AIO-Ergebnis-Slider sind funktionale Bedienelemente. Sie laden
+      // bewusst als kleines natives Modul unabhaengig vom grossen GSAP-Bundle,
+      // damit sie auf iOS/LAN auch bei einem Fehler in einer anderen Motion-
+      // Animation sofort und zuverlaessig initialisiert werden.
+      const aioResultsReady = import('../scripts/aio-results-interactions.ts');
       // Fragmentziele erst nach dem Motion-Setup nachjustieren: ScrollTrigger
       // und Widgets verändern vor dem Ziel noch das Layout. Erst wenn beide
       // Initialisierungen abgeschlossen sind, wird der Anker final gesetzt.
@@ -214,7 +219,12 @@ const jsonLdArray = [orgJsonLd, ...pageJsonLd];
       const homeProofCarouselReady = document.querySelector('[data-home-proof-carousel]')
         ? import('../scripts/home-results-carousel.ts')
         : Promise.resolve();
-      Promise.allSettled([widgetsReady, motionReady, homeProofCarouselReady]).then(() =>
+      Promise.allSettled([
+        widgetsReady,
+        aioResultsReady,
+        motionReady,
+        homeProofCarouselReady,
+      ]).then(() =>
         import('../scripts/hash-navigation.ts')
       );
     </script>
