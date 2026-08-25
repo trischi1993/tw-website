@@ -383,19 +383,21 @@ export default function AioCustomerResultsSection() {
                 </div>
                 <div className="aio-growth-stage__graphic is-community" aria-hidden="true">
                   <svg viewBox="0 0 360 170">
-                    <circle className="aio-growth-stage__orbit" data-aio-growth-orbit cx="180" cy="86" r="63" />
-                    <circle className="aio-growth-stage__orbit is-inner" data-aio-growth-orbit cx="180" cy="86" r="39" />
-                    <path className="aio-growth-stage__network" data-aio-growth-network d="M180 86L105 48M180 86L254 42M180 86L285 101M180 86L234 144M180 86L126 139M180 86L73 100" />
-                    <g data-aio-growth-nodes>
-                      <circle cx="105" cy="48" r="5" />
-                      <circle cx="254" cy="42" r="6" />
-                      <circle cx="285" cy="101" r="4" />
-                      <circle cx="234" cy="144" r="5" />
-                      <circle cx="126" cy="139" r="6" />
-                      <circle cx="73" cy="100" r="4" />
+                    <g transform="translate(180 85) scale(1.15) translate(-180 -85)">
+                      <circle className="aio-growth-stage__orbit" data-aio-growth-orbit cx="180" cy="86" r="63" />
+                      <circle className="aio-growth-stage__orbit is-inner" data-aio-growth-orbit cx="180" cy="86" r="39" />
+                      <path className="aio-growth-stage__network" data-aio-growth-network d="M180 86L105 48M180 86L254 42M180 86L285 101M180 86L234 144M180 86L126 139M180 86L73 100" />
+                      <g data-aio-growth-nodes>
+                        <circle cx="105" cy="48" r="5" />
+                        <circle cx="254" cy="42" r="6" />
+                        <circle cx="285" cy="101" r="4" />
+                        <circle cx="234" cy="144" r="5" />
+                        <circle cx="126" cy="139" r="6" />
+                        <circle cx="73" cy="100" r="4" />
+                      </g>
+                      <circle className="aio-growth-stage__core-halo" data-aio-growth-halo cx="180" cy="86" r="25" />
+                      <circle className="aio-growth-stage__core" data-aio-growth-core cx="180" cy="86" r="10" />
                     </g>
-                    <circle className="aio-growth-stage__core-halo" data-aio-growth-halo cx="180" cy="86" r="25" />
-                    <circle className="aio-growth-stage__core" data-aio-growth-core cx="180" cy="86" r="10" />
                   </svg>
                   <span className="aio-growth-stage__signal" data-aio-growth-label>Community wächst</span>
                 </div>
