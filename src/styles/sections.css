@@ -2247,7 +2247,18 @@ html.has-motion .results__track { height: 240vh; }
     border-top: 1px solid rgba(255, 255, 255, 0.09);
     border-left: 0;
   }
-  .aio-growth-stage__graphic { max-width: 28rem; min-height: 12rem; margin-top: 1.25rem; }
+  .aio-growth-stage__graphic {
+    display: grid;
+    max-width: 28rem;
+    min-height: 0;
+    align-content: start;
+    margin-top: 1.25rem;
+  }
+  .aio-growth-stage__signal {
+    position: static;
+    justify-self: end;
+    margin-top: 1.25rem;
+  }
 }
 @media (max-width: 479px) {
   .aio-case-study { --aio-case-title-size: 1.8rem; }
@@ -2328,6 +2339,16 @@ html.has-motion .results__track { height: 240vh; }
     min-height: 3rem;
   }
   .aio-growth-system__head h4 { font-size: 1.75rem; }
+  .aio-growth-stage__graphic {
+    display: grid;
+    min-height: 0;
+    align-content: start;
+  }
+  .aio-growth-stage__signal {
+    position: static;
+    justify-self: end;
+    margin-top: 1.5rem;
+  }
 }
 
 /* ==================== USP-Liste (Warum mit mir / Besondere) ================ */
