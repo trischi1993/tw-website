@@ -90,6 +90,16 @@ const INSERT_FACTORIES: Record<EditorBlockType, () => Record<string, unknown>> =
     heading: 'Lass Ergebnisse aus der Praxis sprechen.',
     ownLabel: 'Meine Erfolge',
     customerLabel: 'Kundenerfolge',
+    cards: [],
+    closingCard: {
+      kicker: 'Und viele weitere meiner Kunden ...',
+      heading: '... haben mit klarer Strategie ihren nächsten Wachstumsschritt erreicht.',
+      hint: 'Hier könnte dein Erfolg stehen.',
+      source: 'Dein nächster Schritt',
+      text: 'Lass uns das Potenzial in deinem Account sichtbar machen.',
+      ctaLabel: 'Ich will auch wachsen!',
+      ctaAction: 'modal',
+    },
   }),
   sectionSplitCta: () => ({
     _type: 'sectionSplitCta',

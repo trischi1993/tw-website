@@ -27,6 +27,7 @@ import { buildContent } from '../../shared/site-content.mjs';
 
 const studioRoot = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '..');
 const assetsRoot = path.resolve(studioRoot, '../src/assets/images');
+const publicRoot = path.resolve(studioRoot, '../public');
 
 /* img()-Callback: Sanity-Upload-Referenz mit absolutem file://-Pfad. */
 function img(relPath, alt, caption) {
@@ -40,6 +41,19 @@ function img(relPath, alt, caption) {
     _sanityAsset: `image@file://${abs}`,
     alt,
     ...(caption ? { caption } : {}),
+  };
+}
+
+function publicImage(siteImage) {
+  const relPath = siteImage?.src?.replace(/^\//, '');
+  const abs = relPath ? path.join(publicRoot, relPath) : '';
+  if (!relPath || !existsSync(abs)) {
+    throw new Error(`[make-seed] Öffentliches Bild fehlt: ${abs || siteImage?.src}`);
+  }
+  return {
+    _type: 'imageWithAlt',
+    _sanityAsset: `image@file://${abs}`,
+    alt: siteImage.alt,
   };
 }
 
@@ -70,6 +84,17 @@ function toSanitySection(section) {
     if (Array.isArray(out[field])) {
       out[field] = out[field].map((item) => ({ _type: memberType, ...item }));
     }
+  }
+  if (section._type === 'sectionResults' && Array.isArray(out.cards)) {
+    out.cards = out.cards.map((card) => ({
+      ...card,
+      _type: 'proofCard',
+      images: (card.images ?? []).map((proofImage) => ({
+        ...proofImage,
+        _type: 'proofImage',
+        image: publicImage(proofImage.image),
+      })),
+    }));
   }
   return out;
 }

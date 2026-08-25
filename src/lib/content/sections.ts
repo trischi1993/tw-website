@@ -53,7 +53,20 @@ export const SECTIONS_PROJECTION = `sections[]{
   ${CONTENT_PROJECTION},
   _type == "sectionHomeHero" => { headingSmall, headingLarge, ctaLabel, image${IMG} },
   _type == "sectionValueStatement" => { text },
-  _type == "sectionResults" => { heading, ownLabel, customerLabel, subtitle, title, images[]${IMG} },
+  _type == "sectionResults" => {
+    heading,
+    ownLabel,
+    customerLabel,
+    cards[]{
+      _key,
+      kind,
+      source,
+      value,
+      label,
+      images[]{ _key, image${IMG}, badge, badgePosition, crop }
+    },
+    closingCard{ kicker, heading, hint, source, text, ctaLabel, ctaAction, ctaHref, ctaNewTab }
+  },
   _type == "sectionSplitCta" => { heading, body, ctaLabel, ctaAction, ctaHref, ctaNewTab, layout, image${IMG} },
   _type == "sectionServicesTabs" => { heading, subtext, tabLabelPersonal, tabLabelBusiness, limit, ctaModalLabel, calendlyLabel, calendlyUrl, ${SERVICES_SUB} },
   _type == "sectionGalleryMarquee" => { heading, titlesVisible, ctaLabel, ctaHref, items[]{ _key, title, image${IMG} } },
@@ -393,11 +406,45 @@ export function mapSection(s: any): Section | null {
         heading: str(s.heading),
         ownLabel: str(s.ownLabel),
         customerLabel: str(s.customerLabel),
-        subtitle: str(s.subtitle),
-        title: str(s.title),
-        images: (Array.isArray(s.images) ? s.images : [])
-          .map((i: any) => mapImage(i))
-          .filter(Boolean) as NonNullable<SectionResults['images']>,
+        cards: keyed(s.cards, (card) => {
+          const source = str(card.source);
+          const value = str(card.value);
+          const label = str(card.label);
+          if (!card._key || !source || !value || !label) return null;
+          const images = keyed(card.images, (item) => {
+            const image = mapImage(item.image);
+            if (!item._key || !image) return null;
+            return {
+              _key: item._key,
+              image,
+              badge: str(item.badge),
+              badgePosition: item.badgePosition ?? undefined,
+              crop: item.crop ?? undefined,
+            };
+          });
+          if (images.length === 0) return null;
+          return {
+            _key: card._key,
+            kind: card.kind === 'customer' ? 'customer' : 'own',
+            source,
+            value,
+            label,
+            images,
+          };
+        }),
+        closingCard: s.closingCard
+          ? {
+              kicker: str(s.closingCard.kicker) ?? '',
+              heading: str(s.closingCard.heading) ?? '',
+              hint: str(s.closingCard.hint) ?? '',
+              source: str(s.closingCard.source) ?? '',
+              text: str(s.closingCard.text) ?? '',
+              ctaLabel: str(s.closingCard.ctaLabel) ?? '',
+              ctaAction: s.closingCard.ctaAction === 'link' ? 'link' : 'modal',
+              ctaHref: str(s.closingCard.ctaHref),
+              ctaNewTab: s.closingCard.ctaNewTab === true || undefined,
+            }
+          : undefined,
       };
 
     case 'sectionSplitCta':

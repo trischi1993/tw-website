@@ -19,6 +19,7 @@
 
 import servicesData from './data/services.mjs';
 import testimonialsData from './data/testimonials.mjs';
+import { HOME_PROOF_CARDS, HOME_PROOF_CLOSING_CARD } from './data/home-proof.mjs';
 import datenschutzBody from './legal/datenschutz-pt.mjs';
 import impressumBody from './legal/impressum-pt.mjs';
 
@@ -57,6 +58,26 @@ const CALENDLY_URL = 'https://calendly.com/tristanweithaler/30min';
 const APPLY_LABEL = "Für's Coaching bewerben";
 
 export function buildContent({ img }) {
+  const homeProofCards = HOME_PROOF_CARDS.map((card) => ({
+    _type: 'proofCard',
+    _key: card._key,
+    kind: card.kind,
+    source: card.source,
+    value: card.value,
+    label: card.label,
+    images: card.images.map(({ path, width, height, alt, ...proofImage }) => ({
+      _type: 'proofImage',
+      ...proofImage,
+      image: {
+        kind: 'remote',
+        src: path,
+        width,
+        height,
+        alt,
+      },
+    })),
+  }));
+
   /* --- CMS-Collections (Reihenfolge: order asc, null ans Ende, stabil) ----- */
   /* Slug als stabiler Zweitschluessel == _id-Reihenfolge der GROQ-Subqueries
      (order(coalesce(order,9999) asc, _id asc)) - Seed und Sanity identisch. */
@@ -167,6 +188,8 @@ export function buildContent({ img }) {
         heading: 'Lass Ergebnisse aus der Praxis sprechen.',
         ownLabel: 'Meine Erfolge',
         customerLabel: 'Kundenerfolge',
+        cards: homeProofCards,
+        closingCard: { ...HOME_PROOF_CLOSING_CARD },
       },
       {
         _type: 'sectionSplitCta',

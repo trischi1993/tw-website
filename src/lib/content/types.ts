@@ -252,15 +252,60 @@ export interface SectionValueStatement extends SectionBase {
 }
 
 /** Startseiten-Carousel mit eigenen Erfolgen und Kundenerfolgen. */
+export type ResultBadgePosition =
+  | 'top-left'
+  | 'top-right'
+  | 'middle-left'
+  | 'middle-right'
+  | 'bottom-left'
+  | 'bottom-right'
+  | 'bio-link-right'
+  | 'reel-right';
+
+export type ResultImageCrop =
+  | 'none'
+  | 'trim-bottom'
+  | 'circle'
+  | 'chat-header'
+  | 'profile-tristan'
+  | 'profile-mindful';
+
+export interface ResultProofImage {
+  _key: string;
+  image: SiteImage;
+  badge?: string;
+  badgePosition?: ResultBadgePosition;
+  crop?: ResultImageCrop;
+}
+
+export interface ResultProofCard {
+  _key: string;
+  kind: 'own' | 'customer';
+  source: string;
+  value: string;
+  label: string;
+  images: ResultProofImage[];
+}
+
+export interface ResultClosingCard {
+  kicker: string;
+  heading: string;
+  hint: string;
+  source: string;
+  text: string;
+  ctaLabel: string;
+  ctaAction: 'link' | 'modal';
+  ctaHref?: string;
+  ctaNewTab?: boolean;
+}
+
 export interface SectionResults extends SectionBase {
   _type: 'sectionResults';
   heading?: string;
   ownLabel?: string;
   customerLabel?: string;
-  /** Legacy-Felder der abgelösten Zahlen-&-Fakten-Section. */
-  subtitle?: string;
-  title?: string;
-  images?: SiteImage[];
+  cards: ResultProofCard[];
+  closingCard?: ResultClosingCard;
 }
 
 /** Text links, Bild rechts, mit CTA. layout 'glow' = Gold-Blur hinterm Bild
