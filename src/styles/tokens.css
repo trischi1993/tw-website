@@ -136,6 +136,9 @@
   --space-2xl: 5rem;
   --space-3xl: 7rem;
 
+  /* Abstand einer echten Abschnitts-Eyebrow zur direkt folgenden Überschrift. */
+  --section-eyebrow-gap: 1rem;
+
   /* --- Section vertical padding — benannte, editor-wählbare Skala.
      Entspricht Webflow: small=3rem, medium=5rem, large=7rem (Responsive unten).
      Kontrakt: diese Liste == SECTION_PAD (lib/content/sections.ts) == Studio. */
@@ -202,9 +205,15 @@
     --hero-h1-span: 1.75rem;
     --text-lg: 1.125rem;
     --text-md: 1rem;
+    --section-eyebrow-gap: 0.75rem;
     --section-pad-small: 2rem;
     --section-pad-medium: 3rem;
     --section-pad-large: 4rem;
+  }
+}
+@media (max-width: 991px) and (max-height: 500px) and (orientation: landscape) {
+  :root {
+    --section-eyebrow-gap: 0.75rem;
   }
 }
 @media (max-width: 479px) {
