@@ -20,7 +20,7 @@
   text-transform: uppercase;
 }
 
-.ebook .ebook-kicker { margin-bottom: var(--space-sm); }
+.ebook .ebook-kicker { margin-bottom: var(--section-eyebrow-gap); }
 
 .ebook-hero {
   position: relative;

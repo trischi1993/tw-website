@@ -302,7 +302,7 @@ html.has-motion .results__track { height: 240vh; }
 .split-cta.is-glow .split-cta__grid { padding-bottom: 8rem; }
 .split-cta__content { max-width: 27rem; }
 .split-cta__eyebrow {
-  margin-bottom: 1rem;
+  margin-bottom: var(--section-eyebrow-gap);
   color: var(--brand-readable);
   font-size: var(--text-sm);
   font-weight: 600;
