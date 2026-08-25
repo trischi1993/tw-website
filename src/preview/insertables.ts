@@ -86,10 +86,10 @@ const INSERT_FACTORIES: Record<EditorBlockType, () => Record<string, unknown>> =
   sectionResults: () => ({
     _type: 'sectionResults',
     _key: randomKey(),
-    name: 'Zahlen & Fakten',
-    subtitle: 'meiner Accounts',
-    title: 'Zahlen & Fakten',
-    images: [],
+    name: 'Meine Erfolge und Kundenerfolge',
+    heading: 'Lass Ergebnisse aus der Praxis sprechen.',
+    ownLabel: 'Meine Erfolge',
+    customerLabel: 'Kundenerfolge',
   }),
   sectionSplitCta: () => ({
     _type: 'sectionSplitCta',

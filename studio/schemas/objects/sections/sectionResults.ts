@@ -4,55 +4,46 @@ import { nameField, anchorField } from './shared';
 import { categoryIcon } from '../../../components/inputs/categoryIcon';
 import { t } from '../../uiLocale';
 
-/**
- * „Zahlen & Fakten" (Layout-Section): geprägter Titel + aufgefächerte
- * Beweis-Karten (Scroll-Animation). Layout fest verdrahtet.
- */
+/** Startseiten-Carousel mit Tristans eigenen Erfolgen und Kundenerfolgen. */
 export default defineType({
   name: 'sectionResults',
-  title: t({ en: 'Results cards', de: 'Zahlen & Fakten' }),
+  title: t({ en: 'Own & customer results', de: 'Meine Erfolge & Kundenerfolge' }),
   type: 'object',
   icon: categoryIcon(BarChartIcon, 'section'),
   fields: [
     nameField,
     anchorField,
     defineField({
-      name: 'subtitle',
-      title: t({ en: 'Subtitle', de: 'Unterzeile' }),
+      name: 'heading',
+      title: t({ en: 'Heading', de: 'Überschrift' }),
       description: t({
-        en: 'Clarifies whose results are shown below the large title.',
-        de: 'Stellt unterhalb des großen Titels klar, wessen Ergebnisse gezeigt werden.',
+        en: 'The compact heading above the carousel.',
+        de: 'Die kompakte Überschrift oberhalb des Carousels.',
       }),
       type: 'string',
-    }),
-    defineField({
-      name: 'title',
-      title: t({ en: 'Title', de: 'Titel' }),
-      description: t({
-        en: 'The embossed background title behind the cards.',
-        de: 'Der geprägte Hintergrund-Titel hinter den Karten.',
-      }),
-      type: 'string',
+      initialValue: 'Lass Ergebnisse aus der Praxis sprechen.',
       validation: (R) => R.required(),
     }),
     defineField({
-      name: 'images',
-      title: t({ en: 'Proof cards', de: 'Beweis-Karten' }),
-      description: t({
-        en: 'The screenshots fanned out while scrolling (homepage currently: 6).',
-        de: 'Die Screenshots, die beim Scrollen aufgefächert werden (Startseite aktuell: 6).',
-      }),
-      type: 'array',
-      of: [{ type: 'imageWithAlt' }],
-      validation: (R) => R.required().min(1),
+      name: 'ownLabel',
+      title: t({ en: 'Own results label', de: 'Label „Meine Erfolge“' }),
+      type: 'string',
+      initialValue: 'Meine Erfolge',
+      validation: (R) => R.required(),
+    }),
+    defineField({
+      name: 'customerLabel',
+      title: t({ en: 'Customer results label', de: 'Label „Kundenerfolge“' }),
+      type: 'string',
+      initialValue: 'Kundenerfolge',
+      validation: (R) => R.required(),
     }),
   ],
   preview: {
-    select: { title: 'name', subtitle: 'title', images: 'images' },
-    prepare({ title, subtitle, images }) {
-      const count = Array.isArray(images) ? images.length : 0;
-      const typeLabel = t({ en: 'Results cards', de: 'Zahlen & Fakten' });
-      return { title: title || typeLabel, subtitle: `${subtitle ?? typeLabel} · ${count}` };
+    select: { title: 'name', subtitle: 'heading' },
+    prepare({ title, subtitle }) {
+      const typeLabel = t({ en: 'Own & customer results', de: 'Meine Erfolge & Kundenerfolge' });
+      return { title: title || typeLabel, subtitle: subtitle || typeLabel };
     },
   },
 });

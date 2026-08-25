@@ -16,7 +16,9 @@
     "migrate:module-posters": "sanity exec scripts/migrate-module-posters.mjs --with-user-token",
     "migrate:module-posters:dry-run": "sanity exec scripts/migrate-module-posters.mjs --with-user-token -- --dry-run",
     "migrate:seo-descriptions": "sanity exec scripts/update-seo-descriptions.mjs --with-user-token",
-    "migrate:seo-descriptions:dry-run": "sanity exec scripts/update-seo-descriptions.mjs --with-user-token -- --dry-run"
+    "migrate:seo-descriptions:dry-run": "sanity exec scripts/update-seo-descriptions.mjs --with-user-token -- --dry-run",
+    "migrate:home-proof": "sanity exec scripts/update-home-proof-section.mjs --with-user-token",
+    "migrate:home-proof:dry-run": "sanity exec scripts/update-home-proof-section.mjs --with-user-token -- --dry-run"
   },
   "dependencies": {
     "@sanity/comlink": "4.0.1",

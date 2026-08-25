@@ -53,7 +53,7 @@ export const SECTIONS_PROJECTION = `sections[]{
   ${CONTENT_PROJECTION},
   _type == "sectionHomeHero" => { headingSmall, headingLarge, ctaLabel, image${IMG} },
   _type == "sectionValueStatement" => { text },
-  _type == "sectionResults" => { subtitle, title, images[]${IMG} },
+  _type == "sectionResults" => { heading, ownLabel, customerLabel, subtitle, title, images[]${IMG} },
   _type == "sectionSplitCta" => { heading, body, ctaLabel, ctaAction, ctaHref, ctaNewTab, layout, image${IMG} },
   _type == "sectionServicesTabs" => { heading, subtext, tabLabelPersonal, tabLabelBusiness, limit, ctaModalLabel, calendlyLabel, calendlyUrl, ${SERVICES_SUB} },
   _type == "sectionGalleryMarquee" => { heading, titlesVisible, ctaLabel, ctaHref, items[]{ _key, title, image${IMG} } },
@@ -390,11 +390,14 @@ export function mapSection(s: any): Section | null {
       return {
         ...base,
         _type: 'sectionResults',
+        heading: str(s.heading),
+        ownLabel: str(s.ownLabel),
+        customerLabel: str(s.customerLabel),
         subtitle: str(s.subtitle),
-        title: str(s.title) ?? '',
+        title: str(s.title),
         images: (Array.isArray(s.images) ? s.images : [])
           .map((i: any) => mapImage(i))
-          .filter(Boolean) as SectionResults['images'],
+          .filter(Boolean) as NonNullable<SectionResults['images']>,
       };
 
     case 'sectionSplitCta':

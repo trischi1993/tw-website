@@ -251,12 +251,16 @@ export interface SectionValueStatement extends SectionBase {
   text: string;
 }
 
-/** „Zahlen & Fakten": geprägter Titel + aufgefächerte Beweis-Karten. */
+/** Startseiten-Carousel mit eigenen Erfolgen und Kundenerfolgen. */
 export interface SectionResults extends SectionBase {
   _type: 'sectionResults';
+  heading?: string;
+  ownLabel?: string;
+  customerLabel?: string;
+  /** Legacy-Felder der abgelösten Zahlen-&-Fakten-Section. */
   subtitle?: string;
-  title: string;
-  images: SiteImage[];
+  title?: string;
+  images?: SiteImage[];
 }
 
 /** Text links, Bild rechts, mit CTA. layout 'glow' = Gold-Blur hinterm Bild

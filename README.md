@@ -9,7 +9,7 @@ als Referenz; der Code hier ist sauberes Astro ohne Webflow-Klassen.
 
 | Route | Inhalt |
 |---|---|
-| `/` | Home: Hero (Scroll-Wipe), Statement, Zahlen & Fakten, AIO-Teaser, Coachings (Tabs), Bekannt aus, USP-Liste, Testimonials, Erfolgs-Check (`#0-Euro-Angebot`), FAQ |
+| `/` | Home: Hero (Parallax), Statement, Carousel „Meine Erfolge & Kundenerfolge“, AIO-Teaser, Coachings (Tabs), Bekannt aus, USP-Liste, Testimonials, Erfolgs-Check (`#0-Euro-Angebot`), FAQ |
 | `/e-book/` | Landingpage für „Die Instagram Erfolgsformel" mit Inhalt, Boni, Zielgruppen, Testimonials und Weiterleitung zum bestehenden Bestellformular |
 | `/ueber-mich/` | Portrait-Hero, Werdegang-Timeline (Pin-Scroll), Interessen + Wort-Marquees, Abschluss-CTA |
 | `/all-in-one-coaching/` | Video-Hero (direktes Bunny-MP4), Säulen-Galerie, Module 1–5 (+ „Deine Resultate"), Bonusse, USPs, Testimonials, CTA, FAQ |
