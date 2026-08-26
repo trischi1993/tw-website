@@ -1,4 +1,4 @@
-import type { SectionResults } from '../../lib/content/types';
+import type { SectionResults, SiteImage } from '../../lib/content/types';
 import type { EditAttr } from './SectionsList';
 import Img from './Img';
 import mindfulStaysResult from '../../assets/images/results-5.avif';
@@ -17,6 +17,12 @@ const HOME_RESULT_ADDITIONS = [
   },
 ];
 
+type LegacyResultsSection = Pick<SectionResults, '_key' | 'anchor'> & {
+  subtitle?: string;
+  title?: string;
+  images?: SiteImage[];
+};
+
 /**
  * „Zahlen & Fakten": geprägter Doppel-Titel (gefüllt + Outline, statisch) und
  * sechs gestapelte Karten, die beim Scrollen nacheinander nach oben
@@ -27,7 +33,7 @@ export default function ResultsSection({
   section,
   edit,
 }: {
-  section: SectionResults;
+  section: LegacyResultsSection;
   edit?: EditAttr;
 }) {
   const { _key, anchor, subtitle, title = '', images = [] } = section;

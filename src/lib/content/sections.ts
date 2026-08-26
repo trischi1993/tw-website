@@ -1,6 +1,5 @@
 import type {
   Section,
-  SectionResults,
   ContentEl,
   RichText,
   ServiceItem,

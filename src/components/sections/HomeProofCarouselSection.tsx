@@ -1,15 +1,19 @@
-import type { SectionResults, SiteImage } from '../../lib/content/types';
+import type {
+  ResultClosingCard,
+  SectionResults,
+  SiteImage,
+} from '../../lib/content/types';
 import type { EditAttr } from './SectionsList';
 import GlowButton from './GlowButton';
 
-const DEFAULT_CLOSING_CARD = {
+const DEFAULT_CLOSING_CARD: ResultClosingCard = {
   kicker: 'Und viele weitere meiner Kunden ...',
   heading: '... haben mit klarer Strategie ihren nächsten Wachstumsschritt erreicht.',
   hint: 'Hier könnte dein Erfolg stehen.',
   source: 'Dein nächster Schritt',
   text: 'Lass uns das Potenzial in deinem Account sichtbar machen.',
   ctaLabel: 'Ich will auch wachsen!',
-  ctaAction: 'modal' as const,
+  ctaAction: 'modal',
 };
 
 function imageProps(image: SiteImage) {
