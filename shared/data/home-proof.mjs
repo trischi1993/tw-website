@@ -104,7 +104,7 @@ export const HOME_PROOF_CARDS = [
     kind: 'customer',
     source: 'Steffi · Tierisch Natürlich',
     value: '500 → 416.000+',
-    label: 'Views pro Reel: +4.500 Follower und 1 Mio. Aufrufe in 30 Tagen',
+    label: 'Views und +4.500 Follower und 1 Mio. Aufrufe in nur 30 Tagen',
     images: [
       {
         _key: 'steffi-comments',
