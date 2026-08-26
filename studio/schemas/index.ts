@@ -12,6 +12,8 @@ import testimonial from './documents/testimonial';
 import imageWithAlt from './objects/imageWithAlt';
 import navItem from './objects/navItem';
 import seo from './objects/seo';
+import aioCustomerResults from './objects/aioCustomerResults';
+import aioProgramme from './objects/aioProgramme';
 
 /* --- Text-Elemente (pro Element anklickbar, tragen ihre Controls selbst) --- */
 import textEyebrow from './objects/text/textEyebrow';
@@ -54,6 +56,8 @@ export const schemaTypes: SchemaTypeDefinition[] = [
   imageWithAlt,
   navItem,
   seo,
+  aioCustomerResults,
+  aioProgramme,
 
   // Text-Elemente
   textEyebrow,

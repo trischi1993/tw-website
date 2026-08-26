@@ -21,7 +21,7 @@ import * as glow from './motion/glow';
 
 type WebflowMediaKey = 'main' | 'medium' | 'small' | 'tiny';
 
-type AboutScrollAnchor = {
+type ViewportScrollAnchor = {
   element: HTMLElement;
   ratio: number;
 };
@@ -54,7 +54,7 @@ function preserveAboutContentAfterTimeline(portrait: MediaQueryList): void {
     '.final-cta',
     'footer',
   ].join(',');
-  let anchor: AboutScrollAnchor | undefined;
+  let anchor: ViewportScrollAnchor | undefined;
   let captureFrame: number | undefined;
   let wasPortrait = portrait.matches;
 
@@ -90,7 +90,7 @@ function preserveAboutContentAfterTimeline(portrait: MediaQueryList): void {
     captureFrame = requestAnimationFrame(capture);
   };
 
-  const restore = (saved: AboutScrollAnchor): void => {
+  const restore = (saved: ViewportScrollAnchor): void => {
     if (!saved.element.isConnected) return;
 
     const bounds = saved.element.getBoundingClientRect();
@@ -121,6 +121,110 @@ function preserveAboutContentAfterTimeline(portrait: MediaQueryList): void {
     const saved = anchor;
     if (!saved?.element.isConnected) return;
     restore(saved);
+  });
+}
+
+/** Hält auf der Startseite beim Wechsel zwischen Hoch- und Querformat den
+ * gerade betrachteten Inhalt im Viewport. Ein bloßes Wiederherstellen von
+ * scrollY reicht nicht, weil Hero, Carousel und Angebotsbrücke ihre Höhen beim
+ * Drehen deutlich ändern. Deshalb wird das Element in der Viewportmitte samt
+ * relativer Position gespeichert und nach GSAPs responsivem Neuaufbau erneut
+ * zentriert. */
+function preserveHomeContentOnOrientation(portrait: MediaQueryList): void {
+  const homeHero = document.querySelector<HTMLElement>('[data-home-hero]');
+  if (!homeHero) return;
+
+  const root = document.documentElement;
+  const anchorSelector = [
+    '.home-proof-card',
+    '.home-proof__head',
+    '.split-cta__grid',
+    'article',
+    'section',
+    'footer',
+    'main',
+  ].join(',');
+  let anchor: ViewportScrollAnchor | undefined;
+  let pendingAnchor: ViewportScrollAnchor | undefined;
+  let captureFrame: number | undefined;
+  let settleTimer: number | undefined;
+  let restoring = false;
+  let wasPortrait = portrait.matches;
+
+  const capture = () => {
+    captureFrame = undefined;
+    if (restoring) return;
+
+    const centerX = root.clientWidth / 2;
+    const centerY = root.clientHeight / 2;
+    const hit = document.elementFromPoint(centerX, centerY) as HTMLElement | null;
+    const element = hit?.closest<HTMLElement>(anchorSelector);
+    if (!element || element === document.body || element === root) return;
+
+    const bounds = element.getBoundingClientRect();
+    if (bounds.height <= 0) return;
+
+    anchor = {
+      element,
+      ratio: Math.min(1, Math.max(0, (centerY - bounds.top) / bounds.height)),
+    };
+  };
+
+  const queueCapture = () => {
+    if (captureFrame !== undefined || restoring) return;
+    captureFrame = requestAnimationFrame(capture);
+  };
+
+  const restore = (saved: ViewportScrollAnchor): void => {
+    if (!saved.element.isConnected) return;
+
+    const bounds = saved.element.getBoundingClientRect();
+    if (bounds.height <= 0) return;
+
+    const currentFocusY = bounds.top + bounds.height * saved.ratio;
+    const targetY = window.scrollY + currentFocusY - root.clientHeight / 2;
+    const previousBehavior = root.style.scrollBehavior;
+    root.style.scrollBehavior = 'auto';
+    window.scrollTo(0, Math.max(0, targetY));
+    root.style.scrollBehavior = previousBehavior;
+    ScrollTrigger.update();
+  };
+
+  const restorePending = () => {
+    const saved = pendingAnchor;
+    if (!saved) return;
+    restore(saved);
+  };
+
+  window.addEventListener('scroll', queueCapture, { passive: true });
+  window.addEventListener('load', queueCapture, { once: true });
+  capture();
+
+  // matchMedia und der explizite Refresh nach der stabilen iOS-Phase können
+  // den Window-Scroller jeweils neu vermessen. Nach jedem Refresh wird deshalb
+  // der vor der Drehung gespeicherte Inhaltsanker erneut hergestellt.
+  ScrollTrigger.addEventListener('refresh', () => {
+    if (!restoring || !pendingAnchor) return;
+    requestAnimationFrame(restorePending);
+  });
+
+  portrait.addEventListener('change', () => {
+    const isPortrait = portrait.matches;
+    if (isPortrait === wasPortrait) return;
+    wasPortrait = isPortrait;
+
+    pendingAnchor = anchor;
+    if (!pendingAnchor?.element.isConnected) return;
+    restoring = true;
+
+    requestAnimationFrame(() => requestAnimationFrame(restorePending));
+    if (settleTimer !== undefined) window.clearTimeout(settleTimer);
+    settleTimer = window.setTimeout(() => {
+      restorePending();
+      pendingAnchor = undefined;
+      restoring = false;
+      requestAnimationFrame(capture);
+    }, 750);
   });
 }
 
@@ -242,6 +346,7 @@ function init(): void {
   // prüfen wir nach zwei Frames und nach der stabilen 600-ms-Phase nochmals.
   const portrait = window.matchMedia('(orientation: portrait)');
   if (isAboutPage) preserveAboutContentAfterTimeline(portrait);
+  preserveHomeContentOnOrientation(portrait);
   let orientationSettleTimer: number | undefined;
   portrait.addEventListener('change', () => {
     requestAnimationFrame(() => {

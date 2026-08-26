@@ -91,13 +91,14 @@ function initBeforeAfterComparison(comparison: HTMLElement): void {
   if (comparison.dataset.aioComparisonReady === '1') return;
 
   const range = comparison.querySelector<HTMLInputElement>('[data-before-after-range]');
+  const handle = comparison.querySelector<HTMLElement>('[data-before-after-handle]');
   const beforeLabel = comparison.querySelector<HTMLElement>(
     '.aio-case-study__comparison-label.is-before',
   );
   const afterLabel = comparison.querySelector<HTMLElement>(
     '.aio-case-study__comparison-label.is-after',
   );
-  if (!range) return;
+  if (!range || !handle) return;
 
   comparison.dataset.aioComparisonReady = '1';
   let pointerId: number | null = null;
@@ -144,35 +145,36 @@ function initBeforeAfterComparison(comparison: HTMLElement): void {
   });
   range.addEventListener('keydown', cancelHint);
 
-  range.addEventListener('pointerdown', (event) => {
+  handle.addEventListener('pointerdown', (event) => {
     cancelHint();
     pointerId = event.pointerId;
+    event.preventDefault();
     try {
-      range.setPointerCapture(event.pointerId);
+      handle.setPointerCapture(event.pointerId);
     } catch {
-      // iOS kann Pointer-Capture waehrend der nativen Range-Geste ablehnen.
+      // iOS kann Pointer-Capture waehrend der Geste ablehnen.
     }
-    setFromClientX(event.clientX);
   });
-  range.addEventListener('pointermove', (event) => {
+  handle.addEventListener('pointermove', (event) => {
     if (event.pointerId !== pointerId) return;
+    event.preventDefault();
     setFromClientX(event.clientX);
   });
   const endPointer = (event: PointerEvent) => {
     if (event.pointerId !== pointerId) return;
     pointerId = null;
     try {
-      if (range.hasPointerCapture(event.pointerId)) range.releasePointerCapture(event.pointerId);
+      if (handle.hasPointerCapture(event.pointerId)) handle.releasePointerCapture(event.pointerId);
     } catch {
       // Der Browser kann Capture bereits selbst beendet haben.
     }
   };
-  range.addEventListener('pointerup', endPointer);
-  range.addEventListener('pointercancel', endPointer);
+  handle.addEventListener('pointerup', endPointer);
+  handle.addEventListener('pointercancel', endPointer);
 
   // Fallback fuer aeltere WebKit-Versionen. Auf aktuellen iPhones uebernimmt
   // Pointer Events; dieselbe Logik bleibt dadurch ohne User-Agent-Weichen.
-  comparison.addEventListener('touchstart', (event) => {
+  handle.addEventListener('touchstart', (event) => {
     const touch = event.changedTouches[0];
     if (!touch) return;
     cancelHint();
@@ -181,7 +183,7 @@ function initBeforeAfterComparison(comparison: HTMLElement): void {
     touchStartY = touch.clientY;
     touchIsHorizontal = false;
   }, { passive: true });
-  comparison.addEventListener('touchmove', (event) => {
+  handle.addEventListener('touchmove', (event) => {
     if (touchId === null) return;
     const touch = Array.from(event.touches).find((item) => item.identifier === touchId);
     if (!touch) return;
@@ -204,12 +206,11 @@ function initBeforeAfterComparison(comparison: HTMLElement): void {
     if (touchId === null) return;
     const touch = Array.from(event.changedTouches).find((item) => item.identifier === touchId);
     if (!touch) return;
-    if (!touchIsHorizontal) setFromClientX(touch.clientX);
     touchId = null;
     touchIsHorizontal = false;
   };
-  comparison.addEventListener('touchend', endTouch, { passive: true });
-  comparison.addEventListener('touchcancel', endTouch, { passive: true });
+  handle.addEventListener('touchend', endTouch, { passive: true });
+  handle.addEventListener('touchcancel', endTouch, { passive: true });
 
   const runHint = () => {
     if (hasInteracted) return;

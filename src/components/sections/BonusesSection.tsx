@@ -54,9 +54,16 @@ export default function BonusesSection({
             >
               <Img image={card.image} sizes="(max-width: 991px) 90vw, 26rem" />
               <div className="bonus__card-content">
-                <span className="bonus__tag">{card.tag}</span>
-                <h3>{card.title}</h3>
-                <p>{card.text}</p>
+                <span
+                  className="bonus__tag"
+                  {...edit?.(`${path}.cards[_key=="${card._key}"].tag`)}
+                >
+                  {card.tag}
+                </span>
+                <h3 {...edit?.(`${path}.cards[_key=="${card._key}"].title`)}>
+                  {card.title}
+                </h3>
+                <p {...edit?.(`${path}.cards[_key=="${card._key}"].text`)}>{card.text}</p>
               </div>
             </div>
           ))}
@@ -66,6 +73,7 @@ export default function BonusesSection({
             className="bonus__footer button-group is-center"
             data-anim={animate ? 'reveal' : undefined}
             data-offset={animate ? '22' : undefined}
+            {...edit?.(`${path}.ctaLabel`)}
           >
             <GlowButton label={ctaLabel} action="modal-aio" />
           </div>

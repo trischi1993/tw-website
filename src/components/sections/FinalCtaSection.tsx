@@ -34,7 +34,10 @@ export default function FinalCtaSection({
               {text}
             </p>
           )}
-          <div className="final-cta__buttons button-group">
+          <div
+            className="final-cta__buttons button-group"
+            {...edit?.(`${path}.ctaLabel`)}
+          >
             <GlowButton label={ctaLabel} action={ctaAction} href={ctaHref} newTab={ctaNewTab} />
           </div>
         </div>

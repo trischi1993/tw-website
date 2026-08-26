@@ -53,10 +53,11 @@ export default function SectionsList({
   );
   const isAioConcept =
     sections.some((section) => section._type === 'sectionVideoHero') && aioModules.length === 5;
-  /* Reine lokale Konzeptlogik: Die fuenf einzeln gerenderten Module an ihrer
-     ersten Position durch eine kompakte Journey ersetzen. Direkt danach folgen
-     die Bonusse und erst anschliessend Ergebnisse sowie Kundenresultate.
-     CMS-Reihenfolge und Sanity-Daten bleiben unangetastet. */
+  /* AIO-Sonderlayout: Die fuenf einzeln gerenderten Module an ihrer ersten
+     Position durch eine kompakte Journey ersetzen. Direkt danach folgen die
+     Bonusse und erst anschliessend Ergebnisse sowie Kundenresultate. Texte
+     bleiben vollstaendig ueber die vorhandenen Sections bzw. das programme-
+     Objekt des ersten Moduls in Sanity pflegbar. */
   const displaySections = isAioConcept
     ? (() => {
         const result = sections.find(
@@ -107,7 +108,13 @@ export default function SectionsList({
             return <VideoHeroSection key={s._key} section={s} edit={edit} />;
           case 'sectionModule':
             if (isAioConcept && !s.number) {
-              return <AioCustomerResultsSection key="aio-customer-results" />;
+              return (
+                <AioCustomerResultsSection
+                  key="aio-customer-results"
+                  section={s}
+                  edit={edit}
+                />
+              );
             }
             if (isAioConcept && s.number) {
               return s._key === aioModules[0]?._key ? (

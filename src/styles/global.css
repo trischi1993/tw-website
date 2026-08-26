@@ -10,9 +10,18 @@
 * { margin: 0; }
 
 html {
-  -webkit-text-size-adjust: 100%;
   text-size-adjust: 100%;
   -webkit-tap-highlight-color: transparent;
+}
+
+/* Lightning CSS entfernt die zusammen mit der Standarddeklaration gesetzte
+   WebKit-Variante im Produktions-Build. iOS wertet die verbleibende
+   unpraefigierte Regel nicht verlaesslich aus und vergroessert dadurch im
+   Querformat einzelne Textbloecke unterschiedlich. Der getrennte
+   WebKit-Supportblock bleibt im Build erhalten und entspricht dem bereits
+   korrekten Verhalten des lokalen Dev-Servers. */
+@supports (-webkit-touch-callout: none) {
+  html { -webkit-text-size-adjust: 100%; }
 }
 
 /* Normale Anker-Klicks innerhalb der bereits geladenen Seite bleiben weich.

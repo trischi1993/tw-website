@@ -1,12 +1,13 @@
 import type { SectionModule } from '../../lib/content/types';
 import type { EditAttr } from './SectionsList';
 import Img from './Img';
+import { DEFAULT_AIO_PROGRAMME } from '../../lib/content/aio-programme';
 
 /**
- * Lokale Konzeptvariante fuer die AIO-Seite: Die fuenf aufeinanderfolgenden
- * Modul-Sections bleiben inhaltlich unveraendert, werden aber als kompakter,
- * nativ bedienbarer Programm-Ablauf dargestellt. Dadurch muss fuer den Test
- * weder das Sanity-Schema noch der Inhalt im CMS veraendert werden.
+ * AIO-Sonderlayout: Die fuenf aufeinanderfolgenden Modul-Sections werden als
+ * kompakter, nativ bedienbarer Programm-Ablauf dargestellt. Modultexte kommen
+ * aus den einzelnen Sections; die uebergeordneten Fahrplan- und Coaching-Texte
+ * liegen im programme-Objekt des ersten Moduls.
  */
 export default function AioProgrammeSection({
   modules,
@@ -17,6 +18,8 @@ export default function AioProgrammeSection({
 }) {
   const theoryModules = modules.filter((module) => module.number !== '05');
   const coachingVideo = theoryModules[0];
+  const programme = modules[0]?.programme ?? DEFAULT_AIO_PROGRAMME;
+  const programmePath = `sections[_key=="${modules[0]?._key}"].programme`;
   const posterUrl = (module: SectionModule) =>
     module.videoPosterImage
       ? module.videoPosterImage.kind === 'local'
@@ -28,31 +31,41 @@ export default function AioProgrammeSection({
     <section className="aio-programme section" id="programm">
       <div className="container">
         <header className="aio-programme__head" data-anim="reveal">
-          <p className="aio-programme__eyebrow aio-section-eyebrow">Dein klarer Fahrplan</p>
-          <h2>Dein Weg in 5 Modulen</h2>
-          <p>
-            Vom strategischen Fundament bis zur professionellen Content-Produktion:
-            Öffne ein Modul, um Inhalte und Schwerpunkte anzusehen.
+          <p
+            className="aio-programme__eyebrow aio-section-eyebrow"
+            {...edit?.(`${programmePath}.eyebrow`)}
+          >
+            {programme.eyebrow}
           </p>
+          <h2 {...edit?.(`${programmePath}.heading`)}>{programme.heading}</h2>
+          <p {...edit?.(`${programmePath}.intro`)}>{programme.intro}</p>
         </header>
 
         <div
           className="aio-programme__overview"
           data-anim="aio-programme-overview"
-          aria-label="Programmaufbau"
+          aria-label={programme.heading}
         >
           <div>
-            <strong>01–04</strong>
+            <strong {...edit?.(`${programmePath}.theoryNumber`)}>
+              {programme.theoryNumber}
+            </strong>
             <div>
-              <small>Theorie online</small>
-              <span>Videolektionen und persönliche 1:1 Begleitung</span>
+              <small {...edit?.(`${programmePath}.theoryLabel`)}>
+                {programme.theoryLabel}
+              </small>
+              <span {...edit?.(`${programmePath}.theoryText`)}>{programme.theoryText}</span>
             </div>
           </div>
           <div>
-            <strong>05</strong>
+            <strong {...edit?.(`${programmePath}.practiceNumber`)}>
+              {programme.practiceNumber}
+            </strong>
             <div>
-              <small>Praxis vor Ort</small>
-              <span>Praxis-Coaching und Content-Produktion vor Ort</span>
+              <small {...edit?.(`${programmePath}.practiceLabel`)}>
+                {programme.practiceLabel}
+              </small>
+              <span {...edit?.(`${programmePath}.practiceText`)}>{programme.practiceText}</span>
             </div>
           </div>
         </div>
@@ -80,7 +93,7 @@ export default function AioProgrammeSection({
                     className={`aio-programme__format${isPractice ? ' is-practice' : ''}`}
                     {...edit?.(`${path}.bannerWord`)}
                   >
-                    {isPractice ? 'Praxis vor Ort' : 'Videolektionen'}
+                    {module.bannerWord}
                   </span>
                   <span className="aio-programme__toggle" aria-hidden="true" />
                 </summary>
@@ -88,8 +101,13 @@ export default function AioProgrammeSection({
                 <div className={`aio-programme__detail${isPractice ? ' is-practice' : ''}`}>
                   <div className="aio-programme__detail-copy">
                     <ul {...edit?.(`${path}.bullets`)}>
-                      {module.bullets.map((bullet) => (
-                        <li key={bullet}>{bullet}</li>
+                      {module.bullets.map((bullet, index) => (
+                        <li
+                          key={`${bullet}-${index}`}
+                          {...edit?.(`${path}.bullets[${index}]`)}
+                        >
+                          {bullet}
+                        </li>
                       ))}
                     </ul>
                     {isPractice && module.coachingText && (
@@ -113,7 +131,9 @@ export default function AioProgrammeSection({
                         <source src={module.videoSrc} type="video/mp4" />
                       </video>
                       <div className="aio-programme__practice-overlay">
-                        <strong>Von der Theorie in die Content-Praxis.</strong>
+                        <strong {...edit?.(`${programmePath}.practiceOverlay`)}>
+                          {programme.practiceOverlay}
+                        </strong>
                       </div>
                     </div>
                   ) : (
@@ -148,18 +168,22 @@ export default function AioProgrammeSection({
           <span className="aio-programme__coaching-shade" aria-hidden="true" />
           <div className="aio-programme__coaching-inner">
             <div className="aio-programme__coaching-number">
-              <strong>{theoryModules.length} × 2 h</strong>
-              <span>1:1 Coachings</span>
+              <strong {...edit?.(`${programmePath}.coachingStat`)}>
+                {programme.coachingStat}
+              </strong>
+              <span {...edit?.(`${programmePath}.coachingLabel`)}>{programme.coachingLabel}</span>
             </div>
             <div className="aio-programme__coaching-copy">
-              <p className="aio-programme__eyebrow">Individuelle &amp; persönliche Begleitung</p>
-              <h3>Nach jedem Theorie-Modul besprechen wir deine Umsetzung.</h3>
-              <p>
-                Bei jedem der vier Theorie-Module schaust du dir zuerst die Videolektionen an.
-                Danach folgt der dazugehörige zweistündige 1:1-Videocall mit mir. Dort klären wir
-                deine offenen Fragen und du bekommst individuelles Feedback sowie konkrete Tipps
-                für deine Umsetzung.
+              <p
+                className="aio-programme__eyebrow"
+                {...edit?.(`${programmePath}.coachingEyebrow`)}
+              >
+                {programme.coachingEyebrow}
               </p>
+              <h3 {...edit?.(`${programmePath}.coachingHeading`)}>
+                {programme.coachingHeading}
+              </h3>
+              <p {...edit?.(`${programmePath}.coachingText`)}>{programme.coachingText}</p>
             </div>
           </div>
         </aside>

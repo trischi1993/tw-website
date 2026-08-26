@@ -41,7 +41,11 @@ export default function FaqSection({ section, edit }: { section: SectionFaq; edi
                 aria-expanded="false"
                 aria-controls={`faq-${_key}-${i}`}
               >
-                <span className="faq__question" data-faq-question="">
+                <span
+                  className="faq__question"
+                  data-faq-question=""
+                  {...edit?.(`${path}.items[_key=="${item._key}"].question`)}
+                >
                   {item.question}
                 </span>
                 <span className="faq__icon" aria-hidden="true" data-faq-icon="" />
@@ -49,7 +53,9 @@ export default function FaqSection({ section, edit }: { section: SectionFaq; edi
               <span className="faq__line" aria-hidden="true" />
               <div className="faq__bottom" id={`faq-${_key}-${i}`} data-faq-panel="" hidden>
                 <div className="faq__answer">
-                  <RichText value={item.answer} paragraphs />
+                  <div {...edit?.(`${path}.items[_key=="${item._key}"].answer`)}>
+                    <RichText value={item.answer} paragraphs />
+                  </div>
                 </div>
               </div>
               <span className="faq__whipe" data-faq-whipe="" aria-hidden="true" hidden />

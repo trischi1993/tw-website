@@ -17,6 +17,8 @@ import type {
   SpaceToken,
   CtaVariant,
 } from './types';
+import { mapAioCustomerResults } from './aio-customer-results';
+import { mapAioProgramme } from './aio-programme';
 
 /* ---------------------------------------------------------------------------
    Sections-Contract: GROQ-Projektion + Mapper für das `sections[]`-Array.
@@ -74,7 +76,7 @@ export const SECTIONS_PROJECTION = `sections[]{
   _type == "sectionTestimonials" => { heading, loadMoreLabel, initialCount, ${TESTIMONIALS_SUB} },
   _type == "sectionFaq" => { heading, items[]{ _key, question, answer } },
   _type == "sectionVideoHero" => { heading, intro, ctaLabel, videoUrl, mockupImage${IMG}, posterImage${IMG} },
-  _type == "sectionModule" => { titleRowText, number, bannerWord, bannerGold, heading, bullets, bulletsNowrap, image${IMG}, imageWide, coachingHeading, coachingText, videoSrc, videoPosterImage${IMG}, videoPoster },
+  _type == "sectionModule" => { titleRowText, number, bannerWord, bannerGold, heading, bullets, bulletsNowrap, customerResults, programme, image${IMG}, imageWide, coachingHeading, coachingText, videoSrc, videoPosterImage${IMG}, videoPoster },
   _type == "sectionBonuses" => { heading, intro, ctaLabel, cards[]{ _key, tag, title, text, image${IMG} } },
   _type == "sectionFinalCta" => { heading, text, ctaLabel, ctaAction, ctaHref, ctaNewTab },
   _type == "sectionPortraitHero" => { heading, intro, image${IMG}, socials[]{ _key, platform, href } },
@@ -544,6 +546,8 @@ export function mapSection(s: any): Section | null {
         heading: str(s.heading) ?? '',
         bullets: strArray(s.bullets),
         bulletsNowrap: s.bulletsNowrap === true || undefined,
+        customerResults: s.number ? undefined : mapAioCustomerResults(s.customerResults),
+        programme: s.number === '01' ? mapAioProgramme(s.programme) : undefined,
         image: mapImage(s.image),
         imageWide: s.imageWide === true || undefined,
         coachingHeading: str(s.coachingHeading),

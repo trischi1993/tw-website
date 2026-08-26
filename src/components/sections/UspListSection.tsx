@@ -41,8 +41,12 @@ export default function UspListSection({
               <div className="usp__row" data-anim="usp-row">
                 <span className="usp__dot" aria-hidden="true" data-usp-icon="" />
                 <p className="usp__text" data-usp-text="">
-                  {item.lead && <strong>{item.lead} </strong>}
-                  {item.text}
+                  {item.lead && (
+                    <strong {...edit?.(`${path}.items[_key=="${item._key}"].lead`)}>
+                      {item.lead}{' '}
+                    </strong>
+                  )}
+                  <span {...edit?.(`${path}.items[_key=="${item._key}"].text`)}>{item.text}</span>
                 </p>
               </div>
               <span className="usp__line" data-anim="grow-line" aria-hidden="true" />

@@ -305,7 +305,7 @@ html.has-motion .results__track { height: 240vh; }
 .split-cta__eyebrow {
   margin-bottom: var(--section-eyebrow-gap);
   color: var(--brand-readable);
-  font-size: var(--text-sm);
+  font-size: var(--section-eyebrow-size);
   font-weight: 600;
   letter-spacing: 0.12em;
   line-height: 1.3;
@@ -348,7 +348,6 @@ html.has-motion .results__track { height: 240vh; }
 }
 @media (max-width: 767px) {
   .split-cta__grid { grid-template-columns: 1fr; row-gap: 3rem; }
-  .split-cta__eyebrow { font-size: 0.72rem; }
   /* Spec: 767/479 → 1 Spalte, Mockup unter dem Button. Eigene is-plain-Regel
      (0,3,0), sonst überschreibt die ungemedierte Basis (1.25fr/1fr) den
      Einspalter und das Mockup bleibt (gequetscht) neben dem Text. */
@@ -360,6 +359,20 @@ html.has-motion .results__track { height: 240vh; }
   .split-cta.is-plain .split-cta__buttons { margin-top: 1.25rem; }
   .split-cta.is-plain .split-cta__media { justify-content: flex-start; }
   .split-cta.is-plain .split-cta__media img { width: 50%; }
+}
+@media (max-width: 950px) and (max-height: 500px) and (orientation: landscape) {
+  /* Der Startseiten-AIO-Teaser bleibt bei schmaler Landschafts-Hoehe
+     gestapelt: Text zuerst, Mockup darunter. Andere Split-CTAs behalten ihre
+     jeweilige Tablet-Struktur. */
+  .home-proof + .split-cta.is-glow .split-cta__grid {
+    grid-template-columns: minmax(0, 1fr);
+    row-gap: 3rem;
+  }
+  .home-proof + .split-cta.is-glow .split-cta__content { max-width: 42rem; }
+  .home-proof + .split-cta.is-glow .split-cta__media {
+    width: min(82%, 42rem);
+    justify-content: flex-start;
+  }
 }
 @media (max-width: 479px) {
   .split-cta.is-glow { margin-top: -15%; }
@@ -580,13 +593,13 @@ html.has-motion .results__track { height: 240vh; }
 }
 .aio-section-eyebrow {
   margin-bottom: var(--section-eyebrow-gap, 1rem);
-  font-size: var(--text-sm);
+  font-size: var(--section-eyebrow-size);
   font-weight: 600;
   letter-spacing: 0.12em;
   line-height: 1.3;
 }
 @media (max-width: 767px) {
-  .aio-section-eyebrow { margin-bottom: 0.75rem; font-size: 0.72rem; }
+  .aio-section-eyebrow { margin-bottom: 0.75rem; }
 }
 @media (max-width: 991px) and (max-height: 500px) and (orientation: landscape) {
   .aio-section-eyebrow { margin-bottom: 0.75rem; }
@@ -823,7 +836,7 @@ html.has-motion .results__track { height: 240vh; }
 }
 .aio-programme__detail-copy ul {
   display: grid;
-  grid-template-columns: 1fr 1fr;
+  grid-template-columns: 1fr;
   gap: 0.9rem 2rem;
   margin: 0;
   padding: 0;
@@ -1042,7 +1055,11 @@ html.has-motion .results__track { height: 240vh; }
 }
 @media (max-width: 991px) {
   .aio-programme { padding-top: 6rem; padding-bottom: 6rem; }
-  .aio-programme__detail { grid-template-columns: 1fr 19rem; gap: 2.5rem; padding-left: 5rem; }
+  .aio-programme__detail {
+    grid-template-columns: 1fr 19rem;
+    gap: 2.5rem;
+    padding-left: calc(7rem - 1.35rem);
+  }
   .aio-programme__detail-copy ul { grid-template-columns: 1fr; }
   .aio-programme__detail.is-practice {
     grid-template-columns: minmax(0, 1fr) minmax(18rem, 24rem);
@@ -1093,11 +1110,14 @@ html.has-motion .results__track { height: 240vh; }
     padding: 1.5rem 0 3rem 4.25rem;
   }
   .aio-programme__visual {
-    min-height: 20rem;
-    margin-top: 2.25rem;
+    min-height: 0;
+    margin-top: 0;
     justify-content: flex-start;
   }
-  .aio-programme__visual-frame { width: min(90%, 19rem); }
+  .aio-programme__visual-frame {
+    width: min(90%, 19rem);
+    aspect-ratio: 19 / 15.5;
+  }
   .aio-programme__practice-video { min-height: 23rem; }
   .aio-programme__practice-overlay { inset: auto 1.5rem 1.5rem; flex-direction: column; align-items: flex-start; }
   .aio-programme__practice-overlay strong { font-size: 1.4rem; text-align: left; }
@@ -1351,6 +1371,10 @@ html.has-motion .results__track { height: 240vh; }
   box-shadow: 0 0.75rem 2rem rgba(0, 0, 0, 0.34);
   font-size: 1.1rem;
   font-style: normal;
+  cursor: ew-resize;
+  pointer-events: auto;
+  touch-action: none;
+  user-select: none;
   transform: translate(-50%, -50%);
   backdrop-filter: blur(10px);
 }
@@ -1370,8 +1394,8 @@ html.has-motion .results__track { height: 240vh; }
   width: 100%;
   height: 100%;
   margin: 0;
-  cursor: ew-resize;
   opacity: 0;
+  pointer-events: none;
   touch-action: pan-y;
 }
 .aio-case-study__journey:has(.aio-case-study__comparison-range:focus-visible)
@@ -1828,15 +1852,15 @@ html.has-motion .results__track { height: 240vh; }
 }
 .aio-results__outcomes {
   display: grid;
-  grid-template-columns: minmax(17rem, 0.75fr) minmax(0, 1.25fr);
-  gap: clamp(3rem, 7vw, 8rem);
+  grid-template-columns: minmax(19rem, 0.82fr) minmax(0, 1.18fr);
+  gap: clamp(3rem, 5vw, 6rem);
   margin-bottom: 7rem;
   padding: 4rem 0;
   border-top: 1px solid var(--paper-2);
   border-bottom: 1px solid var(--paper-2);
 }
 .aio-results__outcomes h3 {
-  max-width: 28rem;
+  max-width: 30rem;
   font-size: var(--h2-size);
   font-weight: var(--h2-weight);
   line-height: var(--h2-lh);
@@ -2075,6 +2099,12 @@ html.has-motion .results__track { height: 240vh; }
   font-size: 2rem;
   font-weight: 300;
 }
+@media (max-width: 1279px) {
+  .aio-results__outcomes {
+    grid-template-columns: 1fr;
+    gap: 2rem;
+  }
+}
 @media (max-width: 991px) {
   .aio-results { padding-top: 6rem; padding-bottom: 6rem; }
   .aio-case-study {
@@ -2236,7 +2266,18 @@ html.has-motion .results__track { height: 240vh; }
     border-top: 1px solid rgba(255, 255, 255, 0.09);
     border-left: 0;
   }
-  .aio-growth-stage__graphic { max-width: 28rem; min-height: 12rem; margin-top: 1.25rem; }
+  .aio-growth-stage__graphic {
+    display: grid;
+    max-width: 28rem;
+    min-height: 0;
+    align-content: start;
+    margin-top: 1.25rem;
+  }
+  .aio-growth-stage__signal {
+    position: static;
+    justify-self: end;
+    margin-top: 1.25rem;
+  }
 }
 @media (max-width: 479px) {
   .aio-case-study { --aio-case-title-size: 1.8rem; }
@@ -2317,6 +2358,16 @@ html.has-motion .results__track { height: 240vh; }
     min-height: 3rem;
   }
   .aio-growth-system__head h4 { font-size: 1.75rem; }
+  .aio-growth-stage__graphic {
+    display: grid;
+    min-height: 0;
+    align-content: start;
+  }
+  .aio-growth-stage__signal {
+    position: static;
+    justify-self: end;
+    margin-top: 1.5rem;
+  }
 }
 
 /* ==================== USP-Liste (Warum mit mir / Besondere) ================ */
@@ -3604,6 +3655,7 @@ html.has-motion .ahero__wipe { display: block; }
 }
 @media (max-height: 500px) and (orientation: landscape) {
   .home-proof { padding-top: 4.5rem; padding-bottom: 4.5rem; }
+  .home-proof__head h2 { font-size: 1.375rem; }
   .home-proof-card { flex-basis: min(58vw, 26rem); }
   .home-proof-card__media { height: min(18rem, 68svh); }
   .home-proof-card__more-visual { height: min(18rem, 68svh); }
