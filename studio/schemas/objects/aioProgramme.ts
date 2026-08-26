@@ -25,7 +25,7 @@ export default defineType({
     'Alle Texte des kompakten Programm-Fahrplans. Modulüberschriften und Aufzählungspunkte bleiben direkt in den fünf Modul-Abschnitten editierbar.',
   groups: [
     { name: 'intro', title: 'Abschnitts-Einstieg', default: true },
-    { name: 'overview', title: 'Zwei Übersichtskacheln' },
+    { name: 'overview', title: 'Theorie & Praxis' },
     { name: 'modules', title: 'Modul-Detail' },
     { name: 'coaching', title: '1:1-Begleitung' },
   ],
@@ -35,11 +35,9 @@ export default defineType({
     requiredText('heading', 'Hauptüberschrift', 'intro'),
     requiredText('intro', 'Einleitungstext', 'intro', 3),
 
-    requiredText('theoryNumber', 'Theorie – Nummern', 'overview'),
-    requiredText('theoryLabel', 'Theorie – kleines Label', 'overview'),
+    requiredText('theoryLabel', 'Theorie – Überschrift', 'overview'),
     requiredText('theoryText', 'Theorie – Beschreibung', 'overview', 2),
-    requiredText('practiceNumber', 'Praxis – Nummer', 'overview'),
-    requiredText('practiceLabel', 'Praxis – kleines Label', 'overview'),
+    requiredText('practiceLabel', 'Praxis – Überschrift', 'overview'),
     requiredText('practiceText', 'Praxis – Beschreibung', 'overview', 2),
 
     requiredText('practiceOverlay', 'Text auf dem Praxis-Video', 'modules'),

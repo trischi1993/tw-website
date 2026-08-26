@@ -240,62 +240,26 @@ function initGrowLines(): void {
   });
 }
 
-function initAioProgrammeOverview(): void {
-  document.querySelectorAll<HTMLElement>('[data-anim="aio-programme-overview"]').forEach((overview) => {
-    const cards = overview.querySelectorAll<HTMLElement>(':scope > div');
-    const numbers = overview.querySelectorAll<HTMLElement>(':scope > div > strong');
-    const copies = overview.querySelectorAll<HTMLElement>(':scope > div > div');
-    if (!cards.length) return;
-
-    gsap.set(cards, { opacity: 0, y: '1.25rem', scale: 0.985 });
-    gsap.set(numbers, { opacity: 0, scale: 0.9, transformOrigin: 'center' });
-    gsap.set(copies, { opacity: 0, x: '0.65rem' });
-
-    onEnterOnceStable(overview, 12, () => {
-      const timeline = gsap.timeline();
-      timeline
-        .to(cards, {
-          opacity: 1,
-          y: 0,
-          scale: 1,
-          duration: 0.8,
-          stagger: 0.12,
-          ease: EASE.outQuart,
-        })
-        .to(numbers, {
-          opacity: 1,
-          scale: 1,
-          duration: 0.48,
-          stagger: 0.12,
-          ease: 'back.out(1.6)',
-        }, '<0.12')
-        .to(copies, {
-          opacity: 1,
-          x: 0,
-          duration: 0.6,
-          stagger: 0.12,
-          ease: EASE.outQuart,
-        }, '<0.04');
-    });
-  });
-}
-
 function initAioProgrammeModules(): void {
   document.querySelectorAll<HTMLElement>('[data-anim="aio-programme-modules"]').forEach((list) => {
-    const modules = list.querySelectorAll<HTMLElement>('.aio-programme__module');
-    if (!modules.length) return;
+    list.querySelectorAll<HTMLElement>('.aio-programme__group').forEach((group) => {
+      const head = group.querySelector<HTMLElement>('.aio-programme__group-head');
+      const modules = group.querySelectorAll<HTMLElement>('.aio-programme__module');
+      const items = [head, ...modules].filter(Boolean) as HTMLElement[];
+      if (!items.length) return;
 
-    gsap.set(modules, { opacity: 0, y: '1rem' });
-    // Erst starten, wenn die Modulliste deutlich im Viewport steht. Mit dem
-    // früheren 10-%-Offset lief die Staffelung bereits am unteren Bildschirmrand
-    // und war beim eigentlichen Hinunterscrollen nahezu abgeschlossen.
-    onEnterOnceStable(list, 34, () => {
-      gsap.to(modules, {
-        opacity: 1,
-        y: 0,
-        duration: 0.7,
-        stagger: 0.09,
-        ease: EASE.outQuart,
+      gsap.set(items, { opacity: 0, y: '1rem' });
+      // Theorie und Praxis werden jeweils erst beim Erreichen ihrer Gruppe
+      // eingeblendet. So bleibt der Praxis-Kopf auch auf kleinen Screens als
+      // bewusster zweiter Programmteil wahrnehmbar.
+      onEnterOnceStable(group, 18, () => {
+        gsap.to(items, {
+          opacity: 1,
+          y: 0,
+          duration: 0.7,
+          stagger: 0.085,
+          ease: EASE.outQuart,
+        });
       });
     });
   });
@@ -988,8 +952,7 @@ function build(): void {
   const targets = document.querySelectorAll<HTMLElement>(
     '[data-anim="reveal"], [data-usp-icon], [data-usp-text], ' +
       '[data-anim="grow-line"], [data-faq-top], [data-anim="aio-growth-system"], ' +
-      '[data-anim="aio-programme-overview"], [data-anim="aio-programme-overview"] > div, ' +
-      '[data-anim="aio-programme-overview"] > div > strong, [data-anim="aio-programme-overview"] > div > div, ' +
+      '[data-anim="aio-programme-modules"] .aio-programme__group-head, ' +
       '[data-anim="aio-programme-modules"] .aio-programme__module, ' +
       '[data-anim="aio-case-study"], [data-anim="aio-case-study"] .aio-case-study__head, ' +
       '[data-anim="aio-case-study"] .aio-case-study__journey figure, ' +
@@ -1007,7 +970,6 @@ function build(): void {
   initReveal();
   initUspRows();
   initGrowLines();
-  initAioProgrammeOverview();
   initAioProgrammeModules();
   initAioCaseStudies();
   initAioGrowthSystem();

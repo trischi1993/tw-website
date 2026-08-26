@@ -7,20 +7,18 @@
  */
 export const AIO_PROGRAMME = {
   eyebrow: 'Dein klarer Fahrplan',
-  heading: 'Dein Weg in 5 Modulen',
+  heading: 'Schritt für Schritt in 5 Modulen',
   intro:
     'Vom strategischen Fundament bis zur professionellen Content-Produktion: Öffne ein Modul, um Inhalte und Schwerpunkte anzusehen.',
-  theoryNumber: '01–04',
   theoryLabel: 'Theorie online',
-  theoryText: 'Videolektionen und persönliche 1:1 Begleitung',
-  practiceNumber: '05',
+  theoryText: 'Videolektionen & 1:1 Begleitung',
   practiceLabel: 'Praxis vor Ort',
-  practiceText: 'Praxis-Coaching und Content-Produktion',
+  practiceText: 'Content-Produktion & Bearbeitung',
   practiceOverlay: 'Von der Theorie in die Content-Praxis.',
   coachingStat: '4 × 2 h',
   coachingLabel: '1:1 Coachings',
   coachingEyebrow: 'Individuelle & persönliche Begleitung',
   coachingHeading: 'Nach jedem Theorie-Modul besprechen wir deine Umsetzung.',
   coachingText:
-    'Bei jedem der vier Theorie-Module schaust du dir zuerst die Videolektionen an. Danach folgt der dazugehörige zweistündige 1:1-Videocall mit mir. Dort klären wir deine offenen Fragen und du bekommst individuelles Feedback sowie konkrete Tipps für deine Umsetzung.',
+    'In jedem der vier Theorie-Module schaust du zuerst die Videolektionen an. Anschließend folgt jeweils ein zweistündiger 1:1-Videocall mit mir. Dort klären wir offene Fragen und du bekommst individuelles Feedback sowie konkrete Tipps für deine Umsetzung.',
 };
