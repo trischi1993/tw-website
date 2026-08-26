@@ -607,9 +607,7 @@ html.has-motion .results__track { height: 240vh; }
 .aio-programme__modules {
   display: grid;
   width: 100%;
-  max-width: 74rem;
-  gap: 2.75rem;
-  margin-inline: auto;
+  gap: 3.75rem;
 }
 .aio-programme__group {
   min-width: 0;
@@ -883,22 +881,10 @@ html.has-motion .results__track { height: 240vh; }
   min-height: 16rem;
   margin-top: 1.5rem;
   overflow: hidden;
-  border: 1px solid rgba(170, 134, 48, 0.35);
+  border: 1px solid rgba(255, 255, 255, 0.12);
   border-radius: var(--radius-card);
-  background:
-    radial-gradient(circle at 0% 50%, rgba(128, 100, 41, 0.15), transparent 18rem),
-    var(--panel);
-  box-shadow: 0 1.5rem 3rem -2.75rem rgba(128, 100, 41, 0.65);
-}
-.aio-programme__coaching::before {
-  position: absolute;
-  top: -1px;
-  left: 1.35rem;
-  z-index: 2;
-  width: 4.5rem;
-  height: 1px;
-  background: var(--brand-readable);
-  content: '';
+  background: var(--panel);
+  box-shadow: 0 1.5rem 3rem -2.75rem rgba(0, 0, 0, 0.85);
 }
 .aio-programme__coaching-video,
 .aio-programme__coaching-shade {
@@ -1023,7 +1009,7 @@ html.has-motion .results__track { height: 240vh; }
   .gallery__aio-copy { padding: 3rem 1.25rem 1.15rem; }
   .aio-programme { padding-top: 4.5rem; padding-bottom: 4.5rem; }
   .aio-programme__head { margin-bottom: 3rem; }
-  .aio-programme__modules { gap: 2.25rem; }
+  .aio-programme__modules { gap: 3rem; }
   .aio-programme__group-head {
     grid-template-columns: 1fr;
     gap: 0.35rem;
