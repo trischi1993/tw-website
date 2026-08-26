@@ -155,10 +155,8 @@ export interface AioProgrammeContent {
   eyebrow: string;
   heading: string;
   intro: string;
-  theoryNumber: string;
   theoryLabel: string;
   theoryText: string;
-  practiceNumber: string;
   practiceLabel: string;
   practiceText: string;
   practiceOverlay: string;
