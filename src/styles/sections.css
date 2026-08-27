@@ -1074,11 +1074,11 @@ html.has-motion .results__track { height: 240vh; }
   }
   .aio-programme__coaching-number {
     display: flex;
-    align-items: flex-end;
+    align-items: baseline;
     gap: 0.75rem;
   }
   .aio-programme__coaching-number strong { font-size: 2.35rem; }
-  .aio-programme__coaching-number span { margin: 0 0 0.12rem; }
+  .aio-programme__coaching-number span { margin: 0; }
   .aio-programme__coaching-copy h3 { font-size: 1.45rem; }
 }
 
