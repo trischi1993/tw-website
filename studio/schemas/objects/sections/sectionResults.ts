@@ -3,6 +3,7 @@ import { BarChartIcon } from '@sanity/icons/BarChart';
 import { nameField, anchorField } from './shared';
 import { categoryIcon } from '../../../components/inputs/categoryIcon';
 import { t, tOptions } from '../../uiLocale';
+import { HOME_PROOF_CARD_SLOTS } from '../../../../shared/data/home-proof-card-slots.mjs';
 
 const badgePositions = tOptions([
   { en: 'Top left', de: 'Oben links', value: 'top-left' },
@@ -23,6 +24,124 @@ const cropOptions = tOptions([
   { en: 'Tristan profile crop', de: 'Tristan-Profil-Zuschnitt', value: 'profile-tristan' },
   { en: 'Mindful Stays profile crop', de: 'Mindful-Stays-Profil-Zuschnitt', value: 'profile-mindful' },
 ]);
+
+const fixedResultCardField = (slot: (typeof HOME_PROOF_CARD_SLOTS)[number]) =>
+  defineField({
+    name: slot.field,
+    title: slot.title,
+    type: 'object',
+    group: slot.group,
+    options: { collapsible: true, collapsed: true },
+    validation: (R) => R.required(),
+    fields: [
+      defineField({
+        name: 'source',
+        title: t({ en: 'Name / role', de: 'Name / Rollenbezeichnung' }),
+        type: 'string',
+        validation: (R) => R.required(),
+      }),
+      defineField({
+        name: 'value',
+        title: t({ en: 'Main result', de: 'Große Kennzahl' }),
+        type: 'string',
+        validation: (R) => R.required(),
+      }),
+      defineField({
+        name: 'label',
+        title: t({ en: 'Description below the result', de: 'Beschreibung unter der Kennzahl' }),
+        type: 'string',
+        validation: (R) => R.required(),
+      }),
+      defineField({
+        name: 'badges',
+        title: t({ en: 'Badge texts on the screenshots', de: 'Badge-Texte auf den Screenshots' }),
+        description: t({
+          en: 'Order corresponds to the screenshots marked “Use badge text”.',
+          de: 'Die Reihenfolge entspricht den Screenshots, bei denen „Badge-Text verwenden“ aktiviert ist.',
+        }),
+        type: 'array',
+        of: [{ type: 'string' }],
+        validation: (R) =>
+          R.custom((value, context) => {
+            const images = (context.parent as { images?: Array<{ hasBadge?: boolean }> } | undefined)?.images;
+            if (!Array.isArray(images) || images.length === 0) return true;
+            const expected = images.filter((image) => image?.hasBadge !== false).length;
+            const actual = Array.isArray(value) ? value.filter((badge) => typeof badge === 'string' && badge.trim()).length : 0;
+            return actual === expected
+              ? true
+              : t({
+                  en: `Please enter exactly ${expected} badge text${expected === 1 ? '' : 's'}.`,
+                  de: `Bitte genau ${expected} Badge-Text${expected === 1 ? '' : 'e'} eintragen.`,
+                });
+          }),
+      }),
+      defineField({
+        name: 'images',
+        title: t({ en: 'Screenshots', de: 'Screenshots' }),
+        type: 'array',
+        of: [
+          {
+            type: 'object',
+            name: 'fixedProofImage',
+            fields: [
+              defineField({
+                name: 'image',
+                title: t({ en: 'Screenshot', de: 'Screenshot' }),
+                type: 'imageWithAlt',
+                validation: (R) => R.required(),
+              }),
+              defineField({
+                name: 'hasBadge',
+                title: t({ en: 'Use badge text', de: 'Badge-Text verwenden' }),
+                description: t({
+                  en: 'The matching text is maintained in the badge list above.',
+                  de: 'Der zugehörige Text wird in der Badge-Liste darüber gepflegt.',
+                }),
+                type: 'boolean',
+                initialValue: true,
+              }),
+              defineField({
+                name: 'badgePosition',
+                title: t({ en: 'Badge position', de: 'Badge-Position' }),
+                description: t({
+                  en: 'Place the badge where it does not cover a name, profile picture or KPI.',
+                  de: 'Dort platzieren, wo kein Name, Profilbild oder KPI verdeckt wird.',
+                }),
+                type: 'string',
+                options: { list: badgePositions },
+                hidden: ({ parent }) => (parent as { hasBadge?: boolean } | undefined)?.hasBadge === false,
+              }),
+              defineField({
+                name: 'crop',
+                title: t({ en: 'Special crop', de: 'Spezieller Zuschnitt' }),
+                description: t({
+                  en: 'Only use the matching preset for screenshots that need a protected crop.',
+                  de: 'Nur das passende Preset für Screenshots verwenden, die einen geschützten Zuschnitt brauchen.',
+                }),
+                type: 'string',
+                initialValue: 'none',
+                options: { list: cropOptions },
+              }),
+            ],
+            preview: {
+              select: { subtitle: 'crop', media: 'image', hasBadge: 'hasBadge' },
+              prepare({ subtitle, media, hasBadge }) {
+                return {
+                  title: t({ en: 'Screenshot', de: 'Screenshot' }),
+                  subtitle: [
+                    hasBadge === false ? t({ en: 'Without badge', de: 'Ohne Badge' }) : undefined,
+                    subtitle && subtitle !== 'none' ? subtitle : undefined,
+                  ].filter(Boolean).join(' · ') || undefined,
+                  media,
+                };
+              },
+            },
+          },
+        ],
+        validation: (R) => R.required().min(1).max(3),
+      }),
+    ],
+  });
 
 /** Vollstaendig editierbares Startseiten-Carousel: Inhalt und Bildregeln leben in Sanity. */
 export default defineType({
@@ -59,125 +178,60 @@ export default defineType({
       validation: (R) => R.required(),
     }),
     defineField({
-      name: 'cards',
+      name: 'resultCards',
       title: t({ en: 'Result cards', de: 'Erfolgskarten' }),
       description: t({
-        en: 'Order by dragging. Keep own results first so the two jump buttons remain predictable.',
-        de: 'Reihenfolge per Ziehen ändern. Eigene Erfolge zuerst lassen, damit die beiden Sprung-Buttons eindeutig bleiben.',
+        en: 'Fixed card structure for the homepage. Its content is independent from the AIO page.',
+        de: 'Feste Kartenstruktur der Startseite. Die Inhalte sind unabhängig von der AIO-Seite.',
+      }),
+      type: 'object',
+      options: { collapsible: true, collapsed: false },
+      validation: (R) => R.required(),
+      groups: [
+        { name: 'own', title: t({ en: 'Own results (5)', de: 'Meine Erfolge (5)' }), default: true },
+        { name: 'customer', title: t({ en: 'Customer results (9)', de: 'Kundenerfolge (9)' }) },
+      ],
+      fields: HOME_PROOF_CARD_SLOTS.map(fixedResultCardField),
+    }),
+    defineField({
+      name: 'cards',
+      title: t({ en: 'Legacy result cards', de: 'Bisherige Erfolgskarten' }),
+      description: t({
+        en: 'Compatibility data for the previous editor structure.',
+        de: 'Kompatibilitätsdaten der bisherigen Eingabestruktur.',
       }),
       type: 'array',
+      readOnly: true,
+      hidden: ({ parent }) => Boolean((parent as { resultCards?: unknown } | undefined)?.resultCards),
       of: [
         {
           type: 'object',
           name: 'proofCard',
           fields: [
-            defineField({
-              name: 'kind',
-              title: t({ en: 'Result type', de: 'Art des Erfolgs' }),
-              type: 'string',
-              initialValue: 'customer',
-              options: {
-                layout: 'radio',
-                list: tOptions([
-                  { en: 'Own result', de: 'Mein Erfolg', value: 'own' },
-                  { en: 'Customer result', de: 'Kundenerfolg', value: 'customer' },
-                ]),
-              },
-              validation: (R) => R.required(),
-            }),
-            defineField({
-              name: 'source',
-              title: t({ en: 'Name and category', de: 'Name und Kategorie' }),
-              description: t({
-                en: 'The small line above the main number, e.g. “Tristan Weithaler · Personal Brand”.',
-                de: 'Die kleine Zeile über der großen Zahl, z. B. „Tristan Weithaler · Personal Brand“.',
-              }),
-              type: 'string',
-              validation: (R) => R.required(),
-            }),
-            defineField({
-              name: 'value',
-              title: t({ en: 'Main result', de: 'Große Kennzahl' }),
-              type: 'string',
-              validation: (R) => R.required(),
-            }),
-            defineField({
-              name: 'label',
-              title: t({ en: 'Short description', de: 'Kurze Beschreibung' }),
-              type: 'text',
-              rows: 2,
-              validation: (R) => R.required(),
-            }),
+            defineField({ name: 'kind', title: 'Art', type: 'string' }),
+            defineField({ name: 'source', title: 'Name / Rollenbezeichnung', type: 'string' }),
+            defineField({ name: 'value', title: 'Große Kennzahl', type: 'string' }),
+            defineField({ name: 'label', title: 'Beschreibung', type: 'string' }),
             defineField({
               name: 'images',
-              title: t({ en: 'Screenshots', de: 'Screenshots' }),
+              title: 'Screenshots',
               type: 'array',
               of: [
                 {
                   type: 'object',
                   name: 'proofImage',
                   fields: [
-                    defineField({
-                      name: 'image',
-                      title: t({ en: 'Screenshot', de: 'Screenshot' }),
-                      type: 'imageWithAlt',
-                      validation: (R) => R.required(),
-                    }),
-                    defineField({
-                      name: 'badge',
-                      title: t({ en: 'KPI badge (optional)', de: 'KPI-Badge (optional)' }),
-                      type: 'string',
-                    }),
-                    defineField({
-                      name: 'badgePosition',
-                      title: t({ en: 'Badge position', de: 'Badge-Position' }),
-                      description: t({
-                        en: 'Place the badge where it does not cover a name, profile picture or KPI.',
-                        de: 'Dort platzieren, wo kein Name, Profilbild oder KPI verdeckt wird.',
-                      }),
-                      type: 'string',
-                      options: { list: badgePositions },
-                      hidden: ({ parent }) => !(parent as { badge?: string } | undefined)?.badge,
-                    }),
-                    defineField({
-                      name: 'crop',
-                      title: t({ en: 'Special crop', de: 'Spezieller Zuschnitt' }),
-                      description: t({
-                        en: 'Only use the matching preset for screenshots that need a protected crop.',
-                        de: 'Nur das passende Preset für Screenshots verwenden, die einen geschützten Zuschnitt brauchen.',
-                      }),
-                      type: 'string',
-                      initialValue: 'none',
-                      options: { list: cropOptions },
-                    }),
+                    defineField({ name: 'image', title: 'Screenshot', type: 'imageWithAlt' }),
+                    defineField({ name: 'badge', title: 'Badge-Text', type: 'string' }),
+                    defineField({ name: 'badgePosition', title: 'Badge-Position', type: 'string' }),
+                    defineField({ name: 'crop', title: 'Zuschnitt', type: 'string' }),
                   ],
-                  preview: {
-                    select: { title: 'badge', subtitle: 'crop', media: 'image' },
-                    prepare({ title, subtitle, media }) {
-                      return {
-                        title: title || t({ en: 'Screenshot', de: 'Screenshot' }),
-                        subtitle: subtitle && subtitle !== 'none' ? subtitle : undefined,
-                        media,
-                      };
-                    },
-                  },
                 },
               ],
-              validation: (R) => R.required().min(1).max(3),
             }),
           ],
-          preview: {
-            select: { title: 'source', subtitle: 'value', kind: 'kind', media: 'images.0.image' },
-            prepare({ title, subtitle, kind, media }) {
-              const kindLabel = kind === 'own'
-                ? t({ en: 'Own result', de: 'Mein Erfolg' })
-                : t({ en: 'Customer result', de: 'Kundenerfolg' });
-              return { title, subtitle: `${kindLabel} · ${subtitle || ''}`, media };
-            },
-          },
         },
       ],
-      validation: (R) => R.required().min(1),
     }),
     defineField({
       name: 'closingCard',
@@ -228,9 +282,11 @@ export default defineType({
     }),
   ],
   preview: {
-    select: { title: 'name', subtitle: 'heading', cards: 'cards' },
-    prepare({ title, subtitle, cards }) {
-      const count = Array.isArray(cards) ? cards.length : 0;
+    select: { title: 'name', subtitle: 'heading', cards: 'cards', resultCards: 'resultCards' },
+    prepare({ title, subtitle, cards, resultCards }) {
+      const count = resultCards
+        ? HOME_PROOF_CARD_SLOTS.filter((slot) => resultCards[slot.field]).length
+        : Array.isArray(cards) ? cards.length : 0;
       const typeLabel = t({ en: 'Own & customer results', de: 'Meine Erfolge & Kundenerfolge' });
       return {
         title: title || typeLabel,

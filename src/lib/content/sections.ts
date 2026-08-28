@@ -18,6 +18,7 @@ import type {
 } from './types';
 import { mapAioCustomerResults } from './aio-customer-results';
 import { mapAioProgramme } from './aio-programme';
+import { HOME_PROOF_CARD_SLOTS } from '../../../shared/data/home-proof-card-slots.mjs';
 
 /* ---------------------------------------------------------------------------
    Sections-Contract: GROQ-Projektion + Mapper für das `sections[]`-Array.
@@ -40,6 +41,9 @@ import { mapAioProgramme } from './aio-programme';
     groq-js im Presentation-Loader löst `asset->` lokal auf). */
 const CONTENT_PROJECTION = `content[]{ _type, _key, text, label, href, variant, newTab, level, size, color, textWrap, maxWidth, marginBottom }`;
 const IMG = `{ alt, caption, asset->{ url, metadata{ dimensions, lqip } } }`;
+const HOME_RESULT_CARDS_PROJECTION = HOME_PROOF_CARD_SLOTS.map(
+  ({ field }) => `${field}{ source, value, label, badges, images[]{ _key, image${IMG}, hasBadge, badgePosition, crop } }`,
+).join(',\n');
 
 /* Eingebettete CMS-Collections: die Section liefert ihre Items gleich mit —
    eine Quelle für Build, SSR und Live-Island (Änderungen an Services/
@@ -58,6 +62,9 @@ export const SECTIONS_PROJECTION = `sections[]{
     heading,
     ownLabel,
     customerLabel,
+    resultCards{
+      ${HOME_RESULT_CARDS_PROJECTION}
+    },
     cards[]{
       _key,
       kind,
@@ -256,6 +263,54 @@ function keyed<T extends { _key?: string }>(v: unknown, map: (item: any, i: numb
   return v.map(map).filter(Boolean) as T[];
 }
 
+function mapResultProofCard(
+  card: any,
+  meta?: { key: string; kind: 'own' | 'customer'; fixedBadges?: boolean },
+) {
+  const source = str(card?.source);
+  const value = str(card?.value);
+  const label = str(card?.label);
+  const key = meta?.key ?? str(card?._key);
+  if (!key || !source || !value || !label) return null;
+
+  const badges = meta?.fixedBadges ? strArray(card.badges) : [];
+  let badgeIndex = 0;
+  const images = keyed(card.images, (item) => {
+    const image = mapImage(item.image);
+    if (!item._key || !image) return null;
+    const usesFixedBadge = meta?.fixedBadges && item.hasBadge !== false;
+    const badge = usesFixedBadge ? badges[badgeIndex++] : str(item.badge);
+    return {
+      _key: item._key,
+      image,
+      badge,
+      badgePosition: item.badgePosition ?? undefined,
+      crop: item.crop ?? undefined,
+    };
+  });
+  if (images.length === 0) return null;
+
+  return {
+    _key: key,
+    kind: meta?.kind ?? (card.kind === 'customer' ? 'customer' : 'own'),
+    source,
+    value,
+    label,
+    images,
+  };
+}
+
+function mapFixedHomeResultCards(raw: unknown) {
+  if (!raw || typeof raw !== 'object') return [];
+  return HOME_PROOF_CARD_SLOTS.map((slot) =>
+    mapResultProofCard((raw as Record<string, unknown>)[slot.field], {
+      key: slot.key,
+      kind: slot.kind,
+      fixedBadges: true,
+    }),
+  ).filter(Boolean);
+}
+
 /** Rohes Sanity-Rich-Text-Feld → RichText (leeres/ungültiges → []). */
 function richText(raw: unknown): RichText {
   return Array.isArray(raw) ? (raw as RichText) : [];
@@ -400,39 +455,17 @@ export function mapSection(s: any): Section | null {
     case 'sectionValueStatement':
       return { ...base, _type: 'sectionValueStatement', text: str(s.text) ?? '' };
 
-    case 'sectionResults':
+    case 'sectionResults': {
+      const fixedCards = mapFixedHomeResultCards(s.resultCards);
       return {
         ...base,
         _type: 'sectionResults',
         heading: str(s.heading),
         ownLabel: str(s.ownLabel),
         customerLabel: str(s.customerLabel),
-        cards: keyed(s.cards, (card) => {
-          const source = str(card.source);
-          const value = str(card.value);
-          const label = str(card.label);
-          if (!card._key || !source || !value || !label) return null;
-          const images = keyed(card.images, (item) => {
-            const image = mapImage(item.image);
-            if (!item._key || !image) return null;
-            return {
-              _key: item._key,
-              image,
-              badge: str(item.badge),
-              badgePosition: item.badgePosition ?? undefined,
-              crop: item.crop ?? undefined,
-            };
-          });
-          if (images.length === 0) return null;
-          return {
-            _key: card._key,
-            kind: card.kind === 'customer' ? 'customer' : 'own',
-            source,
-            value,
-            label,
-            images,
-          };
-        }),
+        cards: fixedCards.length === HOME_PROOF_CARD_SLOTS.length
+          ? fixedCards
+          : keyed(s.cards, (card) => mapResultProofCard(card)),
         closingCard: s.closingCard
           ? {
               kicker: str(s.closingCard.kicker) ?? '',
@@ -447,6 +480,7 @@ export function mapSection(s: any): Section | null {
             }
           : undefined,
       };
+    }
 
     case 'sectionSplitCta':
       return {
