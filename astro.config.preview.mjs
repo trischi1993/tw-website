@@ -3,6 +3,9 @@ import { defineConfig } from 'astro/config';
 import react from '@astrojs/react';
 import { loadEnv } from 'vite';
 import { fileURLToPath } from 'node:url';
+import { getReleaseCommit } from './scripts/release-commit.mjs';
+
+const releaseCommit = getReleaseCommit();
 
 // Die Werte auch aus der lokalen .env lesen: `vite.define` unten wird zur
 // CONFIG-Zeit ausgewertet, da hat Astro die .env noch nicht geladen - ohne
@@ -100,6 +103,7 @@ export default defineConfig({
   ],
   vite: {
     define: {
+      __RELEASE_COMMIT__: JSON.stringify(releaseCommit),
       'import.meta.env.SANITY_PREVIEW': JSON.stringify(true),
       // Sanity-Anbindung für den Vorschau-Build (öffentliche Werte, kein
       // Geheimnis). PUBLIC_SANITY_PROJECT_ID muss per Build-Env-Var gesetzt

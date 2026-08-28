@@ -1,17 +1,8 @@
 import type { APIRoute } from 'astro';
-import { execFileSync } from 'node:child_process';
 
-const environmentCommit =
-  process.env.CF_PAGES_COMMIT_SHA ??
-  process.env.GITHUB_SHA ??
-  process.env.COMMIT_SHA;
+declare const __RELEASE_COMMIT__: string;
 
-const commit = (
-  environmentCommit ??
-  execFileSync('git', ['rev-parse', 'HEAD'], {
-    encoding: 'utf8',
-  })
-).trim();
+const commit = __RELEASE_COMMIT__;
 
 if (!/^[0-9a-f]{40}$/i.test(commit)) {
   throw new Error(`Ungültige Git-Commit-Kennung für release-status.json: ${commit}`);

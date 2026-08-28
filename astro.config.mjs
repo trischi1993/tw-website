@@ -6,6 +6,9 @@ import { readdir, readFile, rm, writeFile } from 'node:fs/promises';
 import { createHash } from 'node:crypto';
 import { fileURLToPath } from 'node:url';
 import path from 'node:path';
+import { getReleaseCommit } from './scripts/release-commit.mjs';
+
+const releaseCommit = getReleaseCommit();
 
 /**
  * CSP-Hausregel „script-src bleibt strikt", selbst-wartend erzwungen:
@@ -316,6 +319,9 @@ export default defineConfig({
     domains: ['cdn.sanity.io'],
   },
   vite: {
+    define: {
+      __RELEASE_COMMIT__: JSON.stringify(releaseCommit),
+    },
     // choices.js (CTA-Modal-Multiselect) wird NUR lazy geladen: dynamischer
     // Import in modals.ts beim ersten Öffnen des Modals. Ohne expliziten
     // Eintrag bündelt Vites Dev-Server die Dep nicht schon beim Start vor;

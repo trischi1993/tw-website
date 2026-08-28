@@ -13,9 +13,11 @@
     "preview:prepare": "patch-package --error-on-fail",
     "dev:preview": "npm run preview:prepare && astro dev --config astro.config.preview.mjs",
     "build:preview": "npm run preview:prepare && PREVIEW_DEPLOY=1 astro build --config astro.config.preview.mjs",
+    "build:studio": "npm --prefix studio run build",
     "deploy:prod": "wrangler deploy -c wrangler.prod.jsonc",
     "deploy:ebook": "wrangler deploy -c wrangler.ebook.jsonc",
     "deploy:preview": "wrangler deploy -c dist/server/wrangler.json",
+    "deploy:studio": "npm --prefix studio run deploy -- --yes --schema-required",
     "verify:release-sync": "node scripts/verify-release-sync.mjs",
     "provision": "node scripts/provision.mjs",
     "postinstall": "patch-package --error-on-fail"

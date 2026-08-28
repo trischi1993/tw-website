@@ -29,18 +29,34 @@ unterschiedliche Stände zeigen.
 
 ## 3. Veröffentlichen
 
-1. Den vollständigen resultierenden `main`-Stand prüfen; jeder Push nach
+1. Vor dem Release alle betroffenen Ausgabeflächen bestimmen:
+   - Website-Code, Design oder Layout: Produktions-Build **und** den separaten
+     Sanity-Preview-Worker aktualisieren.
+   - Sanity-Schema oder Darstellung der Eingabefelder: Sanity Studio neu bauen
+     und deployen.
+   - Redaktionelle Inhalte: betroffene veröffentlichte Datensätze aktualisieren
+     und anschließend den statischen Produktions-Build beziehungsweise den
+     Sanity-Webhook bis zur Live-Auslieferung verfolgen.
+   Sobald mehrere Punkte betroffen sind, werden alle zugehörigen Releases als
+   ein gemeinsamer Abschluss behandelt.
+2. Den vollständigen resultierenden `main`-Stand prüfen; jeder Push nach
    `main` kann einen Cloudflare-Produktionsbuild auslösen.
-2. Den Produktions-Build lokal ausführen und nur die beauftragten Dateien
+3. Den Produktions-Build lokal ausführen und nur die beauftragten Dateien
    explizit committen.
-3. `main` nach GitHub pushen und den automatischen beziehungsweise bewusst
+4. `main` nach GitHub pushen und den automatischen beziehungsweise bewusst
    gestarteten Cloudflare-Build abwarten.
-4. Im normalen Projektordner `npm run verify:release-sync` ausführen. Der Befehl
+5. Bei einer Website-Änderung die Sanity-Vorschau mit
+   `npm run build:preview` und `npm run deploy:preview` synchronisieren. Bei
+   einer Studio-/Schemaänderung zusätzlich `npm run build:studio` und
+   `npm run deploy:studio` ausführen. Betroffene veröffentlichte Inhaltsfelder
+   werden danach read-only gegen den erwarteten Stand abgefragt.
+6. Im normalen Projektordner `npm run verify:release-sync` ausführen. Der Befehl
    aktualisiert `origin/main` und bestätigt erst dann Erfolg, wenn lokales
    `main`, GitHub und `/release-status.json` der Live-Seite exakt denselben
    Commit ausweisen. Standardmäßig wartet er bis zu zehn Minuten auf
    Cloudflare.
-5. Erst nach erfolgreicher Prüfung gilt der Release als abgeschlossen. Der
+7. Erst nach erfolgreicher Prüfung aller betroffenen Website-, Preview-,
+   Studio-, Schema- und Inhaltsstände gilt der Release als abgeschlossen. Der
    normale Projektordner und der kanonische Testserver stehen anschließend auf
    dem aktuellen `main`.
 

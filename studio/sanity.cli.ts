@@ -10,7 +10,7 @@ import { defineCliConfig } from 'sanity/cli';
  */
 export default defineCliConfig({
   api: {
-    projectId: process.env.SANITY_STUDIO_PROJECT_ID,
+    projectId: process.env.SANITY_STUDIO_PROJECT_ID || '45zc9nhz',
     dataset: process.env.SANITY_STUDIO_DATASET || 'production',
   },
   // Projektspezifische App-ID des ersten Deploys: verhindert Rueckfragen bei
