@@ -39,8 +39,8 @@ export const AIO_CUSTOMER_RESULTS = {
     seelenGruen: {
       source: 'Valeria & Raphael · Seelen Grün',
       value: '3.500 → 50.000+',
-      label: 'Follower mit der Testreel-Strategie – Millionenpublikum, 100 % organisch',
-      badges: ['50.000+ Follower', '260.000+ Views'],
+      label: 'Follower & Millionenreichweite mit Testreels – 100 % organisch',
+      badges: ['50.000+ Follower', '557.000 Views', '260.000+ Views'],
     },
     friedrich: {
       source: 'Friedrich · Metallkünstler',

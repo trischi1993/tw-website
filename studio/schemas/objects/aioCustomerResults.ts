@@ -193,7 +193,7 @@ export default defineType({
       initialValue: AIO_CUSTOMER_RESULTS.customers,
       options: { collapsible: true, collapsed: false },
       fields: [
-        customerField('seelenGruen', 'Valeria & Raphael · Seelen Grün', 2),
+        customerField('seelenGruen', 'Valeria & Raphael · Seelen Grün', 3),
         customerField('friedrich', 'Friedrich · Metallkünstler', 2),
         customerField('christina', 'Christina Starke · DIY & Interior', 2),
         customerField('chaletLefiro', 'Chalet Lefiro · Luxury Chalet', 2),

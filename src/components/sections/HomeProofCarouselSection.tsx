@@ -99,7 +99,7 @@ export default function HomeProofCarouselSection({
                 {...edit?.(cardPath)}
               >
                 <div
-                  className={`home-proof-card__media${images.length > 1 ? ' is-comparison' : ''}${images.length === 3 ? ' is-triple' : ''}`}
+                  className={`home-proof-card__media${images.length > 1 ? ' is-comparison' : ''}${images.length === 3 ? ' is-triple' : ''}${cardKey === 'customer-seelen-gruen' ? ' is-profile-proof-pair' : ''}`}
                 >
                   {images.map((proofImage) => {
                     const crop = proofImage.crop;

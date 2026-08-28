@@ -33,7 +33,8 @@ const RESULT_VISUALS: ResultVisual[] = [
     key: 'seelenGruen',
     images: [
       { src: '/images/aio-results/seelen-gruen-profile.jpg', alt: 'Instagram-Profil von Seelen Grün mit 58.400 Followern', badgePosition: 'bottom-right' },
-      { src: '/images/aio-results/seelen-gruen-testreel.jpg', alt: 'Kundennachricht über ein Testreel von Seelen Grün mit 260.677 organischen Aufrufen', badgePosition: 'top-right', cropChatHeader: true },
+      { src: '/images/aio-results/seelen-gruen-reel-557k.jpg', alt: 'Reel von Seelen Grün mit 557.000 Aufrufen', badgePosition: 'top-left' },
+      { src: '/images/aio-results/seelen-gruen-testreel-260k.jpg', alt: 'Kundennachricht über ein Testreel von Seelen Grün mit 260.677 organischen Aufrufen', badgePosition: 'top-right' },
     ],
   },
   {
@@ -725,7 +726,7 @@ export default function AioCustomerResultsSection({
         >
           {resultCards.map(({ key, source, value, label, badges, images }) => (
             <article className="aio-results__card" key={key}>
-              <div className={`aio-results__media${images.length > 1 ? ' is-comparison' : ''}${images.length === 3 ? ' is-triple' : ''}`}>
+              <div className={`aio-results__media${images.length > 1 ? ' is-comparison' : ''}${images.length === 3 ? ' is-triple' : ''}${key === 'seelenGruen' ? ' is-profile-proof-pair' : ''}`}>
                 {images.map((image, imageIndex) => {
                   const badge = badges[imageIndex];
                   return (
