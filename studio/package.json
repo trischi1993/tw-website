@@ -22,7 +22,9 @@
     "migrate:aio-complete-content": "sanity exec scripts/migrate-aio-complete-content.mjs --with-user-token",
     "migrate:aio-complete-content:dry-run": "sanity exec scripts/migrate-aio-complete-content.mjs --with-user-token -- --dry-run",
     "migrate:home-proof": "sanity exec scripts/update-home-proof-section.mjs --with-user-token",
-    "migrate:home-proof:dry-run": "sanity exec scripts/update-home-proof-section.mjs --with-user-token -- --dry-run"
+    "migrate:home-proof:dry-run": "sanity exec scripts/update-home-proof-section.mjs --with-user-token -- --dry-run",
+    "migrate:seelen-gruen": "sanity exec scripts/add-seelen-gruen-customer.mjs --with-user-token",
+    "migrate:seelen-gruen:dry-run": "sanity exec scripts/add-seelen-gruen-customer.mjs --with-user-token -- --dry-run"
   },
   "dependencies": {
     "@sanity/comlink": "4.0.1",

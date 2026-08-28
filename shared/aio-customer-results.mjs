@@ -36,6 +36,12 @@ export const AIO_CUSTOMER_RESULTS = {
   moreHeading: 'Weitere Kundenerfolge',
   scrollLabel: 'Scrollen →',
   customers: {
+    seelenGruen: {
+      source: 'Valeria & Raphael · Seelen Grün',
+      value: '3.500 → 50.000+',
+      label: 'Follower mit der Testreel-Strategie – Millionenpublikum, 100 % organisch',
+      badges: ['50.000+ Follower', '260.000+ Views'],
+    },
     friedrich: {
       source: 'Friedrich · Metallkünstler',
       value: '1.600 → 400.000+',
@@ -110,6 +116,7 @@ export const AIO_CUSTOMER_RESULTS = {
 };
 
 export const AIO_CUSTOMER_RESULT_KEYS = [
+  'seelenGruen',
   'friedrich',
   'christina',
   'chaletLefiro',

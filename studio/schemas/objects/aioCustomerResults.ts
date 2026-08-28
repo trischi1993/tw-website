@@ -136,7 +136,7 @@ export default defineType({
     { name: 'intro', title: 'Abschnitts-Einstieg', default: true },
     { name: 'growth', title: 'Wachstumssystem' },
     { name: 'case', title: 'Steffi-Fallstudie' },
-    { name: 'more', title: 'Alle weiteren Kundenerfolge (7)' },
+    { name: 'more', title: 'Alle weiteren Kundenerfolge (8)' },
   ],
   initialValue: AIO_CUSTOMER_RESULTS,
   fields: [
@@ -185,14 +185,15 @@ export default defineType({
     requiredText('scrollLabel', 'Scroll-Hinweis', 'more'),
     defineField({
       name: 'customers',
-      title: 'Alle weiteren Kundenerfolge (7)',
+      title: 'Alle weiteren Kundenerfolge (8)',
       description:
-        'Hier findest du Friedrich, Christina Starke, Chalet Lefiro, Naomi, Naturnser Alm, die Küche by Untermarzoner und Alpin Arena Schnals.',
+        'Hier findest du Seelen Grün, Friedrich, Christina Starke, Chalet Lefiro, Naomi, Naturnser Alm, die Küche by Untermarzoner und Alpin Arena Schnals.',
       type: 'object',
       group: 'more',
       initialValue: AIO_CUSTOMER_RESULTS.customers,
       options: { collapsible: true, collapsed: false },
       fields: [
+        customerField('seelenGruen', 'Valeria & Raphael · Seelen Grün', 2),
         customerField('friedrich', 'Friedrich · Metallkünstler', 2),
         customerField('christina', 'Christina Starke · DIY & Interior', 2),
         customerField('chaletLefiro', 'Chalet Lefiro · Luxury Chalet', 2),

@@ -90,6 +90,7 @@ export interface AioResultProofCopy {
 }
 
 export type AioCustomerResultKey =
+  | 'seelenGruen'
   | 'friedrich'
   | 'christina'
   | 'chaletLefiro'

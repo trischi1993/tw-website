@@ -30,6 +30,13 @@ type ResultVisual = {
 
 const RESULT_VISUALS: ResultVisual[] = [
   {
+    key: 'seelenGruen',
+    images: [
+      { src: '/images/aio-results/seelen-gruen-profile.jpg', alt: 'Instagram-Profil von Seelen Grün mit 58.400 Followern', badgePosition: 'bottom-right' },
+      { src: '/images/aio-results/seelen-gruen-testreel.jpg', alt: 'Kundennachricht über ein Testreel von Seelen Grün mit 260.677 organischen Aufrufen', badgePosition: 'top-right', cropChatHeader: true },
+    ],
+  },
+  {
     key: 'friedrich',
     images: [
       { src: '/images/aio-results/friedrich-result.jpg', alt: 'Kundennachricht über starkes Followerwachstum und mehrere erfolgreiche Reels', badgePosition: 'top-left' },

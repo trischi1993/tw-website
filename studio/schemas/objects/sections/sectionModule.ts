@@ -78,7 +78,7 @@ export default defineType({
       name: 'customerResults',
       title: 'Kundenerfolge – alle Texte, Zahlen & Badges',
       description:
-        'Hier öffnen: Abschnittseinstieg, Wachstumssystem, Steffi-Fallstudie und alle sieben weiteren Kundenerfolge.',
+        'Hier öffnen: Abschnittseinstieg, Wachstumssystem, Steffi-Fallstudie und alle acht weiteren Kundenerfolge.',
       type: 'aioCustomerResults',
       options: { collapsible: true, collapsed: false },
       hidden: ({ parent }) => Boolean((parent as { number?: string } | undefined)?.number),
