@@ -32,7 +32,7 @@ const RESULT_VISUALS: ResultVisual[] = [
   {
     key: 'seelenGruen',
     images: [
-      { src: '/images/aio-results/seelen-gruen-profile.jpg', alt: 'Instagram-Profil von Seelen Grün mit 58.400 Followern', badgePosition: 'top-right' },
+      { src: '/images/aio-results/seelen-gruen-profile-spaced.jpg', alt: 'Instagram-Profil von Seelen Grün mit 58.400 Followern', badgePosition: 'top-right' },
       { src: '/images/aio-results/seelen-gruen-reel-557k.jpg', alt: 'Reel von Seelen Grün mit 557.000 Aufrufen', badgePosition: 'top-left' },
       { src: '/images/aio-results/seelen-gruen-testreel-260k.jpg', alt: 'Kundennachricht über ein Testreel von Seelen Grün mit 260.677 organischen Aufrufen', badgePosition: 'top-right' },
     ],
