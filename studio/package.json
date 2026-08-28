@@ -27,10 +27,11 @@
   "dependencies": {
     "@sanity/comlink": "4.0.1",
     "@sanity/icons": "5.0.0",
-    "@sanity/vision": "6.6.0",
-    "react": "^19.2.7",
-    "react-dom": "^19.2.7",
-    "sanity": "6.6.0",
+    "@sanity/ui": "3.2.0",
+    "@sanity/vision": "6.11.0",
+    "react": "19.2.8",
+    "react-dom": "19.2.8",
+    "sanity": "6.11.0",
     "styled-components": "^6.4.3"
   },
   "devDependencies": {

@@ -17,6 +17,8 @@ export default defineCliConfig({
   // spaeteren automatisierten Studio-Deploys.
   deployment: {
     appId: 's8ipqypo3ob9j0wvf1xec13b',
-    autoUpdates: true,
+    // Das veroeffentlichte Studio verwendet exakt die im Repository
+    // getestete Sanity-Version; Updates erfolgen bewusst per Commit.
+    autoUpdates: false,
   },
 });
