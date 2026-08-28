@@ -8,10 +8,8 @@ const ids = ['homePage', 'drafts.homePage'];
 const documents = await client.fetch(
   `*[_id in $ids]{
     _id,
-    "section": sections[_key == "results"][0]{
-      cards,
-      resultCards
-    }
+    _rev,
+    "section": sections[_key == "results"][0]
   }`,
   { ids },
 );
@@ -80,7 +78,15 @@ function buildResultCards(document) {
 
 const updates = documents
   .filter((document) => document.section)
-  .map((document) => ({ _id: document._id, resultCards: buildResultCards(document) }));
+  .map((document) => {
+    const resultCards = buildResultCards(document);
+    return {
+      _id: document._id,
+      _rev: document._rev,
+      resultCards,
+      nextSection: { ...document.section, resultCards },
+    };
+  });
 
 const summary = updates.map(({ _id, resultCards }) => ({
   _id,
@@ -103,9 +109,10 @@ if (DRY_RUN) {
 const transaction = client.transaction();
 for (const update of updates) {
   transaction.patch(
-    client.patch(update._id).set({
-      'sections[_key=="results"][0].resultCards': update.resultCards,
-    }),
+    client
+      .patch(update._id)
+      .ifRevisionId(update._rev)
+      .set({ 'sections[_key=="results"]': update.nextSection }),
   );
 }
 
