@@ -149,7 +149,7 @@ export const HOME_PROOF_CARDS = [
         height: 444,
         alt: 'Instagram-Profil von Seelen Grün mit 58.400 Followern',
         badge: '50.000+ Follower',
-        badgePosition: 'bottom-right',
+        badgePosition: 'top-right',
       },
       {
         _key: 'seelen-gruen-reel-557k',
