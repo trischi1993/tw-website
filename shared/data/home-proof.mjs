@@ -148,6 +148,8 @@ export const HOME_PROOF_CARDS = [
         width: 1179,
         height: 497,
         alt: 'Instagram-Profil von Seelen Grün mit 58.400 Followern',
+        badge: '100 % organisch',
+        badgePosition: 'top-right',
       },
       {
         _key: 'seelen-gruen-reel-557k',
@@ -164,8 +166,6 @@ export const HOME_PROOF_CARDS = [
         width: 1179,
         height: 1360,
         alt: 'Kundennachricht über ein Testreel von Seelen Grün mit 260.677 organischen Aufrufen',
-        badge: '100 % organisch',
-        badgePosition: 'top-right',
       },
       {
         _key: 'seelen-gruen-reel-followers-20k',

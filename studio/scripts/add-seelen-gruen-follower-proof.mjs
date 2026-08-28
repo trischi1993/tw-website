@@ -13,6 +13,8 @@ const sourcePath = path.join(projectRoot, 'public/images/aio-results', filename)
 const proofKey = 'seelen-gruen-reel-followers-20k';
 const proofAlt = 'Reel-Insights von Seelen Grün mit 20.800 neuen Followern';
 const proofBadge = '+20.800 Follower';
+const organicBadge = '100 % organisch';
+const viewsBadge = '557.000 Views';
 const ids = [
   'homePage',
   'drafts.homePage',
@@ -52,11 +54,16 @@ function updateFixedCard(card, imageAssetId = 'dry-run-image-asset') {
   });
 
   const retained = imagesWithBadges.filter(({ image }) => image?._key !== proofKey);
-  const images = retained.map(({ image }) =>
-    image?._key === 'seelen-gruen-profile'
-      ? { ...image, hasBadge: false }
-      : image,
-  );
+  const images = retained.map(({ image }) => {
+    if (image?._key === 'seelen-gruen-profile') {
+      return { ...image, hasBadge: true, badgePosition: 'top-right' };
+    }
+    if (image?._key === 'seelen-gruen-testreel-260k') {
+      const { badgePosition: _badgePosition, ...organicProof } = image;
+      return { ...organicProof, hasBadge: false };
+    }
+    return image;
+  });
   images.push({
     _type: 'fixedProofImage',
     _key: proofKey,
@@ -70,11 +77,16 @@ function updateFixedCard(card, imageAssetId = 'dry-run-image-asset') {
     crop: 'none',
   });
 
-  const badges = retained
-    .filter(({ image }) => image?._key !== 'seelen-gruen-profile' && image?.hasBadge !== false)
-    .map(({ badge }) => badge)
-    .filter((badge) => typeof badge === 'string' && badge.trim());
-  badges.push(proofBadge);
+  const currentViewsBadge = retained.find(
+    ({ image }) => image?._key === 'seelen-gruen-reel-557k',
+  )?.badge;
+  const badges = [
+    organicBadge,
+    typeof currentViewsBadge === 'string' && currentViewsBadge.trim()
+      ? currentViewsBadge
+      : viewsBadge,
+    proofBadge,
+  ];
 
   return { ...card, badges, images };
 }
@@ -84,9 +96,14 @@ function updateLegacyCard(card, imageAssetId = 'dry-run-image-asset') {
   const images = (Array.isArray(card.images) ? card.images : [])
     .filter((image) => image?._key !== proofKey)
     .map((image) => {
-      if (image?._key !== 'seelen-gruen-profile') return image;
-      const { badge: _badge, badgePosition: _badgePosition, ...profile } = image;
-      return profile;
+      if (image?._key === 'seelen-gruen-profile') {
+        return { ...image, badge: organicBadge, badgePosition: 'top-right' };
+      }
+      if (image?._key === 'seelen-gruen-testreel-260k') {
+        const { badge: _badge, badgePosition: _badgePosition, ...organicProof } = image;
+        return organicProof;
+      }
+      return image;
     });
   images.push({
     _type: 'proofImage',
@@ -110,11 +127,16 @@ const summary = {
     currentImages: fixed.images?.length ?? 0,
     currentBadges: fixed.badges ?? [],
     profileHasBadge: fixed.images?.find((image) => image?._key === 'seelen-gruen-profile')?.hasBadge !== false,
+    profileBadgePosition: fixed.images?.find((image) => image?._key === 'seelen-gruen-profile')?.badgePosition ?? null,
+    organicProofHasBadge: fixed.images?.find((image) => image?._key === 'seelen-gruen-testreel-260k')?.hasBadge !== false,
     followerProofPresent: fixed.images?.some((image) => image?._key === proofKey) ?? false,
     afterImages: updateFixedCard(fixed).images.length,
     afterBadges: updateFixedCard(fixed).badges,
+    afterProfileHasBadge: updateFixedCard(fixed).images.find((image) => image?._key === 'seelen-gruen-profile')?.hasBadge !== false,
+    afterOrganicProofHasBadge: updateFixedCard(fixed).images.find((image) => image?._key === 'seelen-gruen-testreel-260k')?.hasBadge !== false,
     legacyImages: legacy?.images?.length ?? 0,
     legacyProfileBadge: legacy?.images?.find((image) => image?._key === 'seelen-gruen-profile')?.badge ?? null,
+    legacyOrganicProofBadge: legacy?.images?.find((image) => image?._key === 'seelen-gruen-testreel-260k')?.badge ?? null,
     legacyFollowerBadge: legacy?.images?.find((image) => image?._key === proofKey)?.badge ?? null,
   })),
   aioDocuments: aioDocuments.map(({ _id }) => _id),

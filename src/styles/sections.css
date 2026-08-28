@@ -1775,7 +1775,6 @@ html.has-motion .results__track { height: 240vh; }
   border-bottom: 0;
 }
 .aio-results__media.is-quad.is-profile-proof-pair {
-  --aio-result-badge-inset: 0.5rem;
   grid-template-columns: repeat(3, minmax(0, 1fr));
   grid-template-rows: repeat(2, minmax(0, 1fr));
 }
@@ -1786,6 +1785,9 @@ html.has-motion .results__track { height: 240vh; }
 .aio-results__media.is-quad.is-profile-proof-pair figure:nth-child(2),
 .aio-results__media.is-quad.is-profile-proof-pair figure:nth-child(3) {
   border-right: 1px solid rgba(255, 255, 255, 0.1);
+}
+.aio-results__media.is-quad.is-profile-proof-pair figure:not(:first-child) {
+  --aio-result-badge-inset: 0.5rem;
 }
 .aio-results__media.is-quad.is-profile-proof-pair figure:not(:first-child) figcaption {
   padding: 0.32rem 0.45rem;
@@ -3571,7 +3573,6 @@ html.has-motion .ahero__wipe { display: block; }
   border-bottom: 0;
 }
 .home-proof-card__media.is-quad.is-profile-proof-pair {
-  --home-proof-badge-inset: 0.5rem;
   grid-template-columns: repeat(3, minmax(0, 1fr));
   grid-template-rows: repeat(2, minmax(0, 1fr));
 }
@@ -3582,6 +3583,9 @@ html.has-motion .ahero__wipe { display: block; }
 .home-proof-card__media.is-quad.is-profile-proof-pair figure:nth-of-type(2),
 .home-proof-card__media.is-quad.is-profile-proof-pair figure:nth-of-type(3) {
   border-right: 1px solid rgba(255, 255, 255, 0.1);
+}
+.home-proof-card__media.is-quad.is-profile-proof-pair figure:not(:first-child) {
+  --home-proof-badge-inset: 0.5rem;
 }
 .home-proof-card__media.is-quad.is-profile-proof-pair figure:not(:first-child) figcaption {
   padding: 0.32rem 0.45rem;
