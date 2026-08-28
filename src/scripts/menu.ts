@@ -37,7 +37,7 @@ const LINK_DELAYS_4 = [1.0, 1.3, 1.2, 1.1];
 if (header && toggle && menu && panel) {
   const reduced = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
 
-  const links = Array.from(menu.querySelectorAll<HTMLElement>('[data-menu-link]'));
+  const links = Array.from(menu.querySelectorAll<HTMLAnchorElement>('[data-menu-link]'));
   const texts = links.map((l) => l.querySelector<HTMLElement>('[data-menu-text]'));
   const arrows = Array.from(menu.querySelectorAll<HTMLElement>('[data-menu-arrow]'));
   const burgerTop = header.querySelector<HTMLElement>('[data-burger-top]');
@@ -154,8 +154,6 @@ if (header && toggle && menu && panel) {
   };
 
   toggle.addEventListener('click', () => setOpen(!isOpen));
-  // Link-Klick schließt (a-74-Klick-Feedback läuft parallel in bindLinkFx).
-  links.forEach((a) => a.addEventListener('click', () => setOpen(false)));
   menu.addEventListener('click', (e) => {
     if (e.target === menu) setOpen(false);
   });
@@ -181,14 +179,16 @@ if (header && toggle && menu && panel) {
     }
   });
 
-  // --- Link-Hover (a-56/a-57) + Klick-Wipe (a-74) — dekorativ, nur mit Motion.
-  if (!reduced) {
-    links.forEach((link, i) => {
-      const wipe = link.querySelector<HTMLElement>('[data-menu-wipe]');
-      const clickWipe = link.querySelector<HTMLElement>('[data-menu-click-wipe]');
-      const arrow = arrows[i];
-      const text = texts[i];
+  // --- Link-Hover (a-56/a-57) + Klick-Wipe (a-74). -------------------------
+  let navigationPending = false;
 
+  links.forEach((link, i) => {
+    const wipe = link.querySelector<HTMLElement>('[data-menu-wipe]');
+    const clickWipe = link.querySelector<HTMLElement>('[data-menu-click-wipe]');
+    const arrow = arrows[i];
+    const text = texts[i];
+
+    if (!reduced) {
       link.addEventListener('mouseenter', () => {
         if (wipe) gsap.to(wipe, { height: '100%', duration: 0.5, ease: EASE.inOutQuart });
         if (arrow) gsap.to(arrow, { rotation: 90, duration: 0.5, ease: EASE.outQuart });
@@ -199,10 +199,48 @@ if (header && toggle && menu && panel) {
         if (arrow) gsap.to(arrow, { rotation: 0, duration: 0.5, ease: EASE.outQuart });
         if (text) gsap.to(text, { x: 0, duration: 0.5, ease: EASE.outQuart });
       });
-      link.addEventListener('click', () => {
-        if (clickWipe) gsap.to(clickWipe, { height: '100%', duration: 0.3, ease: EASE.outQuart });
-        if (arrow) gsap.to(arrow, { rotation: 45, duration: 0.3, ease: EASE.outQuart });
-      });
+    }
+
+    link.addEventListener('click', (event) => {
+      const modifiedClick =
+        event.button !== 0 || event.metaKey || event.ctrlKey || event.shiftKey || event.altKey;
+      const opensSeparateContext = link.target === '_blank' || link.hasAttribute('download');
+
+      // Modifizierte Klicks und Downloads behalten ihr natives Verhalten. Das
+      // visuelle Feedback laeuft dabei wie im Webflow-Original parallel.
+      if (modifiedClick || opensSeparateContext) {
+        if (!reduced) {
+          if (clickWipe) gsap.to(clickWipe, { height: '100%', duration: 0.3, ease: EASE.outQuart });
+          if (arrow) gsap.to(arrow, { rotation: 45, duration: 0.3, ease: EASE.outQuart });
+        }
+        return;
+      }
+
+      event.preventDefault();
+      if (navigationPending) return;
+      navigationPending = true;
+
+      const navigate = () => window.location.assign(link.href);
+
+      if (reduced) {
+        navigate();
+        return;
+      }
+
+      // Webflow animiert die Klickflaeche in 300 ms von oben nach unten. Die
+      // schnelle Astro-Navigation startet erst danach, damit der Endzustand
+      // sichtbar erreicht wird, aber keine weitere Wartezeit entsteht.
+      if (arrow) gsap.to(arrow, { rotation: 45, duration: 0.3, ease: EASE.outQuart });
+      if (clickWipe) {
+        gsap.to(clickWipe, {
+          height: '100%',
+          duration: 0.3,
+          ease: EASE.outQuart,
+          onComplete: navigate,
+        });
+      } else {
+        window.setTimeout(navigate, 300);
+      }
     });
-  }
+  });
 }
