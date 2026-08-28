@@ -56,7 +56,7 @@ export default defineConfig({
   name: 'tristanweithaler',
   title: 'Tristan Weithaler',
 
-  projectId: projectId || 'missing-project-id',
+  projectId: projectId || '45zc9nhz',
   dataset,
 
   plugins: [
