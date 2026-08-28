@@ -1,0 +1,3545 @@
+---
+import BaseLayout from '../layouts/BaseLayout.astro';
+import SectionsHost from '#sections-host';
+import Img from '../components/sections/Img';
+import GlowButton from '../components/sections/GlowButton';
+import { getEbook, getHome } from '../lib/content';
+import type { SectionServicesTabs, ServiceItem } from '../lib/content/types';
+import result3 from '../assets/images/results-3.avif';
+import ebookBookMockup from '../assets/images/ebook/book-mockup-v3.png';
+
+const heroImage =
+  'https://cdn.sanity.io/images/45zc9nhz/production/039eb7cd9c80101ec27f627910a9e04e7e3c321b-2440x1816.avif?w=2440&q=90&auto=format&fit=max';
+const ownResults = [
+  {
+    src: '/images/motion-study/own-reach.webp',
+    metric: '15,1 Mio. Reichweite',
+    detail: 'in 30 Tagen',
+    pin: 'bottom-left',
+    alt: '15.134.213 erreichte Konten in dreißig Tagen',
+  },
+  {
+    src: '/images/motion-study/own-krampus.webp',
+    metric: '10,7 Mio. Views',
+    detail: 'mit einem Reel',
+    pin: 'top-right',
+    alt: 'Reel mit mehr als zehn Millionen Wiedergaben',
+  },
+  {
+    src: result3.src,
+    metric: '+7.926 Follower',
+    detail: 'an einem Tag',
+    pin: 'center-right',
+    alt: 'Instagram-Wachstum auf 138.208 Follower',
+  },
+  {
+    src: '/images/motion-study/own-santorini.webp',
+    metric: '11 Mio. Views',
+    detail: 'mit einem Reel',
+    pin: 'top-left',
+    alt: 'Reel-Ergebnis mit elf Millionen Aufrufen',
+  },
+  {
+    src: '/images/motion-study/own-mindful-screen.webp',
+    metric: '115.000 Follower',
+    detail: 'Mindful Stays',
+    pin: 'bottom-left',
+    alt: 'Mindful Stays mit 115.000 Followern',
+  },
+  {
+    src: '/images/motion-study/own-account-screen.webp',
+    metric: '8.500+ Follower',
+    detail: '61.137 Profilaktivitäten',
+    pin: 'top-right',
+    alt: 'Eigener Account mit mehr als 8.500 Followern und 61.137 Profilaktivitäten',
+  },
+];
+const ownOrbit = [
+  ownResults[0],
+  ownResults[1],
+  ownResults[3],
+  {
+    src: '/images/motion-study/own-backpack-cropped.webp',
+    metric: '+2.000 Follower',
+    detail: 'mit einem Reel',
+    pin: 'top-right',
+    alt: 'Reel mit 1.766.701 Aufrufen und 2.000 neu gewonnenen Followern',
+  },
+  ownResults[5],
+  {
+    src: '/images/motion-study/own-carousel-leads.webp',
+    metric: '300+ Leads',
+    detail: 'mit nur einem Carousel-Post',
+    pin: 'top-left',
+    alt: 'Carousel-Beitrag mit mehr als 300 generierten Leads',
+  },
+  {
+    ...ownResults[4],
+    pin: 'top-right',
+  },
+  {
+    src: '/images/motion-study/own-ramp.webp',
+    metric: '19 Mio. Views',
+    detail: 'Mindful Stays',
+    pin: 'top-right',
+    alt: 'Reel mit 19 Millionen Aufrufen',
+  },
+];
+const customerResults = [
+  {
+    src: '/images/aio-results/friedrich-profile-reels.jpg',
+    metric: '600.000 Views',
+    detail: '+1.200 Follower in 4 Tagen',
+    pin: 'center-top',
+    format: 'device',
+    alt: 'Friedrich Moosmair mit 600.000 Reel-Views und 1.200 neuen Followern in vier Tagen',
+  },
+  {
+    src: '/images/aio-results/steffi-result.jpg',
+    metric: '1,0 Mio. Aufrufe',
+    detail: 'in 30 Tagen',
+    pin: 'top-left',
+    format: 'panel',
+    alt: 'Steffi mit einer Million Aufrufen innerhalb von dreißig Tagen',
+  },
+  {
+    src: '/images/aio-results/chalet-lefiro-result.jpg',
+    metric: '+17.900 Follower',
+    detail: 'in 6 Monaten',
+    pin: 'top-right',
+    format: 'panel',
+    alt: 'Chalet Lefiro gewann in sechs Monaten 17.900 Follower',
+  },
+  {
+    src: '/images/aio-results/naomi-before.jpg',
+    secondarySrc: '/images/aio-results/naomi-after.jpg',
+    metric: '2.175 → 26.800',
+    detail: 'Follower',
+    pin: 'bottom-left',
+    format: 'comparison',
+    alt: 'Naomis Follower-Wachstum von 2.175 auf 26.800',
+  },
+  {
+    src: '/images/aio-results/christina-profile.jpg',
+    secondarySrc: '/images/aio-results/christina-growth.jpg',
+    metric: '+79.000 Follower',
+    detail: 'von 50.000 auf 129.000',
+    pin: 'bottom-right',
+    format: 'comparison',
+    alt: 'Christina Starke mit 79.000 neu gewonnenen Followern',
+  },
+  {
+    src: '/images/aio-results/alpin-arena-result.jpg',
+    metric: '66.078 Views',
+    detail: 'organisch · 41.487 Konten',
+    pin: 'top-left',
+    format: 'phone',
+    alt: 'Alpin Arena mit 66.078 organischen Reel-Aufrufen und 41.487 erreichten Konten',
+  },
+  {
+    src: '/images/aio-results/steffi-profile.jpg',
+    metric: '+4.500 Follower',
+    detail: 'organisch aufgebaut',
+    pin: 'top-right',
+    format: 'panel',
+    alt: 'Steffis Profil mit 4.500 neu gewonnenen Followern',
+  },
+  {
+    src: '/images/aio-results/chalet-views.jpg',
+    metric: '1,4 Mio. Aufrufe',
+    detail: 'mit einem Reel',
+    pin: 'top-right',
+    format: 'panel',
+    alt: 'Chalet Lefiro mit 1,4 Millionen Aufrufen auf einem Reel',
+  },
+  {
+    src: '/images/aio-results/friedrich-result.jpg',
+    metric: '+1.200 Follower',
+    detail: 'in nur 4 Tagen',
+    pin: 'bottom-right',
+    format: 'panel',
+    alt: 'Friedrich Moosmair mit 1.200 neuen Followern in vier Tagen',
+  },
+  {
+    src: '/images/aio-results/naturnser-alm-result.jpg',
+    metric: '1.300 → 2.061',
+    detail: 'Follower',
+    pin: 'top-left',
+    format: 'phone',
+    alt: 'Naturnser Alm wuchs von circa 1.300 auf 2.061 Follower',
+  },
+  {
+    src: '/images/aio-results/untermarzoner-result.jpg',
+    metric: '84.000+ Views',
+    detail: 'auf einem TikTok',
+    pin: 'top-right',
+    format: 'panel',
+    alt: 'Die Küche by Untermarzoner mit mehr als 84.000 TikTok-Aufrufen',
+  },
+];
+const home = await getHome();
+const ebook = await getEbook();
+const continuationSections = home.sections.filter(
+  (section) => section._type !== 'sectionHomeHero' && section._type !== 'sectionResults',
+);
+const statementSections = continuationSections.filter(
+  (section) => section._type === 'sectionValueStatement',
+);
+const aioOfferSections = continuationSections.filter(
+  (section) => section._type === 'sectionSplitCta' && section._key === 'aio-teaser',
+);
+const specificOfferSection = continuationSections.find(
+  (section) => section._type === 'sectionServicesTabs',
+) as SectionServicesTabs | undefined;
+const remainingSections = continuationSections.filter(
+  (section) =>
+    section._type !== 'sectionValueStatement' &&
+    section._type !== 'sectionServicesTabs' &&
+    !(section._type === 'sectionSplitCta' && section._key === 'aio-teaser'),
+);
+const serviceLimit = specificOfferSection?.limit && specificOfferSection.limit > 0
+  ? specificOfferSection.limit
+  : Infinity;
+const personalServices = specificOfferSection?.services
+  .filter((service) => service.category === 'personal')
+  .slice(0, serviceLimit) ?? [];
+const businessServices = specificOfferSection?.services
+  .filter((service) => service.category === 'business')
+  .slice(0, serviceLimit) ?? [];
+const serviceGroups = specificOfferSection
+  ? [
+      {
+        id: 'personal',
+        label: specificOfferSection.tabLabelPersonal,
+        items: personalServices,
+      },
+      {
+        id: 'business',
+        label: specificOfferSection.tabLabelBusiness,
+        items: businessServices,
+      },
+    ]
+  : [];
+const serviceResultLines: Record<string, string> = {
+  'personal:Vision & berufliche Ausrichtung': 'Klarheit über Vision, Berufung und den nächsten Schritt',
+  'personal:Zielgruppe & Positionierung': 'Eine klare Positionierung für die richtigen Kunden',
+  'business:Zielgruppe & Positionierung': 'Eine klare Positionierung für die richtigen Kunden',
+  'personal:Social Media Account Optimierung': 'Ein professioneller, klarer und unverwechselbarer Auftritt',
+  'business:Social Media Account Optimierung': 'Ein professioneller, klarer und unverwechselbarer Auftritt',
+  'personal:Strategien für mehr Reichweite & Follower': 'Organische Strategien für Reichweite und Community-Wachstum',
+  'business:Strategien für mehr Reichweite & Follower': 'Organische Strategien für Reichweite und Community-Wachstum',
+  'personal:Angebote, Produkte & Freebies': 'Eine stimmige Produktkette mit echtem Umsatzpotenzial',
+  'personal:Kundengewinnung & Monetarisierung': 'Planbare Kundenanfragen mit System statt Druck',
+  'business:Kundengewinnung & Monetarisierung': 'Effizientere und langfristig skalierbare Kundengewinnung',
+  'personal:Content Erstellung & Bearbeitung': 'Hochwertiger Content, der performt und effizient entsteht',
+  'business:Content Erstellung & Bearbeitung': 'Ein effizienter Prozess für authentischen, starken Content',
+  'personal:Erfolgs-Mindset für Wachstum': 'Mehr Klarheit, Fokus und Freude an Social Media',
+  'business:Allgemeine Social Media Beratung': 'Ein klarer Social-Media-Fahrplan für euren Betrieb',
+  'business:Influencer Marketing Beratung': 'Passende Partner, klare Konditionen und messbarer Erfolg',
+  'business:Mitarbeiter-Ausbildung': 'Social-Media-Kompetenz nachhaltig im Unternehmen aufbauen',
+};
+const serviceResultLine = (service: ServiceItem) =>
+  serviceResultLines[`${service.category}:${service.name}`] ?? service.formName;
+---
+
+<BaseLayout
+  title="Hero Phone Match Cut | Tristan Weithaler"
+  description="Lokaler Prototyp für einen hochauflösenden Match-Cut vom Hero-Foto zu den Ergebnissen."
+  noindex={true}
+  route="motion-study"
+>
+  <main
+    class="match-study"
+    data-match-study=""
+    data-active-world="accounts"
+    data-bridge-phase="held"
+    data-lift-enabled="false"
+    data-journey-state="arrival"
+  >
+    <div class="match-study__track" data-match-track="">
+      <div class="match-study__sticky">
+        <header class="match-study__copy" data-match-copy="">
+          <h1>
+            <span>Südtirols erster</span>
+            Social Media<br />Business Coach
+          </h1>
+          <span class="match-study__button">Coaching anfragen</span>
+        </header>
+
+        <figure class="match-study__photo" data-match-photo="">
+          <div class="match-study__photo-entry" data-match-photo-entry="">
+            <div class="match-study__photo-plane" data-match-photo-plane="">
+              <img
+                data-match-photo-image=""
+                src={heroImage}
+                alt="Tristan Weithaler hält ein Smartphone in der Hand"
+                width="2440"
+                height="1816"
+                loading="eager"
+                fetchpriority="high"
+              />
+
+              <!-- Eine einzige Mockup-Ebene bleibt von der Hand bis in die
+                   Ergebniswelt erhalten. Anfangs ist nur ihre Displayfläche
+                   sichtbar; beim Pull-in öffnet sich dieselbe Ebene vollständig. -->
+              <div class="match-study__bridge-wrap" data-match-bridge-wrap="">
+                <span class="match-study__bridge-motion" data-match-bridge-motion="">
+                  <span class="match-study__bridge-center">
+                    <span class="match-study__bridge-focus">
+                      <img
+                        class="match-study__phone match-study__phone--bridge"
+                        data-match-phone="bridge"
+                        src={ownResults[2].src}
+                        alt={ownResults[2].alt}
+                        width="806"
+                        height="1625"
+                        loading="eager"
+                      />
+                      <span class="match-study__result-pin match-study__own-center-pin" data-match-center-pin="">
+                        <strong>{ownResults[2].metric}</strong>
+                        <small>{ownResults[2].detail}</small>
+                      </span>
+                    </span>
+                  </span>
+                </span>
+              </div>
+            </div>
+          </div>
+          <span class="match-study__photo-grade" data-match-grade="" aria-hidden="true"></span>
+          <div class="match-study__iris" data-match-iris="" aria-hidden="true"></div>
+        </figure>
+
+        <section class="match-study__results" data-match-results="" data-active-world="accounts" id="proof">
+          <p class="match-study__eyebrow eyebrow" data-match-meta="">
+            <span data-world-label="accounts">Meine Erfolge</span>
+            <span data-world-label="customers" aria-hidden="true">Kundenerfolge</span>
+          </p>
+
+          <div class="match-study__world match-study__world--accounts" data-world="accounts">
+            {ownOrbit.map((result, index) => (
+              <button
+                class="match-study__world-card match-study__world-card--own"
+                data-world-card="accounts"
+                data-orbit={index}
+                data-pin={result.pin}
+                type="button"
+                aria-label={result.alt}
+              >
+                <span class="match-study__world-card-visual match-study__own-proof">
+                  <span class="match-study__own-media">
+                    <img src={result.src} alt={result.alt} loading="eager" />
+                  </span>
+                  <span class="match-study__result-pin match-study__own-pin">
+                    <strong>{result.metric}</strong>
+                    <small>{result.detail}</small>
+                  </span>
+                </span>
+              </button>
+            ))}
+          </div>
+
+          <div class="match-study__world match-study__world--customers" data-world="customers" aria-hidden="true">
+            {customerResults.map((result, index) => (
+              <button
+                class="match-study__world-card match-study__world-card--customer"
+                data-world-card="customers"
+                data-orbit={index}
+                data-format={result.format}
+                data-pin={result.pin}
+                type="button"
+                aria-label={result.alt}
+                tabindex={index === 0 ? -1 : undefined}
+              >
+                {result.format === 'device' ? (
+                  <span class="match-study__world-card-visual match-study__customer-device">
+                    <img class="match-study__customer-device-frame" src={ownResults[2].src} alt="" aria-hidden="true" />
+                    <span class="match-study__customer-device-screen">
+                      <img src={result.src} alt={result.alt} loading="lazy" />
+                    </span>
+                    <span class="match-study__result-pin match-study__customer-pin">
+                      <strong>{result.metric}</strong>
+                      <small>{result.detail}</small>
+                    </span>
+                  </span>
+                ) : (
+                  <span class={`match-study__world-card-visual match-study__customer-proof match-study__customer-proof--${result.format}`}>
+                    {result.format === 'phone' && <span class="match-study__customer-speaker" aria-hidden="true"></span>}
+                    <span class="match-study__customer-media">
+                      <img src={result.src} alt={result.alt} loading="lazy" />
+                      {'secondarySrc' in result && result.secondarySrc && <img src={result.secondarySrc} alt="" loading="lazy" />}
+                    </span>
+                    <span class="match-study__result-pin match-study__customer-pin">
+                      <strong>{result.metric}</strong>
+                      <small>{result.detail}</small>
+                    </span>
+                  </span>
+                )}
+              </button>
+            ))}
+          </div>
+
+        </section>
+
+        <div class="match-study__card-lift" data-match-card-lift="" aria-hidden="true"></div>
+
+        <p class="match-study__hint" data-match-hint="" aria-hidden="true">
+          Scroll · Match Cut
+        </p>
+      </div>
+    </div>
+  </main>
+
+  <div class="match-study__continuation" data-match-continuation="">
+    <SectionsHost
+      sections={statementSections}
+      document={{ id: home.documentId, type: 'homePage' }}
+    />
+
+    <section id="angebote" class="offers-intro" aria-labelledby="offers-heading">
+      <div class="container">
+        <p class="offers-intro__eyebrow eyebrow">Meine Angebote</p>
+
+        <div class="ebook-offer">
+          <div class="ebook-offer__visual" aria-hidden="true">
+            <span class="ebook-offer__halo"></span>
+            <img
+              src={ebookBookMockup.src}
+              width={ebookBookMockup.width}
+              height={ebookBookMockup.height}
+              alt=""
+              loading="lazy"
+            />
+          </div>
+          <div class="ebook-offer__copy">
+            <h2 id="offers-heading">{ebook.product.name}</h2>
+            <div class="ebook-offer__details">
+              <p>{ebook.hero.text}</p>
+              <p class="ebook-offer__meta">
+                {ebook.product.pageCount} Seiten · {ebook.product.chapterCount} Kapitel · {ebook.product.bonusCount} Boni
+              </p>
+              <div class="ebook-offer__cta">
+                <GlowButton label="Zum E-Book" href="/e-book/" />
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <div class="offers-intro__divider" aria-hidden="true"></div>
+      </div>
+    </section>
+
+    <SectionsHost
+      sections={aioOfferSections}
+      document={{ id: home.documentId, type: 'homePage' }}
+    />
+
+    {specificOfferSection && (
+      <section
+        id={specificOfferSection.anchor || undefined}
+        class="specific-coachings"
+        aria-labelledby="specific-coachings-heading"
+      >
+        <div class="container">
+          <header class="specific-coachings__head">
+            <h2 id="specific-coachings-heading">{specificOfferSection.heading}</h2>
+            {specificOfferSection.subtext && <p>{specificOfferSection.subtext}</p>}
+          </header>
+
+          <div class="specific-coachings__tabs" data-coaching-tabs="">
+            <div class="specific-coachings__audience">
+              <span class="specific-coachings__audience-label">Coaching für</span>
+              <div class="specific-coachings__tablist" role="tablist" aria-label="Zielgruppe auswählen">
+                {serviceGroups.map((group, index) => (
+                  <button
+                    type="button"
+                    class:list={['specific-coachings__tab', { 'is-active': index === 0 }]}
+                    role="tab"
+                    id={`coaching-tab-${group.id}`}
+                    aria-label={group.label}
+                    aria-selected={index === 0 ? 'true' : 'false'}
+                    aria-controls={`coaching-panel-${group.id}`}
+                    data-coaching-tab={group.id}
+                  >
+                    {group.label.replace(/^Für\s+/, '')}
+                  </button>
+                ))}
+              </div>
+            </div>
+
+            {serviceGroups.map((group, groupIndex) => (
+              <div
+                class="specific-coachings__panel"
+                role="tabpanel"
+                id={`coaching-panel-${group.id}`}
+                aria-labelledby={`coaching-tab-${group.id}`}
+                data-coaching-panel={group.id}
+                hidden={groupIndex !== 0}
+              >
+                <div
+                  class="specific-coachings__choices"
+                  role="tablist"
+                  aria-label={`${group.label}: Coaching auswählen`}
+                >
+                  {group.items.map((service, serviceIndex) => {
+                    const panelId = `coaching-detail-${group.id}-${serviceIndex}`;
+                    return (
+                      <button
+                        type="button"
+                        class:list={['specific-coachings__choice', { 'is-active': serviceIndex === 0 }]}
+                        role="tab"
+                        id={`coaching-choice-${group.id}-${serviceIndex}`}
+                        aria-selected={serviceIndex === 0 ? 'true' : 'false'}
+                        aria-controls={panelId}
+                        data-coaching-choice=""
+                      >
+                        <span class="specific-coachings__summary">
+                          <strong>{service.name}</strong>
+                          <span>{serviceResultLine(service)}</span>
+                        </span>
+                      </button>
+                    );
+                  })}
+                </div>
+
+                <div class="specific-coachings__details">
+                  {group.items.map((service, serviceIndex) => {
+                    const panelId = `coaching-detail-${group.id}-${serviceIndex}`;
+                    return (
+                      <article
+                        class="specific-coachings__detail"
+                        role="tabpanel"
+                        id={panelId}
+                        aria-labelledby={`coaching-choice-${group.id}-${serviceIndex}`}
+                        data-coaching-detail=""
+                        hidden={serviceIndex !== 0}
+                      >
+                        <span class="specific-coachings__detail-image">
+                          <Img image={service.image} sizes="(max-width: 767px) 90vw, 18rem" />
+                        </span>
+                        <div class="specific-coachings__detail-copy">
+                          <h3>{service.name}</h3>
+                          <p>{service.description}</p>
+                        </div>
+                      </article>
+                    );
+                  })}
+                </div>
+              </div>
+            ))}
+          </div>
+
+          <div class="specific-coachings__footer">
+            <GlowButton label={specificOfferSection.ctaModalLabel || 'Coaching anfragen'} action="modal" />
+          </div>
+        </div>
+      </section>
+    )}
+
+    <SectionsHost
+      sections={remainingSections}
+      document={{ id: home.documentId, type: 'homePage' }}
+    />
+  </div>
+</BaseLayout>
+
+<script>
+  import { gsap, ScrollTrigger } from '../scripts/motion/util';
+
+  const root = document.querySelector<HTMLElement>('[data-match-study]');
+  const track = root?.querySelector<HTMLElement>('[data-match-track]');
+  const sticky = root?.querySelector<HTMLElement>('.match-study__sticky');
+  const copy = root?.querySelector<HTMLElement>('[data-match-copy]');
+  const photo = root?.querySelector<HTMLElement>('[data-match-photo]');
+  const photoEntry = root?.querySelector<HTMLElement>('[data-match-photo-entry]');
+  const photoPlane = root?.querySelector<HTMLElement>('[data-match-photo-plane]');
+  const photoImage = root?.querySelector<HTMLElement>('[data-match-photo-image]');
+  const grade = root?.querySelector<HTMLElement>('[data-match-grade]');
+  const iris = root?.querySelector<HTMLElement>('[data-match-iris]');
+  const results = root?.querySelector<HTMLElement>('[data-match-results]');
+  const metas = root ? Array.from(root.querySelectorAll<HTMLElement>('[data-match-meta]')) : [];
+  const bridgeWrap = root?.querySelector<HTMLElement>('[data-match-bridge-wrap]');
+  const bridgeMotion = root?.querySelector<HTMLElement>('[data-match-bridge-motion]');
+  const bridgeFocus = root?.querySelector<HTMLElement>('.match-study__bridge-focus');
+  const bridge = root?.querySelector<HTMLElement>('[data-match-phone="bridge"]');
+  const centerPin = root?.querySelector<HTMLElement>('[data-match-center-pin]');
+  const ownCards = root ? Array.from(root.querySelectorAll<HTMLElement>('[data-world-card="accounts"]')) : [];
+  const customerCards = root ? Array.from(root.querySelectorAll<HTMLElement>('[data-world-card="customers"]')) : [];
+  const customerHero = customerCards.find((card) => card.dataset.orbit === '0');
+  const customerSatellites = customerCards.filter((card) => card.dataset.orbit !== '0');
+  const worlds = root ? Array.from(root.querySelectorAll<HTMLElement>('[data-world]')) : [];
+  const accountsWorld = root?.querySelector<HTMLElement>('[data-world="accounts"]');
+  const customersWorld = root?.querySelector<HTMLElement>('[data-world="customers"]');
+  const worldLabels = root ? Array.from(root.querySelectorAll<HTMLElement>('[data-world-label]')) : [];
+  const accountsLabel = root?.querySelector<HTMLElement>('[data-world-label="accounts"]');
+  const customersLabel = root?.querySelector<HTMLElement>('[data-world-label="customers"]');
+  const liftLayer = root?.querySelector<HTMLElement>('[data-match-card-lift]');
+  const liftableCards = root
+    ? Array.from(root.querySelectorAll<HTMLElement>('.match-study__world-card:not(.match-study__world-card--customer[data-orbit="0"])'))
+    : [];
+  const hint = root?.querySelector<HTMLElement>('[data-match-hint]');
+
+  if (
+    root &&
+    track &&
+    sticky &&
+    copy &&
+    photo &&
+    photoEntry &&
+    photoPlane &&
+    photoImage &&
+    grade &&
+    iris &&
+    results &&
+    bridgeWrap &&
+    bridgeMotion &&
+    bridgeFocus &&
+    bridge &&
+    centerPin &&
+    accountsWorld &&
+    customersWorld &&
+    accountsLabel &&
+    customersLabel &&
+    liftLayer &&
+    hint
+  ) {
+    const mm = gsap.matchMedia();
+    type WorldName = 'accounts' | 'customers';
+    type JourneyState =
+      | 'arrival'
+      | 'accounts-ready'
+      | 'transition'
+      | 'customers-ready'
+      | 'leaving';
+    let activeWorld: WorldName | null = null;
+    let journeyState: JourneyState = 'arrival';
+    let liftTimer = 0;
+    let liftedSource: HTMLElement | null = null;
+    let liftEnabled = false;
+    const prefersReducedMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+
+    const restoreLiftSource = (source: HTMLElement | null) => {
+      liftLayer.replaceChildren();
+      root.dataset.liftOpen = 'false';
+
+      if (!source?.isConnected) return;
+
+      /* Klon und Ursprung werden innerhalb desselben Renderframes übergeben.
+         Die temporär deaktivierten Transitions verhindern, dass die echte
+         Karte nach der Landung noch einmal aufblitzt oder nachfadet. */
+      source.classList.add('is-lift-handoff');
+      source.classList.remove('is-lift-source');
+      source.getBoundingClientRect();
+      window.requestAnimationFrame(() => {
+        window.requestAnimationFrame(() => {
+          source.classList.remove('is-lift-handoff');
+        });
+      });
+    };
+
+    const clearLift = (animate = true) => {
+      window.clearTimeout(liftTimer);
+      const liftedCard = liftLayer.firstElementChild as HTMLElement | null;
+      const sourceToRestore = liftedSource;
+      liftableCards.forEach((card) => card.setAttribute('aria-pressed', 'false'));
+      liftedSource = null;
+      if (!liftedCard || !animate) {
+        liftLayer.replaceChildren();
+        root.dataset.liftOpen = 'false';
+        liftableCards.forEach((card) => card.classList.remove('is-lift-source'));
+        return;
+      }
+
+      let returnFinished = false;
+      const finishReturn = () => {
+        if (returnFinished) return;
+        returnFinished = true;
+        window.clearTimeout(liftTimer);
+        liftedCard.removeEventListener('transitionend', handleReturnEnd);
+        restoreLiftSource(sourceToRestore);
+      };
+      const handleReturnEnd = (event: TransitionEvent) => {
+        if (event.target === liftedCard && event.propertyName === 'transform') {
+          finishReturn();
+        }
+      };
+
+      liftedCard.addEventListener('transitionend', handleReturnEnd);
+      liftedCard.classList.add('is-returning');
+      liftedCard.getBoundingClientRect();
+      window.requestAnimationFrame(() => {
+        if (!liftedCard.isConnected) return;
+        const sourceRect = sourceToRestore?.getBoundingClientRect();
+        const layerRect = liftLayer.getBoundingClientRect();
+        const baseWidth = Math.max(liftedCard.offsetWidth, 1);
+        const liveReturnX = sourceRect
+          ? sourceRect.left + sourceRect.width / 2 - (layerRect.left + layerRect.width / 2)
+          : Number.parseFloat(liftedCard.style.getPropertyValue('--lift-return-x')) || 0;
+        const liveReturnY = sourceRect
+          ? sourceRect.top + sourceRect.height / 2 - (layerRect.top + layerRect.height / 2)
+          : Number.parseFloat(liftedCard.style.getPropertyValue('--lift-return-y')) || 0;
+        const liveReturnScale = sourceRect
+          ? Math.min(0.96, Math.max(0.24, sourceRect.width / baseWidth))
+          : Number.parseFloat(liftedCard.style.getPropertyValue('--lift-return-scale')) || 0.4;
+
+        liftedCard.style.setProperty(
+          '--lift-x',
+          `${liveReturnX}px`,
+        );
+        liftedCard.style.setProperty(
+          '--lift-y',
+          `${liveReturnY}px`,
+        );
+        liftedCard.style.setProperty(
+          '--lift-scale',
+          String(liveReturnScale),
+        );
+        liftedCard.style.setProperty(
+          '--lift-rotation',
+          liftedCard.style.getPropertyValue('--lift-return-rotation') || '0deg',
+        );
+      });
+      liftTimer = window.setTimeout(finishReturn, 760);
+    };
+
+    const liftCard = (card: HTMLElement) => {
+      if (!liftEnabled) return;
+      if (liftedSource === card) return;
+      clearLift(false);
+
+      const clone = card.cloneNode(true) as HTMLElement;
+      clone.classList.add('is-lifted');
+      clone.removeAttribute('data-world-card');
+      clone.setAttribute('aria-hidden', 'true');
+      clone.setAttribute('tabindex', '-1');
+      clone.removeAttribute('aria-pressed');
+      clone.addEventListener('click', () => clearLift());
+      const sourceVisual = card.querySelector<HTMLElement>('.match-study__world-card-visual');
+      const sourceOpacity = sourceVisual ? getComputedStyle(sourceVisual).opacity : '0.52';
+      const sourceFilter = sourceVisual ? getComputedStyle(sourceVisual).filter : 'brightness(0.68) saturate(0.8)';
+      card.classList.add('is-lift-source');
+      card.setAttribute('aria-pressed', 'true');
+      liftLayer.replaceChildren(clone);
+      liftedSource = card;
+      root.dataset.liftOpen = 'true';
+
+      /* Die Fokuskarte startet exakt an der sichtbaren Position ihres
+         Satelliten und fährt anschließend in dieselbe ruhige Leseposition.
+         So gibt es weder einen Sprung noch unterschiedlich starke Zooms. */
+      const sourceRect = card.getBoundingClientRect();
+      const targetRect = clone.getBoundingClientRect();
+      const sourceRotation = getComputedStyle(card).getPropertyValue('--orbit-rotation').trim() || '0deg';
+      const sourceScale = Math.min(
+        0.96,
+        Math.max(0.24, sourceRect.width / Math.max(targetRect.width, 1)),
+      );
+      const returnX = sourceRect.left + sourceRect.width / 2 - (targetRect.left + targetRect.width / 2);
+      const returnY = sourceRect.top + sourceRect.height / 2 - (targetRect.top + targetRect.height / 2);
+
+      /* Der Fokus wird gegen eine echte Safe-Area gerechnet: Navigation oben,
+         kleine Außenabstände auf allen Seiten und das Badge zählen vollständig
+         zur benötigten Fläche. Dadurch passt jedes Seitenverhältnis in jede
+         Viewport-Höhe, ohne unter der Kopfzeile oder am Rand abgeschnitten zu
+         werden. */
+      const visual = clone.querySelector<HTMLElement>('.match-study__world-card-visual');
+      const pin = clone.querySelector<HTMLElement>('.match-study__result-pin');
+      const contentRects = [visual, pin]
+        .filter((element): element is HTMLElement => Boolean(element))
+        .map((element) => element.getBoundingClientRect());
+      const contentBounds = contentRects.reduce(
+        (bounds, rect) => ({
+          left: Math.min(bounds.left, rect.left),
+          top: Math.min(bounds.top, rect.top),
+          right: Math.max(bounds.right, rect.right),
+          bottom: Math.max(bounds.bottom, rect.bottom),
+        }),
+        {
+          left: targetRect.left,
+          top: targetRect.top,
+          right: targetRect.right,
+          bottom: targetRect.bottom,
+        },
+      );
+      const navbarBottom = document.querySelector<HTMLElement>('.navbar')?.getBoundingClientRect().bottom ?? 0;
+      const safeInset = Math.max(14, Math.min(28, window.innerWidth * 0.025));
+      const safeLeft = safeInset;
+      const safeRight = window.innerWidth - safeInset;
+      const safeTop = Math.max(safeInset, navbarBottom + safeInset);
+      const safeBottom = window.innerHeight - safeInset;
+      const contentWidth = Math.max(1, contentBounds.right - contentBounds.left);
+      const contentHeight = Math.max(1, contentBounds.bottom - contentBounds.top);
+      const focusScale = Math.min(
+        1,
+        ((safeRight - safeLeft) / contentWidth) * 0.985,
+        ((safeBottom - safeTop) / contentHeight) * 0.985,
+      );
+      const targetCenterX = targetRect.left + targetRect.width / 2;
+      const targetCenterY = targetRect.top + targetRect.height / 2;
+      const contentCenterX = (contentBounds.left + contentBounds.right) / 2;
+      const contentCenterY = (contentBounds.top + contentBounds.bottom) / 2;
+      const scaledContentCenterX = targetCenterX + (contentCenterX - targetCenterX) * focusScale;
+      const scaledContentCenterY = targetCenterY + (contentCenterY - targetCenterY) * focusScale;
+      const focusX = (safeLeft + safeRight) / 2 - scaledContentCenterX;
+      const focusY = (safeTop + safeBottom) / 2 - scaledContentCenterY;
+
+      clone.style.setProperty('--lift-return-x', `${returnX}px`);
+      clone.style.setProperty('--lift-return-y', `${returnY}px`);
+      clone.style.setProperty('--lift-return-scale', String(sourceScale));
+      clone.style.setProperty('--lift-return-rotation', sourceRotation);
+      clone.style.setProperty('--lift-return-opacity', sourceOpacity);
+      clone.style.setProperty('--lift-return-filter', sourceFilter);
+      clone.style.setProperty('--lift-x', `${returnX}px`);
+      clone.style.setProperty('--lift-y', `${returnY}px`);
+      clone.style.setProperty('--lift-scale', String(sourceScale));
+      clone.style.setProperty('--lift-rotation', sourceRotation);
+      clone.getBoundingClientRect();
+
+      window.requestAnimationFrame(() => {
+        if (liftedSource !== card || !clone.isConnected) return;
+        clone.classList.add('is-lift-ready');
+        clone.style.setProperty('--lift-x', `${focusX}px`);
+        clone.style.setProperty('--lift-y', `${focusY}px`);
+        clone.style.setProperty('--lift-scale', String(focusScale));
+        clone.style.setProperty('--lift-rotation', '0deg');
+      });
+    };
+
+    const setLiftEnabled = (enabled: boolean) => {
+      if (liftEnabled === enabled) return;
+      liftEnabled = enabled;
+      root.dataset.liftEnabled = String(enabled);
+
+      if (!enabled && liftedSource) {
+        clearLift(false);
+      }
+    };
+
+    const setJourneyState = (nextState: JourneyState) => {
+      if (journeyState === nextState) return;
+      journeyState = nextState;
+      root.dataset.journeyState = nextState;
+
+      const readyWorld =
+        nextState === 'accounts-ready'
+          ? 'accounts'
+          : nextState === 'customers-ready'
+            ? 'customers'
+            : null;
+      setLiftEnabled(readyWorld !== null);
+      liftableCards.forEach((card) => {
+        const cardWorld = card.closest<HTMLElement>('[data-world]')?.dataset.world;
+        card.setAttribute('aria-disabled', String(cardWorld !== readyWorld));
+      });
+    };
+
+    liftableCards.forEach((card) => {
+      card.setAttribute('aria-pressed', 'false');
+      card.setAttribute('aria-disabled', 'true');
+      card.addEventListener('click', () => {
+        if (!liftEnabled) {
+          clearLift(false);
+          return;
+        }
+        if (liftedSource === card) clearLift();
+        else liftCard(card);
+      });
+    });
+
+    liftLayer.addEventListener('click', (event) => {
+      if (event.target === liftLayer && liftedSource) clearLift();
+    });
+
+    const setWorld = (nextWorld: WorldName) => {
+      if (activeWorld === nextWorld) return;
+      if (liftedSource) clearLift(false);
+      activeWorld = nextWorld;
+      root.dataset.activeWorld = nextWorld;
+      results.dataset.activeWorld = nextWorld;
+
+      worlds.forEach((world) => {
+        const isActive = world.dataset.world === nextWorld;
+        world.setAttribute('aria-hidden', String(!isActive));
+        (world as HTMLElement & { inert: boolean }).inert = !isActive;
+      });
+
+      worldLabels.forEach((label) => {
+        label.setAttribute('aria-hidden', String(label.dataset.worldLabel !== nextWorld));
+      });
+    };
+    setWorld('accounts');
+
+    const build = ({
+      mobile,
+      compact,
+    }: {
+      mobile: boolean;
+      compact: boolean;
+    }) => {
+      const fastMotion = mobile || compact;
+      const stagedWorldTransition = mobile || compact;
+      const tallViewport = sticky.clientWidth / Math.max(sticky.clientHeight, 1) <= 1.35;
+      /* Auf dem schmalen Mobil-Viewport darf der Weltenwechsel nicht wie das
+         Zusammenschieben zweier kompletter Desktop-Buehnen wirken. Eine
+         kuerzere horizontale Strecke haelt das jeweils aktive Hauptmockup im
+         Fokus; die eigentliche Staffelung folgt unten in der Timeline. */
+      const worldSlideDistance = stagedWorldTransition ? 34 : tallViewport ? 30 : 38;
+      const getRenderedImage = (frame: {
+        left: number;
+        top: number;
+        width: number;
+        height: number;
+      }) => {
+        const imageScale = Math.max(frame.width / 2440, frame.height / 1816);
+        const width = 2440 * imageScale;
+        const height = 1816 * imageScale;
+
+        return {
+          left: frame.left + (frame.width - width) / 2,
+          top: frame.top + frame.height - height,
+          width,
+          height,
+          imageScale,
+        };
+      };
+
+      /* Die Bühne bleibt immer so groß wie der Viewport. Die Startspalte ist
+         nur eine Maske plus ein Transform derselben Pixel – kein Resize. */
+      const getEntryState = () => {
+        const width = sticky.clientWidth;
+        const height = sticky.clientHeight;
+
+        /* Mobil startet das Foto als ruhiges, vollbreites Bildpanel unter der
+           Hero-Aussage. Es wird nicht mehr wie eine verkleinerte zweite Bühne
+           in Text und CTA hineingeschoben. Beim Scrollen fährt nur dieses
+           Panel nach oben und öffnet sich zum identischen Vollbild. */
+        if (mobile) {
+          return {
+            x: 0,
+            y: height * 0.18,
+            scale: 1,
+          };
+        }
+
+        const fullFrame = { left: 0, top: 0, width, height };
+        const entryFrame = compact
+          ? { left: width * 0.52, top: 0, width: width * 0.48, height }
+          : { left: width * 0.6, top: 0, width: width * 0.4, height };
+        const fullImage = getRenderedImage(fullFrame);
+        const entryImage = getRenderedImage(entryFrame);
+        const scale = entryImage.imageScale / fullImage.imageScale;
+
+        return {
+          x:
+            entryImage.left -
+            fullImage.left * scale +
+            (mobile ? 0 : sticky.clientWidth * (compact ? 0.025 : 0.03)),
+          y: entryImage.top - fullImage.top * scale,
+          scale,
+        };
+      };
+
+      const zoomAmount = mobile ? 1.42 : compact ? 1.24 : 1.28;
+      const centerPinViewportScale = mobile
+        ? Math.min(0.92, 0.76 + (sticky.clientWidth / 550) * 0.1)
+        : compact
+          ? Math.min(0.9, 0.72 + (sticky.clientHeight / 1000) * 0.2)
+          : 1;
+      /* Das eigene Badge liegt innerhalb der gezoomten Fotoebene, das
+         Kunden-Badge dagegen außerhalb. Gleiche den übergeordneten Zoom aus,
+         damit nicht nur die CSS-Werte, sondern die sichtbare Größe identisch
+         ist. */
+      root.style.setProperty('--match-center-pin-viewport-scale', String(centerPinViewportScale));
+      centerPin.style.setProperty('--match-center-pin-scale', String(centerPinViewportScale / zoomAmount));
+      /* Das Handy wird ausschließlich in Koordinaten des 2440 × 1816 px
+         großen Originalfotos beschrieben. Seine sichtbare Startgeometrie
+         liegt unten vollständig in CSS-Containerkoordinaten, damit sie ohne
+         gerundete JS-Zwischenwerte exakt dieselbe Bewegung wie das Foto erbt.
+         Diese Funktion wird nur noch für das spätere Lösen aus der Hand
+         benötigt. */
+      const heroPhoneSource = {
+        x: 1104,
+        y: 878,
+        height: 146,
+      } as const;
+      const getPhoneGeometry = () => {
+        const photoBounds = photo.getBoundingClientRect();
+        const renderedImage = getRenderedImage({
+          left: 0,
+          top: 0,
+          width: photoBounds.width,
+          height: photoBounds.height,
+        });
+
+        return {
+          x: renderedImage.left + heroPhoneSource.x * renderedImage.imageScale,
+          y: renderedImage.top + heroPhoneSource.y * renderedImage.imageScale,
+          height: heroPhoneSource.height * renderedImage.imageScale,
+        };
+      };
+      const getInitialBridgeHeight = () => getPhoneGeometry().height;
+      const getFinalBridgeHeight = () => {
+        if (mobile) return Math.min(sticky.clientHeight * 0.62, sticky.clientWidth * 1.34, 526);
+        if (compact) {
+          /* Nur wirklich flache Querformate brauchen die kleinere 36vw-Buehne.
+             Ein fast quadratisches Tablet-/Browserfenster darf nicht wie ein
+             420px hohes Handy behandelt werden, sonst springt die zentrale
+             Mockup-Groesse beim Wechsel der Ergebniswelt. */
+          return sticky.clientHeight <= 620
+            ? Math.min(sticky.clientHeight * 0.72, sticky.clientWidth * 0.36, 400)
+            : Math.min(sticky.clientHeight * 0.63, sticky.clientWidth * 1.34, 526);
+        }
+        if (tallViewport) return Math.min(sticky.clientHeight * 0.64, 680);
+        return Math.min(sticky.clientHeight * 0.72, 768);
+      };
+      const getPhotoOrigin = () => {
+        const [x = '0', y = '0'] = getComputedStyle(photoPlane).transformOrigin.split(' ');
+        return { x: Number.parseFloat(x), y: Number.parseFloat(y) };
+      };
+      const getBridgeDestination = () => {
+        const initial = getPhoneGeometry();
+        const origin = getPhotoOrigin();
+        const finalHeight = getFinalBridgeHeight() / zoomAmount;
+        const finalWidth = finalHeight * (806 / 1625);
+        const centerX = origin.x + (sticky.clientWidth / 2 - origin.x) / zoomAmount;
+        const centerY = origin.y + (sticky.clientHeight / 2 - origin.y) / zoomAmount;
+
+        return {
+          x: centerX - initial.x - finalWidth / 2,
+          y: centerY - initial.y - finalHeight / 2,
+        };
+      };
+      /* GSAP speichert den Ausgangswert eines normalen Transform-Tweens.
+         Nach einem Resize wäre das die Geometrie des vorherigen Viewports.
+         Deshalb animieren wir nur einen normierten Fortschritt und leiten die
+         sichtbare Transform-Matrix bei jedem Render erneut vom Originalfoto ab. */
+      const bridgeReleaseState = { progress: 0 };
+      const renderBridgeFocus = () => {
+        const remaining = 1 - bridgeReleaseState.progress;
+
+        gsap.set(bridgeFocus, {
+          x: 0,
+          y: 0,
+          rotation: 22 * remaining,
+          skewX: -2 * remaining,
+          scaleX: 1 + 0.02 * remaining,
+          scaleY: 1,
+          transformOrigin: '0 0',
+          /* Solange das Mockup in der Hand sitzt, bleibt es in derselben
+             2D-Rasterebene wie das Foto. Eine eigene GPU-Textur würde beim
+             Scroll-Scrub minimal anders nachgerastert und als Flackern
+             beziehungsweise Nachziehen sichtbar. */
+          force3D: bridgeReleaseState.progress > 0,
+        });
+      };
+      const renderBridgeRelease = () => {
+        const progress = bridgeReleaseState.progress;
+
+        if (progress <= 0) {
+          root.dataset.bridgePhase = 'held';
+          gsap.set(bridgeMotion, { x: 0, y: 0, force3D: false });
+          bridge.style.removeProperty('height');
+          renderBridgeFocus();
+          return;
+        }
+
+        root.dataset.bridgePhase = 'moving';
+
+        const destination = getBridgeDestination();
+        const initialHeight = getInitialBridgeHeight();
+        const finalHeight = getFinalBridgeHeight() / zoomAmount;
+
+        gsap.set(bridgeMotion, {
+          x: destination.x * progress,
+          y: destination.y * progress,
+          force3D: true,
+        });
+        gsap.set(bridge, {
+          height: initialHeight + (finalHeight - initialHeight) * progress,
+        });
+        renderBridgeFocus();
+      };
+      let bridgeResizeFrame = 0;
+      const bridgeResizeObserver = new ResizeObserver(() => {
+        window.cancelAnimationFrame(bridgeResizeFrame);
+        bridgeResizeFrame = window.requestAnimationFrame(() => {
+          /* In der Hand (progress 0) übernimmt CSS ohne Zwischenframe. Nach
+             dem Lösen wird die aktuelle Position noch vor dem nächsten Paint
+             aus der neuen Bühne berechnet. Während des Weltenwechsels gehört
+             die horizontale Bewegung bereits dem nachfolgenden Tween. */
+          if (
+            bridgeReleaseState.progress > 0 &&
+            journeyState !== 'transition' &&
+            journeyState !== 'leaving'
+          ) {
+            renderBridgeRelease();
+          }
+        });
+      });
+      bridgeResizeObserver.observe(photo);
+      bridgeResizeObserver.observe(sticky);
+
+      gsap.set(photoPlane, {
+        scale: 1,
+      });
+      gsap.set(photoImage, { opacity: 1, filter: 'blur(0px)' });
+      gsap.set(grade, { opacity: 0 });
+      gsap.set(iris, { opacity: 0 });
+      gsap.set(results, { autoAlpha: 0 });
+      gsap.set(metas, { opacity: 0, y: '1rem' });
+      gsap.set(centerPin, { opacity: 0 });
+      gsap.set(ownCards, { opacity: 0 });
+      gsap.set(bridgeMotion, {
+        x: 0,
+        y: 0,
+        force3D: false,
+      });
+      if (!mobile && !compact) {
+        gsap.set(photo, {
+          width: '40%',
+          left: 'auto',
+          right: 0,
+          clipPath: 'inset(0% 0% 0% 0%)',
+        });
+      }
+      renderBridgeFocus();
+      gsap.set(bridge, {
+        opacity: 1,
+        clipPath: 'inset(0% 0% 0% 0% round 12% / 6%)',
+        scale: 1,
+        rotation: 0,
+        force3D: false,
+      });
+      gsap.set(hint, { opacity: 0.34 });
+      gsap.set(accountsWorld, { opacity: 1, xPercent: 0, scale: 1, force3D: true });
+      gsap.set(customersWorld, { opacity: 0, xPercent: worldSlideDistance, scale: 0.985, force3D: true });
+      if (customerHero) gsap.set(customerHero, { opacity: 1 });
+      gsap.set(customerSatellites, { opacity: 0 });
+      gsap.set(accountsLabel, { opacity: 1, x: 0, force3D: true });
+      gsap.set(customersLabel, { opacity: 0, x: 26, force3D: true });
+
+      // Die eigene Erfolgswelt bleibt kurz erkundbar, ohne in einer langen
+      // Haltephase festzuhängen, bevor die Kundenerfolge in Bewegung kommen.
+      const worldTransitionStart = fastMotion ? 68 : 76;
+      const worldTransitionDuration = fastMotion ? 13 : 14;
+      const worldHoldDuration = fastMotion ? 11 : 10;
+      const worldTransitionEnd = worldTransitionStart + worldTransitionDuration;
+      const worldTimelineDuration = worldTransitionEnd + worldHoldDuration;
+      const worldHandoffProgress = (worldTransitionStart + worldTransitionDuration / 2) / worldTimelineDuration;
+      const outgoingWorldDuration = stagedWorldTransition
+        ? worldTransitionDuration * 0.6
+        : worldTransitionDuration;
+      const incomingWorldStart = stagedWorldTransition
+        ? worldTransitionStart + worldTransitionDuration * 0.28
+        : worldTransitionStart;
+      const incomingWorldDuration = stagedWorldTransition
+        ? worldTransitionDuration * 0.72
+        : worldTransitionDuration;
+      const fullFrameMoment = fastMotion ? 29 : 37;
+      const blackoutDuration = fastMotion ? 12 : 14;
+      const blackoutStart = fullFrameMoment - blackoutDuration;
+      const cameraPullStart = fullFrameMoment;
+      const resultsRevealStart = fullFrameMoment + 4;
+      const bridgeReleaseStart = fullFrameMoment;
+      const bridgeReleaseDuration = fastMotion ? 16 : 18;
+      const orbitRevealStart = fullFrameMoment + (fastMotion ? 7 : 9);
+      const metaRevealStart = fullFrameMoment + (fastMotion ? 18 : 21);
+      const irisReleaseStart = fullFrameMoment + 2;
+      const accountsLiftStart = Math.max(
+        orbitRevealStart + 13 + Math.max(ownCards.length - 1, 0) * 0.45,
+        metaRevealStart + 9,
+      );
+      const customerSatelliteRevealStart = worldTransitionStart + worldTransitionDuration * (mobile ? 0.35 : 0.12);
+      const customerSatelliteRevealDuration = worldTransitionDuration * (mobile ? 0.45 : 0.68);
+      const customerSatelliteStagger = 0.035;
+      const customerLiftStart = Math.max(
+        worldTransitionEnd,
+        customerSatelliteRevealStart +
+          customerSatelliteRevealDuration +
+          Math.max(customerSatellites.length - 1, 0) * customerSatelliteStagger,
+      );
+      const accountsReadyStartProgress = accountsLiftStart / worldTimelineDuration;
+      const accountsTransitionStartProgress = worldTransitionStart / worldTimelineDuration;
+      const customersReadyStartProgress = customerLiftStart / worldTimelineDuration;
+      const leavingStartProgress =
+        (worldTimelineDuration - Math.max(2, worldHoldDuration * 0.2)) / worldTimelineDuration;
+      const accountsRestProgress =
+        (worldTransitionStart - 1.5) / worldTimelineDuration;
+      const customersRestProgress =
+        (worldTransitionEnd + 1.5) / worldTimelineDuration;
+      /* Die erste Magnetzone beginnt bewusst schon kurz vor dem vollständig
+         aufgebauten Account-Universum. Visuell ist die Welt zu diesem
+         Zeitpunkt bereits eindeutig erkennbar; wer hier aufhört zu scrollen,
+         wird sanft in die fertige Ruheposition geführt statt in einem
+         unfertigen Zwischenzustand stehen zu bleiben. */
+      const snapActivationStart = Math.max(
+        0,
+        accountsReadyStartProgress - (fastMotion ? 0.11 : 0.12),
+      );
+      const snapActivationEnd = leavingStartProgress;
+      const snapDecisionProgress = (accountsRestProgress + customersRestProgress) / 2;
+      let lastTimelineProgress = -1;
+
+      const getJourneyState = (progress: number): JourneyState => {
+        if (progress < accountsReadyStartProgress) return 'arrival';
+        if (progress < accountsTransitionStartProgress) return 'accounts-ready';
+        if (progress < customersReadyStartProgress) return 'transition';
+        if (progress < leavingStartProgress) return 'customers-ready';
+        return 'leaving';
+      };
+
+      setLiftEnabled(false);
+      setJourneyState('arrival');
+
+      const timeline = gsap.timeline({
+        defaults: { ease: 'none' },
+        scrollTrigger: {
+          trigger: track,
+          start: 'top top',
+          end: 'bottom bottom',
+          scrub: fastMotion ? 0.35 : 0.55,
+          snap: {
+            snapTo: (progress: number) => {
+              if (
+                prefersReducedMotion ||
+                progress < snapActivationStart ||
+                progress > snapActivationEnd
+              ) {
+                return progress;
+              }
+
+              return progress < snapDecisionProgress
+                ? accountsRestProgress
+                : customersRestProgress;
+            },
+            /* Beide Welten verwenden dieselbe ruhige Magnetik. Der etwas
+               längere Auslauf verhindert das bisher hektische Nachziehen,
+               ohne dass sich die Navigation träge anfühlt. */
+            duration: {
+              min: fastMotion ? 0.38 : 0.44,
+              max: fastMotion ? 0.72 : 0.82,
+            },
+            delay: fastMotion ? 0.16 : 0.18,
+            ease: 'sine.inOut',
+            inertia: false,
+          },
+          invalidateOnRefresh: true,
+          onUpdate: (self) => {
+            if (
+              liftedSource &&
+              lastTimelineProgress >= 0 &&
+              Math.abs(self.progress - lastTimelineProgress) > 0.0005
+            ) {
+              clearLift();
+            }
+            lastTimelineProgress = self.progress;
+            setWorld(self.progress >= worldHandoffProgress ? 'customers' : 'accounts');
+            setJourneyState(getJourneyState(self.progress));
+          },
+          onLeave: () => setJourneyState('leaving'),
+          onLeaveBack: () => setJourneyState('arrival'),
+        },
+      });
+
+      if (!mobile && !compact) {
+        /* Exakt dieselbe Grundbewegung wie auf der Live-Startseite: Die
+           rechte Bildspalte wächst als echte 40-%-Spalte auf volle Breite.
+           Kein skalierter Ersatz-Ausschnitt und keine verschobene Bildbühne. */
+        timeline.fromTo(
+          photo,
+          {
+            width: '40%',
+            left: 'auto',
+            right: 0,
+            clipPath: 'inset(0% 0% 0% 0%)',
+          },
+          {
+            width: '100%',
+            duration: fullFrameMoment,
+          },
+          0,
+        );
+        timeline.set(photoEntry, { x: 0, y: 0, scale: 1 }, 0);
+      } else {
+        timeline
+          .fromTo(
+            photo,
+            {
+              clipPath: mobile
+                ? 'inset(52% 4vw 3% 4vw round 1.15rem)'
+                : 'inset(0% 0% 0% 52%)',
+            },
+            { clipPath: 'inset(0% 0% 0% 0%)', duration: fullFrameMoment },
+            0,
+          )
+          .fromTo(
+            photoEntry,
+            {
+              x: () => getEntryState().x,
+              y: () => getEntryState().y,
+              scale: () => getEntryState().scale,
+              transformOrigin: '0 0',
+            },
+            {
+              x: 0,
+              y: 0,
+              scale: 1,
+              duration: fullFrameMoment,
+            },
+            0,
+          );
+      }
+
+      timeline
+        /* Wie im Live-Hero bleibt die Aussage vollständig stehen und wird von
+           der wachsenden, deckenden Bildspalte überfahren. Erst wenn das Foto
+           wirklich die ganze Bühne abdeckt, wird der nun unsichtbare Text
+           abgeschaltet, damit er beim Öffnen der Ergebniswelt nicht wieder
+           durchscheinen kann. */
+        .set(copy, { opacity: 0 }, fullFrameMoment)
+        /* Fotoöffnung und Abdunklung treffen sich am selben Endpunkt. Das
+           eingesetzte Handy bleibt bis dahin unverändert in der Hand; erst im
+           vollständig schwarzen Bild beginnt ohne Zwischenpause der Pull-in. */
+        .to(
+          photoPlane,
+          {
+            scale: zoomAmount,
+            duration: resultsRevealStart - cameraPullStart,
+            ease: 'power2.in',
+          },
+          cameraPullStart,
+        )
+        .to(
+          photoImage,
+          {
+            opacity: 0,
+            duration: blackoutDuration,
+            ease: 'power2.in',
+          },
+          blackoutStart,
+        )
+        .to(grade, { opacity: 1, duration: blackoutDuration, ease: 'power2.in' }, blackoutStart)
+        .to(iris, { opacity: 1, duration: blackoutDuration, ease: 'power3.in' }, blackoutStart)
+        /* Direkt nach dem schwarzen Match-Punkt öffnet sich bereits die Tiefe
+           der Ergebniswelt. Die Bühne bleibt dadurch nicht leer, während das
+           Handy zur finalen Größe gezogen wird. */
+        .to(results, { autoAlpha: 1, duration: 6, ease: 'power2.inOut' }, resultsRevealStart)
+        .to(photo, { backgroundColor: 'rgba(8, 8, 8, 0)', duration: 6, ease: 'power2.inOut' }, resultsRevealStart)
+        .to(grade, { opacity: 0, duration: 6 }, resultsRevealStart)
+        .to(iris, { opacity: 0, duration: 7, ease: 'power2.out' }, irisReleaseStart)
+        /* Erst am gemeinsamen Schwarz-/Vollbild-Endpunkt löst sich das Mockup
+           aus der Hand. Der Pull-in schließt direkt an, überlagert das sichtbare
+           Foto aber zu keinem Zeitpunkt. */
+        .to(
+          bridgeReleaseState,
+          {
+            progress: 1,
+            duration: bridgeReleaseDuration,
+            ease: 'power2.out',
+            onUpdate: renderBridgeRelease,
+          },
+          bridgeReleaseStart,
+        )
+        /* Die Kennzahl ist Teil des ankommenden Mockups und kein später
+           aufgesetzter Einzel-Effekt. Sie erscheint während der letzten
+           Bewegungsetappe gemeinsam mit dem Handy. */
+        .to(
+          centerPin,
+          {
+            opacity: 1,
+            duration: 6,
+            ease: 'power2.out',
+          },
+          bridgeReleaseStart + bridgeReleaseDuration - 6,
+        )
+        .to(
+          ownCards,
+          {
+            opacity: 1,
+            duration: 13,
+            stagger: 0.45,
+            ease: 'power3.out',
+          },
+          orbitRevealStart,
+        )
+        .to(metas, { opacity: 1, y: 0, duration: 9, ease: 'power2.out' }, metaRevealStart)
+        .to(hint, { opacity: 0, duration: 8 }, fastMotion ? 43 : 51)
+        /* Beide Konstellationen überlappen sich während des seitlichen
+           Wechsels. Die Satelliten bleiben Teil derselben Erfolgswelt, statt
+           vor dem nächsten Zentrum vollständig zu verschwinden. */
+        .to(
+          accountsWorld,
+          {
+            opacity: 0,
+            xPercent: -worldSlideDistance,
+            scale: 0.985,
+            duration: outgoingWorldDuration,
+            ease: 'sine.inOut',
+          },
+          worldTransitionStart,
+        )
+        .to(
+          bridgeFocus,
+          {
+            opacity: 0,
+            x: `-${worldSlideDistance}vw`,
+            duration: outgoingWorldDuration,
+            ease: 'sine.inOut',
+          },
+          worldTransitionStart,
+        )
+        .to(
+          accountsLabel,
+          {
+            opacity: 0,
+            x: -26,
+            duration: worldTransitionDuration * 0.42,
+            ease: 'sine.inOut',
+          },
+          worldTransitionStart,
+        )
+        .to(
+          customersWorld,
+          {
+            opacity: 1,
+            xPercent: 0,
+            scale: 1,
+            duration: incomingWorldDuration,
+            ease: stagedWorldTransition ? 'power2.out' : 'sine.inOut',
+          },
+          incomingWorldStart,
+        )
+        .to(
+          customerSatellites,
+          {
+            opacity: 1,
+            duration: customerSatelliteRevealDuration,
+            stagger: customerSatelliteStagger,
+            ease: 'power2.out',
+          },
+          customerSatelliteRevealStart,
+        )
+        .to(
+          customersLabel,
+          {
+            opacity: 1,
+            x: 0,
+            duration: worldTransitionDuration * 0.42,
+            ease: 'sine.inOut',
+          },
+          worldTransitionStart + worldTransitionDuration * 0.58,
+        )
+        /* Kurzer, aber klar wahrnehmbarer Halt der Kundenwelt vor dem
+           fließenden Übergang in den nächsten Seitenabschnitt. */
+        .to({}, { duration: worldHoldDuration }, worldTransitionEnd);
+
+      return () => {
+        root.dataset.bridgePhase = 'held';
+        setLiftEnabled(false);
+        setJourneyState('arrival');
+        timeline.kill();
+        bridgeResizeObserver.disconnect();
+        window.cancelAnimationFrame(bridgeResizeFrame);
+        root.style.removeProperty('--match-center-pin-viewport-scale');
+        bridgeFocus.style.removeProperty('transform');
+        gsap.set(
+          [photo, photoEntry, photoPlane, photoImage, copy, grade, iris, results, bridgeWrap, bridgeMotion, bridgeFocus, bridge, centerPin, accountsWorld, customersWorld, accountsLabel, customersLabel, ...ownCards, ...customerCards, ...metas, hint],
+          { clearProps: 'all' },
+        );
+      };
+    };
+
+    mm.add('(min-width: 992px)', () => build({ mobile: false, compact: false }));
+
+    mm.add('(max-width: 991px) and (orientation: portrait)', () => build({ mobile: true, compact: false }));
+
+    mm.add('(max-width: 991px) and (orientation: landscape)', () => build({ mobile: false, compact: true }));
+
+    window.addEventListener('load', () => ScrollTrigger.refresh(), { once: true });
+  }
+</script>
+
+<script>
+  const coachingTabs = document.querySelector<HTMLElement>('[data-coaching-tabs]');
+
+  if (coachingTabs) {
+    const tabButtons = Array.from(
+      coachingTabs.querySelectorAll<HTMLButtonElement>('[data-coaching-tab]'),
+    );
+    const tabPanels = Array.from(
+      coachingTabs.querySelectorAll<HTMLElement>('[data-coaching-panel]'),
+    );
+
+    const activateChoice = (button: HTMLButtonElement) => {
+      const panel = button.closest<HTMLElement>('[data-coaching-panel]');
+      if (!panel) return;
+      const choices = Array.from(panel.querySelectorAll<HTMLButtonElement>('[data-coaching-choice]'));
+      const details = Array.from(panel.querySelectorAll<HTMLElement>('[data-coaching-detail]'));
+
+      choices.forEach((choice) => {
+        const active = choice === button;
+        choice.classList.toggle('is-active', active);
+        choice.setAttribute('aria-selected', String(active));
+        choice.tabIndex = active ? 0 : -1;
+      });
+      details.forEach((detail) => {
+        detail.hidden = detail.id !== button.getAttribute('aria-controls');
+      });
+    };
+
+    tabPanels.forEach((panel) => {
+      const choices = Array.from(panel.querySelectorAll<HTMLButtonElement>('[data-coaching-choice]'));
+      choices.forEach((choice, index) => {
+        choice.tabIndex = index === 0 ? 0 : -1;
+        choice.addEventListener('click', () => activateChoice(choice));
+        choice.addEventListener('keydown', (event) => {
+          if (event.key !== 'ArrowLeft' && event.key !== 'ArrowRight') return;
+          event.preventDefault();
+          const direction = event.key === 'ArrowRight' ? 1 : -1;
+          const next = choices[(index + direction + choices.length) % choices.length];
+          if (!next) return;
+          next.focus();
+          activateChoice(next);
+        });
+      });
+    });
+
+    tabButtons.forEach((button) => {
+      button.addEventListener('click', () => {
+        const target = button.dataset.coachingTab;
+        if (!target || button.classList.contains('is-active')) return;
+
+        tabButtons.forEach((tab) => {
+          const active = tab === button;
+          tab.classList.toggle('is-active', active);
+          tab.setAttribute('aria-selected', String(active));
+          tab.tabIndex = active ? 0 : -1;
+        });
+        tabPanels.forEach((panel) => {
+          panel.hidden = panel.dataset.coachingPanel !== target;
+        });
+      });
+    });
+
+    tabButtons.forEach((button, index) => {
+      button.tabIndex = index === 0 ? 0 : -1;
+      button.addEventListener('keydown', (event) => {
+        if (event.key !== 'ArrowLeft' && event.key !== 'ArrowRight') return;
+        event.preventDefault();
+        const direction = event.key === 'ArrowRight' ? 1 : -1;
+        const next = tabButtons[(index + direction + tabButtons.length) % tabButtons.length];
+        next?.focus();
+        next?.click();
+      });
+    });
+  }
+</script>
+
+<style is:global>
+  [data-route='motion-study'] { background: #080808; }
+
+  .match-study {
+    position: relative;
+    color: #f2f2ef;
+    background: #080808;
+  }
+
+  .match-study__continuation {
+    position: relative;
+    z-index: 4;
+    overflow: clip;
+    background: #080808;
+    isolation: isolate;
+  }
+
+  [data-route='motion-study'] .match-study__continuation .value-stmt {
+    margin-bottom: 0;
+    padding-top: clamp(9rem, 10vw, 10rem);
+    padding-bottom: clamp(6rem, 7vw, 7rem);
+  }
+
+  .offers-intro {
+    position: relative;
+    padding: 0;
+  }
+
+  .offers-intro__eyebrow {
+    margin-bottom: clamp(4.5rem, 6vw, 6rem);
+    font-size: 0.76rem;
+    letter-spacing: 0.14em;
+    text-transform: uppercase;
+  }
+
+  .ebook-offer {
+    display: grid;
+    grid-template-columns: minmax(0, 1.14fr) minmax(20rem, 0.86fr);
+    grid-template-rows: auto auto;
+    column-gap: clamp(3rem, 7vw, 7rem);
+    align-items: start;
+    width: 100%;
+    padding-bottom: clamp(5rem, 7vw, 7rem);
+  }
+
+  .ebook-offer__copy {
+    display: contents;
+  }
+
+  .ebook-offer__copy h2 {
+    grid-row: 1;
+    grid-column: 1 / -1;
+    max-width: 14ch;
+  }
+
+  .ebook-offer__visual {
+    position: relative;
+    display: grid;
+    grid-row: 2;
+    grid-column: 1;
+    place-items: center;
+    justify-self: start;
+    width: min(76%, 25rem);
+    min-height: clamp(21rem, 30vw, 27rem);
+    margin-top: clamp(2.75rem, 5vw, 4.5rem);
+    isolation: isolate;
+  }
+
+  .ebook-offer__halo {
+    position: absolute;
+    z-index: -1;
+    width: 110%;
+    aspect-ratio: 1;
+    border-radius: 50%;
+    background: radial-gradient(circle, rgba(154, 122, 51, 0.17), transparent 67%);
+    filter: blur(1.1rem);
+  }
+
+  .ebook-offer__visual img {
+    width: auto;
+    max-width: 100%;
+    max-height: clamp(21rem, 30vw, 27rem);
+    object-fit: contain;
+    filter: drop-shadow(0 1.4rem 2rem rgba(0, 0, 0, 0.38));
+  }
+
+  .ebook-offer__details {
+    grid-row: 2;
+    grid-column: 2;
+    align-self: center;
+    max-width: 31rem;
+    margin-top: clamp(2.75rem, 5vw, 4.5rem);
+  }
+
+  .ebook-offer__details > p:not(.ebook-offer__meta) {
+    max-width: 36rem;
+    color: var(--ink-2);
+    font-size: clamp(1rem, 1.45vw, 1.2rem);
+    line-height: 1.6;
+  }
+
+  .ebook-offer__details .ebook-offer__meta {
+    margin-top: 1rem;
+    color: var(--ink-3);
+    font-size: var(--text-xs);
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+  }
+
+  .ebook-offer__cta {
+    margin-top: 1.75rem;
+  }
+
+  .offers-intro__divider {
+    width: 100%;
+    height: 1px;
+    background: var(--paper-2);
+  }
+
+  [data-route='motion-study'] .match-study__continuation .split-cta.is-glow {
+    margin-top: 0;
+    padding-top: clamp(4.5rem, 6vw, 6rem);
+  }
+
+  [data-route='motion-study'] .match-study__continuation .split-cta__offer-divider {
+    display: none;
+  }
+
+  [data-route='motion-study'] .match-study__continuation .split-cta.is-glow .split-cta__grid {
+    grid-template-columns: minmax(0, 1.14fr) minmax(20rem, 0.86fr);
+    grid-template-rows: auto auto;
+    column-gap: clamp(3rem, 7vw, 7rem);
+    align-items: start;
+    padding-bottom: clamp(3.5rem, 5vw, 5rem);
+  }
+
+  [data-route='motion-study'] .match-study__continuation .split-cta.is-glow .split-cta__content {
+    display: contents;
+    max-width: none;
+  }
+
+  [data-route='motion-study'] .match-study__continuation .split-cta.is-glow .split-cta__eyebrow {
+    display: none;
+  }
+
+  [data-route='motion-study'] .match-study__continuation .split-cta.is-glow h2 {
+    grid-row: 1;
+    grid-column: 1 / -1;
+    max-width: 14ch;
+  }
+
+  [data-route='motion-study'] .match-study__continuation .split-cta.is-glow .split-cta__media {
+    grid-row: 2;
+    grid-column: 1;
+    align-self: center;
+    justify-self: start;
+    width: min(100%, 44rem);
+    margin-top: clamp(2.75rem, 5vw, 4.5rem);
+  }
+
+  [data-route='motion-study'] .match-study__continuation .split-cta.is-glow .split-cta__details {
+    grid-row: 2;
+    grid-column: 2;
+    align-self: center;
+    max-width: 31rem;
+    margin-top: clamp(2.75rem, 5vw, 4.5rem);
+  }
+
+  [data-route='motion-study'] .match-study__continuation .split-cta.is-glow .split-cta__body {
+    margin-top: 0;
+  }
+
+  [data-route='motion-study'] .match-study__continuation .split-cta.is-glow .split-cta__details .split-cta__buttons {
+    margin-top: 2rem;
+  }
+
+  .specific-coachings {
+    padding: clamp(4rem, 6vw, 6rem) 0 clamp(5rem, 7vw, 7rem);
+  }
+
+  .specific-coachings__head {
+    max-width: 58rem;
+  }
+
+  .specific-coachings__head h2 {
+    max-width: none;
+  }
+
+  .specific-coachings__head p {
+    max-width: 44rem;
+    margin-top: 1.2rem;
+    color: var(--ink-2);
+  }
+
+  .specific-coachings__tabs {
+    width: 100%;
+    margin-top: clamp(2.75rem, 4vw, 3.75rem);
+    overflow: hidden;
+    border: 1px solid var(--paper-2);
+    border-radius: var(--radius-media);
+  }
+
+  .specific-coachings__audience {
+    display: flex;
+    align-items: center;
+    gap: clamp(1rem, 2vw, 1.5rem);
+    padding: 1rem clamp(1rem, 1.65vw, 1.5rem);
+    border-bottom: 1px solid var(--paper-2);
+  }
+
+  .specific-coachings__audience-label {
+    flex: 0 0 auto;
+    color: var(--ink-3);
+    font-size: 0.78rem;
+    font-weight: 500;
+    line-height: 1;
+    letter-spacing: 0.11em;
+    text-transform: uppercase;
+  }
+
+  .specific-coachings__tablist {
+    display: inline-grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    width: min(100%, 30rem);
+    padding: 0.22rem;
+    border: 1px solid var(--paper-2);
+    border-radius: 999px;
+  }
+
+  .specific-coachings__tab {
+    min-width: 0;
+    padding: 0.72rem clamp(1rem, 2vw, 1.5rem);
+    border: 0;
+    border-radius: 999px;
+    color: var(--ink-3);
+    font-size: clamp(0.9rem, 1.1vw, 1rem);
+    font-weight: 400;
+    line-height: 1.25;
+    text-align: center;
+    transition:
+      color var(--dur-fast) var(--ease-smooth),
+      background-color var(--dur-fast) var(--ease-smooth);
+  }
+
+  .specific-coachings__tab.is-active {
+    color: var(--ink);
+    background: rgba(245, 245, 242, 0.075);
+  }
+
+  .specific-coachings__panel[hidden] {
+    display: none;
+  }
+
+  .specific-coachings__panel:not([hidden]) {
+    display: block;
+  }
+
+  .specific-coachings__choices {
+    display: grid;
+    grid-template-columns: repeat(4, minmax(0, 1fr));
+    width: 100%;
+    border-bottom: 1px solid var(--paper-2);
+  }
+
+  .specific-coachings__choice {
+    position: relative;
+    display: flex;
+    align-items: center;
+    width: 100%;
+    min-width: 0;
+    min-height: 5.25rem;
+    padding: 1.1rem clamp(1rem, 1.65vw, 1.5rem);
+    border: 0;
+    border-right: 1px solid var(--paper-2);
+    border-bottom: 1px solid var(--paper-2);
+    color: inherit;
+    text-align: left;
+    transition: background-color 260ms var(--ease-smooth);
+  }
+
+  .specific-coachings__choice:nth-child(4n),
+  .specific-coachings__choice:last-child {
+    border-right: 0;
+  }
+
+  .specific-coachings__choice:nth-child(n + 5) {
+    border-bottom: 0;
+  }
+
+  .specific-coachings__choice:is(:hover, :focus-visible),
+  .specific-coachings__choice.is-active {
+    background: rgba(245, 245, 242, 0.035);
+  }
+
+  .specific-coachings__summary {
+    display: grid;
+    min-width: 0;
+  }
+
+  .specific-coachings__summary strong {
+    color: var(--ink-2);
+    font-size: clamp(0.9rem, 1.05vw, 1.02rem);
+    font-weight: 400;
+    line-height: 1.25;
+    letter-spacing: -0.015em;
+    transition: color 260ms var(--ease-smooth);
+  }
+
+  .specific-coachings__choice.is-active .specific-coachings__summary strong {
+    color: var(--ink);
+  }
+
+  .specific-coachings__summary > span {
+    display: none;
+  }
+
+  .specific-coachings__details {
+    display: grid;
+    min-height: clamp(18rem, 25vw, 21rem);
+    align-content: center;
+    padding: clamp(2rem, 4vw, 4rem);
+  }
+
+  .specific-coachings__detail {
+    display: grid;
+    grid-template-columns: minmax(12rem, 17rem) minmax(0, 1fr);
+    gap: clamp(2rem, 4vw, 4rem);
+    align-items: center;
+    width: 100%;
+  }
+
+  .specific-coachings__detail[hidden] {
+    display: none;
+  }
+
+  .specific-coachings__detail h3 {
+    font-size: clamp(1.45rem, 2.35vw, 2rem);
+    font-weight: 400;
+    line-height: 1.25;
+  }
+
+  .specific-coachings__detail p {
+    margin-top: 0.75rem;
+    color: var(--ink-2);
+    font-size: clamp(0.98rem, 1.15vw, 1.08rem);
+    line-height: 1.7;
+  }
+
+  .specific-coachings__detail-image {
+    display: block;
+    overflow: hidden;
+    aspect-ratio: 4 / 3;
+    border-radius: var(--radius-media);
+  }
+
+  .specific-coachings__detail-image img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+  }
+
+  .specific-coachings__footer {
+    margin-top: clamp(2.25rem, 3.5vw, 3rem);
+  }
+
+  @media (min-width: 992px) {
+    [data-route='motion-study'] .match-study__continuation .split-cta.is-glow .split-cta__media {
+      width: min(90%, 39.5rem);
+    }
+  }
+
+  @media (max-width: 767px) {
+    [data-route='motion-study'] .match-study__continuation .value-stmt {
+      margin-bottom: 0;
+      padding-top: clamp(5rem, 20vw, 6rem);
+      padding-bottom: clamp(3rem, 12vw, 4rem);
+    }
+
+    [data-route='motion-study'] .match-study__continuation .split-cta.is-glow {
+      margin-top: 0;
+      padding-top: 3.5rem;
+    }
+
+    [data-route='motion-study'] .match-study__continuation .split-cta.is-glow .split-cta__grid {
+      grid-template-columns: minmax(0, 1fr);
+      grid-template-rows: repeat(3, auto);
+      row-gap: 0;
+      padding-bottom: 3.5rem;
+    }
+
+    [data-route='motion-study'] .match-study__continuation .split-cta.is-glow h2 {
+      max-width: 11ch;
+    }
+
+    [data-route='motion-study'] .match-study__continuation .split-cta.is-glow .split-cta__media {
+      grid-row: 2;
+      grid-column: 1;
+      width: 100%;
+      margin-top: 2.75rem;
+    }
+
+    [data-route='motion-study'] .match-study__continuation .split-cta.is-glow .split-cta__details {
+      grid-row: 3;
+      grid-column: 1;
+      max-width: 36rem;
+      margin-top: 2.75rem;
+    }
+
+    [data-route='motion-study'] .match-study__continuation .split-cta.is-glow .split-cta__details .split-cta__buttons {
+      margin-top: 1.5rem;
+    }
+
+    .offers-intro__eyebrow {
+      margin-bottom: 3.75rem;
+    }
+
+    .ebook-offer {
+      grid-template-columns: minmax(0, 1fr);
+      grid-template-rows: auto auto auto;
+      row-gap: 0;
+      padding-bottom: 4.5rem;
+    }
+
+    .ebook-offer__copy h2 {
+      grid-row: 1;
+      grid-column: 1;
+      max-width: 11ch;
+    }
+
+    .ebook-offer__visual {
+      grid-row: 2;
+      grid-column: 1;
+      justify-self: center;
+      width: min(58vw, 15rem);
+      min-height: 17rem;
+      margin-top: 2.75rem;
+    }
+
+    .ebook-offer__visual img {
+      max-height: 17rem;
+    }
+
+    .ebook-offer__details {
+      grid-row: 3;
+      grid-column: 1;
+      max-width: 36rem;
+      margin-top: 2.25rem;
+    }
+
+    .specific-coachings {
+      padding-top: 4rem;
+      padding-bottom: 6rem;
+    }
+
+    .specific-coachings__tabs {
+      margin-top: 2.5rem;
+    }
+
+    .specific-coachings__audience {
+      display: grid;
+      grid-template-columns: auto minmax(0, 1fr);
+      gap: 0.75rem;
+      padding: 0.85rem 0.75rem;
+    }
+
+    .specific-coachings__audience-label {
+      font-size: 0.66rem;
+      letter-spacing: 0.08em;
+    }
+
+    .specific-coachings__tablist {
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+      width: 100%;
+    }
+
+    .specific-coachings__tab {
+      padding: 0.68rem 0.55rem;
+      font-size: clamp(0.78rem, 3.4vw, 0.9rem);
+      text-align: center;
+    }
+
+    .specific-coachings__panel:not([hidden]) {
+      grid-template-columns: minmax(0, 1fr);
+    }
+
+    .specific-coachings__choices {
+      display: grid;
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+      border-right: 0;
+      border-bottom: 1px solid var(--paper-2);
+    }
+
+    .specific-coachings__choice {
+      display: flex;
+      align-items: center;
+      min-height: 5.4rem;
+      padding: 0.9rem 1rem;
+      border-right: 0;
+      border-bottom: 1px solid var(--paper-2);
+    }
+
+    .specific-coachings__choice:nth-child(n + 5) {
+      border-bottom: 1px solid var(--paper-2);
+    }
+
+    .specific-coachings__choice:nth-child(odd) {
+      border-right: 1px solid var(--paper-2);
+    }
+
+    .specific-coachings__choice:nth-last-child(-n + 2) {
+      border-bottom: 0;
+    }
+
+    .specific-coachings__choice:nth-child(even):nth-last-child(2) {
+      border-bottom: 1px solid var(--paper-2);
+    }
+
+    .specific-coachings__summary strong {
+      font-size: clamp(0.88rem, 3.8vw, 1rem);
+    }
+
+    .specific-coachings__summary > span {
+      display: none;
+    }
+
+    .specific-coachings__details {
+      min-height: 0;
+      padding: 1.5rem;
+    }
+
+    .specific-coachings__detail {
+      grid-template-columns: 7.25rem minmax(0, 1fr);
+      gap: 1.25rem;
+      align-items: center;
+    }
+
+    .specific-coachings__detail-copy {
+      display: contents;
+    }
+
+    .specific-coachings__detail h3 {
+      grid-row: 1;
+      grid-column: 2;
+    }
+
+    .specific-coachings__detail p {
+      grid-row: 2;
+      grid-column: 1 / -1;
+      margin-top: 1.5rem;
+      font-size: 0.92rem;
+      line-height: 1.6;
+    }
+  }
+
+  .match-study__track {
+    position: relative;
+    height: 355vh;
+  }
+
+  .match-study__sticky {
+    position: sticky;
+    top: 0;
+    height: 100svh;
+    min-height: 0;
+    overflow: clip;
+    background: #080808;
+    isolation: isolate;
+  }
+
+  .match-study__copy {
+    position: absolute;
+    top: 50%;
+    left: 7vw;
+    z-index: 1;
+    width: min(44vw, 40rem);
+    transform: translateY(-50%);
+    will-change: transform, opacity;
+  }
+
+  .match-study__copy h1 {
+    margin: 0;
+    font-size: clamp(3.5rem, 5.5vw, 5.5rem);
+    font-weight: 400;
+    line-height: 1.14;
+    letter-spacing: -0.035em;
+  }
+
+  .match-study__copy h1 span {
+    display: block;
+    font-size: 0.54em;
+    font-weight: 300;
+    letter-spacing: -0.015em;
+    line-height: 1.45;
+  }
+
+  .match-study__button {
+    display: inline-flex;
+    align-items: center;
+    min-height: 3rem;
+    margin-top: 2.5rem;
+    padding: 0.7rem 1.35rem;
+    border: 1px solid rgba(154, 122, 51, 0.6);
+    border-radius: 999px;
+    background: linear-gradient(110deg, rgba(255,255,255,0.02), rgba(154,122,51,0.55));
+    font-size: 0.95rem;
+  }
+
+  .match-study__photo {
+    position: absolute;
+    inset: 0;
+    z-index: 2;
+    width: 100%;
+    height: 100%;
+    overflow: clip;
+    margin: 0;
+    background: #080808;
+    --match-focus-x: calc(50cqw - 6.663cqh);
+    --match-focus-y: 52.54cqh;
+    container-name: match-photo;
+    container-type: size;
+    pointer-events: none;
+    will-change: clip-path;
+  }
+
+  .match-study__photo-entry {
+    position: absolute;
+    inset: 0;
+    will-change: transform;
+  }
+
+  .match-study__photo-plane {
+    position: absolute;
+    inset: 0;
+    z-index: 0;
+    transform-origin: var(--match-focus-x) var(--match-focus-y);
+    will-change: transform;
+  }
+
+  .match-study__photo-plane > img {
+    position: absolute;
+    inset: 0;
+    width: 100%;
+    height: 100%;
+    max-width: none;
+    object-fit: cover;
+    object-position: 50% 100%;
+  }
+
+  .match-study__photo-grade {
+    position: absolute;
+    inset: 0;
+    z-index: 1;
+    background:
+      radial-gradient(circle at var(--match-focus-x) var(--match-focus-y), transparent 0 6%, rgba(8,8,8,0.08) 15%, rgba(8,8,8,0.7) 68%),
+      linear-gradient(180deg, rgba(0,0,0,0.04), rgba(0,0,0,0.38));
+    pointer-events: none;
+    will-change: opacity;
+  }
+
+  .match-study__iris {
+    position: absolute;
+    inset: 0;
+    z-index: 2;
+    background: radial-gradient(
+      circle at var(--match-focus-x) var(--match-focus-y),
+      transparent 0 5%,
+      rgba(8, 8, 8, 0.1) 13%,
+      rgba(8, 8, 8, 0.78) 47%,
+      #080808 82%
+    );
+    pointer-events: none;
+    will-change: opacity;
+  }
+
+  .match-study__results {
+    position: absolute;
+    inset: 0;
+    z-index: 1;
+    overflow: clip;
+    background:
+      radial-gradient(circle at 50% 50%, rgba(38, 39, 45, 0.22), transparent 35%),
+      #080808;
+    will-change: opacity;
+  }
+
+  .match-study__phone {
+    max-width: none;
+    object-fit: contain;
+    transform-origin: 50% 50%;
+    will-change: transform, opacity;
+  }
+
+  .match-study__bridge-wrap .match-study__phone--bridge {
+    position: relative;
+    top: 0;
+    left: 0;
+    width: auto;
+    height: var(--match-held-phone-height);
+    display: block;
+    filter: brightness(0.94) saturate(0.92);
+    will-change: auto;
+  }
+
+  .match-study__bridge-wrap {
+    position: absolute;
+    /* Top-left und Höhe des eingesetzten Mockups werden direkt aus den
+       Originalbildkoordinaten (2440 × 1816) abgeleitet. Container-Units
+       laufen synchron mit der echten Fotospalte – auch während eines
+       laufenden Resizes und ohne einen nachlaufenden JS-Refresh. */
+    --match-held-phone-height: 8.039648cqh;
+    top: 48.348018cqh;
+    left: calc(50cqw - 6.387665cqh);
+    z-index: 4;
+    width: 0;
+    height: 0;
+    pointer-events: none;
+  }
+
+  @container match-photo (min-aspect-ratio: 2440 / 1816) {
+    .match-study__bridge-wrap {
+      --match-held-phone-height: 5.983607cqw;
+      top: calc(100cqh - 38.442623cqw);
+      left: 45.245902cqw;
+    }
+  }
+
+  .match-study__bridge-motion {
+    position: absolute;
+    top: 0;
+    left: 0;
+    display: block;
+    width: 0;
+    height: 0;
+    will-change: auto;
+  }
+
+  .match-study__bridge-center {
+    position: absolute;
+    top: 0;
+    left: 0;
+    display: block;
+  }
+
+  .match-study__bridge-focus {
+    position: relative;
+    display: block;
+    width: max-content;
+    transform-origin: 0 0;
+    transition: filter 420ms cubic-bezier(0.22, 1, 0.36, 1);
+    will-change: auto;
+  }
+
+  /* Erst nach dem Match-Punkt löst sich das Mockup aus dem Foto und erhält
+     eigene Compositor-Layer. In der Handphase bleibt es bewusst mit den
+     Fotopixeln zusammen gerastert, damit beide beim Scrub exakt gleich
+     reagieren und kein Mikroflackern entsteht. */
+  .match-study[data-bridge-phase='moving'] .match-study__bridge-motion,
+  .match-study[data-bridge-phase='moving'] .match-study__bridge-focus {
+    will-change: transform;
+  }
+
+  .match-study[data-bridge-phase='moving'] .match-study__phone--bridge {
+    will-change: height, clip-path;
+  }
+
+  @media (min-aspect-ratio: 2440 / 1816) {
+    .match-study__photo {
+      --match-focus-x: 45.041cqw;
+      --match-focus-y: calc(100cqh - 35.323cqw);
+    }
+  }
+
+  .match-study__eyebrow {
+    position: absolute;
+    z-index: 7;
+    bottom: 4.25rem;
+    margin: 0;
+    color: rgba(245, 245, 242, 0.54);
+    font-size: 0.72rem;
+    font-weight: 400;
+    letter-spacing: 0.13em;
+    text-transform: uppercase;
+    will-change: transform, opacity;
+  }
+
+  .match-study__eyebrow {
+    display: grid;
+    left: max(5vw, calc((100vw - var(--container)) / 2));
+    color: var(--accent-fg);
+    font-size: 0.76rem;
+    font-weight: 600;
+    letter-spacing: 0.14em;
+  }
+
+  .match-study__eyebrow span {
+    display: block;
+    grid-area: 1 / 1;
+    will-change: transform, opacity;
+  }
+
+  .match-study__eyebrow span[data-world-label='customers'] {
+    opacity: 0;
+    transform: translateX(1.625rem);
+  }
+
+  .match-study__world {
+    position: absolute;
+    inset: 0;
+    z-index: 3;
+    opacity: 0;
+    transform: scale(0.985);
+    pointer-events: none;
+    will-change: transform, opacity;
+  }
+
+  .match-study__world--accounts {
+    opacity: 1;
+    transform: scale(1) translateX(0);
+  }
+
+  .match-study__results[data-active-world='accounts'] .match-study__world--accounts,
+  .match-study__results[data-active-world='customers'] .match-study__world--customers {
+    pointer-events: auto;
+  }
+
+  .match-study__world-card {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    z-index: 2;
+    display: block;
+    width: auto;
+    margin: 0;
+    padding: 0;
+    border: 0;
+    color: inherit;
+    background: transparent;
+    transform:
+      translate(-50%, -50%)
+      translate(var(--orbit-x), var(--orbit-y))
+      rotate(var(--orbit-rotation))
+      scale(var(--orbit-scale));
+    cursor: default;
+    pointer-events: none;
+    appearance: none;
+  }
+
+  .match-study__world-card:focus-visible {
+    outline: none;
+  }
+
+  .match-study__world-card:focus-visible .match-study__world-card-visual {
+    outline: 1px solid rgba(154, 122, 51, 0.72);
+    outline-offset: 0.28rem;
+  }
+
+  .match-study__world-card-visual {
+    position: relative;
+    display: block;
+    width: clamp(8rem, 16vw, 14rem);
+    opacity: 0.44;
+    filter: brightness(0.6) saturate(0.76);
+    transition:
+      opacity 500ms cubic-bezier(0.22, 1, 0.36, 1),
+      filter 500ms cubic-bezier(0.22, 1, 0.36, 1),
+      transform 700ms cubic-bezier(0.22, 1, 0.36, 1);
+    will-change: transform, filter, opacity;
+  }
+
+  .match-study__card-lift {
+    position: absolute;
+    inset: 0;
+    z-index: 6;
+    overflow: clip;
+    pointer-events: none;
+  }
+
+  .match-study[data-lift-open='true'] .match-study__card-lift {
+    pointer-events: auto;
+  }
+
+  .match-study__world-card.is-lifted {
+    top: 50%;
+    left: 50%;
+    z-index: 1;
+    opacity: 1 !important;
+    visibility: visible !important;
+    transform:
+      translate(-50%, -50%)
+      translate3d(var(--lift-x, 0px), var(--lift-y, 0px), 0)
+      rotate(var(--lift-rotation, 0deg))
+      scale(var(--lift-scale, 1));
+    cursor: zoom-out;
+    pointer-events: auto;
+    isolation: isolate;
+  }
+
+  .match-study__world-card.is-lifted.is-lift-ready {
+    transition: transform 620ms cubic-bezier(0.22, 1, 0.36, 1);
+  }
+
+  .match-study__world-card.is-lifted .match-study__world-card-visual {
+    opacity: 1 !important;
+    filter: brightness(1) saturate(1) !important;
+    transform: translateY(-1%);
+  }
+
+  .match-study__world-card.is-lifted.is-returning .match-study__world-card-visual {
+    opacity: var(--lift-return-opacity, 0.52) !important;
+    filter: var(--lift-return-filter, brightness(0.68) saturate(0.8)) !important;
+    transform: translateY(0);
+    transition-duration: 560ms;
+  }
+
+  .match-study__world-card.is-lifted.is-returning {
+    opacity: 1 !important;
+    pointer-events: none;
+    transition: transform 580ms cubic-bezier(0.22, 1, 0.36, 1);
+  }
+
+  .match-study__world-card.is-lift-source {
+    visibility: hidden !important;
+    pointer-events: none;
+  }
+
+  .match-study__world-card.is-lift-source .match-study__world-card-visual {
+    opacity: 0 !important;
+    transform: none !important;
+  }
+
+  .match-study__world-card.is-lift-handoff,
+  .match-study__world-card.is-lift-handoff .match-study__world-card-visual,
+  .match-study__world-card.is-lift-handoff .match-study__result-pin {
+    transition: none !important;
+  }
+
+  .match-study[data-lift-open='true'] .match-study__bridge-focus {
+    filter: brightness(0.32) saturate(0.62);
+  }
+
+  .match-study[data-lift-open='true'] .match-study__own-center-pin {
+    opacity: 0 !important;
+  }
+
+  .match-study[data-lift-open='true'] .match-study__results .match-study__world-card:not(.is-lift-source) .match-study__world-card-visual {
+    opacity: 0.22 !important;
+    filter: brightness(0.48) saturate(0.68);
+  }
+
+  /* Orbit cards close to a viewport edge grow back into the composition.
+     Their outer edge therefore stays fixed instead of being clipped on hover. */
+  .match-study__world-card--own:is([data-orbit='2'], [data-orbit='3']) .match-study__world-card-visual,
+  .match-study__world-card--customer:is([data-orbit='3'], [data-orbit='4'], [data-orbit='7'], [data-orbit='8'], [data-orbit='11']) .match-study__world-card-visual {
+    transform-origin: 50% 100%;
+  }
+
+  .match-study__world-card--own:is([data-orbit='4'], [data-orbit='5'], [data-orbit='6'], [data-orbit='7']) .match-study__world-card-visual,
+  .match-study__world-card--customer:is([data-orbit='1'], [data-orbit='2'], [data-orbit='9'], [data-orbit='10']) .match-study__world-card-visual {
+    transform-origin: 50% 0%;
+  }
+
+  .match-study__own-proof {
+    width: clamp(10rem, 18vw, 17rem);
+    overflow: visible;
+    padding: 0.32rem;
+    border: 1px solid rgba(164, 168, 191, 0.34);
+    border-radius: 1.25rem;
+    color: #f5f5f2;
+    background: linear-gradient(155deg, rgba(27, 28, 33, 0.96), rgba(4, 4, 5, 0.98));
+    box-shadow:
+      inset 0 0 0 1px rgba(255, 255, 255, 0.03),
+      0 2rem 3rem rgba(0, 0, 0, 0.7);
+  }
+
+  .match-study__own-media {
+    position: relative;
+    display: block;
+    width: 100%;
+    overflow: hidden;
+    border-radius: 0.95rem;
+    background: #050506;
+  }
+
+  .match-study__own-media > img {
+    display: block;
+    width: 100%;
+    height: auto;
+    max-width: none;
+    object-fit: contain;
+  }
+
+  .match-study__world-card[data-orbit='0'] {
+    z-index: 3;
+    --orbit-x: -30vw;
+    --orbit-y: -3vh;
+    --orbit-rotation: -4deg;
+    --orbit-scale: 0.7;
+  }
+
+  .match-study__world-card[data-orbit='1'] {
+    z-index: 3;
+    --orbit-x: 30vw;
+    --orbit-y: -4vh;
+    --orbit-rotation: 4deg;
+    --orbit-scale: 0.68;
+  }
+
+  .match-study__world-card[data-orbit='2'] {
+    z-index: 3;
+    --orbit-x: -34vw;
+    --orbit-y: 23vh;
+    --orbit-rotation: -3deg;
+    --orbit-scale: 0.52;
+  }
+
+  .match-study__world-card[data-orbit='3'] {
+    z-index: 3;
+    --orbit-x: 34vw;
+    --orbit-y: 23vh;
+    --orbit-rotation: 3deg;
+    --orbit-scale: 0.48;
+  }
+
+  .match-study__world-card[data-orbit='4'] {
+    z-index: 1;
+    --orbit-x: 20vw;
+    --orbit-y: -29vh;
+    --orbit-rotation: 2deg;
+    --orbit-scale: 0.42;
+  }
+
+  .match-study__world-card[data-orbit='5'] {
+    z-index: 4;
+    --orbit-x: -24vw;
+    --orbit-y: -27vh;
+    --orbit-rotation: -2deg;
+    --orbit-scale: 0.58;
+  }
+
+  .match-study__world-card[data-orbit='6'] {
+    z-index: 1;
+    --orbit-x: -44vw;
+    --orbit-y: -17vh;
+    --orbit-rotation: -4deg;
+    --orbit-scale: 0.32;
+  }
+
+  .match-study__world-card[data-orbit='7'] {
+    z-index: 1;
+    --orbit-x: 44vw;
+    --orbit-y: -17vh;
+    --orbit-rotation: 4deg;
+    --orbit-scale: 0.32;
+  }
+
+  .match-study__world-card--own:is([data-orbit='0'], [data-orbit='1'], [data-orbit='2'], [data-orbit='3'], [data-orbit='5']) .match-study__world-card-visual {
+    opacity: 0.72;
+    filter: brightness(0.76) saturate(0.86);
+  }
+
+  .match-study__world-card--customer[data-orbit='0'] {
+    z-index: 6;
+    --orbit-x: 0;
+    --orbit-y: 0;
+    --orbit-rotation: 0deg;
+    --orbit-scale: 1;
+    cursor: default;
+    pointer-events: none;
+  }
+
+  .match-study__world-card--customer[data-orbit='1'] {
+    z-index: 3;
+    --orbit-x: -28vw;
+    --orbit-y: -19vh;
+    --orbit-rotation: -3deg;
+    --orbit-scale: 0.68;
+  }
+
+  .match-study__world-card--customer[data-orbit='2'] {
+    z-index: 3;
+    --orbit-x: 29vw;
+    --orbit-y: -19vh;
+    --orbit-rotation: 3deg;
+    --orbit-scale: 0.68;
+  }
+
+  .match-study__world-card--customer[data-orbit='3'] {
+    z-index: 3;
+    --orbit-x: -29vw;
+    --orbit-y: 21vh;
+    --orbit-rotation: -3deg;
+    --orbit-scale: 0.6;
+  }
+
+  .match-study__world-card--customer[data-orbit='4'] {
+    z-index: 3;
+    --orbit-x: 28vw;
+    --orbit-y: 20vh;
+    --orbit-rotation: 3deg;
+    --orbit-scale: 0.6;
+  }
+
+  .match-study__world-card--customer[data-orbit='5'] {
+    z-index: 1;
+    --orbit-x: -42vw;
+    --orbit-y: -3vh;
+    --orbit-rotation: -5deg;
+    --orbit-scale: 0.42;
+  }
+
+  .match-study__world-card--customer[data-orbit='6'] {
+    z-index: 1;
+    --orbit-x: 41vw;
+    --orbit-y: -3vh;
+    --orbit-rotation: 5deg;
+    --orbit-scale: 0.42;
+  }
+
+  .match-study__world-card--customer[data-orbit='7'] {
+    z-index: 1;
+    --orbit-x: -42vw;
+    --orbit-y: 26vh;
+    --orbit-rotation: -4deg;
+    --orbit-scale: 0.34;
+  }
+
+  .match-study__world-card--customer[data-orbit='8'] {
+    z-index: 1;
+    --orbit-x: 42vw;
+    --orbit-y: 26vh;
+    --orbit-rotation: 4deg;
+    --orbit-scale: 0.34;
+  }
+
+  .match-study__world-card--customer[data-orbit='9'] {
+    z-index: 1;
+    --orbit-x: -17vw;
+    --orbit-y: -31vh;
+    --orbit-rotation: -2deg;
+    --orbit-scale: 0.34;
+  }
+
+  .match-study__world-card--customer[data-orbit='10'] {
+    z-index: 1;
+    --orbit-x: 17vw;
+    --orbit-y: -31vh;
+    --orbit-rotation: 2deg;
+    --orbit-scale: 0.34;
+  }
+
+  .match-study__world-card--customer[data-orbit='11'] {
+    z-index: 1;
+    --orbit-x: 0;
+    --orbit-y: 31vh;
+    --orbit-rotation: 0deg;
+    --orbit-scale: 0.3;
+  }
+
+  .match-study__world-card--customer[data-orbit='0'] .match-study__world-card-visual {
+    opacity: 1;
+    filter: brightness(0.96) saturate(0.94);
+  }
+
+  .match-study__world-card--customer .match-study__world-card-visual {
+    opacity: 0.44;
+    filter: brightness(0.6) saturate(0.76);
+  }
+
+  .match-study__world-card--customer:is([data-orbit='1'], [data-orbit='2'], [data-orbit='3'], [data-orbit='4']) .match-study__world-card-visual {
+    opacity: 0.72;
+    filter: brightness(0.76) saturate(0.86);
+  }
+
+  /* Die Screenshots werden erst in den beiden definierten Ruhepositionen
+     interaktiv. Bewegung, Badges, Hover und Fokus folgen damit demselben
+     Zustand statt voneinander abweichenden Scroll-Prozentwerten. */
+  .match-study[data-journey-state='accounts-ready'] .match-study__world-card--own,
+  .match-study[data-journey-state='customers-ready'] .match-study__world-card--customer:not([data-orbit='0']) {
+    cursor: zoom-in;
+    pointer-events: auto;
+  }
+
+  .match-study[data-journey-state='accounts-ready'] .match-study__world-card--own .match-study__world-card-visual,
+  .match-study[data-journey-state='customers-ready'] .match-study__world-card--customer:not([data-orbit='0']) .match-study__world-card-visual {
+    opacity: 0.52;
+    filter: brightness(0.68) saturate(0.8);
+  }
+
+  .match-study[data-journey-state='accounts-ready'] .match-study__world-card--own:is([data-orbit='0'], [data-orbit='1'], [data-orbit='2'], [data-orbit='3'], [data-orbit='5']) .match-study__world-card-visual,
+  .match-study[data-journey-state='customers-ready'] .match-study__world-card--customer:is([data-orbit='1'], [data-orbit='2'], [data-orbit='3'], [data-orbit='4']) .match-study__world-card-visual {
+    opacity: 0.78;
+    filter: brightness(0.82) saturate(0.9);
+  }
+
+  .match-study__world-card--customer[data-orbit='0'] .match-study__customer-device {
+    opacity: 1;
+    filter: brightness(0.96) saturate(0.94);
+  }
+
+  .match-study__customer-device {
+    position: relative;
+    display: block;
+    width: min(35.712vh, 23.808rem);
+    height: min(72vh, 48rem);
+    aspect-ratio: 806 / 1625;
+    filter: drop-shadow(0 2rem 4rem rgba(0, 0, 0, 0.76));
+  }
+
+  .match-study__customer-device-frame {
+    position: absolute;
+    inset: 0;
+    z-index: 2;
+    display: block;
+    width: 100%;
+    height: 100%;
+    object-fit: contain;
+    pointer-events: none;
+  }
+
+  .match-study__customer-device-screen {
+    position: absolute;
+    inset: 2.35% 4.65% 2.4%;
+    z-index: 3;
+    display: block;
+    overflow: hidden;
+    border-radius: 12% / 6%;
+    background: #050607;
+  }
+
+.match-study__customer-device-screen > img {
+  display: block;
+  width: 100%;
+  height: 100%;
+  min-height: 0;
+  object-fit: contain;
+  object-position: 50% 50%;
+  background: #050607;
+}
+
+  .match-study__customer-proof {
+    display: block;
+    width: clamp(11.5rem, 20vw, 21rem);
+    overflow: visible;
+    padding: 0.42rem;
+    border: 1px solid rgba(164, 168, 191, 0.38);
+    border-radius: 1.35rem;
+    color: #f5f5f2;
+    background: linear-gradient(155deg, rgba(29, 30, 35, 0.98), rgba(4, 4, 5, 0.98));
+    box-shadow:
+      inset 0 0 0 1px rgba(255, 255, 255, 0.035),
+      0 2rem 4rem rgba(0, 0, 0, 0.72);
+  }
+
+  .match-study__customer-proof--phone {
+    width: clamp(9rem, 14vw, 15.5rem);
+    padding: 0.44rem;
+    border-color: rgba(164, 168, 191, 0.58);
+    border-radius: 2rem;
+  }
+
+  .match-study__customer-media {
+    position: relative;
+    display: grid;
+    width: 100%;
+    min-width: 0;
+    overflow: hidden;
+    border-radius: 0.95rem;
+    background: #050506;
+  }
+
+  .match-study__customer-proof--panel .match-study__customer-media {
+    aspect-ratio: 1.48 / 1;
+  }
+
+  .match-study__customer-proof--phone .match-study__customer-media {
+    aspect-ratio: 806 / 1450;
+    border-radius: 1.55rem 1.55rem 1.15rem 1.15rem;
+  }
+
+  .match-study__customer-proof--comparison .match-study__customer-media {
+    grid-template-rows: 1fr 1fr;
+    aspect-ratio: 1.3 / 1;
+    gap: 0.3rem;
+    padding: 0.3rem;
+  }
+
+  .match-study__customer-media > img {
+    display: block;
+    width: 100%;
+    height: 100%;
+    min-width: 0;
+    min-height: 0;
+    object-fit: contain;
+  }
+
+  .match-study__customer-proof--comparison .match-study__customer-media > img {
+    border-radius: 0.65rem;
+    object-fit: cover;
+  }
+
+  .match-study__result-pin {
+    position: absolute;
+    right: 0.35rem;
+    bottom: -0.42rem;
+    z-index: 6;
+    display: grid;
+    width: max-content;
+    max-width: min(17rem, calc(100vw - 1.5rem));
+    gap: 0.16rem;
+    padding: 0.52rem 0.82rem 0.58rem;
+    border: 1px solid rgba(245, 245, 242, 0.2);
+    border-radius: 999px;
+    text-align: left;
+    color: #f5f5f2;
+    background: rgba(11, 11, 12, 0.94);
+    box-shadow: 0 0.7rem 1.6rem rgba(0, 0, 0, 0.42);
+    backdrop-filter: blur(12px);
+    pointer-events: none;
+    transition: opacity 420ms cubic-bezier(0.22, 1, 0.36, 1);
+  }
+
+  /* Nur die wichtigsten Satelliten zeigen ihre Kennzahl permanent.
+     Weitere Belege bleiben als Tiefe sichtbar und geben ihren Badge erst bei
+     bewusster Interaktion frei. */
+  .match-study__world-card--own:is([data-orbit='4'], [data-orbit='6'], [data-orbit='7']) .match-study__result-pin,
+  .match-study__world-card--customer:is([data-orbit='5'], [data-orbit='6'], [data-orbit='7'], [data-orbit='8'], [data-orbit='9'], [data-orbit='10'], [data-orbit='11']) .match-study__result-pin {
+    opacity: 0;
+  }
+
+  /* Beim seitlichen Weltenwechsel bleiben nur die beiden Hauptbelege aktiv.
+     Satelliten-Kennzahlen kommen erst zurück, sobald die jeweilige Welt
+     eingerastet und damit auch wieder bewusst erkundbar ist. */
+  .match-study:not([data-lift-enabled='true']) .match-study__world-card:not(.match-study__world-card--customer[data-orbit='0']) .match-study__result-pin {
+    opacity: 0;
+  }
+
+  .match-study__world-card.is-lifted[data-orbit] .match-study__result-pin {
+    opacity: 1;
+  }
+
+  .match-study__own-pin {
+    right: 0.35rem;
+    bottom: -0.42rem;
+  }
+
+  /* Badge-Anker werden redaktionell pro Beleg vergeben. Nur etwa ein Fünftel
+     der Badge-Höhe liegt noch auf dem Screenshot; die relevante Kennzahl
+     bleibt lesbar und die restliche Fläche öffnet sich zur freien Außenkante. */
+  .match-study__world-card[data-pin='top-left'] .match-study__result-pin,
+  .match-study__world-card[data-pin='top-right'] .match-study__result-pin {
+    top: 0;
+    bottom: auto;
+    transform: translateY(-78%);
+  }
+
+  .match-study__world-card[data-pin='bottom-left'] .match-study__result-pin,
+  .match-study__world-card[data-pin='bottom-right'] .match-study__result-pin {
+    top: auto;
+    bottom: 0;
+    transform: translateY(78%);
+  }
+
+  .match-study__world-card[data-pin='top-left'] .match-study__result-pin,
+  .match-study__world-card[data-pin='bottom-left'] .match-study__result-pin {
+    right: auto;
+    left: 0.35rem;
+  }
+
+  .match-study__world-card[data-pin='top-right'] .match-study__result-pin,
+  .match-study__world-card[data-pin='bottom-right'] .match-study__result-pin {
+    right: 0.35rem;
+    left: auto;
+  }
+
+  .match-study__own-center-pin,
+  .match-study__world-card--customer[data-orbit='0'] .match-study__customer-pin {
+    --match-center-pin-top: 3%;
+    --match-center-pin-bottom: auto;
+    --match-center-pin-transform:
+      translate(-50%, -50%)
+      scale(var(--match-center-pin-viewport-scale, 1));
+    top: var(--match-center-pin-top, auto);
+    right: auto;
+    bottom: var(--match-center-pin-bottom, 5%);
+    left: 50%;
+    width: max-content;
+    min-width: 10.5rem;
+    max-width: min(16rem, calc(100vw - 1.5rem));
+    padding: 0.62rem 1rem 0.68rem;
+    border-color: rgba(154, 122, 51, 0.58);
+    transform: var(--match-center-pin-transform, translateX(-50%));
+    box-shadow:
+      0 0.8rem 2rem rgba(0, 0, 0, 0.52),
+      0 0 1.4rem rgba(154, 122, 51, 0.12);
+    white-space: normal;
+  }
+
+  .match-study__own-center-pin {
+    --match-center-pin-transform:
+      translate(24%, -58%)
+      scale(var(--match-center-pin-scale, 1));
+    --match-center-pin-top: 0%;
+    top: var(--match-center-pin-top);
+    right: 0.45rem;
+    left: auto;
+    transform-origin: 100% 50%;
+  }
+
+  .match-study__result-pin strong {
+    display: block;
+    min-width: 0;
+    max-width: 100%;
+    font-size: clamp(0.78rem, 1.05vw, 1.08rem);
+    font-weight: 560;
+    line-height: 1.05;
+    letter-spacing: -0.015em;
+  }
+
+  .match-study__result-pin small {
+    display: block;
+    min-width: 0;
+    max-width: 100%;
+    color: rgba(245, 245, 242, 0.57);
+    font-size: clamp(0.56rem, 0.66vw, 0.72rem);
+    line-height: 1.2;
+    letter-spacing: 0.035em;
+    overflow-wrap: break-word;
+    text-wrap: balance;
+  }
+
+  .match-study__customer-speaker {
+    position: absolute;
+    top: 0.74rem;
+    left: 50%;
+    z-index: 3;
+    width: 28%;
+    height: 0.36rem;
+    border-radius: 999px;
+    background: #030303;
+    transform: translateX(-50%);
+  }
+
+  @media (hover: hover) {
+    .match-study[data-lift-enabled='true']:not([data-lift-open='true']) .match-study__world-card:not(.match-study__world-card--customer[data-orbit='0']):is(:hover, :focus-visible) {
+      z-index: 20;
+    }
+
+    .match-study[data-lift-enabled='true']:not([data-lift-open='true']) .match-study__world-card:not(.match-study__world-card--customer[data-orbit='0']):is(:hover, :focus-visible) .match-study__world-card-visual {
+      opacity: 0.9;
+      filter: brightness(0.9) saturate(0.94);
+      transform: scale(1.055);
+    }
+  }
+
+  /* Auch im Fokusmodus behält der Beleg seinen redaktionell gewählten Anker.
+     Ein zentriertes Standard-Badge würde gerade bei langen Insight-Screens
+     wieder die wichtigsten Zahlen am unteren Rand verdecken. */
+  .match-study__card-lift .match-study__world-card.is-lifted .match-study__world-card-visual {
+    opacity: 1;
+    filter: brightness(1) saturate(1);
+  }
+
+  .match-study__card-lift .match-study__world-card.is-lifted .match-study__result-pin {
+    opacity: 1;
+  }
+
+  @media (min-width: 992px) {
+    .match-study__card-lift .match-study__world-card--own.is-lifted .match-study__own-proof {
+      width: clamp(17rem, 23vw, 19rem);
+    }
+
+    .match-study__card-lift .match-study__world-card--customer.is-lifted .match-study__customer-proof {
+      width: clamp(19rem, 30vw, 23rem);
+    }
+
+    .match-study__card-lift .match-study__world-card--customer.is-lifted .match-study__customer-proof--phone {
+      width: clamp(12rem, 19vw, 15rem);
+    }
+
+    .match-study__card-lift .match-study__world-card--customer.is-lifted .match-study__customer-proof--comparison {
+      width: clamp(20rem, 28vw, 22rem);
+    }
+  }
+
+  .match-study__hint {
+    position: absolute;
+    right: 1.5rem;
+    bottom: 1.5rem;
+    z-index: 8;
+    margin: 0;
+    color: rgba(255, 255, 255, 0.45);
+    font-size: 0.62rem;
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+    will-change: opacity;
+  }
+
+  /* Bei hohen beziehungsweise fast quadratischen Desktop-Fenstern dürfen die
+     Belege nicht wie weit entfernte Randdekorationen wirken. Die Bühne wird
+     deshalb kompakter, ohne die klare Zentralhierarchie aufzugeben. */
+  @media (min-width: 992px) and (max-aspect-ratio: 4 / 3) {
+    .match-study__world-card[data-orbit='0'] {
+      --orbit-x: -25vw;
+      --orbit-y: -3vh;
+      --orbit-scale: 0.78;
+    }
+
+    .match-study__world-card[data-orbit='1'] {
+      --orbit-x: 25vw;
+      --orbit-y: -4vh;
+      --orbit-scale: 0.76;
+    }
+
+    .match-study__world-card[data-orbit='2'] {
+      --orbit-x: -28vw;
+      --orbit-y: 22vh;
+      --orbit-scale: 0.62;
+    }
+
+    .match-study__world-card[data-orbit='3'] {
+      --orbit-x: 28vw;
+      --orbit-y: 23vh;
+      --orbit-scale: 0.6;
+    }
+
+    .match-study__world-card[data-orbit='4'] {
+      --orbit-x: 14vw;
+      --orbit-y: -25vh;
+      --orbit-scale: 0.55;
+    }
+
+    .match-study__world-card[data-orbit='5'] {
+      --orbit-x: -22vw;
+      --orbit-y: -27vh;
+      --orbit-scale: 0.66;
+    }
+
+    .match-study__world-card[data-orbit='6'] {
+      --orbit-x: -37vw;
+      --orbit-y: -12vh;
+      --orbit-scale: 0.42;
+    }
+
+    .match-study__world-card[data-orbit='7'] {
+      --orbit-x: 39vw;
+      --orbit-y: 5vh;
+      --orbit-scale: 0.42;
+    }
+
+    .match-study__world-card--customer[data-orbit='0'] {
+      --orbit-x: 0;
+      --orbit-y: 0;
+      --orbit-scale: 1;
+    }
+
+    .match-study__world-card--customer[data-orbit='1'] {
+      --orbit-x: -26vw;
+      --orbit-y: -18vh;
+      --orbit-scale: 0.74;
+    }
+
+    .match-study__world-card--customer[data-orbit='2'] {
+      --orbit-x: 26vw;
+      --orbit-y: -18vh;
+      --orbit-scale: 0.74;
+    }
+
+    .match-study__world-card--customer[data-orbit='3'] {
+      --orbit-x: -27vw;
+      --orbit-y: 21vh;
+      --orbit-scale: 0.66;
+    }
+
+    .match-study__world-card--customer[data-orbit='4'] {
+      --orbit-x: 27vw;
+      --orbit-y: 21vh;
+      --orbit-scale: 0.66;
+    }
+
+    .match-study__world-card--customer[data-orbit='5'] {
+      --orbit-x: -36vw;
+      --orbit-y: -2vh;
+      --orbit-scale: 0.52;
+    }
+
+    .match-study__world-card--customer[data-orbit='6'] {
+      --orbit-x: 36vw;
+      --orbit-y: -2vh;
+      --orbit-scale: 0.52;
+    }
+
+    .match-study__world-card--customer[data-orbit='7'] {
+      --orbit-x: -35vw;
+      --orbit-y: 28vh;
+      --orbit-scale: 0.44;
+    }
+
+    .match-study__world-card--customer[data-orbit='8'] {
+      --orbit-x: 35vw;
+      --orbit-y: 28vh;
+      --orbit-scale: 0.44;
+    }
+
+    .match-study__world-card--customer[data-orbit='9'] {
+      --orbit-x: -14vw;
+      --orbit-y: -30vh;
+      --orbit-scale: 0.42;
+    }
+
+    .match-study__world-card--customer[data-orbit='10'] {
+      --orbit-x: 14vw;
+      --orbit-y: -30vh;
+      --orbit-scale: 0.42;
+    }
+
+    .match-study__world-card--customer[data-orbit='11'] {
+      --orbit-x: 0;
+      --orbit-y: 31vh;
+      --orbit-scale: 0.4;
+    }
+
+    .match-study__customer-device {
+      width: min(31.744vh, 21.248rem);
+      height: min(64vh, 42.5rem);
+    }
+  }
+
+  @media (max-width: 991px) {
+    .match-study__track { height: 315vh; }
+
+    .match-study__copy {
+      top: 7rem;
+      left: 5vw;
+      width: 90vw;
+      transform: none;
+    }
+
+    .match-study__copy h1 {
+      font-size: clamp(2.9rem, 12vw, 4.4rem);
+      line-height: 1.12;
+    }
+
+    .match-study__button { margin-top: 1.6rem; }
+
+    .match-study__photo-plane > img { object-position: 50% 100%; }
+
+    .match-study__bridge-wrap .match-study__phone--bridge {
+      width: auto;
+    }
+
+    .match-study__world-card-visual {
+      width: clamp(6.8rem, 34vw, 11rem);
+    }
+
+    .match-study__world-card--own .match-study__own-proof {
+      width: clamp(8.5rem, 42vw, 13rem);
+    }
+
+    .match-study__customer-proof {
+      width: clamp(9rem, 52vw, 13rem);
+    }
+
+    .match-study__customer-proof--phone {
+      width: clamp(7.2rem, 38vw, 10.5rem);
+    }
+
+    .match-study__customer-device {
+      width: min(33.728vh, 72.912vw, 17.794rem);
+      height: min(68vh, 147vw, 35.875rem);
+    }
+
+    .match-study__own-center-pin,
+    .match-study__world-card--customer[data-orbit='0'] .match-study__customer-pin {
+      top: var(--match-center-pin-top, auto);
+      right: auto;
+      bottom: var(--match-center-pin-bottom, 5%);
+      left: 50%;
+      max-width: min(11rem, 58vw);
+      transform: var(--match-center-pin-transform, translateX(-50%));
+    }
+
+    .match-study__own-center-pin {
+      --match-center-pin-top: 0%;
+      top: var(--match-center-pin-top);
+      right: 0.35rem;
+      left: auto;
+      transform: var(--match-center-pin-transform);
+    }
+
+    .match-study__world-card[data-orbit='0'] {
+      --orbit-x: -25vw;
+      --orbit-y: -3vh;
+      --orbit-scale: 0.78;
+    }
+
+    .match-study__world-card[data-orbit='1'] {
+      --orbit-x: 25vw;
+      --orbit-y: -4vh;
+      --orbit-scale: 0.76;
+    }
+
+    .match-study__world-card[data-orbit='2'] {
+      --orbit-x: -28vw;
+      --orbit-y: 23vh;
+      --orbit-scale: 0.65;
+    }
+
+    .match-study__world-card[data-orbit='3'] {
+      --orbit-x: 28vw;
+      --orbit-y: 24vh;
+      --orbit-scale: 0.63;
+    }
+
+    .match-study__world-card[data-orbit='4'] {
+      --orbit-x: 14vw;
+      --orbit-y: -25vh;
+      --orbit-scale: 0.61;
+    }
+
+    .match-study__world-card[data-orbit='5'] {
+      --orbit-x: -22vw;
+      --orbit-y: -27vh;
+      --orbit-scale: 0.7;
+    }
+
+    .match-study__world-card[data-orbit='6'] {
+      --orbit-x: -35vw;
+      --orbit-y: -13vh;
+      --orbit-scale: 0.48;
+    }
+
+    .match-study__world-card[data-orbit='7'] {
+      --orbit-x: 40vw;
+      --orbit-y: 4vh;
+      --orbit-scale: 0.48;
+    }
+
+    .match-study__world-card--customer[data-orbit='0'] {
+      --orbit-x: 0;
+      --orbit-y: 0;
+      --orbit-scale: 1;
+    }
+
+    .match-study__world-card--customer[data-orbit='1'] {
+      --orbit-x: -28vw;
+      --orbit-y: -18vh;
+      --orbit-scale: 0.64;
+    }
+
+    .match-study__world-card--customer[data-orbit='2'] {
+      --orbit-x: 28vw;
+      --orbit-y: -18vh;
+      --orbit-scale: 0.64;
+    }
+
+    .match-study__world-card--customer[data-orbit='3'] {
+      --orbit-x: -29vw;
+      --orbit-y: 21vh;
+      --orbit-scale: 0.6;
+    }
+
+    .match-study__world-card--customer[data-orbit='4'] {
+      --orbit-x: 29vw;
+      --orbit-y: 21vh;
+      --orbit-scale: 0.6;
+    }
+
+    .match-study__world-card--customer[data-orbit='5'] {
+      --orbit-x: -35vw;
+      --orbit-y: -2vh;
+      --orbit-scale: 0.5;
+    }
+
+    .match-study__world-card--customer[data-orbit='6'] {
+      --orbit-x: 35vw;
+      --orbit-y: -2vh;
+      --orbit-scale: 0.5;
+    }
+
+    .match-study__world-card--customer[data-orbit='7'] {
+      --orbit-x: -34vw;
+      --orbit-y: 29vh;
+      --orbit-scale: 0.44;
+    }
+
+    .match-study__world-card--customer[data-orbit='8'] {
+      --orbit-x: 34vw;
+      --orbit-y: 29vh;
+      --orbit-scale: 0.44;
+    }
+
+    .match-study__world-card--customer[data-orbit='9'] {
+      --orbit-x: -14vw;
+      --orbit-y: -29vh;
+      --orbit-scale: 0.42;
+    }
+
+    .match-study__world-card--customer[data-orbit='10'] {
+      --orbit-x: 14vw;
+      --orbit-y: -29vh;
+      --orbit-scale: 0.42;
+    }
+
+    .match-study__world-card--customer[data-orbit='11'] {
+      --orbit-x: 0;
+      --orbit-y: 31vh;
+      --orbit-scale: 0.4;
+    }
+
+    .match-study__eyebrow { bottom: 3.5rem; }
+    .match-study__hint { display: none; }
+
+    /* Kleine Ansichten verwenden eine fokussierte Abfolge statt einer
+       verkleinerten Desktop-Collage. In Bewegung verschwinden die Satelliten
+       als Gruppe; dadurch kreuzen sich nur noch die beiden Hauptmotive in
+       einer kurzen, kontrollierten Uebergabe. In den Ruhepositionen kommen
+       die Belege wieder zurueck und bleiben voll interaktiv. */
+    .match-study[data-journey-state='transition'] .match-study__world-card--own .match-study__world-card-visual,
+    .match-study[data-journey-state='transition'] .match-study__world-card--customer:not([data-orbit='0']) .match-study__world-card-visual {
+      opacity: 0 !important;
+      filter: brightness(0.38) saturate(0.62) !important;
+      transform: scale(0.94);
+      transition-duration: 260ms;
+    }
+
+    .match-study[data-journey-state='transition'] .match-study__own-center-pin,
+    .match-study[data-journey-state='transition'] .match-study__world-card--customer[data-orbit='0'] .match-study__customer-pin {
+      opacity: 0 !important;
+      transition: opacity 220ms ease;
+    }
+
+    /* Wenige priorisierte Belege bilden die hellere erste Raumebene. Die
+       restlichen erzeugen Tiefe und werden erst im Fokusmodus dominant. */
+    .match-study[data-journey-state='accounts-ready'] .match-study__world-card--own .match-study__world-card-visual,
+    .match-study[data-journey-state='customers-ready'] .match-study__world-card--customer:not([data-orbit='0']) .match-study__world-card-visual {
+      opacity: 0.3;
+      filter: brightness(0.56) saturate(0.72);
+    }
+
+    .match-study[data-journey-state='accounts-ready'] .match-study__world-card--own:is([data-orbit='0'], [data-orbit='1'], [data-orbit='4'], [data-orbit='5']) .match-study__world-card-visual,
+    .match-study[data-journey-state='customers-ready'] .match-study__world-card--customer:is([data-orbit='1'], [data-orbit='2'], [data-orbit='3'], [data-orbit='4']) .match-study__world-card-visual {
+      opacity: 0.58;
+      filter: brightness(0.7) saturate(0.82);
+    }
+
+    .match-study[data-journey-state='accounts-ready'] .match-study__own-center-pin,
+    .match-study[data-journey-state='customers-ready'] .match-study__world-card--customer[data-orbit='0'] .match-study__customer-pin {
+      transition: opacity 420ms cubic-bezier(0.22, 1, 0.36, 1);
+    }
+  }
+
+  @media (max-width: 991px) and (orientation: landscape) {
+    .match-study__copy {
+      top: 50%;
+      left: 4vw;
+      width: 44vw;
+      transform: translateY(-50%);
+    }
+
+    .match-study__copy h1 {
+      font-size: clamp(2.2rem, 5vw, 4.2rem);
+      line-height: 1.08;
+    }
+
+    .match-study__button { margin-top: 1.35rem; }
+  }
+
+  /* Auf Touch-Geräten wird der angetippte Satellit aus seiner kleinen
+     Umlaufbahn in eine klar lesbare, aber weiterhin kompakte Vordergrundebene
+     gesetzt. Unterschiedliche Formate behalten dabei ihr Seitenverhältnis. */
+  @media (max-width: 991px) and (hover: none) {
+    .match-study__card-lift {
+      z-index: 9;
+    }
+
+    .match-study__card-lift .match-study__world-card.is-lifted {
+      top: 50%;
+      left: 50%;
+      pointer-events: auto;
+      cursor: zoom-out;
+    }
+
+    .match-study__card-lift .match-study__world-card.is-lifted .match-study__world-card-visual {
+      opacity: 1;
+      filter: brightness(1) saturate(1);
+      transform: translateY(-1%);
+    }
+
+    .match-study__card-lift .match-study__world-card.is-lifted.is-returning .match-study__world-card-visual {
+      opacity: var(--lift-return-opacity, 0.52);
+      filter: brightness(0.68) saturate(0.8);
+      transform: translateY(0);
+    }
+
+    .match-study__card-lift .match-study__world-card--own.is-lifted .match-study__own-proof {
+      width: min(70vw, 18rem);
+    }
+
+    .match-study__card-lift .match-study__world-card--customer.is-lifted .match-study__customer-proof {
+      width: min(76vw, 19rem);
+    }
+
+    .match-study__card-lift .match-study__world-card--customer.is-lifted .match-study__customer-proof--phone {
+      width: min(54vw, 13.5rem);
+    }
+
+    .match-study__card-lift .match-study__world-card--customer.is-lifted .match-study__customer-proof--comparison {
+      width: min(78vw, 19.5rem);
+    }
+  }
+
+  @media (max-width: 991px) and (hover: none) and (orientation: landscape) {
+    .match-study__card-lift .match-study__world-card--own.is-lifted .match-study__own-proof {
+      width: min(27vw, 13rem);
+    }
+
+    .match-study__card-lift .match-study__world-card--customer.is-lifted .match-study__customer-proof {
+      width: min(44vw, 20rem);
+    }
+
+    .match-study__card-lift .match-study__world-card--customer.is-lifted .match-study__customer-proof--phone {
+      width: min(22vw, 10.5rem);
+    }
+
+    .match-study__card-lift .match-study__world-card--customer.is-lifted .match-study__customer-proof--comparison {
+      width: min(40vw, 18rem);
+    }
+  }
+
+  @media (max-width: 767px) and (orientation: portrait) {
+    .match-study__customer-device {
+      width: min(30.752vh, 66.132vw, 16.368rem);
+      height: min(62vh, 133.92vw, 32.75rem);
+    }
+
+    /* Auf Touch-Geräten würden mehrere permanente Kennzahlen zwangsläufig
+       über dem zentralen Mockup liegen. Dort bleiben nur die beiden zentralen
+       Kennzahlen sichtbar; Satelliten zeigen ihr Badge beim Antippen. */
+    .match-study__world-card--own .match-study__result-pin,
+    .match-study__world-card--customer:not([data-orbit='0']) .match-study__result-pin {
+      opacity: 0;
+    }
+
+    .match-study__world-card.is-lifted[data-orbit] .match-study__result-pin {
+      opacity: 1;
+    }
+  }
+
+  @media (max-width: 991px) and (orientation: landscape) and (min-height: 621px) {
+    .match-study__customer-device {
+      width: min(31.2vh, 16.3rem);
+      height: min(63vh, 32.9rem);
+    }
+  }
+
+  @media (max-height: 620px) and (orientation: landscape) {
+    .match-study__track { height: 305vh; }
+    .match-study__copy h1 { font-size: clamp(2.2rem, 4.8vw, 3.7rem); }
+    .match-study__button { margin-top: 1.25rem; }
+    .match-study__world-card-visual { width: clamp(6.5rem, 13vw, 9rem); }
+    .match-study__world-card--own .match-study__own-proof { width: clamp(7.5rem, 18vw, 11rem); }
+    .match-study__customer-proof { width: clamp(9rem, 23vw, 12rem); }
+    .match-study__customer-proof--phone { width: clamp(6.5rem, 15vw, 9.5rem); }
+    .match-study__customer-device {
+      width: min(35.712vh, 17.856vw, 12.4rem);
+      height: min(72vh, 36vw, 25rem);
+    }
+    .match-study__own-center-pin,
+    .match-study__world-card--customer[data-orbit='0'] .match-study__customer-pin {
+      top: var(--match-center-pin-top, auto);
+      right: auto;
+      bottom: var(--match-center-pin-bottom, 5%);
+      left: 50%;
+      max-width: calc(100% - 1.1rem);
+      transform: var(--match-center-pin-transform, translateX(-50%));
+    }
+    .match-study__world-card--customer[data-orbit='0'] .match-study__customer-pin {
+      --match-center-pin-top: 15%;
+    }
+    .match-study__own-center-pin {
+      --match-center-pin-top: 18%;
+      top: var(--match-center-pin-top);
+      right: -3.2rem;
+      left: auto;
+      transform: var(--match-center-pin-transform);
+    }
+    .match-study__world-card--own[data-orbit='2'] {
+      --orbit-x: -37vw;
+      --orbit-y: 9vh;
+    }
+    .match-study__world-card--customer[data-orbit='3'] {
+      --orbit-x: -32vw;
+      --orbit-y: 8vh;
+    }
+    .match-study__eyebrow { bottom: 3.35rem; }
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    .match-study__track { height: 200svh; }
+    .match-study__copy,
+    .match-study__photo,
+    .match-study__iris,
+    .match-study__hint { display: none; }
+    .match-study__results { opacity: 1 !important; visibility: visible !important; }
+    .match-study__eyebrow,
+    .match-study__world-card { opacity: 1 !important; transform: none; }
+    .match-study__world,
+    .match-study__world-card-visual { transition: none; }
+  }
+</style>

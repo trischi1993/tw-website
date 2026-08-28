@@ -41,6 +41,10 @@ Diese Datei ist die zentrale, modellunabhängige Navigations- und Arbeitsanweisu
   `shared/editor-blocks.ts` ↔ `insertables.ts`.
 - Der Repo-Inhaber Tristan ist kein Developer und hat das Projekt übernommen, nicht selbst gebaut. Er wird mit AI-Unterstützung Änderungen vornehmen. Verstehe seine Prompts pragmatisch, setze sie zuverlässig um und antworte klar, prägnant und ohne unnötigen Fachjargon.
 - Bei neuen Features oder größeren Änderungen, für die ein eigener Git-Branch sinnvoll ist, Tristan vorher kurz fragen und den Nutzen einfach erklären (getrennt testen, mehrere Varianten parallel ermöglichen und `main` stabil halten); bei kleinen, risikoarmen Änderungen auf dem aktuellen Branch bleiben und verwendete Git-Begriffe kurz erklären.
+- Größere aktive Arbeiten an fachlich sinnvollen Zwischenständen committen und den Feature-Branch nach GitHub pushen. Pausierte, später eventuell weiterzuführende Entwürfe niemals ausschließlich in `/tmp`, einem lokalen Worktree oder uncommittiert lassen: Entweder bleibt ein gesicherter Remote-Feature-Branch bestehen oder der vollständige Stand wird außerhalb von `src/` und `public/` unter `experiments/` mit Assets und Wiederherstellungsanleitung archiviert.
+- Vor dem Entfernen von Branches oder Worktrees nicht nur den Merge-Stand, sondern auch uncommittete und ungetrackte Dateien, laufende Testserver und ausgelagerte Entwürfe prüfen.
+- Nach jedem Release `npm run verify:release-sync` im normalen Projektordner ausführen. Der Befehl gilt erst als erfolgreich, wenn lokales `main`, `origin/main` und die von Cloudflare ausgelieferte Kennung unter `/release-status.json` exakt denselben Commit melden. Anschließend stehen der normale Projektordner und der kanonische Testserver wieder auf dem aktuellen `main`.
+- Der verbindliche Gesamtprozess für Start, Zwischensicherung, Release und Bereinigung steht in `docs/development-workflow.md`.
 
 ## Kritische E-Book-Live-Architektur
 

@@ -16,6 +16,7 @@
     "deploy:prod": "wrangler deploy -c wrangler.prod.jsonc",
     "deploy:ebook": "wrangler deploy -c wrangler.ebook.jsonc",
     "deploy:preview": "wrangler deploy -c dist/server/wrangler.json",
+    "verify:release-sync": "node scripts/verify-release-sync.mjs",
     "provision": "node scripts/provision.mjs",
     "postinstall": "patch-package --error-on-fail"
   },

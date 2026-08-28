@@ -1,0 +1,890 @@
+---
+import BaseLayout from '../layouts/BaseLayout.astro';
+import resultPhone from '../assets/images/results-3.avif';
+
+const heroImage =
+  'https://cdn.sanity.io/images/45zc9nhz/production/039eb7cd9c80101ec27f627910a9e04e7e3c321b-2440x1816.avif?w=2440&q=90&auto=format&fit=max';
+const statement =
+  'Ich habe Brands mit bis zu 200.000 Followern und über 150 Millionen Views aufgebaut – 100 % organisch. Heute zeige ich Menschen und Betrieben, wie sie Social Media authentisch und mit System nutzen, um ihre Vision sichtbar zu machen.';
+---
+
+<BaseLayout
+  title="Phone-to-Statement Motion Study | Tristan Weithaler"
+  description="Separater lokaler Motion-Test für einen nahtlosen Portal-Zoom vom Smartphone zum Statement."
+  noindex={true}
+  route="motion-statement-study"
+>
+  <main class="statement-study" data-statement-study="">
+    <div class="statement-study__track" data-statement-track="">
+      <div class="statement-study__sticky" data-statement-sticky="">
+        <header class="statement-study__hero-copy" data-statement-copy="">
+          <h1>
+            <span>Südtirols erster</span>
+            Social Media<br />Business Coach
+          </h1>
+          <span class="statement-study__button">Coaching anfragen</span>
+        </header>
+
+        <figure class="statement-study__photo" data-statement-photo="">
+          <div class="statement-study__photo-entry" data-statement-entry="">
+            <div class="statement-study__photo-plane" data-statement-plane="">
+              <img
+                src={heroImage}
+                alt="Tristan Weithaler hält ein Smartphone in der Hand"
+                width="2440"
+                height="1816"
+                loading="eager"
+                fetchpriority="high"
+              />
+
+              <span class="statement-study__grade" data-statement-grade="" aria-hidden="true"></span>
+              <span class="statement-study__iris" data-statement-iris="" aria-hidden="true"></span>
+
+              <div class="statement-study__phone-anchor" data-statement-phone-anchor="">
+                <span class="statement-study__phone-motion" data-statement-phone-motion="">
+                  <span class="statement-study__phone-perspective" data-statement-phone-perspective="">
+                    <!--
+                      Das SVG ist das gemeinsame Element für den gesamten Weg.
+                      Sein ViewBox-Layout bleibt unverändert: Der Absatz wird
+                      weder ersetzt noch während des Zooms neu umbrochen.
+                    -->
+                    <svg
+                      class="statement-study__phone"
+                      data-statement-phone=""
+                      viewBox="0 0 806 1625"
+                      role="img"
+                      aria-labelledby="portal-phone-title"
+                    >
+                      <title id="portal-phone-title">Smartphone mit Tristans Erfahrungsaussage</title>
+                      <image href={resultPhone.src} x="0" y="0" width="806" height="1625" />
+                      <rect class="statement-study__screen" x="40" y="43" width="726" height="1537" rx="62" />
+                      <rect class="statement-study__island" x="285" y="62" width="236" height="58" rx="29" />
+                      <foreignObject x="40" y="43" width="726" height="1537">
+                        <div class="statement-study__screen-content" xmlns="http://www.w3.org/1999/xhtml">
+                          <p class="value-stmt__text" data-statement-text="">{statement}</p>
+                        </div>
+                      </foreignObject>
+                    </svg>
+                  </span>
+                </span>
+              </div>
+            </div>
+          </div>
+        </figure>
+
+        <p class="statement-study__caption" data-statement-caption="" aria-hidden="true">
+          Motion Test · Phone to Statement
+        </p>
+      </div>
+    </div>
+  </main>
+</BaseLayout>
+
+<script>
+  import { SplitText } from 'gsap/SplitText';
+  import { gsap, ScrollTrigger } from '../scripts/motion/util';
+
+  gsap.registerPlugin(SplitText);
+
+  const root = document.querySelector<HTMLElement>('[data-statement-study]');
+  const track = root?.querySelector<HTMLElement>('[data-statement-track]');
+  const sticky = root?.querySelector<HTMLElement>('[data-statement-sticky]');
+  const copy = root?.querySelector<HTMLElement>('[data-statement-copy]');
+  const photo = root?.querySelector<HTMLElement>('[data-statement-photo]');
+  const entry = root?.querySelector<HTMLElement>('[data-statement-entry]');
+  const plane = root?.querySelector<HTMLElement>('[data-statement-plane]');
+  const photoImage = plane?.querySelector<HTMLElement>(':scope > img');
+  const grade = root?.querySelector<HTMLElement>('[data-statement-grade]');
+  const iris = root?.querySelector<HTMLElement>('[data-statement-iris]');
+  const phoneMotion = root?.querySelector<HTMLElement>('[data-statement-phone-motion]');
+  const phonePerspective = root?.querySelector<HTMLElement>('[data-statement-phone-perspective]');
+  const phone = root?.querySelector<SVGElement>('[data-statement-phone]');
+  const phoneScreen = root?.querySelector<SVGGraphicsElement>('.statement-study__screen');
+  const screenContent = root?.querySelector<HTMLElement>('.statement-study__screen-content');
+  const statementText = root?.querySelector<HTMLElement>('[data-statement-text]');
+  const caption = root?.querySelector<HTMLElement>('[data-statement-caption]');
+
+  if (
+    root &&
+    track &&
+    sticky &&
+    copy &&
+    photo &&
+    entry &&
+    plane &&
+    photoImage &&
+    grade &&
+    iris &&
+    phoneMotion &&
+    phonePerspective &&
+    phone &&
+    phoneScreen &&
+    screenContent &&
+    statementText &&
+    caption
+  ) {
+    const reduceMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+    const statementSource = statementText.textContent?.trim() ?? '';
+    const mm = gsap.matchMedia();
+
+    const build = ({ mobile, compact }: { mobile: boolean; compact: boolean }) => {
+      const fast = mobile || compact;
+      const fullFrameMoment = fast ? 31 : 36;
+      const blackoutDuration = fast ? 11 : 13;
+      const blackoutStart = fullFrameMoment - blackoutDuration;
+      const portalStart = fullFrameMoment;
+      const portalDuration = fast ? 22 : 28;
+      const portalEnd = portalStart + portalDuration;
+      const timelineEnd = portalEnd + (fast ? 17 : 21);
+
+      const getRenderedImage = (frame: {
+        left: number;
+        top: number;
+        width: number;
+        height: number;
+      }) => {
+        const imageScale = Math.max(frame.width / 2440, frame.height / 1816);
+        const width = 2440 * imageScale;
+        const height = 1816 * imageScale;
+
+        return {
+          left: frame.left + (frame.width - width) / 2,
+          top: frame.top + frame.height - height,
+          width,
+          height,
+          imageScale,
+        };
+      };
+
+      const getEntryState = () => {
+        const width = sticky.clientWidth;
+        const height = sticky.clientHeight;
+
+        if (mobile) {
+          return {
+            x: 0,
+            y: height * 0.2,
+            scale: 1,
+          };
+        }
+
+        const fullFrame = { left: 0, top: 0, width, height };
+        const entryFrame = compact
+          ? { left: width * 0.52, top: 0, width: width * 0.48, height }
+          : { left: width * 0.6, top: 0, width: width * 0.4, height };
+        const fullImage = getRenderedImage(fullFrame);
+        const entryImage = getRenderedImage(entryFrame);
+        const scale = entryImage.imageScale / fullImage.imageScale;
+
+        return {
+          x: entryImage.left - fullImage.left * scale + width * (compact ? 0.025 : 0.03),
+          y: entryImage.top - fullImage.top * scale,
+          scale,
+        };
+      };
+
+      const getPhoneGeometry = () => {
+        const photoBounds = photo.getBoundingClientRect();
+        const renderedImage = getRenderedImage({
+          left: 0,
+          top: 0,
+          width: photoBounds.width,
+          height: photoBounds.height,
+        });
+
+        return {
+          x: renderedImage.left + 1104 * renderedImage.imageScale,
+          y: renderedImage.top + 878 * renderedImage.imageScale,
+          height: 146 * renderedImage.imageScale,
+        };
+      };
+
+      const getFinalPhoneHeight = () => {
+        /* Die schwarze Displayfläche endet knapp außerhalb der Seitenkanten.
+           Der silberne Rahmen verschwindet dadurch geometrisch aus dem Bild,
+           statt künstlich ausgeblendet zu werden. */
+        const targetOuterWidth = sticky.clientWidth * (mobile ? 1.18 : compact ? 1.16 : 1.14);
+        return targetOuterWidth * (1625 / 806);
+      };
+
+      const cssLengthToPixels = (value: string) => {
+        const length = value.trim();
+        const amount = Number.parseFloat(length);
+        if (!Number.isFinite(amount)) return 0;
+        if (length.endsWith('rem')) {
+          return amount * Number.parseFloat(getComputedStyle(document.documentElement).fontSize);
+        }
+        return amount;
+      };
+
+      /*
+       * Der Absatz bleibt ein einziges DOM-Element im Display. Seine interne
+       * Satzbreite wird aus dem ENDZUSTAND des Portal-Zooms berechnet. Dadurch
+       * skaliert er vom kleinen Handy bis zur Bühne ohne Layout-Sprung und ist
+       * am Ende typografisch exakt so groß und breit wie .value-stmt live.
+       */
+      const applyLiveStatementLayout = () => {
+        const viewportWidth = sticky.clientWidth;
+        const finalScale = getFinalPhoneHeight() / 1625;
+        const outerContainerWidth = Math.min(viewportWidth, 1280 + viewportWidth * 0.1);
+        const containerLeft = (viewportWidth - outerContainerWidth) / 2 + viewportWidth * 0.05;
+        const containerContentWidth = outerContainerWidth - viewportWidth * 0.1;
+        const desiredWidth = containerContentWidth * (viewportWidth > 767 ? 0.97 : 1);
+        const desiredCenter = containerLeft + desiredWidth / 2;
+        const desiredFontSize = cssLengthToPixels(
+          getComputedStyle(document.documentElement).getPropertyValue('--display-value'),
+        );
+
+        screenContent.style.setProperty(
+          '--statement-portal-width',
+          `${desiredWidth / finalScale}px`,
+        );
+        screenContent.style.setProperty(
+          '--statement-portal-font-size',
+          `${desiredFontSize / finalScale}px`,
+        );
+        screenContent.style.setProperty(
+          '--statement-portal-offset-x',
+          `${(desiredCenter - viewportWidth / 2) / finalScale}px`,
+        );
+      };
+
+      let statementReveal: gsap.core.Timeline | undefined;
+      let statementLines: HTMLElement[] = [];
+      let revealHasRun = false;
+
+      const resetStatementReveal = () => {
+        revealHasRun = false;
+        statementReveal?.pause();
+        statementReveal?.progress(1);
+        gsap.set(statementLines, { yPercent: 0 });
+      };
+
+      const playStatementReveal = () => {
+        if (reduceMotion || revealHasRun) return;
+        revealHasRun = true;
+        gsap.set(statementLines, { yPercent: 100 });
+        statementReveal?.restart();
+      };
+
+      const buildStatementReveal = (progress = 1, shouldPlay = false) => {
+        statementReveal?.kill();
+        statementText.textContent = statementSource;
+        applyLiveStatementLayout();
+
+        /* SplitText vermisst Zeilen in einem bereits stark skalierten SVG-
+           foreignObject nicht stabil. Deshalb wird derselbe Absatz für einen
+           Frame unsichtbar in der echten Live-Breite vermessen. Die daraus
+           gewonnenen Zeilen werden anschließend in DAS eine Display-Element
+           geschrieben – visuell existiert weiterhin kein zweiter Text. */
+        const measure = document.createElement('p');
+        measure.className = 'value-stmt__text';
+        measure.textContent = statementSource;
+        measure.style.position = 'fixed';
+        measure.style.left = '-10000px';
+        measure.style.top = '0';
+        measure.style.width = `${
+          Number.parseFloat(
+            getComputedStyle(screenContent).getPropertyValue('--statement-portal-width'),
+          ) *
+          (getFinalPhoneHeight() / 1625)
+        }px`;
+        measure.style.visibility = 'hidden';
+        measure.style.pointerEvents = 'none';
+        document.body.append(measure);
+
+        const measureSplit = SplitText.create(measure, {
+          type: 'lines',
+          aria: 'none',
+        });
+        const measuredLines = (measureSplit.lines as HTMLElement[]).map(
+          (line) => line.textContent ?? '',
+        );
+        measureSplit.revert();
+        measure.remove();
+
+        const fragment = document.createDocumentFragment();
+        statementLines = measuredLines.map((text) => {
+          const mask = document.createElement('div');
+          const line = document.createElement('div');
+          mask.className = 'line-mask';
+          line.className = 'line';
+          mask.style.cssText =
+            'position:relative;display:block;text-align:start;overflow:clip';
+          line.style.cssText =
+            'position:relative;display:block;text-align:start;white-space:nowrap';
+          line.textContent = text;
+          mask.append(line);
+          fragment.append(mask);
+          return line;
+        });
+        statementText.replaceChildren(fragment);
+        gsap.set(statementText, { autoAlpha: 1 });
+
+        statementReveal = gsap.timeline({ paused: true }).fromTo(
+          statementLines,
+          { yPercent: 100 },
+          {
+            yPercent: 0,
+            duration: 0.7,
+            ease: 'power2.out',
+            stagger: { amount: 0.5 },
+          },
+        );
+        statementReveal.progress(progress);
+        if (shouldPlay && progress < 1) statementReveal.play();
+      };
+
+      const getPortalDestination = () => {
+        const source = getPhoneGeometry();
+        const finalHeight = getFinalPhoneHeight();
+        const finalWidth = finalHeight * (806 / 1625);
+        const navbarBottom = document.querySelector<HTMLElement>('.navbar')?.getBoundingClientRect().bottom ?? 0;
+        const visibleCenterY = navbarBottom + (sticky.clientHeight - navbarBottom) / 2;
+
+        return {
+          x: sticky.clientWidth / 2 - source.x - finalWidth / 2,
+          y: visibleCenterY - source.y - finalHeight / 2,
+        };
+      };
+
+      /*
+       * Wie im stabilen ersten Motion-Test wird nicht die sichtbare Position
+       * selbst getweent. Ein normierter Fortschritt wird in jedem Render aus
+       * der aktuellen, bildgebundenen Geometrie abgeleitet. Dadurch bleiben
+       * Ankerpunkt, Winkel und Seitenverhältnis auch bei Refresh/Resize exakt
+       * mit dem Foto synchron und GSAP kann keine veralteten Startwerte cachen.
+       */
+      const portalReleaseState = { progress: 0 };
+      const renderPhonePerspective = () => {
+        const remaining = 1 - portalReleaseState.progress;
+        gsap.set(phonePerspective, {
+          rotation: 22 * remaining,
+          skewX: -2 * remaining,
+          scaleX: 1 + 0.02 * remaining,
+          scaleY: 1,
+          transformOrigin: '0 0',
+          force3D: portalReleaseState.progress > 0,
+        });
+      };
+      const renderPhoneRelease = () => {
+        const progress = portalReleaseState.progress;
+
+        if (progress <= 0) {
+          if (revealHasRun) resetStatementReveal();
+          root.dataset.portalPhase = 'held';
+          gsap.set(phoneMotion, { x: 0, y: 0, force3D: false });
+          phone.style.removeProperty('height');
+          renderPhonePerspective();
+          return;
+        }
+
+        root.dataset.portalPhase = 'moving';
+        const destination = getPortalDestination();
+        const initialHeight = getPhoneGeometry().height;
+        const finalHeight = getFinalPhoneHeight();
+
+        gsap.set(phoneMotion, {
+          x: destination.x * progress,
+          y: destination.y * progress,
+          force3D: true,
+        });
+        gsap.set(phone, {
+          height: initialHeight + (finalHeight - initialHeight) * progress,
+        });
+        renderPhonePerspective();
+
+        /* Die Live-Zeilenanimation beginnt im eigentlichen Reinziehen: Der
+           Text ist bereits vorhanden, aber noch klein genug, dass sein Reset
+           nicht wie eine zweite Animation auffällt. Bis das Display die Bühne
+           übernimmt, ist der Absatz deshalb bereits sauber aufgebaut. */
+        const screenBounds = phoneScreen.getBoundingClientRect();
+        const stickyBounds = sticky.getBoundingClientRect();
+        const displayIsReadable = screenBounds.width >= stickyBounds.width * 0.3;
+
+        if (displayIsReadable) {
+          playStatementReveal();
+        } else if (revealHasRun && screenBounds.width < stickyBounds.width * 0.2) {
+          /* Hysterese verhindert ein Flackern direkt an der Rahmenkante und
+             macht den nächsten Vorwärtsdurchlauf wieder abspielbar. */
+          resetStatementReveal();
+        }
+      };
+
+      let phoneResizeFrame = 0;
+      const phoneResizeObserver = new ResizeObserver(() => {
+        window.cancelAnimationFrame(phoneResizeFrame);
+        phoneResizeFrame = window.requestAnimationFrame(() => {
+          if (portalReleaseState.progress > 0) renderPhoneRelease();
+        });
+      });
+      phoneResizeObserver.observe(photo);
+      phoneResizeObserver.observe(sticky);
+
+      gsap.set(photoImage, { opacity: 1 });
+      gsap.set(grade, { opacity: 0 });
+      gsap.set(iris, { opacity: 0 });
+      gsap.set(phoneMotion, { x: 0, y: 0, force3D: false });
+      gsap.set(phone, { opacity: 1 });
+      renderPhoneRelease();
+      buildStatementReveal();
+      gsap.set(caption, { opacity: 0.32 });
+
+      if (!mobile && !compact) {
+        gsap.set(photo, {
+          width: '40%',
+          left: 'auto',
+          right: 0,
+          clipPath: 'inset(0% 0% 0% 0%)',
+        });
+      }
+
+      if (reduceMotion) {
+        gsap.set(copy, { opacity: 0 });
+        gsap.set(photo, { width: '100%', clipPath: 'inset(0)' });
+        gsap.set(entry, { x: 0, y: 0, scale: 1 });
+        gsap.set([photoImage, grade, iris], { opacity: 0 });
+        portalReleaseState.progress = 1;
+        renderPhoneRelease();
+        statementReveal?.progress(1);
+        gsap.set(caption, { opacity: 0 });
+        return () => {
+          root.dataset.portalPhase = 'held';
+          phoneResizeObserver.disconnect();
+          window.cancelAnimationFrame(phoneResizeFrame);
+          statementReveal?.kill();
+          statementText.textContent = statementSource;
+          screenContent.style.removeProperty('--statement-portal-width');
+          screenContent.style.removeProperty('--statement-portal-font-size');
+          screenContent.style.removeProperty('--statement-portal-offset-x');
+        };
+      }
+
+      const timeline = gsap.timeline({
+        defaults: { ease: 'none' },
+        scrollTrigger: {
+          trigger: track,
+          start: 'top top',
+          end: 'bottom bottom',
+          scrub: fast ? 0.48 : 0.62,
+          invalidateOnRefresh: true,
+          onLeave: resetStatementReveal,
+          onEnterBack: () => {
+            resetStatementReveal();
+            window.requestAnimationFrame(renderPhoneRelease);
+          },
+        },
+      });
+
+      if (!mobile && !compact) {
+        timeline.fromTo(
+          photo,
+          {
+            width: '40%',
+            left: 'auto',
+            right: 0,
+            clipPath: 'inset(0% 0% 0% 0%)',
+          },
+          {
+            width: '100%',
+            duration: fullFrameMoment,
+          },
+          0,
+        );
+        timeline.set(entry, { x: 0, y: 0, scale: 1 }, 0);
+      } else {
+        timeline
+          .fromTo(
+            photo,
+            {
+              clipPath: mobile
+                ? 'inset(50% 4vw 3% 4vw round 1.1rem)'
+                : 'inset(0% 0% 0% 52%)',
+            },
+            {
+              clipPath: 'inset(0% 0% 0% 0%)',
+              duration: fullFrameMoment,
+            },
+            0,
+          )
+          .fromTo(
+            entry,
+            {
+              x: () => getEntryState().x,
+              y: () => getEntryState().y,
+              scale: () => getEntryState().scale,
+              transformOrigin: '0 0',
+            },
+            {
+              x: 0,
+              y: 0,
+              scale: 1,
+              duration: fullFrameMoment,
+            },
+            0,
+          );
+      }
+
+      timeline
+        /* Das Foto wird genau dann schwarz, wenn es die volle Bühne erreicht.
+           Der Zoom beginnt im selben Frame – ohne leeren Zwischenhalt. */
+        .set(copy, { opacity: 0 }, fullFrameMoment)
+        .to(
+          photoImage,
+          {
+            opacity: 0,
+            duration: blackoutDuration,
+            ease: 'power2.in',
+          },
+          blackoutStart,
+        )
+        .to(
+          grade,
+          {
+            opacity: 1,
+            duration: blackoutDuration,
+            ease: 'power2.in',
+          },
+          blackoutStart,
+        )
+        .to(
+          iris,
+          {
+            opacity: 1,
+            duration: blackoutDuration,
+            ease: 'power3.in',
+          },
+          blackoutStart,
+        )
+        .to(
+          portalReleaseState,
+          {
+            progress: 1,
+            duration: portalDuration,
+            ease: 'power2.inOut',
+            onUpdate: renderPhoneRelease,
+          },
+          portalStart,
+        )
+        .to(caption, { opacity: 0, duration: 8, ease: 'sine.out' }, portalStart + 2)
+        .to({}, { duration: timelineEnd - portalEnd }, portalEnd);
+
+      let lastWidth = window.innerWidth;
+      let resizeDebounce: number | undefined;
+      const handleResize = () => {
+        if (window.innerWidth === lastWidth) return;
+        lastWidth = window.innerWidth;
+        window.clearTimeout(resizeDebounce);
+        resizeDebounce = window.setTimeout(() => {
+          const progress = statementReveal?.progress() ?? 0;
+          const shouldPlay = statementReveal?.isActive() ?? false;
+          buildStatementReveal(progress, shouldPlay);
+          ScrollTrigger.refresh();
+        }, 200);
+      };
+      window.addEventListener('resize', handleResize);
+
+      return () => {
+        root.dataset.portalPhase = 'held';
+        window.removeEventListener('resize', handleResize);
+        window.clearTimeout(resizeDebounce);
+        phoneResizeObserver.disconnect();
+        window.cancelAnimationFrame(phoneResizeFrame);
+        timeline.kill();
+        statementReveal?.kill();
+        statementText.textContent = statementSource;
+        screenContent.style.removeProperty('--statement-portal-width');
+        screenContent.style.removeProperty('--statement-portal-font-size');
+        screenContent.style.removeProperty('--statement-portal-offset-x');
+        gsap.set(
+          [photo, entry, photoImage, grade, iris, copy, phoneMotion, phonePerspective, phone, statementText, caption],
+          { clearProps: 'all' },
+        );
+      };
+    };
+
+    mm.add('(min-width: 992px)', () => build({ mobile: false, compact: false }));
+    mm.add('(max-width: 991px) and (orientation: portrait)', () => build({ mobile: true, compact: false }));
+    mm.add('(max-width: 991px) and (orientation: landscape)', () => build({ mobile: false, compact: true }));
+
+    window.addEventListener('load', () => ScrollTrigger.refresh(), { once: true });
+  }
+</script>
+
+<style>
+  .statement-study {
+    --stage-bg: #080808;
+    position: relative;
+    background: var(--stage-bg);
+    color: #f5f5f2;
+  }
+
+  .statement-study__track {
+    position: relative;
+    height: 320vh;
+  }
+
+  .statement-study__sticky {
+    position: sticky;
+    top: 0;
+    height: 100svh;
+    min-height: 0;
+    overflow: clip;
+    background: var(--stage-bg);
+    isolation: isolate;
+  }
+
+  .statement-study__hero-copy {
+    position: absolute;
+    top: 50%;
+    left: 7vw;
+    z-index: 1;
+    width: min(44vw, 40rem);
+    transform: translateY(-50%);
+  }
+
+  .statement-study__hero-copy h1 {
+    margin: 0;
+    font-size: clamp(3.5rem, 5.5vw, 5.5rem);
+    font-weight: 400;
+    line-height: 1.14;
+    letter-spacing: -0.035em;
+  }
+
+  .statement-study__hero-copy h1 span {
+    display: block;
+    font-size: 0.54em;
+    font-weight: 300;
+    letter-spacing: -0.015em;
+    line-height: 1.45;
+  }
+
+  .statement-study__button {
+    display: inline-flex;
+    align-items: center;
+    min-height: 3rem;
+    margin-top: 2.5rem;
+    padding: 0.7rem 1.35rem;
+    border: 1px solid rgba(154, 122, 51, 0.6);
+    border-radius: 999px;
+    background: linear-gradient(110deg, rgba(255, 255, 255, 0.02), rgba(154, 122, 51, 0.55));
+    font-size: 0.95rem;
+  }
+
+  .statement-study__photo {
+    position: absolute;
+    inset: 0;
+    z-index: 2;
+    width: 100%;
+    height: 100%;
+    overflow: clip;
+    margin: 0;
+    background: var(--stage-bg);
+    --statement-focus-x: calc(50cqw - 6.663cqh);
+    --statement-focus-y: 52.54cqh;
+    container-name: statement-photo;
+    container-type: size;
+    pointer-events: none;
+  }
+
+  .statement-study__photo-entry,
+  .statement-study__photo-plane {
+    position: absolute;
+    inset: 0;
+  }
+
+  .statement-study__photo-plane > img {
+    position: absolute;
+    inset: 0;
+    width: 100%;
+    height: 100%;
+    max-width: none;
+    object-fit: cover;
+    object-position: 50% 100%;
+  }
+
+  .statement-study__grade,
+  .statement-study__iris {
+    position: absolute;
+    inset: 0;
+    pointer-events: none;
+  }
+
+  .statement-study__grade {
+    z-index: 1;
+    background:
+      radial-gradient(
+        circle at var(--statement-focus-x) var(--statement-focus-y),
+        transparent 0 6%,
+        rgba(8, 8, 8, 0.08) 15%,
+        rgba(8, 8, 8, 0.74) 68%
+      ),
+      linear-gradient(180deg, rgba(0, 0, 0, 0.04), rgba(0, 0, 0, 0.46));
+  }
+
+  .statement-study__iris {
+    z-index: 2;
+    background: radial-gradient(
+      circle at var(--statement-focus-x) var(--statement-focus-y),
+      transparent 0 5%,
+      rgba(8, 8, 8, 0.12) 13%,
+      rgba(8, 8, 8, 0.82) 47%,
+      var(--stage-bg) 82%
+    );
+  }
+
+  .statement-study__phone-anchor {
+    position: absolute;
+    --statement-held-phone-height: 8.039648cqh;
+    top: 48.348018cqh;
+    left: calc(50cqw - 6.387665cqh);
+    z-index: 4;
+    width: 0;
+    height: 0;
+  }
+
+  @container statement-photo (min-aspect-ratio: 2440 / 1816) {
+    .statement-study__phone-anchor {
+      --statement-held-phone-height: 5.983607cqw;
+      top: calc(100cqh - 38.442623cqw);
+      left: 45.245902cqw;
+    }
+  }
+
+  .statement-study__phone-motion,
+  .statement-study__phone-perspective {
+    position: absolute;
+    top: 0;
+    left: 0;
+    display: block;
+    width: 0;
+    height: 0;
+  }
+
+  .statement-study__phone-perspective {
+    transform-origin: 0 0;
+  }
+
+  .statement-study__phone {
+    display: block;
+    width: auto;
+    height: var(--statement-held-phone-height);
+    max-width: none;
+    overflow: visible;
+    filter: brightness(0.96) saturate(0.92);
+  }
+
+  /* In der gehaltenen Phase bleibt das Mockup in derselben 2D-Rasterebene
+     wie das Foto. Eigene GPU-Layer werden erst nach dem Lösen aktiviert. */
+  .statement-study[data-portal-phase='moving'] .statement-study__phone-motion,
+  .statement-study[data-portal-phase='moving'] .statement-study__phone-perspective {
+    will-change: transform;
+  }
+
+  .statement-study[data-portal-phase='moving'] .statement-study__phone {
+    will-change: height;
+  }
+
+  .statement-study__screen {
+    fill: var(--stage-bg);
+  }
+
+  .statement-study__island {
+    fill: #020202;
+  }
+
+  .statement-study__screen-content {
+    display: flex;
+    width: 100%;
+    height: 100%;
+    align-items: center;
+    justify-content: center;
+    overflow: hidden;
+    background: transparent;
+    transform: translateX(var(--statement-portal-offset-x, 0));
+  }
+
+  .statement-study__screen-content .value-stmt__text {
+    width: var(--statement-portal-width, 660px);
+    margin: 0;
+    color: var(--on-surface);
+    font-family: inherit;
+    font-size: var(--statement-portal-font-size, 34px);
+    font-weight: 300;
+    line-height: 1.3;
+    letter-spacing: -0.01em;
+    text-wrap: pretty;
+  }
+
+  .statement-study__caption {
+    position: absolute;
+    right: 2rem;
+    bottom: 1.5rem;
+    z-index: 5;
+    margin: 0;
+    color: rgba(245, 245, 242, 0.38);
+    font-size: 0.62rem;
+    letter-spacing: 0.15em;
+    text-transform: uppercase;
+  }
+
+  @media (min-aspect-ratio: 2440 / 1816) {
+    .statement-study__photo {
+      --statement-focus-x: 45.041cqw;
+      --statement-focus-y: calc(100cqh - 35.323cqw);
+    }
+  }
+
+  @media (max-width: 991px) {
+    .statement-study__track {
+      height: 285svh;
+    }
+
+    .statement-study__hero-copy {
+      top: 7rem;
+      left: 5vw;
+      width: 90vw;
+      transform: none;
+    }
+
+    .statement-study__hero-copy h1 {
+      font-size: clamp(2.9rem, 12vw, 4.4rem);
+      line-height: 1.12;
+    }
+
+    .statement-study__button {
+      margin-top: 1.6rem;
+    }
+
+    .statement-study__caption {
+      right: 1rem;
+      bottom: 1rem;
+    }
+
+  }
+
+  @media (max-width: 991px) and (orientation: landscape) {
+    .statement-study__track {
+      height: 255svh;
+    }
+
+    .statement-study__hero-copy {
+      top: 50%;
+      left: 5vw;
+      width: 44vw;
+      transform: translateY(-50%);
+    }
+
+    .statement-study__hero-copy h1 {
+      font-size: clamp(2.1rem, 5.2vw, 3.5rem);
+    }
+
+    .statement-study__button {
+      min-height: 2.5rem;
+      margin-top: 1rem;
+      padding: 0.55rem 1rem;
+      font-size: 0.78rem;
+    }
+
+  }
+</style>
