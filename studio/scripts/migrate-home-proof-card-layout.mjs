@@ -104,7 +104,7 @@ const transaction = client.transaction();
 for (const update of updates) {
   transaction.patch(
     client.patch(update._id).set({
-      'sections[_key=="results"].resultCards': update.resultCards,
+      'sections[_key=="results"][0].resultCards': update.resultCards,
     }),
   );
 }
