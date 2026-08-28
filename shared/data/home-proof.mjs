@@ -140,7 +140,7 @@ export const HOME_PROOF_CARDS = [
     kind: 'customer',
     source: 'Valeria & Raphael · Seelen Grün',
     value: '3.500 → 50.000+',
-    label: 'Follower & Millionenreichweite mit Testreels – 100 % organisch',
+    label: 'Follower & Millionenreichweite mit meiner Test-Reel-Strategie',
     images: [
       {
         _key: 'seelen-gruen-profile',
@@ -166,7 +166,7 @@ export const HOME_PROOF_CARDS = [
         width: 1179,
         height: 1360,
         alt: 'Kundennachricht über ein Testreel von Seelen Grün mit 260.677 organischen Aufrufen',
-        badge: '260.000+ Views',
+        badge: '100 % organisch',
         badgePosition: 'top-right',
       },
     ],
