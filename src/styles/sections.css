@@ -1582,6 +1582,7 @@ html.has-motion .results__track { height: 240vh; }
   scrollbar-width: none;
 }
 .aio-results__grid.has-auto-scroll { scroll-snap-type: none; }
+.aio-results__grid.is-auto-scrolling { will-change: scroll-position; }
 .aio-results__grid.is-pointer-dragging {
   cursor: grabbing;
   scroll-snap-type: none;
@@ -3307,6 +3308,7 @@ html.has-motion .ahero__wipe { display: block; }
   touch-action: pan-x pan-y;
 }
 .home-proof__carousel.has-auto-scroll { scroll-snap-type: none; }
+.home-proof__carousel.is-auto-scrolling { will-change: scroll-position; }
 .home-proof__carousel.is-pointer-dragging {
   cursor: grabbing;
   scroll-snap-type: none;
