@@ -103,7 +103,7 @@ export interface AioCustomerResultCardCopy {
   source: string;
   value: string;
   label: string;
-  /** Reihenfolge entspricht den fest verdrahteten Screenshots der Karte. */
+  /** Reihenfolge entspricht den fest verdrahteten Screenshots mit Badge. */
   badges: string[];
 }
 

@@ -118,7 +118,7 @@ const customerField = (
         name: 'badges',
         title: 'Badge-Texte auf den Screenshots',
         description:
-          'Die Reihenfolge entspricht den Bildern der Karte. Das Bildlayout selbst bleibt geschützt im Code.',
+          'Die Reihenfolge entspricht den Bildern, die ein Badge erhalten. Das Bildlayout selbst bleibt geschützt im Code.',
         type: 'array',
         of: [{ type: 'string' }],
         validation: (R) => R.required().length(badgeCount),

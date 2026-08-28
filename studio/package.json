@@ -26,7 +26,9 @@
     "migrate:home-proof-layout": "sanity exec scripts/migrate-home-proof-card-layout.mjs --with-user-token",
     "migrate:home-proof-layout:dry-run": "sanity exec scripts/migrate-home-proof-card-layout.mjs --with-user-token -- --dry-run",
     "migrate:seelen-gruen": "sanity exec scripts/add-seelen-gruen-customer.mjs --with-user-token",
-    "migrate:seelen-gruen:dry-run": "sanity exec scripts/add-seelen-gruen-customer.mjs --with-user-token -- --dry-run"
+    "migrate:seelen-gruen:dry-run": "sanity exec scripts/add-seelen-gruen-customer.mjs --with-user-token -- --dry-run",
+    "migrate:seelen-gruen-follower-proof": "sanity exec scripts/add-seelen-gruen-follower-proof.mjs --with-user-token",
+    "migrate:seelen-gruen-follower-proof:dry-run": "sanity exec scripts/add-seelen-gruen-follower-proof.mjs --with-user-token -- --dry-run"
   },
   "dependencies": {
     "@sanity/comlink": "4.0.1",

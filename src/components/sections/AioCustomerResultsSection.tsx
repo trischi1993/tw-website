@@ -19,6 +19,7 @@ type ResultImage = {
   src: string;
   alt: string;
   badgePosition?: ResultBadgePosition;
+  hasBadge?: boolean;
   trimBottom?: boolean;
   cropChatHeader?: boolean;
 };
@@ -32,9 +33,10 @@ const RESULT_VISUALS: ResultVisual[] = [
   {
     key: 'seelenGruen',
     images: [
-      { src: '/images/aio-results/seelen-gruen-profile-spaced.jpg', alt: 'Instagram-Profil von Seelen Grün mit 58.400 Followern', badgePosition: 'top-right' },
+      { src: '/images/aio-results/seelen-gruen-profile-spaced.jpg', alt: 'Instagram-Profil von Seelen Grün mit 58.400 Followern', hasBadge: false },
       { src: '/images/aio-results/seelen-gruen-reel-557k.jpg', alt: 'Reel von Seelen Grün mit 557.000 Aufrufen', badgePosition: 'top-left' },
       { src: '/images/aio-results/seelen-gruen-testreel-260k.jpg', alt: 'Kundennachricht über ein Testreel von Seelen Grün mit 260.677 organischen Aufrufen', badgePosition: 'top-right' },
+      { src: '/images/aio-results/seelen-gruen-reel-followers-20k.jpg', alt: 'Reel-Insights von Seelen Grün mit 20.800 neuen Followern', badgePosition: 'top-right' },
     ],
   },
   {
@@ -726,9 +728,12 @@ export default function AioCustomerResultsSection({
         >
           {resultCards.map(({ key, source, value, label, badges, images }) => (
             <article className="aio-results__card" key={key}>
-              <div className={`aio-results__media${images.length > 1 ? ' is-comparison' : ''}${images.length === 3 ? ' is-triple' : ''}${key === 'seelenGruen' ? ' is-profile-proof-pair' : ''}`}>
+              <div className={`aio-results__media${images.length > 1 ? ' is-comparison' : ''}${images.length === 3 ? ' is-triple' : ''}${images.length === 4 ? ' is-quad' : ''}${key === 'seelenGruen' ? ' is-profile-proof-pair' : ''}`}>
                 {images.map((image, imageIndex) => {
-                  const badge = badges[imageIndex];
+                  const currentBadgeIndex = image.hasBadge === false
+                    ? -1
+                    : images.slice(0, imageIndex).filter((candidate) => candidate.hasBadge !== false).length;
+                  const badge = currentBadgeIndex >= 0 ? badges[currentBadgeIndex] : undefined;
                   return (
                     <figure
                       className={[
@@ -746,7 +751,7 @@ export default function AioCustomerResultsSection({
                       />
                       {badge && (
                         <figcaption
-                          {...edit?.(`${path}.customerResults.customers.${key}.badges[${imageIndex}]`)}
+                          {...edit?.(`${path}.customerResults.customers.${key}.badges[${currentBadgeIndex}]`)}
                         >
                           {badge}
                         </figcaption>

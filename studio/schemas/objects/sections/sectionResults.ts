@@ -138,7 +138,7 @@ const fixedResultCardField = (slot: (typeof HOME_PROOF_CARD_SLOTS)[number]) =>
             },
           },
         ],
-        validation: (R) => R.required().min(1).max(3),
+        validation: (R) => R.required().min(1).max(slot.key === 'customer-seelen-gruen' ? 4 : 3),
       }),
     ],
   });
