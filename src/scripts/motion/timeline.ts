@@ -15,8 +15,14 @@ gsap.registerPlugin(SplitText);
    ease-Angabe gilt der IX3-DEFAULT power1.out (headless am Original-Export
    nachgemessen: Bild-Scale/-Slide folgen exakt power1.out, nur explizit
    mit 0 markierte Actions wie der Listen-Pan laufen linear).
-   Auf tiny (≤479) deaktiviert (conditionalPlayback "dont-animate" +
-   Mobile-Portrait-Fix des Originals) - dort bleibt die statische Liste.
+   Auf tiny (≤479) wird die breite Desktop-Choreografie durch eine eigene
+   vertikale Mobile-Journey ersetzt: Jede Station öffnet sich wie die eckige
+   Desktop-Karte aus einem kompakten Bildfenster und das Bild bewegt sich
+   dezent mit dem Scroll. Jahr, Titel und Beschreibung verwenden dagegen den
+   zeitbasierten Reveal der restlichen Website, damit der Text auf Touch-
+   Geräten nicht ruckelig am Finger-Scroll hängt. Die Inhalte bleiben dabei im
+   nativen Seitenfluss; es gibt mobil bewusst kein Pinning und keine
+   zusätzliche mobile Formsprache.
    --------------------------------------------------------------------------- */
 
 export function init(mm: gsap.MatchMedia): void {
@@ -145,5 +151,94 @@ export function init(mm: gsap.MatchMedia): void {
     return () => {
       splits.forEach((s) => s.revert());
     };
+  });
+
+  mm.add(BP.tiny, () => {
+    const items = Array.from(height.querySelectorAll<HTMLElement>('.tl__item'));
+
+    items.forEach((item) => {
+      const image = item.querySelector<HTMLElement>('.tl__media img');
+      const year = item.querySelector<HTMLElement>('.tl__year');
+      const title = item.querySelector<HTMLElement>('.tl__title');
+      const description = item.querySelector<HTMLElement>('.tl__desc');
+
+      /* Die Bildfahrt läuft über die gesamte sichtbare Station. Der leichte
+         Grund-Zoom hält das Cover auch am oberen/unteren Parallax-Endpunkt
+         sicher geschlossen. */
+      if (image) {
+        gsap.fromTo(
+          image,
+          { scale: 1.13, yPercent: -3, transformOrigin: '50% 50%', force3D: true },
+          {
+            scale: 1.04,
+            yPercent: 3,
+            ease: 'none',
+            force3D: true,
+            scrollTrigger: {
+              trigger: item,
+              start: 'top bottom',
+              end: 'bottom top',
+              scrub: 0.45,
+            },
+          },
+        );
+      }
+
+      /* Mobile-Adaption des Desktop-Motivs: Statt eine gemeinsame Karte zu
+         pinnen und horizontal zu verbreitern, öffnet sich jede Station beim
+         Eintritt aus einem eckigen, seitlich eingerückten Bildfenster. Genau
+         diese harte Geometrie verwendet auch die ursprüngliche Webflow-Karte. */
+      gsap.fromTo(
+        item,
+        { clipPath: 'inset(7% 1rem)' },
+        {
+          clipPath: 'inset(0% 0rem)',
+          ease: 'power1.out',
+          scrollTrigger: {
+            trigger: item,
+            start: 'top 92%',
+            end: 'top 38%',
+            scrub: 0.45,
+          },
+        },
+      );
+
+      /* Der Text folgt bewusst dem bestehenden zeitbasierten Reveal-Muster
+         der Website statt dem Scroll-Scrub. So muss Safari beim Touch-Scroll
+         nicht gleichzeitig Clip-Path, Bild und Textposition nachführen. Die
+         vorhandenen Masken von Jahr und Titel bleiben erhalten. */
+      const textReveal = gsap.timeline({
+        scrollTrigger: {
+          trigger: item,
+          start: 'top 68%',
+          toggleActions: 'play none none none',
+          once: true,
+        },
+      });
+      if (year) {
+        textReveal.fromTo(
+          year,
+          { autoAlpha: 0, yPercent: 40 },
+          { autoAlpha: 1, yPercent: 0, duration: 0.7, ease: 'power3.out' },
+          0,
+        );
+      }
+      if (title) {
+        textReveal.fromTo(
+          title,
+          { autoAlpha: 0, yPercent: 50 },
+          { autoAlpha: 1, yPercent: 0, duration: 0.7, ease: 'power3.out' },
+          0.08,
+        );
+      }
+      if (description) {
+        textReveal.fromTo(
+          description,
+          { autoAlpha: 0, y: '1rem' },
+          { autoAlpha: 1, y: 0, duration: 0.75, ease: 'power3.out' },
+          0.2,
+        );
+      }
+    });
   });
 }
