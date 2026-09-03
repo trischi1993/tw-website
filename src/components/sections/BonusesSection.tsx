@@ -62,11 +62,23 @@ export default function BonusesSection({
                 <div className="bonus__visual">
                   <Img image={card.image} sizes="(max-width: 991px) 90vw, 26rem" />
                   {isTristy && (
-                    <span className="bonus__assistant-bubble">
-                      <span>
-                        Hey, ich bin <strong>Tristy.</strong>
+                    <span className="bonus__assistant-bubble" data-tristy-chat>
+                      <span aria-hidden="true">
+                        <span data-tristy-prefix>Hey, ich bin </span>
+                        <strong data-tristy-name>Tristy</strong>
+                        <span data-tristy-dots>...</span>
+                        <span className="bonus__assistant-cursor" data-tristy-cursor />
                       </span>
-                      <span className="bonus__assistant-prompt">Wie kann ich dir helfen?</span>
+                      <span
+                        className="bonus__assistant-prompt"
+                        data-tristy-prompt
+                        aria-hidden="true"
+                      >
+                        Wie kann ich dir helfen?
+                      </span>
+                      <span className="visually-hidden">
+                        Hey, ich bin Tristy. Wie kann ich dir helfen?
+                      </span>
                     </span>
                   )}
                 </div>

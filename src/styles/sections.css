@@ -2933,6 +2933,15 @@ html.has-motion .results__track { height: 240vh; }
   font-weight: 600;
   letter-spacing: -0.01em;
 }
+.bonus__assistant-cursor {
+  display: inline-block;
+  width: 0.09em;
+  height: 1.05em;
+  margin-left: 0.12em;
+  background: var(--brand);
+  opacity: 0;
+  vertical-align: -0.14em;
+}
 .bonus__assistant-prompt {
   margin-top: 0.3rem;
   color: var(--ink-inverse-2);
