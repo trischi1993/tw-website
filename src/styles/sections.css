@@ -2899,8 +2899,8 @@ html.has-motion .results__track { height: 240vh; }
 .bonus__assistant-bubble {
   position: absolute;
   z-index: 1;
-  top: 8%;
-  right: 6%;
+  top: 4%;
+  right: 2%;
   display: flex;
   width: min(42%, 10.5rem);
   flex-direction: column;
