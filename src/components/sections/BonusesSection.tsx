@@ -44,29 +44,45 @@ export default function BonusesSection({
           </div>
         </div>
         <div className="bonus__grid">
-          {cards.map((card, index) => (
-            <div
-              className="bonus__card"
-              key={card._key}
-              data-anim={animate ? 'reveal' : undefined}
-              data-offset={animate ? '24' : undefined}
-              data-delay={animate ? String(index * 0.07) : undefined}
-            >
-              <Img image={card.image} sizes="(max-width: 991px) 90vw, 26rem" />
-              <div className="bonus__card-content">
-                <span
-                  className="bonus__tag"
-                  {...edit?.(`${path}.cards[_key=="${card._key}"].tag`)}
-                >
-                  {card.tag}
-                </span>
-                <h3 {...edit?.(`${path}.cards[_key=="${card._key}"].title`)}>
-                  {card.title}
-                </h3>
-                <p {...edit?.(`${path}.cards[_key=="${card._key}"].text`)}>{card.text}</p>
+          {cards.map((card, index) => {
+            const normalizedTitle = card.title.trim().toLocaleLowerCase('de-DE');
+            const isTristy =
+              card._key === 'bonus-2' ||
+              normalizedTitle.includes('ki-assistent') ||
+              normalizedTitle.includes('tristy');
+
+            return (
+              <div
+                className="bonus__card"
+                key={card._key}
+                data-anim={animate ? 'reveal' : undefined}
+                data-offset={animate ? '24' : undefined}
+                data-delay={animate ? String(index * 0.07) : undefined}
+              >
+                <div className="bonus__visual">
+                  <Img image={card.image} sizes="(max-width: 991px) 90vw, 26rem" />
+                  {isTristy && (
+                    <span className="bonus__assistant-bubble">
+                      <span>Hey, ich bin</span>
+                      <strong>Tristy.</strong>
+                    </span>
+                  )}
+                </div>
+                <div className="bonus__card-content">
+                  <span
+                    className="bonus__tag"
+                    {...edit?.(`${path}.cards[_key=="${card._key}"].tag`)}
+                  >
+                    {card.tag}
+                  </span>
+                  <h3 {...edit?.(`${path}.cards[_key=="${card._key}"].title`)}>
+                    {card.title}
+                  </h3>
+                  <p {...edit?.(`${path}.cards[_key=="${card._key}"].text`)}>{card.text}</p>
+                </div>
               </div>
-            </div>
-          ))}
+            );
+          })}
         </div>
         {ctaLabel && (
           <div
