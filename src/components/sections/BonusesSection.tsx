@@ -65,6 +65,7 @@ export default function BonusesSection({
                     <span className="bonus__assistant-bubble">
                       <span>Hey, ich bin</span>
                       <strong>Tristy.</strong>
+                      <span className="bonus__assistant-prompt">Wie kann ich dir helfen?</span>
                     </span>
                   )}
                 </div>
