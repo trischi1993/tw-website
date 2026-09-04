@@ -2017,6 +2017,10 @@ html.has-motion .results__track { height: 240vh; }
   stroke: #0a0a0a;
   stroke-width: 3;
 }
+html.has-motion .aio-growth-stage__reach-glow,
+html.has-motion .aio-growth-stage__reach-point {
+  opacity: 0;
+}
 .aio-growth-stage__signal {
   position: absolute;
   right: 0;

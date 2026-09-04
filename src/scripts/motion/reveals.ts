@@ -739,7 +739,7 @@ function initAioGrowthSystem(): void {
           scale: 1.12,
           duration: 0.22,
           ease: EASE.outQuart,
-        }, start + 0.4);
+        }, start + 0.5);
       }
       if (reachPoint) {
         timeline.to(reachPoint, {
@@ -747,7 +747,7 @@ function initAioGrowthSystem(): void {
           scale: 1,
           duration: 0.22,
           ease: 'back.out(1.7)',
-        }, start + 0.4);
+        }, start + 0.5);
       }
       if (labels[0]) {
         timeline.to(labels[0], {
