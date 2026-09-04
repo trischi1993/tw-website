@@ -2905,7 +2905,7 @@ html.has-motion .results__track { height: 240vh; }
   position: absolute;
   z-index: 1;
   top: clamp(0.45rem, 3cqi, 0.9rem);
-  right: clamp(0.35rem, 2.5cqi, 0.75rem);
+  left: 61.5%;
   display: flex;
   width: min(36%, 8.75rem);
   height: clamp(2.15rem, 10.5cqi, 2.6rem);
