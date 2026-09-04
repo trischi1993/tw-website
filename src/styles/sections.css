@@ -2024,6 +2024,12 @@ html.has-motion .aio-growth-stage__reach-glow,
 html.has-motion .aio-growth-stage__reach-point {
   opacity: 0;
 }
+html.has-motion [data-aio-growth-line],
+html.has-motion [data-aio-growth-network],
+html.has-motion [data-aio-growth-flow] {
+  visibility: hidden;
+  opacity: 0;
+}
 .aio-growth-stage__signal {
   position: absolute;
   right: 0;

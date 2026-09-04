@@ -690,6 +690,7 @@ function initAioGrowthSystem(): void {
       gsap.set(path, {
         strokeDasharray: `${length} ${length}`,
         strokeDashoffset: length,
+        autoAlpha: 0,
       });
       return length;
     };
@@ -724,6 +725,11 @@ function initAioGrowthSystem(): void {
           duration: 0.5,
           ease: 'power2.out',
         }, start);
+        timeline.to(reachLine, {
+          autoAlpha: 1,
+          duration: 0.08,
+          ease: 'none',
+        }, start + 0.04);
         timeline.set(reachLine, { strokeLinecap: 'round' }, start + 0.5);
       }
       if (reachArea) {
@@ -776,6 +782,11 @@ function initAioGrowthSystem(): void {
           duration: 0.38,
           ease: 'power2.out',
         }, start + 0.04);
+        timeline.to(network, {
+          autoAlpha: 1,
+          duration: 0.08,
+          ease: 'none',
+        }, start + 0.08);
       }
       if (networkHalo) {
         timeline.to(networkHalo, {
@@ -829,6 +840,12 @@ function initAioGrowthSystem(): void {
           stagger: 0.025,
           ease: 'power2.out',
         }, start + 0.04);
+        timeline.to(flows, {
+          autoAlpha: 1,
+          duration: 0.08,
+          stagger: 0.025,
+          ease: 'none',
+        }, start + 0.08);
       }
       if (conversion.length) {
         timeline.to(conversion, {
