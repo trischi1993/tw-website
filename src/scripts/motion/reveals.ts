@@ -666,6 +666,8 @@ function initAioGrowthSystem(): void {
     const reachPoint = system.querySelector<SVGCircleElement>('[data-aio-growth-point]');
     const reachGlow = system.querySelector<SVGCircleElement>('[data-aio-growth-glow]');
     const reachGraphic = system.querySelector<HTMLElement>('.aio-growth-stage__graphic.is-reach');
+    const communityGraphic = system.querySelector<HTMLElement>('.aio-growth-stage__graphic.is-community');
+    const conversionGraphic = system.querySelector<HTMLElement>('.aio-growth-stage__graphic.is-conversion');
     const orbits = system.querySelectorAll<SVGCircleElement>('[data-aio-growth-orbit]');
     const network = system.querySelector<SVGPathElement>('[data-aio-growth-network]');
     const networkNodes = system.querySelectorAll<SVGCircleElement>('[data-aio-growth-nodes] circle');
@@ -715,210 +717,222 @@ function initAioGrowthSystem(): void {
     if (currency) gsap.set(currency, { opacity: 0, scale: 0.4, transformOrigin: 'center' });
     if (labels.length) gsap.set(labels, { opacity: 0, x: '-0.5rem' });
 
-    // Eine kompakte gemeinsame Timeline hält die Reihenfolge klar, ohne dass
-    // sich die drei Schritte wie drei voneinander getrennte Animationen ziehen.
-    // Die Reichweitenkurve bleibt lang genug sichtbar, läuft aber bereits an,
-    // sobald der erste Schritt eingeblendet wird.
-    onEnterOnceStable(system, 8, () => {
-      const timeline = gsap.timeline();
-      timeline
-        .addLabel('system', 0)
-        .addLabel('reach', 0.08)
-        .addLabel('community', 1.35)
-        .addLabel('customers', 2.2)
-        .to(system, {
-          opacity: 1,
-          y: 0,
-          duration: 0.32,
-          ease: EASE.outQuart,
-        }, 'system');
-
-      if (statusDot) {
-        timeline.to(statusDot, {
-          opacity: 1,
-          scale: 1,
-          duration: 0.3,
-          ease: 'back.out(1.8)',
-        }, 'system+=0.1');
-      }
-
-      if (stages[0]) {
-        timeline.to(stages[0], {
-          opacity: 1,
-          y: 0,
-          duration: 0.4,
-          ease: EASE.outQuart,
-        }, 'reach');
-      }
-
-      if (reachGraphic && reachLine) {
+    const addReachMotion = (timeline: gsap.core.Timeline, start = 0) => {
+      if (reachLine) {
         timeline.to(reachLine, {
           strokeDashoffset: 0,
-          duration: 0.92,
-          ease: 'power1.inOut',
-        }, 'reach+=0.22');
-        if (reachArea) {
-          timeline.to(reachArea, {
-            opacity: 1,
-            clipPath: 'inset(0 0% 0 0)',
-            duration: 0.92,
-            ease: 'power1.inOut',
-          }, 'reach+=0.22');
-        }
-        if (reachGlow) {
-          timeline
-            .to(reachGlow, {
-              opacity: 0.48,
-              scale: 1,
-              duration: 0.24,
-              ease: EASE.outQuart,
-            }, 'community-=0.1')
-            .to(reachGlow, {
-              opacity: 0.22,
-              scale: 1.35,
-              duration: 0.3,
-              repeat: 1,
-              yoyo: true,
-              ease: 'sine.inOut',
-            }, '>0.04');
-        }
-        if (reachPoint) {
-          timeline
-            .to(reachPoint, {
-              opacity: 1,
-              scale: 1,
-              duration: 0.24,
-              ease: 'back.out(2)',
-            }, 'community-=0.1')
-            .to(reachPoint, {
-              scale: 1.28,
-              duration: 0.26,
-              repeat: 1,
-              yoyo: true,
-              ease: 'sine.inOut',
-            }, '>0.03');
-        }
-        if (labels[0]) {
-          timeline.to(labels[0], {
-            opacity: 1,
-            x: 0,
-            duration: 0.3,
-            ease: EASE.outQuart,
-          }, 'community-=0.02');
-        }
+          duration: 0.5,
+          ease: 'power2.out',
+        }, start);
       }
-
-      if (stages[1]) {
-        timeline.to(stages[1], {
+      if (reachArea) {
+        timeline.to(reachArea, {
           opacity: 1,
-          y: 0,
-          duration: 0.4,
-          ease: EASE.outQuart,
-        }, 'community');
+          clipPath: 'inset(0 0% 0 0)',
+          duration: 0.5,
+          ease: 'power2.out',
+        }, start);
       }
+      if (reachGlow) {
+        timeline.to(reachGlow, {
+          opacity: 0.32,
+          scale: 1.12,
+          duration: 0.22,
+          ease: EASE.outQuart,
+        }, start + 0.4);
+      }
+      if (reachPoint) {
+        timeline.to(reachPoint, {
+          opacity: 1,
+          scale: 1,
+          duration: 0.22,
+          ease: 'back.out(1.7)',
+        }, start + 0.4);
+      }
+      if (labels[0]) {
+        timeline.to(labels[0], {
+          opacity: 1,
+          x: 0,
+          duration: 0.24,
+          ease: EASE.outQuart,
+        }, start + 0.42);
+      }
+    };
+
+    const addCommunityMotion = (timeline: gsap.core.Timeline, start = 0) => {
       if (orbits.length) {
         timeline.to(orbits, {
           opacity: 1,
           scale: 1,
-          duration: 0.48,
-          stagger: 0.06,
+          duration: 0.3,
+          stagger: 0.035,
           ease: EASE.outQuart,
-        }, 'community+=0.17');
+        }, start);
       }
       if (network) {
         timeline.to(network, {
           strokeDashoffset: 0,
-          duration: 0.62,
-          ease: EASE.outQuart,
-        }, 'community+=0.22');
+          duration: 0.38,
+          ease: 'power2.out',
+        }, start + 0.04);
       }
       if (networkHalo) {
         timeline.to(networkHalo, {
           opacity: 1,
           scale: 1,
-          duration: 0.32,
+          duration: 0.22,
           ease: EASE.outQuart,
-        }, 'community+=0.34');
+        }, start + 0.2);
       }
       if (networkCore) {
         timeline.to(networkCore, {
           opacity: 1,
           scale: 1,
-          duration: 0.3,
-          ease: 'back.out(1.8)',
-        }, 'community+=0.36');
+          duration: 0.22,
+          ease: 'back.out(1.7)',
+        }, start + 0.22);
       }
       if (networkNodes.length) {
         timeline.to(networkNodes, {
           opacity: 1,
           scale: 1,
-          duration: 0.28,
-          stagger: 0.045,
-          ease: 'back.out(1.8)',
-        }, 'community+=0.38');
+          duration: 0.22,
+          stagger: 0.025,
+          ease: 'back.out(1.7)',
+        }, start + 0.22);
       }
       if (labels[1]) {
         timeline.to(labels[1], {
           opacity: 1,
           x: 0,
-          duration: 0.3,
+          duration: 0.24,
           ease: EASE.outQuart,
-        }, 'customers-=0.08');
+        }, start + 0.42);
       }
+    };
 
-      if (stages[2]) {
-        timeline.to(stages[2], {
-          opacity: 1,
-          y: 0,
-          duration: 0.4,
-          ease: EASE.outQuart,
-        }, 'customers');
-      }
+    const addConversionMotion = (timeline: gsap.core.Timeline, start = 0) => {
       if (sources.length) {
         timeline.to(sources, {
           opacity: 1,
           scale: 1,
-          duration: 0.28,
-          stagger: 0.055,
-          ease: 'back.out(1.6)',
-        }, 'customers+=0.16');
+          duration: 0.2,
+          stagger: 0.03,
+          ease: 'back.out(1.55)',
+        }, start);
       }
       if (flows.length) {
         timeline.to(flows, {
           strokeDashoffset: 0,
-          duration: 0.58,
-          stagger: 0.045,
-          ease: EASE.outQuart,
-        }, 'customers+=0.2');
+          duration: 0.34,
+          stagger: 0.025,
+          ease: 'power2.out',
+        }, start + 0.04);
       }
       if (conversion.length) {
         timeline.to(conversion, {
           opacity: 1,
           scale: 1,
-          duration: 0.36,
-          stagger: 0.05,
+          duration: 0.24,
+          stagger: 0.03,
           ease: EASE.outQuart,
-        }, 'customers+=0.62');
+        }, start + 0.28);
       }
       if (currency) {
         timeline.to(currency, {
           opacity: 1,
           scale: 1,
-          duration: 0.3,
-          ease: 'back.out(1.6)',
-        }, 'customers+=0.72');
+          duration: 0.22,
+          ease: 'back.out(1.55)',
+        }, start + 0.34);
       }
       if (labels[2]) {
         timeline.to(labels[2], {
           opacity: 1,
           x: 0,
-          duration: 0.3,
+          duration: 0.24,
           ease: EASE.outQuart,
-        }, 'customers+=0.88');
+        }, start + 0.42);
+      }
+    };
+
+    const trackTimeline = (timeline: gsap.core.Timeline) => {
+      triggers.push({ kill: () => timeline.kill() });
+    };
+
+    const isStacked = window.matchMedia('(max-width: 767px)').matches;
+
+    // Rahmen und Inhalte erscheinen früh, die Diagramme starten erst dann,
+    // wenn sie tatsächlich ins Sichtfeld kommen. So hängt ihr Timing nicht
+    // von der Scrollgeschwindigkeit über die Überschrift ab.
+    onEnterOnceStable(system, 8, () => {
+      const timeline = gsap.timeline();
+      timeline
+        .to(system, {
+          opacity: 1,
+          y: 0,
+          duration: 0.26,
+          ease: EASE.outQuart,
+        }, 0)
+        .to(stages, {
+          opacity: 1,
+          y: 0,
+          duration: 0.3,
+          stagger: isStacked ? 0.025 : 0.05,
+          ease: EASE.outQuart,
+        }, 0.06);
+
+      if (statusDot) {
+        timeline.to(statusDot, {
+          opacity: 1,
+          scale: 1,
+          duration: 0.24,
+          ease: 'back.out(1.7)',
+        }, 0.1);
       }
 
-      triggers.push({ kill: () => timeline.kill() });
+      trackTimeline(timeline);
     });
+
+    if (isStacked) {
+      // In der gestapelten Mobilansicht bekommt jede Grafik ihren eigenen
+      // kurzen Auftritt genau an ihrer Scrollposition.
+      if (reachGraphic) {
+        onEnterOnceStable(reachGraphic, 14, () => {
+          const timeline = gsap.timeline();
+          addReachMotion(timeline);
+          trackTimeline(timeline);
+        });
+      }
+      if (communityGraphic) {
+        onEnterOnceStable(communityGraphic, 14, () => {
+          const timeline = gsap.timeline();
+          addCommunityMotion(timeline);
+          trackTimeline(timeline);
+        });
+      }
+      if (conversionGraphic) {
+        onEnterOnceStable(conversionGraphic, 14, () => {
+          const timeline = gsap.timeline();
+          addConversionMotion(timeline);
+          trackTimeline(timeline);
+        });
+      }
+      return;
+    }
+
+    // Auf Desktop und im mobilen Querformat stehen die drei Diagramme auf
+    // einer Linie. Ihre Bewegungen überlappen sich leicht und sind nach gut
+    // einer Sekunde vollständig aufgebaut – ohne sichtbare Leerlaufpausen.
+    if (reachGraphic) {
+      onEnterOnceStable(reachGraphic, 14, () => {
+        const timeline = gsap.timeline();
+        addReachMotion(timeline, 0);
+        addCommunityMotion(timeline, 0.42);
+        addConversionMotion(timeline, 0.82);
+        trackTimeline(timeline);
+      });
+    }
   });
 }
 
