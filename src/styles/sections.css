@@ -2931,26 +2931,24 @@ html.has-motion .results__track { height: 240vh; }
 .bonus__assistant-bubble::before {
   content: '';
   position: absolute;
-  top: 0.38rem;
-  right: 0.38rem;
-  width: 0.2rem;
-  height: 0.2rem;
-  border-radius: 50%;
-  background: var(--brand);
-  box-shadow: 0 0 0.42rem color-mix(in srgb, var(--brand) 72%, transparent);
-  opacity: 0.8;
+  z-index: 1;
+  left: 0.72rem;
+  bottom: -0.52rem;
+  width: 0.72rem;
+  height: 0.58rem;
+  background: color-mix(in srgb, var(--brand-readable) 46%, transparent);
+  clip-path: polygon(0 0, 100% 0, 0 100%);
 }
 .bonus__assistant-bubble::after {
   content: '';
   position: absolute;
-  left: 0.72rem;
-  bottom: -0.24rem;
-  width: 0.46rem;
-  height: 0.46rem;
-  border-right: 1px solid color-mix(in srgb, var(--brand-readable) 46%, transparent);
-  border-bottom: 1px solid color-mix(in srgb, var(--brand-readable) 46%, transparent);
-  background: rgb(13 13 12 / 92%);
-  transform: rotate(45deg);
+  z-index: 2;
+  left: calc(0.72rem + 1px);
+  bottom: calc(-0.52rem + 2px);
+  width: calc(0.72rem - 2px);
+  height: calc(0.58rem - 2px);
+  background: rgb(13 13 12 / 96%);
+  clip-path: polygon(0 0, 100% 0, 0 100%);
 }
 .bonus__assistant-bubble strong {
   color: var(--brand-readable);
