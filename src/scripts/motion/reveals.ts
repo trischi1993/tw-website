@@ -724,6 +724,7 @@ function initAioGrowthSystem(): void {
           duration: 0.5,
           ease: 'power2.out',
         }, start);
+        timeline.set(reachLine, { strokeLinecap: 'round' }, start + 0.5);
       }
       if (reachArea) {
         timeline.to(reachArea, {

@@ -2003,7 +2003,10 @@ html.has-motion .results__track { height: 240vh; }
 .aio-growth-stage__reach-line {
   fill: none;
   stroke: currentColor;
-  stroke-linecap: round;
+  /* Eine runde Kappe zeichnet bei vollständig versetztem Dash in Safari
+     einen winzigen Restpixel am Pfadende. Während des Draws bleibt die Kappe
+     deshalb flach; der separate Endpunkt übernimmt den runden Abschluss. */
+  stroke-linecap: butt;
   stroke-linejoin: round;
   stroke-width: 2.4;
 }
