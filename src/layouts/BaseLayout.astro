@@ -55,7 +55,13 @@ const pageJsonLd = jsonLd ? (Array.isArray(jsonLd) ? jsonLd : [jsonLd]) : [];
 const jsonLdArray = [orgJsonLd, ...pageJsonLd];
 ---
 <!doctype html>
-<html lang={HTML_LANG} class:list={{ 'is-ebook-route': route === 'e-book' }}>
+<html
+  lang={HTML_LANG}
+  class:list={{
+    'is-ebook-route': route === 'e-book',
+    'is-aio-route': route === 'all-in-one-coaching',
+  }}
+>
   <head>
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1" />
@@ -68,6 +74,24 @@ const jsonLdArray = [orgJsonLd, ...pageJsonLd];
          sichtbar statt dauerhaft versteckt. */
       (function () {
         var el = document.documentElement;
+        /* iOS Safari stellt die Scrollposition bei einem Reload selbst wieder
+           her. Auf der sehr langen AIO-Seite darf das Motion-Bundle diesen
+           Vorgang nicht durch seine erste ScrollTrigger-Vermessung
+           unterbrechen. Die Markierung wird weiter unten ausschließlich für
+           diesen Reload-Fall ausgewertet; normale Seitenwechsel und andere
+           Seiten behalten ihr bisheriges Timing. */
+        var navigationEntry = performance.getEntriesByType('navigation')[0];
+        var isReload = navigationEntry && navigationEntry.type === 'reload';
+        var isTouchDevice =
+          navigator.maxTouchPoints > 0 ||
+          window.matchMedia('(hover: none) and (pointer: coarse)').matches;
+        var shouldDeferAioReload =
+          el.classList.contains('is-aio-route') &&
+          isReload &&
+          isTouchDevice;
+        if (shouldDeferAioReload) {
+          if ('scrollRestoration' in history) history.scrollRestoration = 'auto';
+        }
         /* Ein Fragment bei einem neuen Seitenaufruf darf nicht den globalen
            Smooth-Scroll von ganz oben starten: Während dieses langen Scrolls
            ändern Widgets/Motion noch das Layout und die spätere
@@ -93,6 +117,7 @@ const jsonLdArray = [orgJsonLd, ...pageJsonLd];
           });
         }
         if (window.matchMedia('(prefers-reduced-motion: reduce)').matches) return;
+        if (shouldDeferAioReload) el.classList.add('is-aio-mobile-reload');
         el.classList.add('has-motion');
         /* Auf der mobilen E-Book-Seite läuft nur die sichtbare Load-Choreo in
            einem kleinen browsernativen Modul. Die Bewegung und Timings bleiben
@@ -115,10 +140,20 @@ const jsonLdArray = [orgJsonLd, ...pageJsonLd];
         window.addEventListener('load', function () {
           setTimeout(function () {
             if (!el.classList.contains('motion-ready')) el.classList.remove('has-motion');
+            /* Auch bei einem unerwarteten Bundle-Fehler darf die AIO-Seite
+               nicht unsichtbar bleiben. */
+            el.classList.remove('is-aio-mobile-reload');
           }, 1500);
         });
       })();
     </script>
+    <style is:inline>
+      /* Verhindert ausschließlich beim mobilen AIO-Reload, dass Safari den
+         Seitenanfang vor seiner nativen Positionswiederherstellung zeichnet. */
+      html.is-aio-mobile-reload body {
+        visibility: hidden;
+      }
+    </style>
     <meta name="theme-color" content="#0C0C0C" />
     <meta name="color-scheme" content="dark" />
     {/* Verbindung zum Sanity-Bild-CDN vorwaermen (DNS+TCP+TLS), damit das
@@ -183,6 +218,9 @@ const jsonLdArray = [orgJsonLd, ...pageJsonLd];
       // Underline-Wipes und der Glow-CTA im Header animieren auf jeder Seite
       // (IX2 a-87/a-91/a-141); eine Hook-Bedingung wäre immer wahr.
       const isMobileEbook = document.documentElement.classList.contains('ebook-mobile-motion');
+      const isAioMobileReload = document.documentElement.classList.contains(
+        'is-aio-mobile-reload',
+      );
       const afterMobileHero = (load: () => Promise<unknown>): Promise<unknown> =>
         new Promise((resolve, reject) => {
           const remaining = Math.max(0, 2200 - performance.now());
@@ -194,6 +232,56 @@ const jsonLdArray = [orgJsonLd, ...pageJsonLd];
               run();
             }
           }, remaining);
+        });
+      const afterNativeScrollRestore = (load: () => Promise<unknown>): Promise<unknown> =>
+        new Promise((resolve, reject) => {
+          let started = false;
+          let fallbackTimer: number | undefined;
+          const run = () => {
+            if (started) return;
+            started = true;
+            window.removeEventListener('scroll', onRestoreScroll);
+            if (fallbackTimer !== undefined) window.clearTimeout(fallbackTimer);
+            // Nach dem nativen Scrollsignal geben zwei Frames WebKit Zeit, den
+            // endgültigen Stand in Layout und UI-Prozess zu synchronisieren,
+            // bevor GSAP seine erste Vermessung startet.
+            requestAnimationFrame(() => {
+              requestAnimationFrame(() => {
+                const finish = () => {
+                  if ('scrollRestoration' in history) history.scrollRestoration = 'auto';
+                  document.documentElement.classList.remove('is-aio-mobile-reload');
+                };
+                void load().then(
+                  (value) => {
+                    finish();
+                    resolve(value);
+                  },
+                  (error) => {
+                    finish();
+                    reject(error);
+                  },
+                );
+              });
+            });
+          };
+          const onRestoreScroll = () => {
+            // Kleine Subpixel-/Fokuskorrekturen am Seitenanfang sind noch
+            // keine echte History-Wiederherstellung.
+            if (Math.abs(window.scrollY) > 32) run();
+          };
+          const onPageShow = () => {
+            if (Math.abs(window.scrollY) > 32) run();
+            else fallbackTimer = window.setTimeout(run, 250);
+          };
+
+          window.addEventListener('scroll', onRestoreScroll, { passive: true });
+          if (document.readyState === 'complete') onPageShow();
+          else {
+            window.addEventListener('pageshow', onPageShow, { once: true });
+            // Sicherheitsnetz für ältere WebKit-Versionen, falls `pageshow`
+            // wider Erwarten ausbleibt.
+            window.addEventListener('load', () => window.setTimeout(run, 750), { once: true });
+          }
         });
       const widgetsReady = isMobileEbook
         ? afterMobileHero(() => import('../scripts/widgets.ts'))
@@ -215,7 +303,9 @@ const jsonLdArray = [orgJsonLd, ...pageJsonLd];
             // Reveals und Animationen darunter bleiben identisch erhalten.
             afterMobileHero(() => import('../scripts/motion.ts')),
           ])
-        : import('../scripts/motion.ts');
+        : isAioMobileReload
+          ? afterNativeScrollRestore(() => import('../scripts/motion.ts'))
+          : import('../scripts/motion.ts');
       const homeProofCarouselReady = document.querySelector('[data-home-proof-carousel]')
         ? import('../scripts/home-results-carousel.ts')
         : Promise.resolve();
