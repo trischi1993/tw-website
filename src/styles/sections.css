@@ -2902,53 +2902,52 @@ html.has-motion .results__track { height: 240vh; }
 }
 .bonus__visual > img { width: 100%; height: 100%; object-fit: cover; }
 .bonus__assistant-bubble {
+  --assistant-bubble-border: color-mix(in srgb, var(--brand-readable) 46%, transparent);
+  --assistant-bubble-surface: #11100e;
   position: absolute;
   z-index: 1;
   top: clamp(0.45rem, 3cqi, 0.9rem);
-  left: 61.5%;
+  left: 59.5%;
   display: flex;
-  width: min(36%, 8.75rem);
-  height: clamp(2.15rem, 10.5cqi, 2.6rem);
+  width: min(38.5%, 9.5rem);
+  height: clamp(2.25rem, 11cqi, 2.75rem);
   box-sizing: border-box;
   flex-direction: column;
   justify-content: center;
   padding: clamp(0.3rem, 1.7cqi, 0.45rem) clamp(0.42rem, 2.1cqi, 0.58rem);
-  border: 1px solid color-mix(in srgb, var(--brand-readable) 46%, transparent);
+  border: 1px solid var(--assistant-bubble-border);
   border-radius: 0.68rem 0.68rem 0.2rem 0.68rem;
-  background:
-    linear-gradient(135deg, rgb(22 21 18 / 91%), rgb(12 12 12 / 86%));
+  background: var(--assistant-bubble-surface);
   box-shadow:
     0 0.55rem 1.4rem rgb(0 0 0 / 28%),
     inset 0 1px rgb(255 255 255 / 6%);
   backdrop-filter: blur(8px);
   color: var(--ink);
   font-family: var(--font-sans);
-  font-size: clamp(0.535rem, 2.8cqi, 0.72rem);
+  font-size: clamp(0.56rem, 2.95cqi, 0.76rem);
   font-weight: 400;
   line-height: 1.15;
   text-align: left;
 }
-.bonus__assistant-bubble::before {
-  content: '';
-  position: absolute;
-  z-index: 1;
-  left: 0.72rem;
-  bottom: -0.52rem;
-  width: 0.72rem;
-  height: 0.58rem;
-  background: color-mix(in srgb, var(--brand-readable) 46%, transparent);
-  clip-path: polygon(0 0, 100% 0, 0 100%);
-}
-.bonus__assistant-bubble::after {
-  content: '';
+.bonus__assistant-tail {
   position: absolute;
   z-index: 2;
-  left: calc(0.72rem + 1px);
-  bottom: calc(-0.52rem + 2px);
-  width: calc(0.72rem - 2px);
-  height: calc(0.58rem - 2px);
-  background: rgb(13 13 12 / 96%);
-  clip-path: polygon(0 0, 100% 0, 0 100%);
+  left: 0.68rem;
+  bottom: -0.57rem;
+  width: 0.86rem;
+  height: 0.66rem;
+  overflow: visible;
+  pointer-events: none;
+}
+.bonus__assistant-tail-fill {
+  fill: var(--assistant-bubble-surface);
+}
+.bonus__assistant-tail-line {
+  fill: none;
+  stroke: var(--assistant-bubble-border);
+  stroke-width: 1px;
+  stroke-linecap: round;
+  stroke-linejoin: round;
 }
 .bonus__assistant-bubble strong {
   color: var(--brand-readable);
@@ -2973,7 +2972,7 @@ html.has-motion .results__track { height: 240vh; }
   vertical-align: -0.1em;
 }
 .bonus__assistant-prompt {
-  margin-top: 0.1rem;
+  margin-top: 0.16rem;
   color: var(--ink-2);
   font-size: 0.88em;
   line-height: 1.15;

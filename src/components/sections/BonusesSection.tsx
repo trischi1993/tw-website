@@ -82,6 +82,22 @@ export default function BonusesSection({
                           data-tristy-cursor="prompt"
                         />
                       </span>
+                      <svg
+                        className="bonus__assistant-tail"
+                        viewBox="0 0 18 14"
+                        preserveAspectRatio="none"
+                        aria-hidden="true"
+                      >
+                        <path
+                          className="bonus__assistant-tail-fill"
+                          d="M0 0H18L5 13Z"
+                        />
+                        <path
+                          className="bonus__assistant-tail-line"
+                          d="M1 1.4L5 13L17 1.4"
+                          vectorEffect="non-scaling-stroke"
+                        />
+                      </svg>
                       <span className="visually-hidden">
                         Hey, ich bin Tristy. Wie kann ich dir helfen?
                       </span>
