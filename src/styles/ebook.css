@@ -76,7 +76,7 @@
 .ebook-hero__content { position: relative; z-index: 1; min-width: 0; max-width: 41rem; }
 
 .ebook-hero h1 {
-  margin-top: var(--space-sm);
+  margin-top: 0;
   font-size: clamp(3.8rem, 5.2vw, 5.2rem);
   line-height: 0.98;
   letter-spacing: -0.055em;
@@ -291,7 +291,7 @@
   display: inline-flex;
   align-items: center;
   gap: 0.8rem;
-  color: var(--brand-readable);
+  color: var(--ink-3);
   font-size: 0.72rem;
   font-weight: 600;
   letter-spacing: 0.12em;
@@ -2035,7 +2035,16 @@
   .ebook-hero__lead { font-size: 1.3rem; }
   .ebook-hero__copy { font-size: var(--text-base); }
   .ebook-hero__facts { gap: 1rem; }
-  .ebook-hero__action { align-items: flex-start; flex-direction: column; }
+  .ebook-hero__action {
+    align-items: flex-start;
+    flex-direction: column;
+    gap: 0.75rem;
+  }
+  .ebook-hero__action > p {
+    flex-direction: row;
+    align-items: baseline;
+    gap: 0.4rem;
+  }
   .ebook-hero__stamp {
     --ebook-stamp-size: 4.4rem;
     padding: 0.14rem;
@@ -2144,8 +2153,10 @@
     display: grid;
     grid-template-columns: repeat(3, minmax(0, 1fr));
     gap: 0.5rem;
+    margin-top: var(--space-sm);
   }
   .ebook-hero__facts li { width: 100%; min-width: 0; }
+  .ebook-hero__action { margin-top: var(--space-sm); }
   .ebook-hero__visual { margin-top: 1rem; }
   .ebook-benefit { padding: 1.35rem 1.25rem 1.5rem; }
   .ebook-benefit__icon { width: 3.8rem; }
