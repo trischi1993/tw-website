@@ -163,13 +163,24 @@ function initReveal(): void {
     const offset = Number.isFinite(offsetAttr) ? offsetAttr : 16;
     const isHeroReveal = Boolean(el.closest('.ebook-hero'));
     const isLightweightEbookReveal = usesSharedEbookObserver() && !isHeroReveal;
-    const isLightweightReveal = isHeroReveal || isLightweightEbookReveal;
+    // Der vollflächige Video-Layer dieser Karte darf nicht gemeinsam mit dem
+    // abgerundeten Rahmen gefiltert werden. Beim ersten Paint kann der Browser
+    // sonst einzelne Ecksegmente des Rahmens auslassen.
+    const isCompositorSafeReveal = el.matches('.aio-programme__coaching');
+    const isLightweightReveal =
+      isHeroReveal || isLightweightEbookReveal || isCompositorSafeReveal;
     gsap.set(
       el,
       isHeroReveal
         ? { opacity: 0, y: '1rem', force3D: true, willChange: 'transform, opacity' }
-        : isLightweightEbookReveal
-          ? { opacity: 0, y: '1rem' }
+        : isLightweightEbookReveal || isCompositorSafeReveal
+          ? {
+              opacity: 0,
+              y: '1rem',
+              ...(isCompositorSafeReveal
+                ? { force3D: true, willChange: 'transform, opacity' }
+                : {}),
+            }
           : { opacity: 0, y: '1rem', filter: 'blur(5px)' },
     );
     const reveal = () => {

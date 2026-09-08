@@ -883,10 +883,19 @@ html.has-motion .results__track { height: 240vh; }
   min-height: 16rem;
   margin-top: 1.5rem;
   overflow: hidden;
-  border: 1px solid rgba(255, 255, 255, 0.12);
   border-radius: var(--radius-card);
   background: var(--panel);
   box-shadow: 0 1.5rem 3rem -2.75rem rgba(0, 0, 0, 0.85);
+}
+.aio-programme__coaching::after {
+  content: '';
+  position: absolute;
+  z-index: 3;
+  inset: 0;
+  border: 1px solid rgba(255, 255, 255, 0.12);
+  border-radius: inherit;
+  pointer-events: none;
+  transform: translateZ(0);
 }
 .aio-programme__coaching-video,
 .aio-programme__coaching-shade {
