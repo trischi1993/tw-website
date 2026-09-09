@@ -51,6 +51,11 @@ export default function AioProgrammeSection({
 
         <div className={`aio-programme__detail${isPractice ? ' is-practice' : ''}`}>
           <div className="aio-programme__detail-copy">
+            {isPractice && module.coachingText && (
+              <p className="aio-programme__practice-note" {...edit?.(`${path}.coachingText`)}>
+                {module.coachingText}
+              </p>
+            )}
             <ul {...edit?.(`${path}.bullets`)}>
               {module.bullets.map((bullet, index) => (
                 <li
@@ -61,11 +66,6 @@ export default function AioProgrammeSection({
                 </li>
               ))}
             </ul>
-            {isPractice && module.coachingText && (
-              <p className="aio-programme__practice-note" {...edit?.(`${path}.coachingText`)}>
-                {module.coachingText}
-              </p>
-            )}
           </div>
 
           {isPractice && module.videoSrc ? (
@@ -125,56 +125,71 @@ export default function AioProgrammeSection({
               </header>
               <div className="aio-programme__group-modules">
                 {theoryModules.map(renderModule)}
-              </div>
-
-              <aside
-                className="aio-programme__coaching"
-                id="aio-programme-coaching"
-                aria-labelledby="aio-programme-coaching-heading"
-                data-anim="reveal"
-                data-offset="10"
-              >
-                {coachingVideo?.videoSrc && (
-                  <video
-                    className="aio-programme__coaching-video"
-                    autoPlay
-                    muted
-                    loop
-                    playsInline
-                    preload="metadata"
-                    poster={posterUrl(coachingVideo)}
-                    aria-hidden="true"
-                  >
-                    <source src={coachingVideo.videoSrc} type="video/mp4" />
-                  </video>
-                )}
-                <span className="aio-programme__coaching-shade" aria-hidden="true" />
-                <div className="aio-programme__coaching-inner">
-                  <div className="aio-programme__coaching-number">
-                    <strong {...edit?.(`${programmePath}.coachingStat`)}>
-                      {programme.coachingStat}
-                    </strong>
-                    <span {...edit?.(`${programmePath}.coachingLabel`)}>
-                      {programme.coachingLabel}
+                <details
+                  className="aio-programme__module aio-programme__module--coaching"
+                  id="aio-programme-coaching"
+                >
+                  <summary>
+                    <span
+                      className="aio-programme__number aio-programme__coaching-plus"
+                      aria-hidden="true"
+                    >
+                      +
                     </span>
+                    <span className="aio-programme__module-title">
+                      <span {...edit?.(`${programmePath}.coachingLabel`)}>
+                        {programme.coachingLabel}
+                      </span>
+                    </span>
+                    <span className="aio-programme__toggle" aria-hidden="true" />
+                  </summary>
+
+                  <div className="aio-programme__detail is-practice is-coaching">
+                    <div className="aio-programme__detail-copy aio-programme__coaching-copy">
+                      <p
+                        className="aio-programme__practice-note aio-programme__coaching-intro"
+                        {...edit?.(`${programmePath}.coachingText`)}
+                      >
+                        {programme.coachingText}
+                      </p>
+                      <ul
+                        className="aio-programme__coaching-benefits"
+                        {...edit?.(`${programmePath}.coachingBenefits`)}
+                      >
+                        {programme.coachingBenefits.map((benefit, index) => (
+                          <li
+                            key={`${benefit}-${index}`}
+                            {...edit?.(`${programmePath}.coachingBenefits[${index}]`)}
+                          >
+                            {benefit}
+                          </li>
+                        ))}
+                      </ul>
+                    </div>
+
+                    <div className="aio-programme__practice-video aio-programme__coaching-media">
+                      {coachingVideo?.videoSrc && (
+                        <video
+                          autoPlay
+                          muted
+                          loop
+                          playsInline
+                          preload="metadata"
+                          poster={posterUrl(coachingVideo)}
+                          aria-hidden="true"
+                        >
+                          <source src={coachingVideo.videoSrc} type="video/mp4" />
+                        </video>
+                      )}
+                      <div className="aio-programme__practice-overlay">
+                        <strong {...edit?.(`${programmePath}.coachingEyebrow`)}>
+                          {programme.coachingEyebrow}
+                        </strong>
+                      </div>
+                    </div>
                   </div>
-                  <div className="aio-programme__coaching-copy">
-                    <p
-                      className="aio-programme__eyebrow"
-                      {...edit?.(`${programmePath}.coachingEyebrow`)}
-                    >
-                      {programme.coachingEyebrow}
-                    </p>
-                    <h3
-                      id="aio-programme-coaching-heading"
-                      {...edit?.(`${programmePath}.coachingHeading`)}
-                    >
-                      {programme.coachingHeading}
-                    </h3>
-                    <p {...edit?.(`${programmePath}.coachingText`)}>{programme.coachingText}</p>
-                  </div>
-                </div>
-              </aside>
+                </details>
+              </div>
             </section>
           )}
 

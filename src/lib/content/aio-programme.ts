@@ -6,9 +6,18 @@ export const DEFAULT_AIO_PROGRAMME = AIO_PROGRAMME as AioProgrammeContent;
 const text = (value: unknown, fallback: string) =>
   typeof value === 'string' && value.trim() ? value : fallback;
 
-const migratedText = (value: unknown, legacy: string, fallback: string) => {
+const migratedText = (value: unknown, legacy: string | string[], fallback: string) => {
   const current = text(value, fallback);
-  return current === legacy ? fallback : current;
+  const legacyValues = Array.isArray(legacy) ? legacy : [legacy];
+  return legacyValues.includes(current) ? fallback : current;
+};
+
+const textList = (value: unknown, fallback: string[]) => {
+  if (!Array.isArray(value)) return fallback;
+  const entries = value.filter(
+    (entry): entry is string => typeof entry === 'string' && Boolean(entry.trim()),
+  );
+  return entries.length ? entries : fallback;
 };
 
 /** Defensiver Mapper fuer neue oder noch unvollstaendige Sanity-Daten. */
@@ -32,14 +41,16 @@ export function mapAioProgramme(raw: any): AioProgrammeContent {
       fallback.practiceText,
     ),
     practiceOverlay: text(raw?.practiceOverlay, fallback.practiceOverlay),
-    coachingStat: text(raw?.coachingStat, fallback.coachingStat),
     coachingLabel: text(raw?.coachingLabel, fallback.coachingLabel),
     coachingEyebrow: text(raw?.coachingEyebrow, fallback.coachingEyebrow),
-    coachingHeading: text(raw?.coachingHeading, fallback.coachingHeading),
     coachingText: migratedText(
       raw?.coachingText,
-      'Bei jedem der vier Theorie-Module schaust du dir zuerst die Videolektionen an. Danach folgt der dazugehörige zweistündige 1:1-Videocall mit mir. Dort klären wir deine offenen Fragen und du bekommst individuelles Feedback sowie konkrete Tipps für deine Umsetzung.',
+      [
+        'Bei jedem der vier Theorie-Module schaust du dir zuerst die Videolektionen an. Danach folgt der dazugehörige zweistündige 1:1-Videocall mit mir. Dort klären wir deine offenen Fragen und du bekommst individuelles Feedback sowie konkrete Tipps für deine Umsetzung.',
+        'In jedem der vier Theorie-Module schaust du zuerst die Videolektionen an. Anschließend folgt jeweils ein zweistündiger 1:1-Videocall mit mir. Dort klären wir offene Fragen und du bekommst individuelles Feedback sowie konkrete Tipps für deine Umsetzung.',
+      ],
       fallback.coachingText,
     ),
+    coachingBenefits: textList(raw?.coachingBenefits, fallback.coachingBenefits),
   };
 }

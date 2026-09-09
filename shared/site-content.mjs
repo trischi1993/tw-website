@@ -645,8 +645,6 @@ export function buildContent({ img }) {
           'Körperhaltung für Content Produktion',
           'Gemeinsame Content Produktion',
           'Videoschnitt & Bearbeitung',
-          'Post-Beschreibung verfassen',
-          'Finale Einstellungen fürs Posting',
         ],
         imageAlt: 'Modul 5: Content Produktion vor Ort',
         imageWide: true,

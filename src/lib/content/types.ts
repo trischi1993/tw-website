@@ -161,11 +161,10 @@ export interface AioProgrammeContent {
   practiceLabel: string;
   practiceText: string;
   practiceOverlay: string;
-  coachingStat: string;
   coachingLabel: string;
   coachingEyebrow: string;
-  coachingHeading: string;
   coachingText: string;
+  coachingBenefits: string[];
 }
 
 /* --- Sections (modular, reorderable page builder) ------------------------- */

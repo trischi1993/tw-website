@@ -21,6 +21,8 @@
     "migrate:aio-customer-results:dry-run": "sanity exec scripts/migrate-aio-customer-results.mjs --with-user-token -- --dry-run",
     "migrate:aio-complete-content": "sanity exec scripts/migrate-aio-complete-content.mjs --with-user-token",
     "migrate:aio-complete-content:dry-run": "sanity exec scripts/migrate-aio-complete-content.mjs --with-user-token -- --dry-run",
+    "migrate:aio-coaching": "sanity exec scripts/update-aio-coaching.mjs --with-user-token",
+    "migrate:aio-coaching:dry-run": "sanity exec scripts/update-aio-coaching.mjs --with-user-token -- --dry-run",
     "migrate:home-proof": "sanity exec scripts/update-home-proof-section.mjs --with-user-token",
     "migrate:home-proof:dry-run": "sanity exec scripts/update-home-proof-section.mjs --with-user-token -- --dry-run",
     "migrate:home-proof-layout": "sanity exec scripts/migrate-home-proof-card-layout.mjs --with-user-token",

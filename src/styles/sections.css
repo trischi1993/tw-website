@@ -797,7 +797,7 @@ html.has-motion .results__track { height: 240vh; }
   background: var(--ink-3);
 }
 .aio-programme__practice-note {
-  margin-top: 2rem;
+  margin: 0 0 2rem;
   padding-left: 1.25rem;
   border-left: 2px solid var(--brand);
   color: var(--ink-2);
@@ -878,82 +878,56 @@ html.has-motion .results__track { height: 240vh; }
   max-height: 100%;
   object-fit: contain;
 }
-.aio-programme__coaching {
+.aio-programme__module--coaching .aio-programme__coaching-plus {
   position: relative;
-  min-height: 16rem;
-  margin-top: 1.5rem;
-  overflow: hidden;
-  border-radius: var(--radius-card);
-  background: var(--panel);
-  box-shadow: 0 1.5rem 3rem -2.75rem rgba(0, 0, 0, 0.85);
+  width: 2rem;
+  height: 2rem;
+  color: var(--brand-readable);
+  font-size: 0;
 }
-.aio-programme__coaching::after {
+.aio-programme__module--coaching .aio-programme__coaching-plus::before,
+.aio-programme__module--coaching .aio-programme__coaching-plus::after {
   content: '';
   position: absolute;
-  z-index: 3;
-  inset: 0;
-  border: 1px solid rgba(255, 255, 255, 0.12);
-  border-radius: inherit;
-  pointer-events: none;
-  transform: translateZ(0);
+  background: currentColor;
 }
-.aio-programme__coaching-video,
-.aio-programme__coaching-shade {
-  position: absolute;
-  inset: 0;
+.aio-programme__module--coaching .aio-programme__coaching-plus::before {
+  top: 50%;
+  left: 0;
   width: 100%;
+  height: 1px;
+  transform: translateY(-50%);
+}
+.aio-programme__module--coaching .aio-programme__coaching-plus::after {
+  top: 0;
+  left: 50%;
+  width: 1px;
   height: 100%;
+  transform: translateX(-50%);
 }
-.aio-programme__coaching-video {
-  inset: 0;
-  width: 100%;
-  height: 100%;
-  object-fit: cover;
-  opacity: 0.42;
+.aio-programme__module--coaching .aio-programme__module-title {
+  text-transform: uppercase;
 }
-.aio-programme__coaching-shade {
-  background:
-    linear-gradient(90deg, rgba(9, 9, 9, 0.96) 0%, rgba(9, 9, 9, 0.89) 48%, rgba(9, 9, 9, 0.7) 78%, rgba(9, 9, 9, 0.62) 100%),
-    linear-gradient(0deg, rgba(9, 9, 9, 0.78), transparent 58%);
+.aio-programme__module--coaching summary:focus-visible {
+  outline: none;
 }
-.aio-programme__coaching-inner {
-  position: relative;
-  z-index: 1;
-  display: grid;
-  grid-template-columns: 9.75rem minmax(0, 1fr);
-  gap: 2.5rem;
-  align-items: center;
-  min-height: 16rem;
-  padding: 2.25rem var(--aio-programme-rail);
+.aio-programme__module--coaching summary:focus-visible .aio-programme__module-title {
+  text-decoration: underline;
+  text-decoration-color: var(--brand-readable);
+  text-decoration-thickness: 1px;
+  text-underline-offset: 0.35em;
 }
-.aio-programme__coaching-number strong {
-  display: block;
-  color: var(--brand-readable);
-  font-size: 2.65rem;
-  font-weight: 300;
-  letter-spacing: -0.035em;
-  line-height: 1;
-  white-space: nowrap;
+.aio-programme__detail.is-practice .aio-programme__detail-copy {
+  align-self: center;
 }
-.aio-programme__coaching-number span {
-  display: block;
-  margin-top: 0.75rem;
-  color: var(--ink-1);
-  font-size: 1rem;
-  font-weight: 400;
-  line-height: 1.25;
-  white-space: nowrap;
-}
-.aio-programme__coaching-copy h3 {
-  max-width: 46rem;
-  font-size: 1.65rem;
-}
-.aio-programme__coaching-copy > p:last-child {
-  max-width: 46rem;
-  margin-top: 0.75rem;
+.aio-programme__coaching-intro {
+  max-width: 41rem;
+  margin: 0 0 1.5rem;
   color: var(--ink-2);
-  font-size: 0.95rem;
+  font-size: 1rem;
 }
+.aio-programme__coaching-benefits { max-width: 36rem; }
+.aio-programme__coaching-media video { opacity: 0.68; }
 @keyframes aio-module-content-in {
   from {
     opacity: 0;
@@ -1008,13 +982,6 @@ html.has-motion .results__track { height: 240vh; }
     gap: 2.5rem;
     padding-right: 0;
   }
-  .aio-programme__coaching-inner {
-    grid-template-columns: 9.5rem minmax(0, 1fr);
-    gap: 1.5rem;
-    padding: 2rem;
-  }
-  .aio-programme__coaching-number strong { font-size: 2.5rem; }
-  .aio-programme__coaching-number span { font-size: 0.95rem; }
 }
 @media (max-width: 767px) {
   .gallery__aio-copy { padding: 3rem 1.25rem 1.15rem; }
@@ -1042,6 +1009,10 @@ html.has-motion .results__track { height: 240vh; }
     padding: 1.1rem 0;
   }
   .aio-programme__number { font-size: 1.8rem; }
+  .aio-programme__module--coaching .aio-programme__coaching-plus {
+    width: 1.6rem;
+    height: 1.6rem;
+  }
   .aio-programme__module-title { font-size: 1.25rem; }
   .aio-programme__detail {
     grid-template-columns: 1fr;
@@ -1064,31 +1035,7 @@ html.has-motion .results__track { height: 240vh; }
   .aio-programme__practice-video { min-height: 23rem; }
   .aio-programme__practice-overlay { inset: auto 1.5rem 1.5rem; flex-direction: column; align-items: flex-start; }
   .aio-programme__practice-overlay strong { font-size: 1.4rem; text-align: left; }
-  .aio-programme__coaching { min-height: 24rem; margin-top: 1.25rem; }
-  .aio-programme__coaching-video {
-    inset: 0;
-    width: 100%;
-    height: 100%;
-    opacity: 0.44;
-  }
-  .aio-programme__coaching-shade {
-    background: linear-gradient(0deg, rgba(9, 9, 9, 0.94) 0%, rgba(9, 9, 9, 0.7) 64%, rgba(9, 9, 9, 0.48) 100%);
-  }
-  .aio-programme__coaching-inner {
-    grid-template-columns: 1fr;
-    gap: 1.5rem;
-    align-content: center;
-    min-height: 24rem;
-    padding: 1.5rem;
-  }
-  .aio-programme__coaching-number {
-    display: flex;
-    align-items: baseline;
-    gap: 0.75rem;
-  }
-  .aio-programme__coaching-number strong { font-size: 2.35rem; }
-  .aio-programme__coaching-number span { margin: 0; }
-  .aio-programme__coaching-copy h3 { font-size: 1.45rem; }
+  .aio-programme__coaching-intro { margin-bottom: 1.25rem; }
 }
 
 /* ======================== AIO Konzept: Kundenresultate ==================== */
@@ -2337,6 +2284,10 @@ html.has-motion [data-aio-growth-flow] {
     padding-inline: var(--aio-programme-rail);
   }
   .aio-programme__number { font-size: 2rem; }
+  .aio-programme__module--coaching .aio-programme__coaching-plus {
+    width: 1.8rem;
+    height: 1.8rem;
+  }
   .aio-programme__module-title { font-size: 1.4rem; }
   .aio-programme__detail,
   .aio-programme__detail.is-practice {
@@ -2349,7 +2300,6 @@ html.has-motion [data-aio-growth-flow] {
     min-height: 18rem;
     max-height: 22rem;
   }
-  .aio-programme__coaching { margin-top: 1.5rem; }
   .aio-case-study {
     --aio-case-avatar-size: 3.25rem;
     --aio-case-title-size: 2rem;

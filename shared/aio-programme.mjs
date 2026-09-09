@@ -15,10 +15,14 @@ export const AIO_PROGRAMME = {
   practiceLabel: 'Praxis vor Ort',
   practiceText: 'Content-Produktion & Bearbeitung',
   practiceOverlay: 'Von der Theorie in die Content-Praxis.',
-  coachingStat: '4 × 2 h',
   coachingLabel: '1:1 Coachings',
   coachingEyebrow: 'Individuelle & persönliche Begleitung',
-  coachingHeading: 'Nach jedem Theorie-Modul besprechen wir deine Umsetzung.',
   coachingText:
-    'In jedem der vier Theorie-Module schaust du zuerst die Videolektionen an. Anschließend folgt jeweils ein zweistündiger 1:1-Videocall mit mir. Dort klären wir offene Fragen und du bekommst individuelles Feedback sowie konkrete Tipps für deine Umsetzung.',
+    'In jedem der vier Theorie-Module schaust du zuerst die Videolektionen an. Anschließend folgt jeweils ein zweistündiger 1:1-Videocall mit mir.',
+  coachingBenefits: [
+    'Offene Fragen gemeinsam klären',
+    'Individuelles Feedback erhalten',
+    'Inhalte auf dein eigenes Projekt übertragen',
+    'Konkrete nächste Schritte gemeinsam festlegen',
+  ],
 };

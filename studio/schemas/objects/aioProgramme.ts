@@ -42,10 +42,16 @@ export default defineType({
 
     requiredText('practiceOverlay', 'Text auf dem Praxis-Video', 'modules'),
 
-    requiredText('coachingStat', 'Große Zeitangabe', 'coaching'),
-    requiredText('coachingLabel', 'Text unter der Zeitangabe', 'coaching'),
-    requiredText('coachingEyebrow', 'Kleine Überschrift', 'coaching'),
-    requiredText('coachingHeading', 'Überschrift', 'coaching'),
-    requiredText('coachingText', 'Erklärung', 'coaching', 5),
+    requiredText('coachingLabel', 'Bezeichnung der aufklappbaren Zeile', 'coaching'),
+    requiredText('coachingEyebrow', 'Text auf dem Coaching-Video', 'coaching'),
+    requiredText('coachingText', 'Kurzer Einleitungstext', 'coaching', 3),
+    defineField({
+      name: 'coachingBenefits',
+      title: 'Nutzenpunkte',
+      type: 'array',
+      group: 'coaching',
+      of: [{ type: 'string' }],
+      validation: (R) => R.required().min(1),
+    }),
   ],
 });
