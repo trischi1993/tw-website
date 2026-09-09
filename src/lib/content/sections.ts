@@ -15,6 +15,7 @@ import type {
   TextWrapToken,
   SpaceToken,
   CtaVariant,
+  ResultProofCard,
 } from './types';
 import { mapAioCustomerResults } from './aio-customer-results';
 import { mapAioProgramme } from './aio-programme';
@@ -266,7 +267,7 @@ function keyed<T extends { _key?: string }>(v: unknown, map: (item: any, i: numb
 function mapResultProofCard(
   card: any,
   meta?: { key: string; kind: 'own' | 'customer'; fixedBadges?: boolean },
-) {
+): ResultProofCard | null {
   const source = str(card?.source);
   const value = str(card?.value);
   const label = str(card?.label);
@@ -300,15 +301,15 @@ function mapResultProofCard(
   };
 }
 
-function mapFixedHomeResultCards(raw: unknown) {
+function mapFixedHomeResultCards(raw: unknown): ResultProofCard[] {
   if (!raw || typeof raw !== 'object') return [];
   return HOME_PROOF_CARD_SLOTS.map((slot) =>
     mapResultProofCard((raw as Record<string, unknown>)[slot.field], {
       key: slot.key,
-      kind: slot.kind,
+      kind: slot.kind === 'customer' ? 'customer' : 'own',
       fixedBadges: true,
     }),
-  ).filter(Boolean);
+  ).filter((card): card is ResultProofCard => card !== null);
 }
 
 /** Rohes Sanity-Rich-Text-Feld → RichText (leeres/ungültiges → []). */
