@@ -133,9 +133,7 @@ export default function AioProgrammeSection({
                     <span
                       className="aio-programme__number aio-programme__coaching-plus"
                       aria-hidden="true"
-                    >
-                      +
-                    </span>
+                    />
                     <span className="aio-programme__module-title">
                       <span {...edit?.(`${programmePath}.coachingLabel`)}>
                         {programme.coachingLabel}

@@ -879,11 +879,11 @@ html.has-motion .results__track { height: 240vh; }
   object-fit: contain;
 }
 .aio-programme__module--coaching .aio-programme__coaching-plus {
+  --aio-coaching-plus-size: 2rem;
   position: relative;
-  width: 2rem;
-  height: 2rem;
+  width: 2ch;
+  height: var(--aio-coaching-plus-size);
   color: var(--brand-readable);
-  font-size: 0;
 }
 .aio-programme__module--coaching .aio-programme__coaching-plus::before,
 .aio-programme__module--coaching .aio-programme__coaching-plus::after {
@@ -893,17 +893,17 @@ html.has-motion .results__track { height: 240vh; }
 }
 .aio-programme__module--coaching .aio-programme__coaching-plus::before {
   top: 50%;
-  left: 0;
-  width: 100%;
+  left: 50%;
+  width: var(--aio-coaching-plus-size);
   height: 1px;
-  transform: translateY(-50%);
+  transform: translate(-50%, -50%);
 }
 .aio-programme__module--coaching .aio-programme__coaching-plus::after {
-  top: 0;
+  top: 50%;
   left: 50%;
   width: 1px;
-  height: 100%;
-  transform: translateX(-50%);
+  height: var(--aio-coaching-plus-size);
+  transform: translate(-50%, -50%);
 }
 .aio-programme__module--coaching .aio-programme__module-title {
   text-transform: uppercase;
@@ -1009,8 +1009,7 @@ html.has-motion .results__track { height: 240vh; }
   }
   .aio-programme__number { font-size: 1.8rem; }
   .aio-programme__module--coaching .aio-programme__coaching-plus {
-    width: 1.6rem;
-    height: 1.6rem;
+    --aio-coaching-plus-size: 1.6rem;
   }
   .aio-programme__module-title { font-size: 1.25rem; }
   .aio-programme__detail {
@@ -2283,8 +2282,7 @@ html.has-motion [data-aio-growth-flow] {
   }
   .aio-programme__number { font-size: 2rem; }
   .aio-programme__module--coaching .aio-programme__coaching-plus {
-    width: 1.8rem;
-    height: 1.8rem;
+    --aio-coaching-plus-size: 1.8rem;
   }
   .aio-programme__module-title { font-size: 1.4rem; }
   .aio-programme__detail,

@@ -22,7 +22,7 @@ export const AIO_PROGRAMME = {
   coachingBenefits: [
     'Offene Fragen gemeinsam klären',
     'Individuelles Feedback erhalten',
-    'Inhalte auf dein eigenes Projekt übertragen',
-    'Konkrete nächste Schritte gemeinsam festlegen',
+    'Inhalte auf dein Projekt übertragen',
+    'Konkrete nächste Schritte festlegen',
   ],
 };
