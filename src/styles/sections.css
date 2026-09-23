@@ -1518,8 +1518,6 @@ html.has-motion .results__track { height: 240vh; }
   background: rgba(255, 255, 255, 0.2);
 }
 .aio-results__grid {
-  display: flex;
-  gap: 1.5rem;
   margin-right: calc(var(--container-padding) * -1);
   padding-right: var(--container-padding);
   overflow-x: auto;
@@ -1528,7 +1526,13 @@ html.has-motion .results__track { height: 240vh; }
   scrollbar-width: none;
 }
 .aio-results__grid.has-auto-scroll { scroll-snap-type: none; }
-.aio-results__grid.is-auto-scrolling { will-change: scroll-position; }
+.aio-results__track {
+  display: flex;
+  width: max-content;
+  min-width: 100%;
+  gap: 1.5rem;
+}
+.aio-results__grid.is-auto-scrolling .aio-results__track { will-change: transform; }
 .aio-results__grid.is-pointer-dragging {
   cursor: grabbing;
   scroll-snap-type: none;
@@ -3371,8 +3375,6 @@ html.has-motion .ahero__wipe { display: block; }
 }
 .home-proof__carousel {
   --home-proof-edge: clamp(1rem, 2.5vw, 3rem);
-  display: flex;
-  gap: 1.5rem;
   width: 100vw;
   margin-left: calc(50% - 50vw);
   padding: 0.15rem var(--home-proof-edge) 0.5rem;
@@ -3384,7 +3386,13 @@ html.has-motion .ahero__wipe { display: block; }
   touch-action: pan-x pan-y;
 }
 .home-proof__carousel.has-auto-scroll { scroll-snap-type: none; }
-.home-proof__carousel.is-auto-scrolling { will-change: scroll-position; }
+.home-proof__track {
+  display: flex;
+  width: max-content;
+  min-width: 100%;
+  gap: 1.5rem;
+}
+.home-proof__carousel.is-auto-scrolling .home-proof__track { will-change: transform; }
 .home-proof__carousel.is-pointer-dragging {
   cursor: grabbing;
   scroll-snap-type: none;

@@ -88,6 +88,7 @@ export default function HomeProofCarouselSection({
           data-home-proof-carousel=""
           aria-label="Meine Erfolge und Kundenerfolge"
         >
+          <div className="home-proof__track" data-carousel-track="">
           {cards.map(({ _key: cardKey, kind, source, value, label, images }) => {
             const cardPath = `${path}.cards[_key=="${cardKey}"]`;
             return (
@@ -173,6 +174,7 @@ export default function HomeProofCarouselSection({
               </div>
             </div>
           </article>
+          </div>
         </div>
       </div>
     </section>

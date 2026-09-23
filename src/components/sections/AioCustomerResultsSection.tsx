@@ -340,7 +340,7 @@ export default function AioCustomerResultsSection({
           <ul data-anim="reveal" data-delay="0.15" data-offset="0">
             {outcomes.map((outcome, index) => (
               <li key={`${outcome}-${index}`} {...edit?.(`${path}.bullets[${index}]`)}>
-                {outcome}
+                <span data-reveal-blur-text="">{outcome}</span>
               </li>
             ))}
           </ul>
@@ -720,6 +720,7 @@ export default function AioCustomerResultsSection({
           data-anim="aio-results-carousel"
           aria-label={customerResults.moreHeading}
         >
+          <div className="aio-results__track" data-carousel-track="">
           {resultCards.map(({ key, source, value, label, badges, images }) => (
             <article className="aio-results__card" key={key}>
               <div className={`aio-results__media${images.length > 1 ? ' is-comparison' : ''}${images.length === 3 ? ' is-triple' : ''}${images.length === 4 ? ' is-quad' : ''}${key === 'seelenGruen' ? ' is-profile-proof-pair' : ''}`}>
@@ -812,6 +813,7 @@ export default function AioCustomerResultsSection({
               </div>
             </div>
           </article>
+          </div>
         </div>
       </div>
     </section>

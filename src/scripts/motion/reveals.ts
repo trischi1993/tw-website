@@ -4,12 +4,15 @@ import { EASE, gsap, onEnterOnce, type EnterOnceTrigger } from './util';
    Generische Scroll-Entrance-Reveals (IX2, alle Breakpoints):
 
    - data-anim="reveal"    a-110/a-117/a-119/a-159: opacity 0→1 (ease),
-                           y 1rem→0 (outQuart), blur 5→0 (ease), je 0.8 s.
+                           y 1rem→0 (outQuart), Text-Blur 3.5→0 (ease),
+                           Bewegung/Fade je 0.8 s, Blur mindestens 0.9 s.
                            data-delay Sek. (a-117: 0.15, a-119: 0.3),
                            data-offset % vom unteren Viewportrand (Default 16).
-                           Auf mobilen Viewports bleibt der Blur aus: WebKit
-                           kann an transparenten Filter-Layern schwarze Kanten
-                           rasterisieren, die teils nach dem Reveal bestehen.
+                           Die Browser-Timeline animiert Bewegung, Fade und
+                           Blur nativ. Nur echte Textflächen werden gefiltert;
+                           Rahmen, Linien, Bilder und Container bleiben aus der
+                           WebKit-Filterebene heraus. Das verhindert schwarze
+                           Kanten und reduziert die Rasterlast auf 120-Hz-iPhones.
                            data-reveal-no-blur behält Fade und Bewegung bei,
                            vermeidet aber Filterkanten auf transparenten Flächen.
    - data-anim="usp-row"   a-50: [data-usp-icon] x -1rem→0, [data-usp-text]
@@ -57,11 +60,70 @@ function belongsToInitialHashScopes(element: Element): boolean {
 
 const triggers: EnterOnceTrigger[] = [];
 const pendingHashListeners: Array<() => void> = [];
+const activeRevealAnimations = new Set<Animation>();
 const ebookMobileQuery = window.matchMedia('(max-width: 767px)');
-const mobileRevealQuery = window.matchMedia(
-  '(max-width: 767px), (max-width: 950px) and (max-height: 500px), (hover: none) and (pointer: coarse)',
-);
 const isEbookPage = Boolean(document.querySelector('[data-ebook-hero]'));
+
+const REVEAL_TEXT_SELECTOR = [
+  'h1',
+  'h2',
+  'h3',
+  'h4',
+  'h5',
+  'h6',
+  'p',
+  'blockquote',
+  'dt',
+  'dd',
+  'figcaption',
+  'button',
+  'a',
+  'label',
+  'span',
+  'strong',
+  'small',
+  's',
+  '[data-reveal-blur-text]',
+].join(',');
+
+const NATIVE_EASE = {
+  ease: 'cubic-bezier(0.25, 0.1, 0.25, 1)',
+  outQuart: 'cubic-bezier(0.165, 0.84, 0.44, 1)',
+} as const;
+
+/** Filtert ausschließlich die sichtbaren Textflächen eines Reveal-Blocks.
+ * Ein Filter auf dem gesamten Container erzeugt in WebKit große transparente
+ * Rasterebenen; genau daraus entstanden die schwarzen Querbalken. */
+function getRevealTextTargets(root: HTMLElement): HTMLElement[] {
+  const candidates = root.matches(REVEAL_TEXT_SELECTOR)
+    ? [root]
+    : Array.from(root.querySelectorAll<HTMLElement>(REVEAL_TEXT_SELECTOR));
+
+  const eligible = candidates.filter((candidate) => {
+    if (!candidate.textContent?.trim()) return false;
+    if (candidate.closest('[aria-hidden="true"]')) return false;
+    return candidate.closest<HTMLElement>('[data-anim="reveal"]') === root;
+  });
+
+  // Wenn z. B. ein H2 ein Span enthält, wird nur das H2 gefiltert. So bleibt
+  // die Anzahl der gleichzeitig gerasterten Text-Layer möglichst klein.
+  return eligible.filter(
+    (candidate) => !eligible.some((ancestor) => ancestor !== candidate && ancestor.contains(candidate)),
+  );
+}
+
+function trackRevealAnimation(animation: Animation): Animation {
+  activeRevealAnimations.add(animation);
+  void animation.finished
+    .catch(() => undefined)
+    .finally(() => activeRevealAnimations.delete(animation));
+  return animation;
+}
+
+function cancelRevealAnimations(): void {
+  activeRevealAnimations.forEach((animation) => animation.cancel());
+  activeRevealAnimations.clear();
+}
 
 interface SharedObserverGroup {
   observer: IntersectionObserver;
@@ -171,40 +233,95 @@ function initReveal(): void {
     const offset = Number.isFinite(offsetAttr) ? offsetAttr : 16;
     const isHeroReveal = Boolean(el.closest('.ebook-hero'));
     const isLightweightEbookReveal = usesSharedEbookObserver() && !isHeroReveal;
-    const isMobileReveal = mobileRevealQuery.matches;
-    const isLightweightReveal = isHeroReveal || isLightweightEbookReveal || isMobileReveal;
-    const skipsBlur = isLightweightReveal || el.hasAttribute('data-reveal-no-blur');
-    gsap.set(
-      el,
-      isHeroReveal
-        ? { opacity: 0, y: '1rem', force3D: true, willChange: 'transform, opacity' }
-        : skipsBlur
-          ? { opacity: 0, y: '1rem' }
-          : { opacity: 0, y: '1rem', filter: 'blur(5px)' },
-    );
+    const isLightweightReveal = isHeroReveal || isLightweightEbookReveal;
+    const skipsBlur = el.hasAttribute('data-reveal-no-blur');
+    const blurTargets = skipsBlur ? [] : getRevealTextTargets(el);
+    const supportsNativeAnimation = typeof el.animate === 'function';
+
+    gsap.set(el, { opacity: 0, y: '1rem' });
+    if (blurTargets.length) gsap.set(blurTargets, { filter: 'blur(3.5px)' });
+
     const reveal = () => {
-      // will-change erst beim tatsächlichen Eintritt setzen: 60 dauerhaft
+      // will-change erst beim tatsächlichen Eintritt setzen: viele dauerhaft
       // vorbereitete Ebenen würden auf iPhones unnötig Grafikspeicher belegen.
-      if (isLightweightEbookReveal) {
-        gsap.set(el, { willChange: 'transform, opacity' });
+      const blurIncludesRoot = blurTargets.includes(el);
+      const nestedBlurTargets = blurTargets.filter((target) => target !== el);
+      gsap.set(el, {
+        willChange: blurIncludesRoot ? 'transform, opacity, filter' : 'transform, opacity',
+      });
+      if (nestedBlurTargets.length) gsap.set(nestedBlurTargets, { willChange: 'filter' });
+
+      if (!supportsNativeAnimation) {
+        gsap.to(el, { opacity: 1, duration, delay, ease: EASE.ease });
+        gsap.to(el, {
+          y: 0,
+          duration,
+          delay,
+          ease: EASE.outQuart,
+          force3D: isLightweightReveal,
+          clearProps: 'transform,willChange',
+        });
+        if (blurTargets.length) {
+          gsap.to(blurTargets, {
+            filter: 'blur(0px)',
+            duration: Math.max(duration, 0.9),
+            delay,
+            ease: EASE.ease,
+            clearProps: 'filter,willChange',
+          });
+        }
+        return;
       }
-      gsap.to(el, { opacity: 1, duration, delay, ease: EASE.ease });
-      gsap.to(el, {
-        y: 0,
-        duration,
-        delay,
-        ease: EASE.outQuart,
-        force3D: isLightweightReveal,
-        ...(isLightweightReveal ? { clearProps: 'transform,willChange' } : {}),
-      });
-      if (skipsBlur) return;
-      gsap.to(el, {
-        filter: 'blur(0px)',
-        duration,
-        delay,
-        ease: EASE.ease,
-        clearProps: 'filter',
-      });
+
+      const timing = {
+        duration: duration * 1000,
+        delay: delay * 1000,
+        fill: 'both' as FillMode,
+      };
+      const animations = [
+        trackRevealAnimation(
+          el.animate([{ opacity: 0 }, { opacity: 1 }], {
+            ...timing,
+            easing: NATIVE_EASE.ease,
+          }),
+        ),
+        trackRevealAnimation(
+          el.animate(
+            [
+              { transform: 'translate3d(0, 1rem, 0)' },
+              { transform: 'translate3d(0, 0, 0)' },
+            ],
+            { ...timing, easing: NATIVE_EASE.outQuart },
+          ),
+        ),
+        ...blurTargets.map((target) =>
+          trackRevealAnimation(
+            target.animate(
+              [
+                { filter: 'blur(3.5px)', offset: 0 },
+                { filter: 'blur(1.15px)', offset: 0.62 },
+                // Ein fast-null Endwert verhindert, dass WebKit den Filter-
+                // Layer im letzten sichtbaren Frame abrupt neu rasterisiert.
+                { filter: 'blur(0.001px)', offset: 1 },
+              ],
+              {
+                duration: Math.max(duration, 0.9) * 1000,
+                delay: delay * 1000,
+                easing: NATIVE_EASE.ease,
+                fill: 'both',
+              },
+            ),
+          ),
+        ),
+      ];
+
+      void Promise.all(animations.map((animation) => animation.finished)).then(() => {
+        // Erst nach dem letzten optischen Frame entfernen. Danach braucht die
+        // Seite keine zusätzlichen Compositor-Layer mehr.
+        gsap.set(el, { clearProps: 'opacity,transform,willChange' });
+        if (blurTargets.length) gsap.set(blurTargets, { clearProps: 'filter,willChange' });
+        animations.forEach((animation) => animation.cancel());
+      }).catch(() => undefined);
     };
 
     // Eager-Hero-Elemente starten bewusst mit der Ladechoreografie statt erst
@@ -620,6 +737,7 @@ function initFaqItems(): void {
 function build(): void {
   pendingHashListeners.splice(0).forEach((remove) => remove());
   triggers.splice(0).forEach((trigger) => trigger.kill());
+  cancelRevealAnimations();
 
   // Laufende oder bereits beendete Callback-Tweens gehören nicht automatisch
   // zu ihrem ScrollTrigger. Vor dem Neuaufbau stoppen; die FAQ-Funktion hält

@@ -7,6 +7,7 @@
  */
 
 import { preloadCarouselImages } from './carousel-image-preload';
+import { createNativeCarouselMotion } from './native-carousel-motion';
 
 const clamp = (value: number, min: number, max: number) =>
   Math.min(max, Math.max(min, value));
@@ -266,164 +267,13 @@ function initBeforeAfterComparison(comparison: HTMLElement): void {
 
 function initAutoCarousel(carousel: HTMLElement): void {
   if (carousel.dataset.aioCarouselReady === '1') return;
-  if (carousel.children.length < 2) return;
+  const track = carousel.querySelector<HTMLElement>('[data-carousel-track]');
+  if (!track || track.children.length < 2) return;
 
   carousel.dataset.aioCarouselReady = '1';
-  const reducedMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
-  const hoverCapable = window.matchMedia('(hover: hover) and (pointer: fine)').matches;
-  const autoMotionAllowed = !reducedMotion && hoverCapable;
-  if (autoMotionAllowed) carousel.classList.add('has-auto-scroll');
   preloadCarouselImages(carousel, '.aio-results__media img');
-  const speed = 22;
-  let direction = 1;
-  let visible = isNearViewport(carousel, 40);
-  let resumeAt = 0;
-  let lastTime = 0;
-  let pointerHeld = false;
-  let touchHeld = false;
-  let hoverHeld = false;
-  let manualSession = false;
-  let manualSettleAt = 0;
-  let autoScrolling = false;
-  // iOS/WebKit rundet scrollLeft je nach Element auf ganze Pixel. Die
-  // Animation muss ihre Bruchteile deshalb separat behalten, statt in jedem
-  // Tick wieder vom gerundeten DOM-Wert auszugehen.
-  let position = carousel.scrollLeft;
-
-  const syncPosition = () => {
-    position = carousel.scrollLeft;
-  };
-
-  const setAutoScrolling = (active: boolean) => {
-    if (autoScrolling === active) return;
-    autoScrolling = active;
-    carousel.classList.toggle('is-auto-scrolling', active);
-  };
-
-  const pauseFor = (milliseconds: number) => {
-    setAutoScrolling(false);
-    syncPosition();
-    resumeAt = Math.max(resumeAt, performance.now() + milliseconds);
-  };
-
-  const beginManual = (source: 'pointer' | 'touch' | 'wheel') => {
-    if (source === 'pointer') pointerHeld = true;
-    if (source === 'touch') touchHeld = true;
-    manualSession = true;
-    manualSettleAt = Number.POSITIVE_INFINITY;
-    resumeAt = Number.POSITIVE_INFINITY;
-    syncPosition();
-    setAutoScrolling(false);
-  };
-
-  const finishManual = (source: 'pointer' | 'touch') => {
-    if (source === 'pointer') pointerHeld = false;
-    if (source === 'touch') touchHeld = false;
-    syncPosition();
-
-    if (pointerHeld || touchHeld) return;
-    const now = performance.now();
-    manualSettleAt = now + 280;
-    resumeAt = now + 800;
-  };
-
-  const tick = (now: number) => {
-    window.requestAnimationFrame(tick);
-    if (!lastTime) lastTime = now;
-    const delta = Math.min(50, now - lastTime);
-    lastTime = now;
-    if (!visible) return;
-    if (pointerHeld || touchHeld || hoverHeld) return;
-    if (manualSession) {
-      if (now < manualSettleAt) return;
-      manualSession = false;
-      syncPosition();
-      resumeAt = Math.max(resumeAt, now + 180);
-      return;
-    }
-    if (now < resumeAt) return;
-
-    const maxScroll = Math.max(0, carousel.scrollWidth - carousel.clientWidth);
-    if (maxScroll <= 1) return;
-    const next = clamp(position + direction * speed * delta / 1000, 0, maxScroll);
-    position = next;
-    carousel.scrollLeft = next;
-    setAutoScrolling(true);
-
-    if (direction < 0 && next <= 0.5) {
-      direction = 1;
-      pauseFor(850);
-    } else if (direction > 0 && next >= maxScroll - 0.5) {
-      direction = -1;
-      pauseFor(850);
-    }
-  };
-
-  const updateVisibility = (nextVisible: boolean) => {
-    if (nextVisible === visible) return;
-    visible = nextVisible;
-    lastTime = 0;
-    position = carousel.scrollLeft;
-    if (visible) pauseFor(180);
-    else setAutoScrolling(false);
-  };
-
-  if (typeof window.IntersectionObserver === 'function') {
-    new IntersectionObserver(
-      ([entry]) => updateVisibility(Boolean(entry?.isIntersecting)),
-      { rootMargin: '40px 0px', threshold: 0 },
-    ).observe(carousel);
-  } else {
-    window.addEventListener('scroll', () => updateVisibility(isNearViewport(carousel, 40)), {
-      passive: true,
-    });
-    window.addEventListener('resize', () => updateVisibility(isNearViewport(carousel, 40)), {
-      passive: true,
-    });
-  }
-
-  if (hoverCapable) {
-    carousel.addEventListener('pointerenter', () => {
-      hoverHeld = true;
-      syncPosition();
-      setAutoScrolling(false);
-    });
-    carousel.addEventListener('pointerleave', () => {
-      hoverHeld = false;
-      pauseFor(300);
-    });
-  }
-
-  enableMouseDrag(
-    carousel,
-    () => beginManual('pointer'),
-    () => finishManual('pointer'),
-  );
-  carousel.addEventListener('touchstart', () => beginManual('touch'), { passive: true });
-  carousel.addEventListener('touchend', () => finishManual('touch'), { passive: true });
-  carousel.addEventListener('touchcancel', () => finishManual('touch'), { passive: true });
-  carousel.addEventListener('wheel', () => {
-    beginManual('wheel');
-    const now = performance.now();
-    manualSettleAt = now + 280;
-    resumeAt = now + 950;
-  }, { passive: true });
-  carousel.addEventListener('scroll', () => {
-    if (!manualSession) return;
-    syncPosition();
-    if (pointerHeld || touchHeld) return;
-    const now = performance.now();
-    manualSettleAt = now + 280;
-    resumeAt = now + 800;
-  }, { passive: true });
-  window.addEventListener('touchend', () => {
-    if (touchHeld) finishManual('touch');
-  }, { passive: true });
-  window.addEventListener('touchcancel', () => {
-    if (touchHeld) finishManual('touch');
-  }, { passive: true });
-
-  if (autoMotionAllowed) window.requestAnimationFrame(tick);
+  const motion = createNativeCarouselMotion(carousel, track);
+  enableMouseDrag(carousel, motion.beginManual, motion.finishManual);
 }
 
 function initProofSlider(slider: HTMLElement): void {
