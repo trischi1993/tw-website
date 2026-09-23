@@ -41,9 +41,9 @@ function enableMouseDrag(
     ) return;
     pointerId = event.pointerId;
     startX = event.clientX;
-    startScrollLeft = carousel.scrollLeft;
     moved = false;
     begin();
+    startScrollLeft = carousel.scrollLeft;
   });
   carousel.addEventListener('pointermove', (event) => {
     if (event.pointerId !== pointerId) return;
@@ -88,7 +88,7 @@ function initAutoCarousel(carousel: HTMLElement): void {
   const reducedMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
   preloadCarouselImages(carousel, '.home-proof-card__media img');
   const motion = createNativeCarouselMotion(carousel, track);
-  initMobileCarouselHint(carousel, track);
+  initMobileCarouselHint(carousel);
   const jumpButtons = Array.from(
     carousel.closest<HTMLElement>('[data-home-proof]')
       ?.querySelectorAll<HTMLButtonElement>('[data-proof-jump]') ?? [],

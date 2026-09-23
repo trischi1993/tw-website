@@ -15,8 +15,10 @@ export interface NativeCarouselMotion {
  * Bewegt einen Carousel-Track mit der nativen Web-Animations-Engine. Anders
  * als ein pro requestAnimationFrame gesetztes scrollLeft kann der Browser die
  * Translation auf dem Compositor und mit der echten Display-Frequenz zeichnen.
- * Vor jeder manuellen Eingabe wird die sichtbare Position verlustfrei zurück
- * in den nativen Scroll-Container übertragen.
+ * Beim reinen Hover bleibt dieselbe transformierte Ebene stehen, damit beim
+ * Pausieren kein sichtbarer Darstellungswechsel entsteht. Erst vor einer
+ * echten manuellen Eingabe wird die sichtbare Position verlustfrei zurück in
+ * den nativen Scroll-Container übertragen.
  */
 export function createNativeCarouselMotion(
   carousel: HTMLElement,
@@ -25,14 +27,9 @@ export function createNativeCarouselMotion(
 ): NativeCarouselMotion {
   const reducedMotion = window.matchMedia('(prefers-reduced-motion: reduce)');
   const hoverCapable = window.matchMedia('(hover: hover) and (pointer: fine)');
-  const mobileLayout = window.matchMedia(
-    '(max-width: 767px), (max-width: 950px) and (max-height: 500px) and (orientation: landscape)',
-  );
   const animationSupported = typeof track.animate === 'function';
   const enabled = () => animationSupported
-    && !reducedMotion.matches
-    && hoverCapable.matches
-    && !mobileLayout.matches;
+    && !reducedMotion.matches;
 
   let animation: Animation | null = null;
   let resumeTimer = 0;
@@ -40,6 +37,11 @@ export function createNativeCarouselMotion(
   let visible = isNearViewport(carousel);
   let hoverHeld = false;
   let manualHeld = false;
+  let manualMoved = false;
+  let manualSettling = false;
+  let manualStartPosition = carousel.scrollLeft;
+  let touchStartX = 0;
+  let touchStartY = 0;
   let transformMode = false;
   let settledPosition = carousel.scrollLeft;
 
@@ -73,6 +75,7 @@ export function createNativeCarouselMotion(
     const position = clamp(carousel.scrollLeft, 0, maxScroll());
     // Beide Schreibvorgänge laufen im selben Task: Der sichtbare Inhalt bleibt
     // am exakt gleichen Ort, nur die technische Bewegungsart wechselt.
+    carousel.classList.add('has-auto-scroll');
     setTrackPosition(position);
     carousel.scrollLeft = 0;
     transformMode = true;
@@ -81,16 +84,26 @@ export function createNativeCarouselMotion(
     if (!transformMode) return;
     const position = readTrackPosition();
     stopAnimation();
-    carousel.scrollLeft = position;
+    // Die Translation muss vor scrollLeft entfernt werden. Andernfalls
+    // berechnet WebKit die Scroll-Snap-Punkte aus der noch transformierten
+    // Track-Geometrie und versetzt die Karten beim Handoff sichtbar.
     track.style.removeProperty('transform');
-    settledPosition = position;
     transformMode = false;
+    carousel.scrollLeft = position;
+    settledPosition = position;
+  };
+  const freezeTransformPosition = () => {
+    if (!transformMode) return;
+    const position = readTrackPosition();
+    stopAnimation();
+    setTrackPosition(position);
   };
 
   const canRun = () => enabled() && visible && !hoverHeld && !manualHeld;
   const start = () => {
     clearResumeTimer();
     if (!canRun()) return;
+    manualSettling = false;
 
     enterTransformMode();
     const limit = maxScroll();
@@ -140,20 +153,26 @@ export function createNativeCarouselMotion(
     scheduleStart(milliseconds);
   };
   const beginManual = () => {
+    if (manualHeld) return;
     manualHeld = true;
+    manualMoved = false;
+    manualSettling = false;
     clearResumeTimer();
     commitToNativeScroll();
+    manualStartPosition = carousel.scrollLeft;
   };
   const finishManual = () => {
+    if (!manualHeld) return;
     manualHeld = false;
-    scheduleStart(800);
+    manualSettling = manualMoved;
+    if (manualMoved) carousel.classList.remove('has-auto-scroll');
+    scheduleStart(manualMoved ? 1100 : 500);
   };
 
   if (!animationSupported) return { beginManual, finishManual, pauseFor };
 
   const updateMode = () => {
     if (enabled()) {
-      carousel.classList.add('has-auto-scroll');
       scheduleStart(180);
       return;
     }
@@ -163,19 +182,53 @@ export function createNativeCarouselMotion(
   };
 
   reducedMotion.addEventListener('change', updateMode);
-  hoverCapable.addEventListener('change', updateMode);
-  mobileLayout.addEventListener('change', updateMode);
+  hoverCapable.addEventListener('change', () => {
+    if (hoverCapable.matches) return;
+    hoverHeld = false;
+    scheduleStart(180);
+  });
   carousel.addEventListener('pointerenter', () => {
+    if (!hoverCapable.matches) return;
     hoverHeld = true;
     clearResumeTimer();
-    commitToNativeScroll();
+    freezeTransformPosition();
   });
   carousel.addEventListener('pointerleave', () => {
+    if (!hoverCapable.matches) return;
     hoverHeld = false;
     scheduleStart(300);
   });
   carousel.addEventListener('wheel', () => pauseFor(950), { passive: true });
-  window.addEventListener('resize', () => pauseFor(180), { passive: true });
+  carousel.addEventListener('touchstart', (event) => {
+    const touch = event.changedTouches[0];
+    if (!touch) return;
+    touchStartX = touch.clientX;
+    touchStartY = touch.clientY;
+    beginManual();
+  }, { passive: true });
+  carousel.addEventListener('touchmove', (event) => {
+    const touch = event.touches[0];
+    if (!touch || !manualHeld) return;
+    const deltaX = touch.clientX - touchStartX;
+    const deltaY = touch.clientY - touchStartY;
+    if (Math.abs(deltaX) > 4 && Math.abs(deltaX) > Math.abs(deltaY)) manualMoved = true;
+  }, { passive: true });
+  carousel.addEventListener('touchend', () => finishManual(), { passive: true });
+  carousel.addEventListener('touchcancel', () => finishManual(), { passive: true });
+  carousel.addEventListener('scroll', () => {
+    if (transformMode) return;
+    settledPosition = carousel.scrollLeft;
+    if (manualHeld) {
+      if (Math.abs(carousel.scrollLeft - manualStartPosition) > 2) manualMoved = true;
+      return;
+    }
+    if (manualSettling && enabled() && visible) scheduleStart(950);
+  }, { passive: true });
+  window.addEventListener('resize', () => {
+    clearResumeTimer();
+    freezeTransformPosition();
+    scheduleStart(240);
+  }, { passive: true });
 
   if (typeof window.IntersectionObserver === 'function') {
     new IntersectionObserver(
@@ -185,6 +238,7 @@ export function createNativeCarouselMotion(
         else {
           clearResumeTimer();
           commitToNativeScroll();
+          carousel.classList.remove('has-auto-scroll');
         }
       },
       { rootMargin: '40px 0px', threshold: 0 },
@@ -198,6 +252,7 @@ export function createNativeCarouselMotion(
       else {
         clearResumeTimer();
         commitToNativeScroll();
+        carousel.classList.remove('has-auto-scroll');
       }
     };
     window.addEventListener('scroll', updateVisibility, { passive: true });

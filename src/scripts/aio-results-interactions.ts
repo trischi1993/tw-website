@@ -54,9 +54,9 @@ function enableMouseDrag(
     ) return;
     pointerId = event.pointerId;
     startX = event.clientX;
-    startScrollLeft = carousel.scrollLeft;
     moved = false;
     begin();
+    startScrollLeft = carousel.scrollLeft;
   });
   carousel.addEventListener('pointermove', (event) => {
     if (event.pointerId !== pointerId) return;
@@ -274,7 +274,7 @@ function initAutoCarousel(carousel: HTMLElement): void {
   carousel.dataset.aioCarouselReady = '1';
   preloadCarouselImages(carousel, '.aio-results__media img');
   const motion = createNativeCarouselMotion(carousel, track);
-  initMobileCarouselHint(carousel, track);
+  initMobileCarouselHint(carousel);
   enableMouseDrag(carousel, motion.beginManual, motion.finishManual);
 }
 
