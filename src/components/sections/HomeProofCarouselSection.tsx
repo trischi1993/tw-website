@@ -119,6 +119,9 @@ export default function HomeProofCarouselSection({
                         <img
                           src={props.src}
                           srcSet={props.srcSet}
+                          sizes={props.srcSet
+                            ? '(max-width: 767px) 84vw, (max-width: 991px) 72vw, 27rem'
+                            : undefined}
                           width={props.width}
                           height={props.height}
                           alt={props.alt}

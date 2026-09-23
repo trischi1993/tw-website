@@ -713,12 +713,6 @@ export default function AioCustomerResultsSection({
           <h3 {...edit?.(`${path}.customerResults.moreHeading`)}>
             {customerResults.moreHeading}
           </h3>
-          <span
-            aria-hidden="true"
-            {...edit?.(`${path}.customerResults.scrollLabel`)}
-          >
-            {customerResults.scrollLabel}
-          </span>
         </div>
 
         <div

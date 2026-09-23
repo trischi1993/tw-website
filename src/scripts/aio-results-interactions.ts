@@ -6,6 +6,8 @@
  * einer anderen Animation abbricht.
  */
 
+import { preloadCarouselImages } from './carousel-image-preload';
+
 const clamp = (value: number, min: number, max: number) =>
   Math.min(max, Math.max(min, value));
 
@@ -267,9 +269,12 @@ function initAutoCarousel(carousel: HTMLElement): void {
   if (carousel.children.length < 2) return;
 
   carousel.dataset.aioCarouselReady = '1';
-  carousel.classList.add('has-auto-scroll');
-  const speed = 22;
+  const reducedMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
   const hoverCapable = window.matchMedia('(hover: hover) and (pointer: fine)').matches;
+  const autoMotionAllowed = !reducedMotion && hoverCapable;
+  if (autoMotionAllowed) carousel.classList.add('has-auto-scroll');
+  preloadCarouselImages(carousel, '.aio-results__media img');
+  const speed = 22;
   let direction = 1;
   let visible = isNearViewport(carousel, 40);
   let resumeAt = 0;
@@ -418,7 +423,7 @@ function initAutoCarousel(carousel: HTMLElement): void {
     if (touchHeld) finishManual('touch');
   }, { passive: true });
 
-  window.requestAnimationFrame(tick);
+  if (autoMotionAllowed) window.requestAnimationFrame(tick);
 }
 
 function initProofSlider(slider: HTMLElement): void {

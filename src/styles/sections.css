@@ -1517,13 +1517,6 @@ html.has-motion .results__track { height: 240vh; }
   flex: none;
   background: rgba(255, 255, 255, 0.2);
 }
-.aio-results__more-head > span {
-  flex: none;
-  color: var(--ink-3);
-  font-size: var(--aio-label-size);
-  letter-spacing: 0.08em;
-  text-transform: uppercase;
-}
 .aio-results__grid {
   display: flex;
   gap: 1.5rem;
