@@ -7,6 +7,8 @@ import { EASE, gsap, onEnterOnce, type EnterOnceTrigger } from './util';
                            y 1rem→0 (outQuart), blur 5→0 (ease), je 0.8 s.
                            data-delay Sek. (a-117: 0.15, a-119: 0.3),
                            data-offset % vom unteren Viewportrand (Default 16).
+                           data-reveal-no-blur behält Fade und Bewegung bei,
+                           vermeidet aber Filterkanten auf transparenten Flächen.
    - data-anim="usp-row"   a-50: [data-usp-icon] x -1rem→0, [data-usp-text]
                            x 1.5rem→0, beide opacity 0→1, 1.15 s, Offset 15.
    - data-anim="grow-line" a-41: width 0→100 %, 2 s outQuart, Offset 10.
@@ -164,11 +166,12 @@ function initReveal(): void {
     const isHeroReveal = Boolean(el.closest('.ebook-hero'));
     const isLightweightEbookReveal = usesSharedEbookObserver() && !isHeroReveal;
     const isLightweightReveal = isHeroReveal || isLightweightEbookReveal;
+    const skipsBlur = isLightweightReveal || el.hasAttribute('data-reveal-no-blur');
     gsap.set(
       el,
       isHeroReveal
         ? { opacity: 0, y: '1rem', force3D: true, willChange: 'transform, opacity' }
-        : isLightweightEbookReveal
+        : skipsBlur
           ? { opacity: 0, y: '1rem' }
           : { opacity: 0, y: '1rem', filter: 'blur(5px)' },
     );
@@ -187,7 +190,7 @@ function initReveal(): void {
         force3D: isLightweightReveal,
         ...(isLightweightReveal ? { clearProps: 'transform,willChange' } : {}),
       });
-      if (isLightweightReveal) return;
+      if (skipsBlur) return;
       gsap.to(el, {
         filter: 'blur(0px)',
         duration,

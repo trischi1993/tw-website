@@ -37,7 +37,14 @@ export default function ServicesTabsSection({
 
   const cards = (items: typeof services) =>
     items.map((s) => (
-      <div className="services__card" key={s.id} data-anim="reveal" data-delay="0.3" data-offset="0">
+      <div
+        className="services__card"
+        key={s.id}
+        data-anim="reveal"
+        data-reveal-no-blur=""
+        data-delay="0.3"
+        data-offset="0"
+      >
         {/* Die meist querformatigen Quellen werden quadratisch gecroppt. Die
             effektive Bildbreite ist deshalb groesser als die sichtbare Box. */}
         <Img image={s.image} sizes="(max-width: 767px) 70vw, 18rem" />
