@@ -37,6 +37,7 @@ export function init(): void {
       duration: 1.2,
       delay: 0.3,
       ease: EASE.ease,
+      clearProps: 'opacity',
     });
     gsap.to(navRight, {
       x: 0,
@@ -44,6 +45,7 @@ export function init(): void {
       delay: 0.3,
       ease: EASE.outQuart,
       force3D: true,
+      clearProps: 'transform',
     });
   }
 }

@@ -119,40 +119,98 @@ function preserveAboutContentAfterTimeline(portrait: MediaQueryList): void {
  * Inhalt im Viewport. Ein einmaliges Wiederherstellen reicht nicht: iOS und
  * GSAP vermessen den neuen Viewport in mehreren Phasen. Würden wir erst nach
  * der letzten Phase korrigieren, wäre genau das als verspätetes „Einrasten“
- * sichtbar. Deshalb wird derselbe Inhaltsanker bis zum Ende der Drehung in
- * jedem Frame stabil gehalten. */
+ * sichtbar. Deshalb wird derselbe Inhaltsanker bei den tatsaechlichen
+ * Resize-, Visual-Viewport- und GSAP-Refresh-Stufen wiederhergestellt. */
 function preservePageContentOnOrientation(portrait: MediaQueryList): void {
   const root = document.documentElement;
-  const anchorSelector = [
+  /* Stabile Layoutblöcke bewusst vor generischen Elementen prüfen. `closest()`
+   * beachtet die Reihenfolge einer kombinierten Selektorliste nicht: Der alte
+   * Code fing dadurch in Carousels oft ein bewegtes <figure> und in USP-Listen
+   * einen einzelnen Absatz/Listeneintrag statt der zugehörigen Karte ab. Beim
+   * responsiven Umbau wechselte der sichtbare Bezug anschließend und die Seite
+   * rastete in zwei Stufen ein. */
+  const anchorSelectors = [
+    '[data-results]',
     '.home-proof-card',
     '.home-proof__head',
     '.split-cta__grid',
+    '.aio-results__outcomes',
     '.aio-results__card',
     '.aio-programme__group',
+    '.usp__item',
     '.ebook-benefit',
     '.ebook-bundle-card',
     '[data-module-title]',
+    '.success-check__hero',
+    '.success-check__start-card',
+    '[data-check-stage]',
+    '.prose > *',
     'article',
-    'figure',
     'details',
-    'li',
-    'h1',
-    'h2',
-    'h3',
-    'p',
-    'section',
-    'footer',
-    'main',
-  ].join(',');
+  ];
+  const anchorScopeSelector = 'section,footer,main';
   let anchor: ViewportScrollAnchor | undefined;
   let pendingAnchor: ViewportScrollAnchor | undefined;
   let captureFrame: number | undefined;
-  let stabilizationFrame: number | undefined;
-  let stabilizingUntil = 0;
+  let restoreFrame: number | undefined;
+  let finishTimer: number | undefined;
+  let hardStopTimer: number | undefined;
+  let geometryObserver: ResizeObserver | undefined;
   let stabilizing = false;
+  let layoutSettled = false;
   let previousScrollBehavior = '';
   let previousOverflowAnchor = '';
   let wasPortrait = portrait.matches;
+
+  const findAnchor = (
+    hit: HTMLElement | null,
+    centerX: number,
+    centerY: number,
+  ): HTMLElement | null => {
+    if (!hit) return null;
+    for (const selector of anchorSelectors) {
+      const candidate = hit.closest<HTMLElement>(selector);
+      if (candidate) return candidate;
+    }
+
+    /* In zweispaltigen Rastern kann die Viewportmitte exakt in der Luecke
+     * liegen. Dann waere `closest()` direkt bei der ganzen Section gelandet.
+     * Stattdessen den naechsten sichtbaren stabilen Block innerhalb dieser
+     * Section waehlen, damit beim Rueckdrehen derselbe Inhalt erhalten bleibt. */
+    const scope = hit.closest<HTMLElement>(anchorScopeSelector);
+    if (!scope) return null;
+    for (const selector of anchorSelectors) {
+      const candidates = Array.from(scope.querySelectorAll<HTMLElement>(selector))
+        .filter((candidate) => {
+          const bounds = candidate.getBoundingClientRect();
+          return bounds.width > 0
+            && bounds.height > 0
+            && bounds.right >= 0
+            && bounds.left <= root.clientWidth
+            && bounds.bottom >= 0
+            && bounds.top <= root.clientHeight;
+        });
+      if (!candidates.length) continue;
+      return candidates.reduce((closest, candidate) => {
+        const distance = (element: HTMLElement) => {
+          const bounds = element.getBoundingClientRect();
+          const dx = centerX < bounds.left
+            ? bounds.left - centerX
+            : centerX > bounds.right
+              ? centerX - bounds.right
+              : 0;
+          const dy = centerY < bounds.top
+            ? bounds.top - centerY
+            : centerY > bounds.bottom
+              ? centerY - bounds.bottom
+              : 0;
+          return Math.hypot(dx, dy);
+        };
+        return distance(candidate) < distance(closest) ? candidate : closest;
+      });
+    }
+    return scope;
+  };
 
   const capture = () => {
     captureFrame = undefined;
@@ -161,7 +219,7 @@ function preservePageContentOnOrientation(portrait: MediaQueryList): void {
     const centerX = root.clientWidth / 2;
     const centerY = root.clientHeight / 2;
     const hit = document.elementFromPoint(centerX, centerY) as HTMLElement | null;
-    const element = hit?.closest<HTMLElement>(anchorSelector);
+    const element = findAnchor(hit, centerX, centerY);
     if (!element || element === document.body || element === root) return;
 
     const bounds = element.getBoundingClientRect();
@@ -202,26 +260,73 @@ function preservePageContentOnOrientation(portrait: MediaQueryList): void {
   };
 
   const finishStabilizing = () => {
-    if (stabilizationFrame !== undefined) cancelAnimationFrame(stabilizationFrame);
-    stabilizationFrame = undefined;
+    if (restoreFrame !== undefined) cancelAnimationFrame(restoreFrame);
+    if (finishTimer !== undefined) window.clearTimeout(finishTimer);
+    if (hardStopTimer !== undefined) window.clearTimeout(hardStopTimer);
+    restoreFrame = undefined;
+    finishTimer = undefined;
+    hardStopTimer = undefined;
+    geometryObserver?.disconnect();
+    geometryObserver = undefined;
     stabilizing = false;
+    layoutSettled = false;
     pendingAnchor = undefined;
     root.style.scrollBehavior = previousScrollBehavior;
     root.style.overflowAnchor = previousOverflowAnchor;
     requestAnimationFrame(capture);
   };
 
-  const stabilize = (now: number) => {
-    stabilizationFrame = undefined;
+  const restorePending = () => {
+    restoreFrame = undefined;
     const saved = pendingAnchor;
-    if (!saved || !restore(saved) || now >= stabilizingUntil) {
+    if (!saved || !restore(saved)) {
       finishStabilizing();
-      return;
     }
-    stabilizationFrame = requestAnimationFrame(stabilize);
   };
 
-  window.addEventListener('scroll', queueCapture, { passive: true });
+  const queueRestore = () => {
+    if (!stabilizing || restoreFrame !== undefined) return;
+    restoreFrame = requestAnimationFrame(restorePending);
+  };
+
+  const scheduleFinish = () => {
+    if (!stabilizing || !layoutSettled) return;
+    if (finishTimer !== undefined) window.clearTimeout(finishTimer);
+    // Erst beenden, wenn nach dem finalen GSAP-Refresh und der letzten
+    // Visual-Viewport-Aenderung kurz Ruhe eingekehrt ist. So werden auch die
+    // zwei iOS-Rotationsphasen erfasst, ohne permanent scrollTo auszufuehren.
+    finishTimer = window.setTimeout(() => {
+      restorePending();
+      finishStabilizing();
+    }, 180);
+  };
+
+  const handleGeometryChange = () => {
+    if (!stabilizing) return;
+    if (restoreFrame !== undefined) cancelAnimationFrame(restoreFrame);
+    restoreFrame = undefined;
+    // ResizeObserver, VisualViewport und ScrollTrigger melden nach der neuen
+    // Layoutberechnung, aber noch vor dem Paint. Direktes Wiederherstellen in
+    // diesem Callback verhindert den einzelnen Zwischenframe, der bei einer
+    // zusaetzlichen rAF-Verzoegerung noch sichtbar werden konnte.
+    restorePending();
+    scheduleFinish();
+  };
+
+  const handleScroll = () => {
+    if (stabilizing) {
+      // GSAPs responsiver Neuaufbau kann die Window-Position verschieben,
+      // ohne dabei eine weitere messbare Groessenaenderung auszuloesen. Das
+      // Scroll-Event kommt noch vor dem Paint und stellt den gespeicherten
+      // Inhaltsbezug sofort wieder her. Echte Nutzereingaben beenden die
+      // Stabilisierung bereits ueber touchstart/pointerdown/wheel.
+      handleGeometryChange();
+      return;
+    }
+    queueCapture();
+  };
+
+  window.addEventListener('scroll', handleScroll, { passive: true });
   window.addEventListener('load', queueCapture, { once: true });
   window.addEventListener('lp:layout-changed', queueCapture);
   window.addEventListener('touchstart', () => {
@@ -235,12 +340,20 @@ function preservePageContentOnOrientation(portrait: MediaQueryList): void {
   }, { passive: true });
   capture();
 
-  // Ein Refresh kann innerhalb derselben Drehphase eine weitere Layoutstufe
-  // auslösen. Der laufende Frame-Loop übernimmt die Korrektur noch vor dem
-  // nächsten stabilen Bild.
+  // Reale Layoutstufen korrigieren, nicht pauschal jeden Frame. Resize- und
+  // VisualViewport-Events laufen vor dem Paint; die direkte Korrektur bleibt
+  // damit im selben Rendering-Zyklus und erzeugt keine sichtbare Dauerfahrt.
+  window.addEventListener('resize', handleGeometryChange, { passive: true });
+  window.visualViewport?.addEventListener('resize', handleGeometryChange, { passive: true });
+  ScrollTrigger.addEventListener('matchMedia', handleGeometryChange);
   ScrollTrigger.addEventListener('refresh', () => {
-    if (!stabilizing || stabilizationFrame !== undefined) return;
-    stabilizationFrame = requestAnimationFrame(stabilize);
+    handleGeometryChange();
+  });
+  window.addEventListener('lp:orientation-settled', () => {
+    if (!stabilizing) return;
+    layoutSettled = true;
+    queueRestore();
+    scheduleFinish();
   });
 
   portrait.addEventListener('change', () => {
@@ -250,21 +363,46 @@ function preservePageContentOnOrientation(portrait: MediaQueryList): void {
 
     pendingAnchor = anchor;
     if (!pendingAnchor?.element.isConnected) return;
-    if (stabilizationFrame !== undefined) cancelAnimationFrame(stabilizationFrame);
+    if (restoreFrame !== undefined) cancelAnimationFrame(restoreFrame);
+    if (finishTimer !== undefined) window.clearTimeout(finishTimer);
+    if (hardStopTimer !== undefined) window.clearTimeout(hardStopTimer);
+    geometryObserver?.disconnect();
+    geometryObserver = undefined;
     if (!stabilizing) {
       previousScrollBehavior = root.style.scrollBehavior;
       previousOverflowAnchor = root.style.overflowAnchor;
     }
     stabilizing = true;
-    stabilizingUntil = performance.now() + 900;
+    layoutSettled = false;
     root.style.scrollBehavior = 'auto';
     root.style.overflowAnchor = 'none';
 
+    // Responsive Textumbrueche und neu aufgebaute ScrollTrigger-Strecken
+    // veraendern teils erst nach dem eigentlichen window.resize die Hoehe des
+    // Dokuments. Ein ResizeObserver erfasst genau diese Layoutstufe, ohne den
+    // Scroller wie der alte rAF-Loop permanent anzufassen.
+    if (typeof ResizeObserver === 'function') {
+      geometryObserver = new ResizeObserver(handleGeometryChange);
+      geometryObserver.observe(document.body);
+      geometryObserver.observe(pendingAnchor.element);
+      const anchorSection = pendingAnchor.element.closest<HTMLElement>('section');
+      if (anchorSection && anchorSection !== pendingAnchor.element) {
+        geometryObserver.observe(anchorSection);
+      }
+    }
+
     // Das MediaQueryList-Event läuft bereits nach dem CSS-Umschalten. Die
     // synchrone erste Korrektur verhindert deshalb schon den ersten sichtbaren
-    // Zwischenzustand; der Loop fängt die späteren iOS-/GSAP-Stufen ab.
+    // Zwischenzustand; die Event-Korrekturen fangen die spaeteren
+    // iOS-/GSAP-Stufen ab.
     restore(pendingAnchor);
-    stabilizationFrame = requestAnimationFrame(stabilize);
+    queueRestore();
+    // Sicherheitsnetz, falls ein Browser kein finales Viewport-/Refresh-Event
+    // meldet. Der normale Abschluss kommt frueher ueber orientation-settled.
+    hardStopTimer = window.setTimeout(() => {
+      restorePending();
+      finishStabilizing();
+    }, 1600);
   });
 }
 
@@ -368,6 +506,7 @@ function init(): void {
       // Touch-Resizes oben bewusst nicht automatisch refreshen, muss GSAP die
       // Hero-/ScrollTrigger-Strecken nach der stabilen Phase neu vermessen.
       ScrollTrigger.refresh();
+      window.dispatchEvent(new Event('lp:orientation-settled'));
     }, 600);
   });
 

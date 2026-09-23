@@ -200,14 +200,21 @@ const headerCtaHref = settings.headerCta
      Die fixe Blur-Fläche bleibt dadurch beim Breakpoint-Wechsel strukturell
      unverändert; nur Logo und rechter Bereich wechseln bzw. animieren. */
   .navbar__container {
-    display: flex;
-    justify-content: space-between;
+    display: grid;
+    grid-template-columns: minmax(0, 1fr) auto;
+    align-items: center;
     width: 100%;
     margin-inline: auto;
   }
 
   /* --- Split-Wortmarke (Word-Wrapper = Overflow-Masken der Load-Anim) ------ */
-  .navbar__logo { display: inline-flex; align-items: center; text-decoration: none; }
+  .navbar__logo {
+    grid-area: 1 / 1;
+    justify-self: start;
+    display: inline-flex;
+    align-items: center;
+    text-decoration: none;
+  }
   .navbar__logo-word { display: inline-block; position: relative; overflow: hidden; }
   .navbar__logo-word.is-1 { padding-right: 0.625rem; }
   .navbar__logo-word.is-2 { padding-left: 0.75rem; }
@@ -224,10 +231,20 @@ const headerCtaHref = settings.headerCta
     background: var(--brand);
     flex: none;
   }
-  .navbar__logo.is-mobile { display: none; }
+  /* Beide Wortmarken bleiben dauerhaft in derselben Grid-Zelle. Ein Wechsel
+     per display:none/display:flex baut in iOS beim Drehen die fixe Blur-Ebene
+     neu auf und kann das mobile T|W fuer einen Frame an der alten Position
+     zeichnen. visibility tauscht nur die Darstellung, ohne das Header-Layout
+     oder die Compositor-Geometrie zu zerlegen. */
+  .navbar__logo.is-mobile {
+    visibility: hidden;
+    pointer-events: none;
+  }
 
   /* --- Rechte Seite: Overflow-Maske (Load-Anim + 9.2rem-Menü-Shift) -------- */
   .navbar__right {
+    grid-area: 1 / 2;
+    justify-self: end;
     z-index: 99999;
     display: flex;
     align-items: center;
@@ -378,8 +395,8 @@ const headerCtaHref = settings.headerCta
     .navbar__right-inner { gap: 0.75rem; }
   }
   @media (max-width: 767px) {
-    .navbar__logo.is-desktop { display: none; }
-    .navbar__logo.is-mobile { display: inline-flex; height: 3rem; }
+    .navbar__logo.is-desktop { visibility: hidden; pointer-events: none; }
+    .navbar__logo.is-mobile { visibility: visible; pointer-events: auto; height: 3rem; }
     .navbar__logo-word.is-1 { padding-right: 0.25rem; }
     .navbar__logo-word.is-2 { padding-left: 0.25rem; }
     .navbar__logo.is-mobile .navbar__logo-line { background: var(--brand); }

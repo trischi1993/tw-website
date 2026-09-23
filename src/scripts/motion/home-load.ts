@@ -77,10 +77,35 @@ export function init(_mm: gsap.MatchMedia): void {
       ease: EASE.outQuart,
       clearProps: 'height',
     });
-    gsap.to(logoText1, { xPercent: 0, delay: d(0.2), duration: t(1), ease: EASE.outQuart });
-    gsap.to(logoText2, { xPercent: 0, delay: d(0.2), duration: t(1), ease: EASE.outQuart });
-    gsap.to(navRight, { opacity: 1, delay: d(0.2), duration: t(1.2), ease: EASE.ease });
-    gsap.to(navRight, { x: 0, delay: d(0.2), duration: t(1), ease: EASE.outQuart, force3D: true });
+    gsap.to(logoText1, {
+      xPercent: 0,
+      delay: d(0.2),
+      duration: t(1),
+      ease: EASE.outQuart,
+      clearProps: 'transform',
+    });
+    gsap.to(logoText2, {
+      xPercent: 0,
+      delay: d(0.2),
+      duration: t(1),
+      ease: EASE.outQuart,
+      clearProps: 'transform',
+    });
+    gsap.to(navRight, {
+      opacity: 1,
+      delay: d(0.2),
+      duration: t(1.2),
+      ease: EASE.ease,
+      clearProps: 'opacity',
+    });
+    gsap.to(navRight, {
+      x: 0,
+      delay: d(0.2),
+      duration: t(1),
+      ease: EASE.outQuart,
+      force3D: true,
+      clearProps: 'transform',
+    });
     gsap.to(buttonGroups, { opacity: 1, delay: d(1), duration: t(1.1), ease: EASE.ease });
     gsap.to(buttonGroups, { x: 0, delay: d(1), duration: t(1), ease: EASE.outQuart });
     gsap.to(wipe, { width: '100%', height: 0, delay: d(1.3), duration: t(2), ease: EASE.outQuart });

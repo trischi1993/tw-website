@@ -73,8 +73,21 @@ export function init(_mm: gsap.MatchMedia): void {
   });
 
   if (navRight) {
-    gsap.to(navRight, { opacity: 1, duration: 1.2, delay: 0.3, ease: EASE.ease });
-    gsap.to(navRight, { x: 0, duration: 1, delay: 0.3, ease: EASE.outQuart, force3D: true });
+    gsap.to(navRight, {
+      opacity: 1,
+      duration: 1.2,
+      delay: 0.3,
+      ease: EASE.ease,
+      clearProps: 'opacity',
+    });
+    gsap.to(navRight, {
+      x: 0,
+      duration: 1,
+      delay: 0.3,
+      ease: EASE.outQuart,
+      force3D: true,
+      clearProps: 'transform',
+    });
   }
   if (heading) {
     gsap.to(heading, { opacity: 1, duration: 0.75, delay: 0.4, ease: EASE.ease });
