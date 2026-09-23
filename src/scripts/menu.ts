@@ -89,6 +89,9 @@ const LINK_DELAYS_4 = [1.0, 1.3, 1.2, 1.1];
 
 if (header && toggle && menu && panel) {
   const reduced = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+  const compactMenuMotion = window.matchMedia(
+    '(max-width: 767px), (hover: none) and (pointer: coarse)',
+  ).matches;
 
   const links = Array.from(menu.querySelectorAll<HTMLAnchorElement>('[data-menu-link]'));
   const texts = links.map((l) => l.querySelector<HTMLElement>('[data-menu-text]'));
@@ -109,8 +112,10 @@ if (header && toggle && menu && panel) {
     return headerCta.getBoundingClientRect().width + gap;
   };
 
-  const linkDelay = (i: number) =>
-    links.length === 4 ? LINK_DELAYS_4[i] : 1.0 + i * 0.1;
+  const linkDelay = (i: number) => {
+    if (compactMenuMotion) return 0.18 + i * 0.07;
+    return links.length === 4 ? LINK_DELAYS_4[i] : 1.0 + i * 0.1;
+  };
 
   // Initialzustände nur mit Motion (ohne JS/Reduced bleibt alles sichtbar,
   // das Menü ist ohnehin display:none bis zum Öffnen).
@@ -121,13 +126,28 @@ if (header && toggle && menu && panel) {
   }
 
   let tl: gsap.core.Timeline | null = null;
+  let openFrame: number | undefined;
 
   const openAnim = () => {
     tl?.kill();
-    tl = gsap.timeline();
+    gsap.set(panel, { willChange: 'transform' });
+    tl = gsap.timeline({
+      onComplete: () => gsap.set(panel, { clearProps: 'willChange' }),
+    });
     tl.to(header, { backgroundColor: 'rgba(0,0,0,0)', duration: 0.2, ease: EASE.ease }, 0);
-    if (rightInner) tl.to(rightInner, { x: openMenuShift, duration: 0.5, ease: EASE.outQuart }, 0);
-    tl.to(panel, { xPercent: 0, duration: 1.5, ease: EASE.inOutQuart }, 0);
+    if (rightInner) {
+      tl.to(rightInner, {
+        x: openMenuShift,
+        duration: compactMenuMotion ? 0.35 : 0.5,
+        ease: EASE.outQuart,
+      }, 0);
+    }
+    tl.to(panel, {
+      xPercent: 0,
+      duration: compactMenuMotion ? 0.72 : 1.5,
+      ease: compactMenuMotion ? EASE.outQuart : EASE.inOutQuart,
+      force3D: true,
+    }, 0);
     if (burgerMiddle) tl.to(burgerMiddle, { xPercent: 200, duration: 0.5, ease: EASE.outQuart }, 0.1);
     if (burgerTop) {
       tl.to(burgerTop, { rotation: 45, duration: 0.3, ease: EASE.outQuart }, 0.2);
@@ -138,30 +158,101 @@ if (header && toggle && menu && panel) {
       tl.to(burgerBottom, { y: -3.5, duration: 0.3, ease: EASE.outQuart }, 0.2);
     }
     links.forEach((link, i) => {
-      tl!.to(link, { x: 0, duration: 0.6, ease: EASE.outQuart }, linkDelay(i));
-      tl!.to(link, { opacity: 1, duration: 0.4, ease: EASE.ease }, linkDelay(i));
+      tl!.to(link, {
+        x: 0,
+        duration: compactMenuMotion ? 0.35 : 0.6,
+        ease: EASE.outQuart,
+      }, linkDelay(i));
+      tl!.to(link, {
+        opacity: 1,
+        duration: compactMenuMotion ? 0.25 : 0.4,
+        ease: EASE.ease,
+      }, linkDelay(i));
     });
-    if (arrows.length) tl.to(arrows, { opacity: 1, duration: 0.5, ease: EASE.ease }, 1.5);
+    if (arrows.length) {
+      tl.to(
+        arrows,
+        { opacity: 1, duration: compactMenuMotion ? 0.25 : 0.5, ease: EASE.ease },
+        compactMenuMotion ? 0.45 : 1.5,
+      );
+    }
   };
 
   const closeAnim = (onDone: () => void) => {
     tl?.kill();
+    gsap.set(panel, { willChange: 'transform' });
     tl = gsap.timeline({
       onComplete: () => {
         gsap.set(links, { x: -70 });
+        gsap.set(panel, { clearProps: 'willChange' });
         onDone();
       },
     });
-    tl.to(links, { opacity: 0, duration: 0.5, ease: EASE.ease }, 0);
-    if (burgerTop) tl.to(burgerTop, { rotation: 0, duration: 0.3, ease: EASE.outQuart }, 0);
-    if (burgerBottom) tl.to(burgerBottom, { rotation: 0, duration: 0.3, ease: EASE.outQuart }, 0);
-    if (arrows.length) tl.to(arrows, { opacity: 0, duration: 0.5, ease: EASE.ease }, 0);
-    tl.to(panel, { xPercent: -100, duration: 1.1, ease: EASE.inOutQuart }, 0.2);
-    if (burgerTop) tl.to(burgerTop, { y: 0, duration: 0.3, ease: EASE.outQuart }, 0.2);
-    if (burgerBottom) tl.to(burgerBottom, { y: 0, duration: 0.3, ease: EASE.outQuart }, 0.2);
-    if (burgerMiddle) tl.to(burgerMiddle, { xPercent: 0, duration: 0.3, ease: EASE.outQuart }, 0.4);
-    if (rightInner) tl.to(rightInner, { x: 0, duration: 0.5, ease: EASE.outQuart }, 0.2);
-    tl.to(header, { backgroundColor: 'rgba(231,226,220,0.12)', duration: 0.5, ease: EASE.ease }, 0.6);
+    tl.to(links, {
+      opacity: 0,
+      duration: compactMenuMotion ? 0.18 : 0.5,
+      ease: EASE.ease,
+    }, 0);
+    if (burgerTop) {
+      tl.to(burgerTop, {
+        rotation: 0,
+        duration: compactMenuMotion ? 0.25 : 0.3,
+        ease: EASE.outQuart,
+      }, 0);
+    }
+    if (burgerBottom) {
+      tl.to(burgerBottom, {
+        rotation: 0,
+        duration: compactMenuMotion ? 0.25 : 0.3,
+        ease: EASE.outQuart,
+      }, 0);
+    }
+    if (arrows.length) {
+      tl.to(arrows, {
+        opacity: 0,
+        duration: compactMenuMotion ? 0.18 : 0.5,
+        ease: EASE.ease,
+      }, 0);
+    }
+    tl.to(panel, {
+      xPercent: -100,
+      duration: compactMenuMotion ? 0.52 : 1.1,
+      ease: compactMenuMotion ? EASE.outQuart : EASE.inOutQuart,
+      force3D: true,
+    }, compactMenuMotion ? 0 : 0.2);
+    if (burgerTop) {
+      tl.to(burgerTop, {
+        y: 0,
+        duration: compactMenuMotion ? 0.25 : 0.3,
+        ease: EASE.outQuart,
+      }, compactMenuMotion ? 0.1 : 0.2);
+    }
+    if (burgerBottom) {
+      tl.to(burgerBottom, {
+        y: 0,
+        duration: compactMenuMotion ? 0.25 : 0.3,
+        ease: EASE.outQuart,
+      }, compactMenuMotion ? 0.1 : 0.2);
+    }
+    if (burgerMiddle) {
+      tl.to(burgerMiddle, {
+        xPercent: 0,
+        duration: compactMenuMotion ? 0.25 : 0.3,
+        ease: EASE.outQuart,
+      }, compactMenuMotion ? 0.15 : 0.4);
+    }
+    if (rightInner) {
+      tl.to(rightInner, {
+        x: 0,
+        duration: compactMenuMotion ? 0.35 : 0.5,
+        ease: EASE.outQuart,
+      }, compactMenuMotion ? 0.1 : 0.2);
+    }
+    tl.to(header, {
+      backgroundColor: 'rgba(231,226,220,0.12)',
+      duration: compactMenuMotion ? 0.3 : 0.5,
+      ease: EASE.ease,
+    }, compactMenuMotion ? 0.2 : 0.6);
   };
 
   // Alles außer Header + Menü wird inert, solange offen.
@@ -194,9 +285,22 @@ if (header && toggle && menu && panel) {
         gsap.set([...links, ...arrows], { clearProps: 'all' });
         gsap.set(panel, { xPercent: 0 });
       } else {
-        openAnim();
+        /* Zwei Frames geben WebKit Zeit, die geschlossene Seite und die
+           offscreen liegende Menue-Ebene getrennt zu compositen. Dadurch
+           startet die Vollbild-Transformation nicht im selben Paint wie der
+           Scroll-Lock und das Entfernen teurer Hintergrundfilter. */
+        openFrame = requestAnimationFrame(() => {
+          openFrame = requestAnimationFrame(() => {
+            openFrame = undefined;
+            if (isOpen) openAnim();
+          });
+        });
       }
     } else {
+      if (openFrame !== undefined) {
+        cancelAnimationFrame(openFrame);
+        openFrame = undefined;
+      }
       (lastFocused ?? toggle).focus();
       if (reduced) {
         menu.setAttribute('hidden', '');

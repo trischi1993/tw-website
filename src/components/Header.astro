@@ -187,6 +187,14 @@ const headerCtaHref = settings.headerCta
     backdrop-filter: blur(0.5rem);
   }
 
+  /* Hinter dem deckenden Fullscreen-Menue ist der Navbar-Blur unsichtbar.
+     Ihn dort abzuschalten vermeidet auf iOS eine teure Kombination aus
+     Backdrop-Filter und gleichzeitig transformierter Vollbild-Ebene. */
+  .navbar.is-menu-open {
+    -webkit-backdrop-filter: none;
+    backdrop-filter: none;
+  }
+
   /* Stabiler Inhalts-Container wie `.navbar_container` im Webflow-Original:
      Die fixe Blur-Fläche bleibt dadurch beim Breakpoint-Wechsel strukturell
      unverändert; nur Logo und rechter Bereich wechseln bzw. animieren. */

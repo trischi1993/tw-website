@@ -26,6 +26,16 @@
 .success-check__ambient.is-one { top: 3rem; left: -18rem; }
 .success-check__ambient.is-two { top: 34rem; right: -22rem; opacity: 0.055; }
 
+/* Das Fullscreen-Menue deckt den Check komplett ab. Die grossen Blur-Layer
+   darunter weiter zu rendern kostet besonders in Mobile Safari viel GPU-
+   Speicher und kann den Menue-Paint blockieren. */
+body.no-scroll .success-check__ambient { display: none; }
+body.no-scroll .success-check__eyebrow > span,
+body.no-scroll .success-check__start-preview-score-value,
+body.no-scroll .success-check__start-preview-metric em {
+  animation-play-state: paused !important;
+}
+
 .success-check__container {
   width: min(100% - 10vw, 47.5rem);
   margin-inline: auto;
@@ -1960,6 +1970,18 @@
   .success-check__progress-copy { align-items: flex-start; }
   .success-check__progress-status { align-items: flex-end; flex-direction: column-reverse; gap: 0.15rem; }
   .success-check__progress-status em { white-space: normal; text-align: right; }
+}
+
+/* Mobile Safari rastert sehr grosse CSS-Blur-Radien teils in einzelnen langen
+   Frames. Der optisch gleichartige radiale Verlauf braucht keinen Filter und
+   bleibt auch im Querformat auf Touch-Geraeten leichtgewichtig. */
+@media (max-width: 767px), (hover: none) and (pointer: coarse) {
+  .success-check__ambient {
+    background: radial-gradient(circle, var(--brand) 0%, transparent 68%);
+    filter: none;
+    opacity: 0.1;
+  }
+  .success-check__ambient.is-two { opacity: 0.07; }
 }
 
 @media (hover: none), (pointer: coarse) {
