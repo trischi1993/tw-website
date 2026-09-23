@@ -7,6 +7,9 @@ import { EASE, gsap, onEnterOnce, type EnterOnceTrigger } from './util';
                            y 1rem→0 (outQuart), blur 5→0 (ease), je 0.8 s.
                            data-delay Sek. (a-117: 0.15, a-119: 0.3),
                            data-offset % vom unteren Viewportrand (Default 16).
+                           Auf mobilen Viewports bleibt der Blur aus: WebKit
+                           kann an transparenten Filter-Layern schwarze Kanten
+                           rasterisieren, die teils nach dem Reveal bestehen.
                            data-reveal-no-blur behält Fade und Bewegung bei,
                            vermeidet aber Filterkanten auf transparenten Flächen.
    - data-anim="usp-row"   a-50: [data-usp-icon] x -1rem→0, [data-usp-text]
@@ -55,6 +58,9 @@ function belongsToInitialHashScopes(element: Element): boolean {
 const triggers: EnterOnceTrigger[] = [];
 const pendingHashListeners: Array<() => void> = [];
 const ebookMobileQuery = window.matchMedia('(max-width: 767px)');
+const mobileRevealQuery = window.matchMedia(
+  '(max-width: 767px), (max-width: 950px) and (max-height: 500px), (hover: none) and (pointer: coarse)',
+);
 const isEbookPage = Boolean(document.querySelector('[data-ebook-hero]'));
 
 interface SharedObserverGroup {
@@ -165,7 +171,8 @@ function initReveal(): void {
     const offset = Number.isFinite(offsetAttr) ? offsetAttr : 16;
     const isHeroReveal = Boolean(el.closest('.ebook-hero'));
     const isLightweightEbookReveal = usesSharedEbookObserver() && !isHeroReveal;
-    const isLightweightReveal = isHeroReveal || isLightweightEbookReveal;
+    const isMobileReveal = mobileRevealQuery.matches;
+    const isLightweightReveal = isHeroReveal || isLightweightEbookReveal || isMobileReveal;
     const skipsBlur = isLightweightReveal || el.hasAttribute('data-reveal-no-blur');
     gsap.set(
       el,
