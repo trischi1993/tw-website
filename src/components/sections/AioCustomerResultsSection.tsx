@@ -337,7 +337,7 @@ export default function AioCustomerResultsSection({
             </p>
             <h3 {...edit?.(`${path}.heading`)}>{outcomesHeading}</h3>
           </div>
-          <ul data-anim="reveal" data-delay="0.1">
+          <ul data-anim="reveal" data-delay="0.15" data-offset="0">
             {outcomes.map((outcome, index) => (
               <li key={`${outcome}-${index}`} {...edit?.(`${path}.bullets[${index}]`)}>
                 {outcome}
