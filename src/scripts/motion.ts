@@ -19,19 +19,10 @@ import * as footer from './motion/footer';
 import * as buttons from './motion/buttons';
 import * as glow from './motion/glow';
 
-type WebflowMediaKey = 'main' | 'medium' | 'small' | 'tiny';
-
 type ViewportScrollAnchor = {
   element: HTMLElement;
   ratio: number;
 };
-
-function webflowMediaKey(width = window.innerWidth): WebflowMediaKey {
-  if (width >= 992) return 'main';
-  if (width >= 768) return 'medium';
-  if (width >= 480) return 'small';
-  return 'tiny';
-}
 
 /** Hält nach der responsiv ihre Höhe wechselnden Werdegang-Timeline den
  * tatsächlich sichtbaren Folgeinhalt im Viewport. Eine absolute Scrollposition
@@ -124,22 +115,31 @@ function preserveAboutContentAfterTimeline(portrait: MediaQueryList): void {
   });
 }
 
-/** Hält auf der Startseite beim Wechsel zwischen Hoch- und Querformat den
- * gerade betrachteten Inhalt im Viewport. Ein bloßes Wiederherstellen von
- * scrollY reicht nicht, weil Hero, Carousel und Angebotsbrücke ihre Höhen beim
- * Drehen deutlich ändern. Deshalb wird das Element in der Viewportmitte samt
- * relativer Position gespeichert und nach GSAPs responsivem Neuaufbau erneut
- * zentriert. */
-function preserveHomeContentOnOrientation(portrait: MediaQueryList): void {
-  const homeHero = document.querySelector<HTMLElement>('[data-home-hero]');
-  if (!homeHero) return;
-
+/** Hält beim Wechsel zwischen Hoch- und Querformat den gerade betrachteten
+ * Inhalt im Viewport. Ein einmaliges Wiederherstellen reicht nicht: iOS und
+ * GSAP vermessen den neuen Viewport in mehreren Phasen. Würden wir erst nach
+ * der letzten Phase korrigieren, wäre genau das als verspätetes „Einrasten“
+ * sichtbar. Deshalb wird derselbe Inhaltsanker bis zum Ende der Drehung in
+ * jedem Frame stabil gehalten. */
+function preservePageContentOnOrientation(portrait: MediaQueryList): void {
   const root = document.documentElement;
   const anchorSelector = [
     '.home-proof-card',
     '.home-proof__head',
     '.split-cta__grid',
+    '.aio-results__card',
+    '.aio-programme__group',
+    '.ebook-benefit',
+    '.ebook-bundle-card',
+    '[data-module-title]',
     'article',
+    'figure',
+    'details',
+    'li',
+    'h1',
+    'h2',
+    'h3',
+    'p',
     'section',
     'footer',
     'main',
@@ -147,13 +147,16 @@ function preserveHomeContentOnOrientation(portrait: MediaQueryList): void {
   let anchor: ViewportScrollAnchor | undefined;
   let pendingAnchor: ViewportScrollAnchor | undefined;
   let captureFrame: number | undefined;
-  let settleTimer: number | undefined;
-  let restoring = false;
+  let stabilizationFrame: number | undefined;
+  let stabilizingUntil = 0;
+  let stabilizing = false;
+  let previousScrollBehavior = '';
+  let previousOverflowAnchor = '';
   let wasPortrait = portrait.matches;
 
   const capture = () => {
     captureFrame = undefined;
-    if (restoring) return;
+    if (stabilizing) return;
 
     const centerX = root.clientWidth / 2;
     const centerY = root.clientHeight / 2;
@@ -171,41 +174,73 @@ function preserveHomeContentOnOrientation(portrait: MediaQueryList): void {
   };
 
   const queueCapture = () => {
-    if (captureFrame !== undefined || restoring) return;
+    if (captureFrame !== undefined || stabilizing) return;
     captureFrame = requestAnimationFrame(capture);
   };
 
-  const restore = (saved: ViewportScrollAnchor): void => {
-    if (!saved.element.isConnected) return;
+  const restore = (saved: ViewportScrollAnchor): boolean => {
+    if (!saved.element.isConnected) return false;
 
     const bounds = saved.element.getBoundingClientRect();
-    if (bounds.height <= 0) return;
+    if (bounds.height <= 0) return false;
 
     const currentFocusY = bounds.top + bounds.height * saved.ratio;
-    const targetY = window.scrollY + currentFocusY - root.clientHeight / 2;
-    const previousBehavior = root.style.scrollBehavior;
-    root.style.scrollBehavior = 'auto';
-    window.scrollTo(0, Math.max(0, targetY));
-    root.style.scrollBehavior = previousBehavior;
-    ScrollTrigger.update();
+    const correction = currentFocusY - root.clientHeight / 2;
+    if (Math.abs(correction) >= 0.5) {
+      // `scroll-behavior: smooth` kann während der responsiven GSAP-
+      // Initialisierung erneut gesetzt werden. Die explizite Instant-Option
+      // verhindert, dass sich mehrere Frame-Korrekturen als sichtbare Fahrt
+      // beziehungsweise abschließendes Einrasten aufstauen.
+      window.scrollTo({
+        top: Math.max(0, window.scrollY + correction),
+        left: 0,
+        behavior: 'instant' as ScrollBehavior,
+      });
+      ScrollTrigger.update();
+    }
+    return true;
   };
 
-  const restorePending = () => {
+  const finishStabilizing = () => {
+    if (stabilizationFrame !== undefined) cancelAnimationFrame(stabilizationFrame);
+    stabilizationFrame = undefined;
+    stabilizing = false;
+    pendingAnchor = undefined;
+    root.style.scrollBehavior = previousScrollBehavior;
+    root.style.overflowAnchor = previousOverflowAnchor;
+    requestAnimationFrame(capture);
+  };
+
+  const stabilize = (now: number) => {
+    stabilizationFrame = undefined;
     const saved = pendingAnchor;
-    if (!saved) return;
-    restore(saved);
+    if (!saved || !restore(saved) || now >= stabilizingUntil) {
+      finishStabilizing();
+      return;
+    }
+    stabilizationFrame = requestAnimationFrame(stabilize);
   };
 
   window.addEventListener('scroll', queueCapture, { passive: true });
   window.addEventListener('load', queueCapture, { once: true });
+  window.addEventListener('lp:layout-changed', queueCapture);
+  window.addEventListener('touchstart', () => {
+    if (stabilizing) finishStabilizing();
+  }, { passive: true });
+  window.addEventListener('pointerdown', () => {
+    if (stabilizing) finishStabilizing();
+  }, { passive: true });
+  window.addEventListener('wheel', () => {
+    if (stabilizing) finishStabilizing();
+  }, { passive: true });
   capture();
 
-  // matchMedia und der explizite Refresh nach der stabilen iOS-Phase können
-  // den Window-Scroller jeweils neu vermessen. Nach jedem Refresh wird deshalb
-  // der vor der Drehung gespeicherte Inhaltsanker erneut hergestellt.
+  // Ein Refresh kann innerhalb derselben Drehphase eine weitere Layoutstufe
+  // auslösen. Der laufende Frame-Loop übernimmt die Korrektur noch vor dem
+  // nächsten stabilen Bild.
   ScrollTrigger.addEventListener('refresh', () => {
-    if (!restoring || !pendingAnchor) return;
-    requestAnimationFrame(restorePending);
+    if (!stabilizing || stabilizationFrame !== undefined) return;
+    stabilizationFrame = requestAnimationFrame(stabilize);
   });
 
   portrait.addEventListener('change', () => {
@@ -215,16 +250,21 @@ function preserveHomeContentOnOrientation(portrait: MediaQueryList): void {
 
     pendingAnchor = anchor;
     if (!pendingAnchor?.element.isConnected) return;
-    restoring = true;
+    if (stabilizationFrame !== undefined) cancelAnimationFrame(stabilizationFrame);
+    if (!stabilizing) {
+      previousScrollBehavior = root.style.scrollBehavior;
+      previousOverflowAnchor = root.style.overflowAnchor;
+    }
+    stabilizing = true;
+    stabilizingUntil = performance.now() + 900;
+    root.style.scrollBehavior = 'auto';
+    root.style.overflowAnchor = 'none';
 
-    requestAnimationFrame(() => requestAnimationFrame(restorePending));
-    if (settleTimer !== undefined) window.clearTimeout(settleTimer);
-    settleTimer = window.setTimeout(() => {
-      restorePending();
-      pendingAnchor = undefined;
-      restoring = false;
-      requestAnimationFrame(capture);
-    }, 750);
+    // Das MediaQueryList-Event läuft bereits nach dem CSS-Umschalten. Die
+    // synchrone erste Korrektur verhindert deshalb schon den ersten sichtbaren
+    // Zwischenzustand; der Loop fängt die späteren iOS-/GSAP-Stufen ab.
+    restore(pendingAnchor);
+    stabilizationFrame = requestAnimationFrame(stabilize);
   });
 }
 
@@ -305,59 +345,24 @@ function init(): void {
     document.fonts.ready.then(() => ScrollTrigger.refresh());
   }
 
-  /* Webflow stoppt und initialisiert IX2 neu, sobald resize/orientationchange
-     den aktiven main/medium/small/tiny-Breakpoint ändert. Generische Reveals
-     dürfen dadurch erneut starten; bereits sichtbare FAQ-Zeilen behalten ihren
-     einmaligen Zustand. Reine Höhenänderungen durch mobile Browserleisten
-     ändern den Key nicht. */
-  let currentMediaKey = webflowMediaKey();
-  let breakpointFrame: number | undefined;
-  let navbarReplayFrame: number | undefined;
-  const queueNavbarReplay = () => {
-    if (navbarReplayFrame !== undefined) cancelAnimationFrame(navbarReplayFrame);
-    navbarReplayFrame = requestAnimationFrame(() => {
-      navbarReplayFrame = undefined;
-      aboutLoad.restartNavbar();
-      aioLoad.restartNavbar();
-      ebookLoad.restartNavbar();
-      erfolgsCheckLoad.restartNavbar();
-    });
-  };
-  ScrollTrigger.addEventListener('matchMedia', queueNavbarReplay);
-  const restartAfterBreakpointChange = () => {
-    const nextMediaKey = webflowMediaKey();
-    if (nextMediaKey === currentMediaKey) return;
-    currentMediaKey = nextMediaKey;
-    reveals.restart();
-    moduleScrub.restartEntrances();
-    homeLoad.restart();
-  };
-  const queueBreakpointCheck = () => {
-    if (breakpointFrame !== undefined) return;
-    breakpointFrame = requestAnimationFrame(() => {
-      breakpointFrame = undefined;
-      restartAfterBreakpointChange();
-    });
-  };
-  window.addEventListener('resize', queueBreakpointCheck, { passive: true });
-
-  // Webflow prüft SCROLL_INTO_VIEW auch direkt auf orientationchange. Safari
-  // liefert die endgültige clientHeight teils erst nach der CSS-Drehung; daher
-  // prüfen wir nach zwei Frames und nach der stabilen 600-ms-Phase nochmals.
+  /* Bereits abgespielte Entrance- und PAGE_LOAD-Animationen bleiben bei einem
+     Breakpoint-Wechsel sichtbar. Ein kompletter IX2-Neustart würde Überschrift,
+     Karten und Navbar während der Drehung kurz auf opacity 0 setzen und damit
+     als Einrasten auffallen. Noch ausstehende onEnterOnce-Trigger beobachten
+     resize/orientationchange bereits selbst; die Zusatzprüfung deckt die zwei
+     gestaffelten iOS-Viewport-Phasen ab. */
   const portrait = window.matchMedia('(orientation: portrait)');
   if (isAboutPage) preserveAboutContentAfterTimeline(portrait);
-  preserveHomeContentOnOrientation(portrait);
+  else preservePageContentOnOrientation(portrait);
   let orientationSettleTimer: number | undefined;
   portrait.addEventListener('change', () => {
     requestAnimationFrame(() => {
       requestAnimationFrame(() => {
-        restartAfterBreakpointChange();
         refreshEnterOnce();
       });
     });
     if (orientationSettleTimer !== undefined) window.clearTimeout(orientationSettleTimer);
     orientationSettleTimer = window.setTimeout(() => {
-      restartAfterBreakpointChange();
       refreshEnterOnce();
       // iOS liefert die endgültige Landscape-Höhe erst nach dem Drehen. Da
       // Touch-Resizes oben bewusst nicht automatisch refreshen, muss GSAP die
