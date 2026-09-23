@@ -1643,6 +1643,9 @@ html.has-motion .results__track { height: 240vh; }
   height: 20rem;
   overflow: hidden;
   background: #080a0d;
+  -webkit-touch-callout: none;
+  -webkit-user-select: none;
+  user-select: none;
 }
 .aio-results__media figcaption {
   max-width: calc(100% - (2 * var(--aio-result-badge-inset)));
@@ -1690,6 +1693,8 @@ html.has-motion .results__track { height: 240vh; }
   height: 100%;
   min-height: 0;
   object-fit: contain;
+  -webkit-user-drag: none;
+  pointer-events: none;
 }
 .aio-results__media figure.is-bottom-trimmed img {
   transform: scale(1.012);
@@ -3531,6 +3536,9 @@ html.has-motion .ahero__wipe { display: block; }
   background:
     radial-gradient(circle at 50% 40%, rgba(255, 255, 255, 0.05), transparent 58%),
     #080a0d;
+  -webkit-touch-callout: none;
+  -webkit-user-select: none;
+  user-select: none;
 }
 .home-proof-card__media.is-comparison {
   grid-template-rows: repeat(2, minmax(0, 1fr));
@@ -3603,6 +3611,8 @@ html.has-motion .ahero__wipe { display: block; }
   height: 100%;
   min-height: 0;
   object-fit: contain;
+  -webkit-user-drag: none;
+  pointer-events: none;
 }
 .home-proof-card__media figure.is-bottom-trimmed img {
   transform: scale(1.012);

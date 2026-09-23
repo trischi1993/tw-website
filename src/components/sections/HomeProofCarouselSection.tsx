@@ -133,6 +133,7 @@ export default function HomeProofCarouselSection({
                           alt={props.alt}
                           loading="lazy"
                           decoding="async"
+                          draggable={false}
                         />
                         {proofImage.badge ? <figcaption>{proofImage.badge}</figcaption> : null}
                       </figure>

@@ -748,6 +748,7 @@ export default function AioCustomerResultsSection({
                         alt={image.alt}
                         loading="lazy"
                         decoding="async"
+                        draggable={false}
                       />
                       {badge && (
                         <figcaption
