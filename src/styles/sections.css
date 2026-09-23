@@ -1532,7 +1532,9 @@ html.has-motion .results__track { height: 240vh; }
   min-width: 100%;
   gap: 1.5rem;
 }
-.aio-results__grid.is-auto-scrolling .aio-results__track { will-change: transform; }
+/* Die Track-Ebene bleibt auch waehrend einer Hover-Pause bestehen. Sonst
+   rastert der Browser die Badge-Backdrops beim Anhalten sichtbar neu. */
+.aio-results__grid.has-auto-scroll .aio-results__track { will-change: transform; }
 .aio-results__grid.is-pointer-dragging {
   cursor: grabbing;
   scroll-snap-type: none;
@@ -3415,7 +3417,9 @@ html.has-motion .ahero__wipe { display: block; }
   min-width: 100%;
   gap: 1.5rem;
 }
-.home-proof__carousel.is-auto-scrolling .home-proof__track { will-change: transform; }
+/* Wie beim AIO-Carousel bleibt die Compositor-Ebene beim Hover erhalten,
+   damit die Badge-Backdrops nicht minimal versetzt neu gerendert werden. */
+.home-proof__carousel.has-auto-scroll .home-proof__track { will-change: transform; }
 .home-proof__carousel.is-pointer-dragging {
   cursor: grabbing;
   scroll-snap-type: none;
