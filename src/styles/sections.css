@@ -2308,6 +2308,11 @@ html.has-motion [data-aio-growth-flow] {
     display: flex;
     min-height: 3rem;
   }
+  /* Kundenerfolge nutzen im mobilen Querformat dieselbe kompakte
+     Kartengeometrie wie das Erfolgs-Carousel der Startseite. */
+  .aio-results__card { flex-basis: min(58vw, 26rem); }
+  .aio-results__media,
+  .aio-results__more-visual { height: min(18rem, 68svh); }
   .aio-growth-system__head h4 { font-size: 1.75rem; }
   .aio-growth-stage__graphic {
     display: grid;
