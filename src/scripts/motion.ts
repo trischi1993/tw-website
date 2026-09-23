@@ -19,101 +19,25 @@ import * as footer from './motion/footer';
 import * as buttons from './motion/buttons';
 import * as glow from './motion/glow';
 
-type ViewportScrollAnchor = {
-  element: HTMLElement;
-  ratio: number;
-};
-
-/** Hält nach der responsiv ihre Höhe wechselnden Werdegang-Timeline den
- * tatsächlich sichtbaren Folgeinhalt im Viewport. Eine absolute Scrollposition
- * reicht dort nicht: 500vh im Hochformat und 1200vh im Querformat ergeben auf
- * einem Handy unterschiedlich viele Pixel. */
-function preserveAboutContentAfterTimeline(portrait: MediaQueryList): void {
-  const timeline = document.querySelector<HTMLElement>('.tl');
-  if (!timeline) return;
-
-  const root = document.documentElement;
-  const anchorSelector = [
-    '.interests h2',
-    '.interests__intro',
-    '.interests__item',
-    '.marquee',
-    '.final-cta h2',
-    '.final-cta p',
-    '.final-cta__buttons',
-    '.interests',
-    '.final-cta',
-    'footer',
-  ].join(',');
-  let anchor: ViewportScrollAnchor | undefined;
-  let captureFrame: number | undefined;
-  let wasPortrait = portrait.matches;
-
-  const capture = () => {
-    captureFrame = undefined;
-    const centerX = root.clientWidth / 2;
-    const centerY = root.clientHeight / 2;
-    const hit = document.elementFromPoint(centerX, centerY) as HTMLElement | null;
-    const element = hit?.closest<HTMLElement>(anchorSelector) ?? hit?.closest<HTMLElement>('section, footer');
-    const followsTimeline = element
-      && !timeline.contains(element)
-      && Boolean(timeline.compareDocumentPosition(element) & Node.DOCUMENT_POSITION_FOLLOWING);
-
-    if (!element || !followsTimeline) {
-      anchor = undefined;
-      return;
+type PageViewportScrollAnchor =
+  | {
+      kind: 'element';
+      element: HTMLElement;
+      ratio: number;
+      viewportRatio: number;
     }
-
-    const bounds = element.getBoundingClientRect();
-    if (bounds.height <= 0) {
-      anchor = undefined;
-      return;
-    }
-
-    anchor = {
-      element,
-      ratio: Math.min(1, Math.max(0, (centerY - bounds.top) / bounds.height)),
+  | {
+      kind: 'text';
+      node: Text;
+      start: number;
+      end: number;
+      viewportRatio: number;
+      fallback: {
+        element: HTMLElement;
+        ratio: number;
+        viewportRatio: number;
+      };
     };
-  };
-
-  const queueCapture = () => {
-    if (captureFrame !== undefined) return;
-    captureFrame = requestAnimationFrame(capture);
-  };
-
-  const restore = (saved: ViewportScrollAnchor): void => {
-    if (!saved.element.isConnected) return;
-
-    const bounds = saved.element.getBoundingClientRect();
-    const currentFocusY = bounds.top + bounds.height * saved.ratio;
-    const targetY = window.scrollY + currentFocusY - root.clientHeight / 2;
-    const previousBehavior = root.style.scrollBehavior;
-    root.style.scrollBehavior = 'auto';
-    window.scrollTo(0, targetY);
-    root.style.scrollBehavior = previousBehavior;
-
-    // Aktualisiert auch GSAPs internen Scroller-Cache auf die korrigierte
-    // Position, damit ein späterer Refresh nicht auf den alten Wert zurückfällt.
-    ScrollTrigger.update();
-    capture();
-  };
-
-  window.addEventListener('scroll', queueCapture, { passive: true });
-  window.addEventListener('load', queueCapture, { once: true });
-  capture();
-
-  // Dieses Event läuft nach GSAPs vollständigem matchMedia-Refresh, aber noch
-  // im selben Task und damit vor dem nächsten sichtbaren Browser-Frame.
-  ScrollTrigger.addEventListener('matchMedia', () => {
-    const isPortrait = portrait.matches;
-    if (isPortrait === wasPortrait) return;
-    wasPortrait = isPortrait;
-
-    const saved = anchor;
-    if (!saved?.element.isConnected) return;
-    restore(saved);
-  });
-}
 
 /** Hält beim Wechsel zwischen Hoch- und Querformat den gerade betrachteten
  * Inhalt im Viewport. Ein einmaliges Wiederherstellen reicht nicht: iOS und
@@ -134,6 +58,14 @@ function preservePageContentOnOrientation(portrait: MediaQueryList): void {
     '.home-proof-card',
     '.home-proof__head',
     '.split-cta__grid',
+    '.bonus__card',
+    '.bonus__head',
+    '.interests__item',
+    '.interests__grid',
+    '.marquee',
+    '.final-cta__content',
+    '.tl__item',
+    '.tl__card',
     '.aio-results__outcomes',
     '.aio-results__card',
     '.aio-programme__group',
@@ -149,13 +81,19 @@ function preservePageContentOnOrientation(portrait: MediaQueryList): void {
     'details',
   ];
   const anchorScopeSelector = 'section,footer,main';
-  let anchor: ViewportScrollAnchor | undefined;
-  let pendingAnchor: ViewportScrollAnchor | undefined;
+  let anchor: PageViewportScrollAnchor | undefined;
+  let pendingAnchor: PageViewportScrollAnchor | undefined;
   let captureFrame: number | undefined;
   let restoreFrame: number | undefined;
   let finishTimer: number | undefined;
   let hardStopTimer: number | undefined;
   let geometryObserver: ResizeObserver | undefined;
+  let preciseCaptureTimer: number | undefined;
+  let suppressCaptureUntil = 0;
+  let timelinePortraitAnchor:
+    | Extract<PageViewportScrollAnchor, { kind: 'element' }>
+    | undefined;
+  let timelineLandscapeUserMoved = false;
   let stabilizing = false;
   let layoutSettled = false;
   let previousScrollBehavior = '';
@@ -212,7 +150,120 @@ function preservePageContentOnOrientation(portrait: MediaQueryList): void {
     return scope;
   };
 
-  const capture = () => {
+  /** Ermittelt das konkrete Wort am Viewport-Bezugspunkt. Ein Prozentwert
+   * innerhalb einer ganzen Section ist nach responsivem Textumbruch nicht mehr
+   * derselbe Inhalt. Der Textknoten und Wortbereich bleiben dagegen identisch
+   * und koennen nach dem Reflow pixelgenau an derselben relativen
+   * Viewportposition gehalten werden. */
+  const findTextAnchor = (
+    hit: HTMLElement | null,
+    centerX: number,
+    centerY: number,
+    fallback: Extract<PageViewportScrollAnchor, { kind: 'element' }>,
+  ): PageViewportScrollAnchor | undefined => {
+    const textContainer = hit?.closest<HTMLElement>([
+      'h1',
+      'h2',
+      'h3',
+      'h4',
+      'h5',
+      'h6',
+      'p',
+      'li',
+      'summary',
+      'blockquote',
+      'figcaption',
+      'dt',
+      'dd',
+    ].join(','));
+    if (!textContainer || !textContainer.closest('main,footer')) return undefined;
+
+    // SHOW_TEXT = 4; die Zahl vermeidet Abhaengigkeit vom globalen
+    // `NodeFilter`-Konstruktor in eingeschraenkten WebViews.
+    const walker = document.createTreeWalker(textContainer, 4);
+    const range = document.createRange();
+    let best:
+      | {
+          node: Text;
+          start: number;
+          end: number;
+          viewportRatio: number;
+          distance: number;
+          verticalDistance: number;
+        }
+      | undefined;
+
+    let current = walker.nextNode();
+    while (current) {
+      const node = current as Text;
+      const value = node.data;
+      const words = value.matchAll(/\S+/g);
+      for (const word of words) {
+        const start = word.index ?? 0;
+        const end = start + word[0].length;
+        range.setStart(node, start);
+        range.setEnd(node, end);
+        for (const bounds of Array.from(range.getClientRects())) {
+          if (bounds.width <= 0 || bounds.height <= 0) continue;
+          const dx = centerX < bounds.left
+            ? bounds.left - centerX
+            : centerX > bounds.right
+              ? centerX - bounds.right
+              : 0;
+          const dy = centerY < bounds.top
+            ? bounds.top - centerY
+            : centerY > bounds.bottom
+              ? centerY - bounds.bottom
+              : 0;
+          const distance = Math.hypot(dx, dy * 2);
+          if (!best || distance < best.distance) {
+            best = {
+              node,
+              start,
+              end,
+              viewportRatio: (bounds.top + bounds.height / 2) / root.clientHeight,
+              distance,
+              verticalDistance: dy,
+            };
+          }
+        }
+      }
+      current = walker.nextNode();
+    }
+
+    // Nur einen tatsaechlich nahe am Messpunkt liegenden Text verwenden. In
+    // grossen Leerflaechen bleibt der konkrete Karten-/Section-Anker korrekt.
+    // Eine kurze, linksbuendige Ueberschrift kann die gesamte Zeilenbox
+    // bedecken, obwohl ihr Wort weit links von der horizontalen Viewportmitte
+    // steht. Entscheidend ist deshalb die passende Textzeile (Y), nicht der
+    // horizontale Abstand innerhalb desselben getroffenen Textelements.
+    if (!best || best.verticalDistance > Math.max(48, root.clientHeight * 0.08)) return undefined;
+    return {
+      kind: 'text',
+      node: best.node,
+      start: best.start,
+      end: best.end,
+      viewportRatio: best.viewportRatio,
+      fallback: {
+        element: fallback.element,
+        ratio: fallback.ratio,
+        viewportRatio: fallback.viewportRatio,
+      },
+    };
+  };
+
+  const anchorElement = (saved: PageViewportScrollAnchor): HTMLElement | null => {
+    if (saved.kind === 'element') return saved.element;
+    const textParent = saved.node.parentElement;
+    return textParent?.isConnected ? textParent : saved.fallback.element;
+  };
+
+  const anchorIsConnected = (saved: PageViewportScrollAnchor | undefined): saved is PageViewportScrollAnchor =>
+    Boolean(saved && (saved.kind === 'element'
+      ? saved.element.isConnected
+      : saved.node.isConnected || saved.fallback.element.isConnected));
+
+  const capture = (preciseImmediately = false) => {
     captureFrame = undefined;
     if (stabilizing) return;
 
@@ -225,25 +276,64 @@ function preservePageContentOnOrientation(portrait: MediaQueryList): void {
     const bounds = element.getBoundingClientRect();
     if (bounds.height <= 0) return;
 
-    anchor = {
+    const elementAnchor: Extract<PageViewportScrollAnchor, { kind: 'element' }> = {
+      kind: 'element',
       element,
       ratio: Math.min(1, Math.max(0, (centerY - bounds.top) / bounds.height)),
+      viewportRatio: centerY / root.clientHeight,
     };
+    anchor = elementAnchor;
+
+    // Die Wortmessung ist absichtlich leicht entprellt: waehrend eines
+    // aktiven Touch-Scrolls bleibt capture() damit billig; sobald der Inhalt
+    // kurz ruht, wird der praezise semantische Bezug aktualisiert.
+    const capturePreciseText = () => {
+      preciseCaptureTimer = undefined;
+      if (stabilizing) return;
+      const currentX = root.clientWidth / 2;
+      const currentY = root.clientHeight / 2;
+      const currentHit = document.elementFromPoint(currentX, currentY) as HTMLElement | null;
+      const currentElement = findAnchor(currentHit, currentX, currentY);
+      if (!currentElement || currentElement !== element || !element.isConnected) return;
+      const precise = findTextAnchor(currentHit, currentX, currentY, elementAnchor);
+      if (precise) anchor = precise;
+    };
+    if (preciseCaptureTimer !== undefined) window.clearTimeout(preciseCaptureTimer);
+    if (preciseImmediately) capturePreciseText();
+    else preciseCaptureTimer = window.setTimeout(capturePreciseText, 90);
   };
 
   const queueCapture = () => {
-    if (captureFrame !== undefined || stabilizing) return;
-    captureFrame = requestAnimationFrame(capture);
+    if (captureFrame !== undefined || stabilizing || performance.now() < suppressCaptureUntil) return;
+    captureFrame = requestAnimationFrame(() => capture());
   };
 
-  const restore = (saved: ViewportScrollAnchor): boolean => {
-    if (!saved.element.isConnected) return false;
+  const restore = (saved: PageViewportScrollAnchor): boolean => {
+    let currentFocusY: number;
+    let targetFocusY: number;
 
-    const bounds = saved.element.getBoundingClientRect();
-    if (bounds.height <= 0) return false;
+    if (saved.kind === 'text' && saved.node.isConnected) {
+      const length = saved.node.length;
+      const start = Math.min(saved.start, length);
+      const end = Math.min(Math.max(start, saved.end), length);
+      if (end <= start) return restore({ kind: 'element', ...saved.fallback });
+      const range = document.createRange();
+      range.setStart(saved.node, start);
+      range.setEnd(saved.node, end);
+      const bounds = range.getBoundingClientRect();
+      if (bounds.height <= 0) return restore({ kind: 'element', ...saved.fallback });
+      currentFocusY = bounds.top + bounds.height / 2;
+      targetFocusY = root.clientHeight * saved.viewportRatio;
+    } else {
+      const elementAnchor = saved.kind === 'element' ? saved : saved.fallback;
+      if (!elementAnchor.element.isConnected) return false;
+      const bounds = elementAnchor.element.getBoundingClientRect();
+      if (bounds.height <= 0) return false;
+      currentFocusY = bounds.top + bounds.height * elementAnchor.ratio;
+      targetFocusY = root.clientHeight * elementAnchor.viewportRatio;
+    }
 
-    const currentFocusY = bounds.top + bounds.height * saved.ratio;
-    const correction = currentFocusY - root.clientHeight / 2;
+    const correction = currentFocusY - targetFocusY;
     if (Math.abs(correction) >= 0.5) {
       // `scroll-behavior: smooth` kann während der responsiven GSAP-
       // Initialisierung erneut gesetzt werden. Die explizite Instant-Option
@@ -260,9 +350,12 @@ function preservePageContentOnOrientation(portrait: MediaQueryList): void {
   };
 
   const finishStabilizing = () => {
+    const settledAnchor = pendingAnchor;
+    if (captureFrame !== undefined) cancelAnimationFrame(captureFrame);
     if (restoreFrame !== undefined) cancelAnimationFrame(restoreFrame);
     if (finishTimer !== undefined) window.clearTimeout(finishTimer);
     if (hardStopTimer !== undefined) window.clearTimeout(hardStopTimer);
+    captureFrame = undefined;
     restoreFrame = undefined;
     finishTimer = undefined;
     hardStopTimer = undefined;
@@ -273,7 +366,20 @@ function preservePageContentOnOrientation(portrait: MediaQueryList): void {
     pendingAnchor = undefined;
     root.style.scrollBehavior = previousScrollBehavior;
     root.style.overflowAnchor = previousOverflowAnchor;
-    requestAnimationFrame(capture);
+    // Solange der Nutzer nicht scrollt, bleibt exakt derselbe semantische
+    // Bezug auch fuer ein direktes Zurueckdrehen aktiv. Eine Neumessung an der
+    // geometrischen Viewportmitte koennte im anders umbrochenen Querformat ein
+    // benachbartes Wort waehlen und beim Rueckweg einen kleinen Versatz
+    // erzeugen. Echte Scrollbewegungen aktualisieren `anchor` ohnehin sofort.
+    if (anchorIsConnected(settledAnchor)) {
+      anchor = settledAnchor;
+      // Das scrollTo() der letzten Korrektur kann sein Scroll-Event erst nach
+      // diesem Callback zustellen. Dieses programmatische Event darf den eben
+      // erhaltenen Wortanker nicht sofort wieder durch den Viewportmittelpunkt
+      // ersetzen. Eine echte Eingabe hebt die kurze Sperre direkt auf.
+      suppressCaptureUntil = performance.now() + 120;
+    }
+    else requestAnimationFrame(() => capture(true));
   };
 
   const restorePending = () => {
@@ -330,15 +436,21 @@ function preservePageContentOnOrientation(portrait: MediaQueryList): void {
   window.addEventListener('load', queueCapture, { once: true });
   window.addEventListener('lp:layout-changed', queueCapture);
   window.addEventListener('touchstart', () => {
+    if (timelinePortraitAnchor && !portrait.matches) timelineLandscapeUserMoved = true;
     if (stabilizing) finishStabilizing();
+    suppressCaptureUntil = 0;
   }, { passive: true });
   window.addEventListener('pointerdown', () => {
+    if (timelinePortraitAnchor && !portrait.matches) timelineLandscapeUserMoved = true;
     if (stabilizing) finishStabilizing();
+    suppressCaptureUntil = 0;
   }, { passive: true });
   window.addEventListener('wheel', () => {
+    if (timelinePortraitAnchor && !portrait.matches) timelineLandscapeUserMoved = true;
     if (stabilizing) finishStabilizing();
+    suppressCaptureUntil = 0;
   }, { passive: true });
-  capture();
+  capture(true);
 
   // Reale Layoutstufen korrigieren, nicht pauschal jeden Frame. Resize- und
   // VisualViewport-Events laufen vor dem Paint; die direkte Korrektur bleibt
@@ -350,7 +462,10 @@ function preservePageContentOnOrientation(portrait: MediaQueryList): void {
     handleGeometryChange();
   });
   window.addEventListener('lp:orientation-settled', () => {
-    if (!stabilizing) return;
+    if (!stabilizing) {
+      capture(true);
+      return;
+    }
     layoutSettled = true;
     queueRestore();
     scheduleFinish();
@@ -362,7 +477,55 @@ function preservePageContentOnOrientation(portrait: MediaQueryList): void {
     wasPortrait = isPortrait;
 
     pendingAnchor = anchor;
-    if (!pendingAnchor?.element.isConnected) return;
+    if (!anchorIsConnected(pendingAnchor)) return;
+    if (preciseCaptureTimer !== undefined) {
+      window.clearTimeout(preciseCaptureTimer);
+      preciseCaptureTimer = undefined;
+    }
+    const timelineItem = anchorElement(pendingAnchor)?.closest<HTMLElement>('.tl__item');
+    if (timelineItem && !isPortrait) {
+      // Tiny-Portrait und die gepinnte Querformat-Timeline bilden denselben
+      // Werdegang vollkommen verschieden ab. Beim Hinweg hält GSAP selbst die
+      // sichtbare Station korrekt; eine vertikale Restore-Korrektur würde nach
+      // SplitText genau hier erst den Stationswechsel verursachen. Nach dem
+      // finalen Refresh erfasst `orientation-settled` die echte Landscape-
+      // Station als Bezug für den Rückweg.
+      const fallback = pendingAnchor.kind === 'element'
+        ? pendingAnchor
+        : { kind: 'element' as const, ...pendingAnchor.fallback };
+      timelinePortraitAnchor = fallback.element.closest('.tl__item') === timelineItem
+        ? fallback
+        : {
+            kind: 'element',
+            element: timelineItem,
+            ratio: 0.5,
+            viewportRatio: 0.5,
+          };
+      timelineLandscapeUserMoved = false;
+      pendingAnchor = undefined;
+      anchor = undefined;
+      return;
+    }
+    if (timelineItem && isPortrait) {
+      // Beim Abbau des gepinnten Landscape-Triggers setzt GSAP den Window-
+      // Scroller kurz auf 0. Die konkrete Station bleibt jedoch im DOM. Ihre
+      // Mitte ist der stabile semantische Bezug für die vertikale Mobile-Liste.
+      pendingAnchor = timelinePortraitAnchor
+        && !timelineLandscapeUserMoved
+        && timelinePortraitAnchor.element === timelineItem
+        ? timelinePortraitAnchor
+        : {
+            kind: 'element',
+            element: timelineItem,
+            ratio: 0.5,
+            viewportRatio: 0.5,
+          };
+      timelinePortraitAnchor = undefined;
+      timelineLandscapeUserMoved = false;
+    } else if (isPortrait) {
+      timelinePortraitAnchor = undefined;
+      timelineLandscapeUserMoved = false;
+    }
     if (restoreFrame !== undefined) cancelAnimationFrame(restoreFrame);
     if (finishTimer !== undefined) window.clearTimeout(finishTimer);
     if (hardStopTimer !== undefined) window.clearTimeout(hardStopTimer);
@@ -384,9 +547,10 @@ function preservePageContentOnOrientation(portrait: MediaQueryList): void {
     if (typeof ResizeObserver === 'function') {
       geometryObserver = new ResizeObserver(handleGeometryChange);
       geometryObserver.observe(document.body);
-      geometryObserver.observe(pendingAnchor.element);
-      const anchorSection = pendingAnchor.element.closest<HTMLElement>('section');
-      if (anchorSection && anchorSection !== pendingAnchor.element) {
+      const observedAnchor = anchorElement(pendingAnchor);
+      if (observedAnchor) geometryObserver.observe(observedAnchor);
+      const anchorSection = observedAnchor?.closest<HTMLElement>('section');
+      if (anchorSection && anchorSection !== observedAnchor) {
         geometryObserver.observe(anchorSection);
       }
     }
@@ -490,8 +654,7 @@ function init(): void {
      resize/orientationchange bereits selbst; die Zusatzprüfung deckt die zwei
      gestaffelten iOS-Viewport-Phasen ab. */
   const portrait = window.matchMedia('(orientation: portrait)');
-  if (isAboutPage) preserveAboutContentAfterTimeline(portrait);
-  else preservePageContentOnOrientation(portrait);
+  preservePageContentOnOrientation(portrait);
   let orientationSettleTimer: number | undefined;
   portrait.addEventListener('change', () => {
     requestAnimationFrame(() => {

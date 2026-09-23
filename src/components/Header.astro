@@ -48,28 +48,25 @@ const headerCtaHref = settings.headerCta
 ---
 <header class="navbar" data-site-header data-navigation-context={context}>
   <div class="navbar__container">
-  <a href={homeHref} class="navbar__logo is-desktop" aria-label={`${settings.siteName}, ${t.toStart}`}>
-    <span class="navbar__logo-word is-1" aria-hidden="true">
-      <span class="navbar__logo-text" data-nav-logo-text="1">Tristan</span>
-    </span>
-    <span class="navbar__logo-line" data-nav-logo-line aria-hidden="true"></span>
-    <span class="navbar__logo-word is-2" aria-hidden="true">
-      <span class="navbar__logo-text" data-nav-logo-text="2">Weithaler</span>
-    </span>
-  </a>
-  {/* Mobiles Kürzel „T|W": die Buchstaben bleiben sichtbar UND Teil des
-      Accessible-Name (Präfix), sonst meldet axe label-content-name-mismatch
-      (sichtbarer Text „TW" nicht im aria-label enthalten). Voller Name folgt
-      visually-hidden; die Gold-Linie bleibt dekorativ (aria-hidden). */}
-  <a href={homeHref} class="navbar__logo is-mobile">
+  {/* Eine einzige Wortmarke fuer alle Breakpoints. Zwei uebereinanderliegende
+      Links konnten in Safari beim Drehen fuer einen Frame auf verschiedenen
+      Compositor-Ebenen erscheinen. Nur der Text innerhalb derselben stabilen
+      Logo-Geometrie wechselt jetzt responsiv zwischen Lang- und Kurzform. */}
+  <a href={homeHref} class="navbar__logo">
     <span class="navbar__logo-word is-1">
-      <span class="navbar__logo-text" data-nav-logo-text="1">T</span>
+      <span class="navbar__logo-text" data-nav-logo-text="1">
+        <span class="navbar__logo-label is-full">Tristan</span>
+        <span class="navbar__logo-label is-compact">T</span>
+      </span>
     </span>
     <span class="navbar__logo-line" data-nav-logo-line aria-hidden="true"></span>
     <span class="navbar__logo-word is-2">
-      <span class="navbar__logo-text" data-nav-logo-text="2">W</span>
+      <span class="navbar__logo-text" data-nav-logo-text="2">
+        <span class="navbar__logo-label is-full">Weithaler</span>
+        <span class="navbar__logo-label is-compact">W</span>
+      </span>
     </span>
-    <span class="visually-hidden">{`${settings.siteName}, ${t.toStart}`}</span>
+    <span class="visually-hidden">{`, ${t.toStart}`}</span>
   </a>
 
   <div class="navbar__right" data-nav-right>
@@ -225,22 +222,13 @@ const headerCtaHref = settings.headerCta
     font-weight: 500;
     white-space: nowrap;
   }
+  .navbar__logo-label.is-compact { display: none; }
   .navbar__logo-line {
     width: 1.75px;
     height: 2rem;
     background: var(--brand);
     flex: none;
   }
-  /* Beide Wortmarken bleiben dauerhaft in derselben Grid-Zelle. Ein Wechsel
-     per display:none/display:flex baut in iOS beim Drehen die fixe Blur-Ebene
-     neu auf und kann das mobile T|W fuer einen Frame an der alten Position
-     zeichnen. visibility tauscht nur die Darstellung, ohne das Header-Layout
-     oder die Compositor-Geometrie zu zerlegen. */
-  .navbar__logo.is-mobile {
-    visibility: hidden;
-    pointer-events: none;
-  }
-
   /* --- Rechte Seite: Overflow-Maske (Load-Anim + 9.2rem-Menü-Shift) -------- */
   .navbar__right {
     grid-area: 1 / 2;
@@ -395,11 +383,11 @@ const headerCtaHref = settings.headerCta
     .navbar__right-inner { gap: 0.75rem; }
   }
   @media (max-width: 767px) {
-    .navbar__logo.is-desktop { visibility: hidden; pointer-events: none; }
-    .navbar__logo.is-mobile { visibility: visible; pointer-events: auto; height: 3rem; }
+    .navbar__logo { height: 3rem; }
+    .navbar__logo-label.is-full { display: none; }
+    .navbar__logo-label.is-compact { display: inline; }
     .navbar__logo-word.is-1 { padding-right: 0.25rem; }
     .navbar__logo-word.is-2 { padding-left: 0.25rem; }
-    .navbar__logo.is-mobile .navbar__logo-line { background: var(--brand); }
   }
   @media (max-width: 479px) {
     .menu__link { padding-left: 6vw; padding-right: 6vw; }
