@@ -715,6 +715,11 @@ export default function AioCustomerResultsSection({
           </h3>
         </div>
 
+        <span className="results-swipe-hint" data-carousel-swipe-hint aria-hidden="true">
+          <span>Wischen</span>
+          <span data-carousel-swipe-arrow>→</span>
+        </span>
+
         <div
           className="aio-results__grid"
           data-anim="aio-results-carousel"

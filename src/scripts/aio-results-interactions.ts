@@ -7,6 +7,7 @@
  */
 
 import { preloadCarouselImages } from './carousel-image-preload';
+import { initMobileCarouselHint } from './mobile-carousel-hint';
 import { createNativeCarouselMotion } from './native-carousel-motion';
 
 const clamp = (value: number, min: number, max: number) =>
@@ -273,6 +274,7 @@ function initAutoCarousel(carousel: HTMLElement): void {
   carousel.dataset.aioCarouselReady = '1';
   preloadCarouselImages(carousel, '.aio-results__media img');
   const motion = createNativeCarouselMotion(carousel, track);
+  initMobileCarouselHint(carousel, track);
   enableMouseDrag(carousel, motion.beginManual, motion.finishManual);
 }
 

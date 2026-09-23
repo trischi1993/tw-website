@@ -3315,6 +3315,24 @@ html.has-motion .ahero__wipe { display: block; }
   line-height: 1.5;
   letter-spacing: 0.01em;
 }
+.results-swipe-hint {
+  display: none;
+  align-items: center;
+  width: max-content;
+  gap: 0.38rem;
+  margin: 0 0 0.75rem auto;
+  color: var(--ink-3);
+  font-size: 0.64rem;
+  font-weight: 500;
+  letter-spacing: 0.08em;
+  line-height: 1;
+  opacity: 0;
+  pointer-events: none;
+  text-transform: uppercase;
+  white-space: nowrap;
+  transition: opacity 220ms var(--ease-smooth);
+}
+.results-swipe-hint [data-carousel-swipe-arrow] { display: inline-block; }
 .home-proof__legend {
   display: flex;
   flex-wrap: wrap;
@@ -3725,6 +3743,9 @@ html.has-motion .ahero__wipe { display: block; }
     margin-bottom: 1.75rem;
   }
   .home-proof__head h2 { font-size: 0.98rem; }
+  .results-swipe-hint { display: flex; }
+  .results-swipe-hint.is-visible { opacity: 0.72; }
+  .results-swipe-hint.is-dismissed { opacity: 0; }
   .home-proof__legend { gap: 0.45rem; }
   .home-proof__legend button { padding-inline: 0.62rem; font-size: 0.6rem; }
   .home-proof-card { flex-basis: 84vw; }
@@ -3747,6 +3768,9 @@ html.has-motion .ahero__wipe { display: block; }
   .home-proof-card__more-body { padding-block: 1.35rem; }
   .home-proof-card__more-copy { margin-top: 0.75rem; }
   .home-proof-card__more-cta { padding-top: 1rem; }
+}
+@media (max-width: 767px) and (orientation: landscape) {
+  .results-swipe-hint { display: none; }
 }
 @media (max-height: 500px) and (orientation: landscape) {
   .home-proof { padding-top: 4.5rem; padding-bottom: 4.5rem; }

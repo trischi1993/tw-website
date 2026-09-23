@@ -1,4 +1,5 @@
 import { preloadCarouselImages } from './carousel-image-preload';
+import { initMobileCarouselHint } from './mobile-carousel-hint';
 import { createNativeCarouselMotion } from './native-carousel-motion';
 
 const clamp = (value: number, min: number, max: number) =>
@@ -87,6 +88,7 @@ function initAutoCarousel(carousel: HTMLElement): void {
   const reducedMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
   preloadCarouselImages(carousel, '.home-proof-card__media img');
   const motion = createNativeCarouselMotion(carousel, track);
+  initMobileCarouselHint(carousel, track);
   const jumpButtons = Array.from(
     carousel.closest<HTMLElement>('[data-home-proof]')
       ?.querySelectorAll<HTMLButtonElement>('[data-proof-jump]') ?? [],

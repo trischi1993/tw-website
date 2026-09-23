@@ -23,9 +23,16 @@ export function createNativeCarouselMotion(
   track: HTMLElement,
   speed = 22,
 ): NativeCarouselMotion {
-  const reducedMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
-  const hoverCapable = window.matchMedia('(hover: hover) and (pointer: fine)').matches;
-  const enabled = !reducedMotion && hoverCapable && typeof track.animate === 'function';
+  const reducedMotion = window.matchMedia('(prefers-reduced-motion: reduce)');
+  const hoverCapable = window.matchMedia('(hover: hover) and (pointer: fine)');
+  const mobileLayout = window.matchMedia(
+    '(max-width: 767px), (max-width: 950px) and (max-height: 500px) and (orientation: landscape)',
+  );
+  const animationSupported = typeof track.animate === 'function';
+  const enabled = () => animationSupported
+    && !reducedMotion.matches
+    && hoverCapable.matches
+    && !mobileLayout.matches;
 
   let animation: Animation | null = null;
   let resumeTimer = 0;
@@ -80,7 +87,7 @@ export function createNativeCarouselMotion(
     transformMode = false;
   };
 
-  const canRun = () => enabled && visible && !hoverHeld && !manualHeld;
+  const canRun = () => enabled() && visible && !hoverHeld && !manualHeld;
   const start = () => {
     clearResumeTimer();
     if (!canRun()) return;
@@ -142,9 +149,22 @@ export function createNativeCarouselMotion(
     scheduleStart(800);
   };
 
-  if (!enabled) return { beginManual, finishManual, pauseFor };
+  if (!animationSupported) return { beginManual, finishManual, pauseFor };
 
-  carousel.classList.add('has-auto-scroll');
+  const updateMode = () => {
+    if (enabled()) {
+      carousel.classList.add('has-auto-scroll');
+      scheduleStart(180);
+      return;
+    }
+    clearResumeTimer();
+    commitToNativeScroll();
+    carousel.classList.remove('has-auto-scroll');
+  };
+
+  reducedMotion.addEventListener('change', updateMode);
+  hoverCapable.addEventListener('change', updateMode);
+  mobileLayout.addEventListener('change', updateMode);
   carousel.addEventListener('pointerenter', () => {
     hoverHeld = true;
     clearResumeTimer();
@@ -183,6 +203,6 @@ export function createNativeCarouselMotion(
     window.addEventListener('scroll', updateVisibility, { passive: true });
   }
 
-  scheduleStart(180);
+  updateMode();
   return { beginManual, finishManual, pauseFor };
 }

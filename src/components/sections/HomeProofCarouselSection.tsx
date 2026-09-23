@@ -83,6 +83,11 @@ export default function HomeProofCarouselSection({
           </div>
         </header>
 
+        <span className="results-swipe-hint" data-carousel-swipe-hint aria-hidden="true">
+          <span>Wischen</span>
+          <span data-carousel-swipe-arrow>→</span>
+        </span>
+
         <div
           className="home-proof__carousel"
           data-home-proof-carousel=""
