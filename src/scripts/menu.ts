@@ -30,6 +30,59 @@ const toggle = document.querySelector<HTMLButtonElement>('[data-nav-toggle]');
 const menu = document.querySelector<HTMLElement>('[data-site-menu]');
 const panel = menu?.querySelector<HTMLElement>('[data-menu-panel]');
 
+/**
+ * iOS/WebKit kann eine alte Grafikschicht einer fixierten Navigation waehrend
+ * einer Drehung noch an der Landscape-Position ausgeben, obwohl Layout-APIs
+ * die neue Position bereits korrekt melden. Das ist kein zweites Logo im DOM.
+ *
+ * Fuer die kurzen instabilen Viewport-Frames wird deshalb nur die Wortmarke
+ * ueber eine Compositor-Eigenschaft ausgeblendet. Nach 96 ms ohne weiteres
+ * Resize erscheint sie sofort wieder. Spaete VisualViewport-Stufen innerhalb
+ * der naechsten 1,2 s aktivieren denselben Schutz erneut; normales Resizing und
+ * die Header-/Menueanimationen bleiben ausserhalb dieses Fensters unberuehrt.
+ */
+if (header) {
+  const root = document.documentElement;
+  const portrait = window.matchMedia('(orientation: portrait)');
+  const QUIET_MS = 96;
+  const WATCH_MS = 1200;
+  let watchUntil = 0;
+  let revealTimer: number | undefined;
+  let stopTimer: number | undefined;
+
+  const revealLogo = () => {
+    revealTimer = undefined;
+    root.classList.remove('is-header-orienting');
+  };
+
+  const concealLogoUntilViewportSettles = () => {
+    root.classList.add('is-header-orienting');
+    if (revealTimer !== undefined) window.clearTimeout(revealTimer);
+    revealTimer = window.setTimeout(revealLogo, QUIET_MS);
+  };
+
+  const beginOrientationGuard = () => {
+    watchUntil = Date.now() + WATCH_MS;
+    concealLogoUntilViewportSettles();
+    if (stopTimer !== undefined) window.clearTimeout(stopTimer);
+    stopTimer = window.setTimeout(() => {
+      watchUntil = 0;
+      revealLogo();
+    }, WATCH_MS);
+  };
+
+  const handleViewportResize = () => {
+    if (Date.now() >= watchUntil) return;
+    concealLogoUntilViewportSettles();
+  };
+
+  window.addEventListener('orientationchange', beginOrientationGuard, { passive: true });
+  screen.orientation?.addEventListener('change', beginOrientationGuard);
+  portrait.addEventListener('change', beginOrientationGuard);
+  window.addEventListener('resize', handleViewportResize, { passive: true });
+  window.visualViewport?.addEventListener('resize', handleViewportResize, { passive: true });
+}
+
 /** Stagger-Delays (s) nach DOM-Position: Startseite, Zum E-Book, ALL-IN-ONE,
     Über mich ⇒ is-1/is-4/is-3/is-2 ⇒ 1.0/1.3/1.2/1.1 (Original-Werte). */
 const LINK_DELAYS_4 = [1.0, 1.3, 1.2, 1.1];

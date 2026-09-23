@@ -48,23 +48,17 @@ const headerCtaHref = settings.headerCta
 ---
 <header class="navbar" data-site-header data-navigation-context={context}>
   <div class="navbar__container">
-  {/* Eine einzige Wortmarke fuer alle Breakpoints. Zwei uebereinanderliegende
-      Links konnten in Safari beim Drehen fuer einen Frame auf verschiedenen
-      Compositor-Ebenen erscheinen. Nur der Text innerhalb derselben stabilen
-      Logo-Geometrie wechselt jetzt responsiv zwischen Lang- und Kurzform. */}
+  {/* Eine einzige Wortmarke fuer alle Breakpoints. Die auf Mobile sichtbaren
+      Anfangsbuchstaben sind dieselben Textknoten wie in der Langform; nur die
+      Suffixe werden ausgeblendet. So muss WebKit beim Drehen keine zweite
+      T|W-Zeichenebene gegen Tristan|Weithaler austauschen. */}
   <a href={homeHref} class="navbar__logo">
     <span class="navbar__logo-word is-1">
-      <span class="navbar__logo-text" data-nav-logo-text="1">
-        <span class="navbar__logo-label is-full">Tristan</span>
-        <span class="navbar__logo-label is-compact">T</span>
-      </span>
+      <span class="navbar__logo-text" data-nav-logo-text="1">T<span class="navbar__logo-suffix">ristan</span></span>
     </span>
     <span class="navbar__logo-line" data-nav-logo-line aria-hidden="true"></span>
     <span class="navbar__logo-word is-2">
-      <span class="navbar__logo-text" data-nav-logo-text="2">
-        <span class="navbar__logo-label is-full">Weithaler</span>
-        <span class="navbar__logo-label is-compact">W</span>
-      </span>
+      <span class="navbar__logo-text" data-nav-logo-text="2">W<span class="navbar__logo-suffix">eithaler</span></span>
     </span>
     <span class="visually-hidden">{`, ${t.toStart}`}</span>
   </a>
@@ -222,7 +216,17 @@ const headerCtaHref = settings.headerCta
     font-weight: 500;
     white-space: nowrap;
   }
-  .navbar__logo-label.is-compact { display: none; }
+  .navbar__logo-suffix { display: inline; }
+  /* iOS kann die Grafikschicht eines position:fixed-Elements waehrend einer
+     Drehung kurz an der alten Viewportposition ausgeben, obwohl die DOM-
+     Koordinaten bereits stimmen. menu.ts setzt diese Klasse nur fuer die
+     instabilen Resize-Frames. Opacity ist eine reine Compositor-Eigenschaft:
+     Die alte Textur wird gezielt unterdrueckt, ohne Layout oder Scrollposition
+     zu veraendern. */
+  :global(html.is-header-orienting) .navbar__logo {
+    opacity: 0;
+    pointer-events: none;
+  }
   .navbar__logo-line {
     width: 1.75px;
     height: 2rem;
@@ -384,8 +388,7 @@ const headerCtaHref = settings.headerCta
   }
   @media (max-width: 767px) {
     .navbar__logo { height: 3rem; }
-    .navbar__logo-label.is-full { display: none; }
-    .navbar__logo-label.is-compact { display: inline; }
+    .navbar__logo-suffix { display: none; }
     .navbar__logo-word.is-1 { padding-right: 0.25rem; }
     .navbar__logo-word.is-2 { padding-left: 0.25rem; }
   }
