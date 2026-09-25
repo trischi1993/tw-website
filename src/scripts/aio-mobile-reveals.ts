@@ -8,6 +8,7 @@ const root = document.documentElement;
 const EASE = 'cubic-bezier(0.25, 0.1, 0.25, 1)';
 const OUT_QUART = 'cubic-bezier(0.165, 0.84, 0.44, 1)';
 const activeAnimations = new Set<Animation>();
+const resultBulletFinalizers = new Set<() => void>();
 
 const TEXT_SELECTOR = [
   'h1',
@@ -119,6 +120,8 @@ function initGenericReveals(): void {
     const blurTargets = element.hasAttribute('data-reveal-no-blur')
       ? []
       : textTargets(element);
+    const isResultBullets = element.matches('.aio-results__outcomes > ul');
+    if (isResultBullets) element.setAttribute('data-aio-result-list', '');
 
     element.style.opacity = '0';
     element.style.transform = 'translate3d(0, 1rem, 0)';
@@ -128,6 +131,15 @@ function initGenericReveals(): void {
 
     const reveal = () => {
       element.setAttribute('data-aio-native-revealed', '');
+      if (isResultBullets && element.hasAttribute('data-aio-orientation-final')) {
+        element.style.removeProperty('opacity');
+        element.style.removeProperty('transform');
+        blurTargets.forEach((target) => {
+          target.style.removeProperty('filter');
+          target.style.removeProperty('will-change');
+        });
+        return;
+      }
       const animations = [
         play(element, [{ opacity: 0 }, { opacity: 1 }], {
           duration,
@@ -155,14 +167,29 @@ function initGenericReveals(): void {
         ),
       ];
 
+      let finished = false;
       const finish = () => {
-        element.style.removeProperty('opacity');
-        element.style.removeProperty('transform');
-        blurTargets.forEach((target) => target.style.removeProperty('filter'));
+        if (finished) return;
+        finished = true;
+        if (isResultBullets) resultBulletFinalizers.delete(finish);
+
+        // Den nativen Endzustand zuerst unter die Animation legen. Erst dann
+        // werden die WebKit-Layer entfernt; so existiert beim Canceln kein
+        // einzelner Paint mit dem alten Blur-/Opacity-Startzustand.
+        element.style.opacity = '1';
+        element.style.transform = 'none';
+        blurTargets.forEach((target) => {
+          target.style.filter = 'none';
+          target.style.removeProperty('will-change');
+        });
         animations.forEach((animation) => {
           if (animation.playState !== 'idle') animation.cancel();
         });
+        element.style.removeProperty('opacity');
+        element.style.removeProperty('transform');
+        blurTargets.forEach((target) => target.style.removeProperty('filter'));
       };
+      if (isResultBullets) resultBulletFinalizers.add(finish);
       void Promise.allSettled(animations.map((animation) => animation.finished)).then(finish);
     };
 
@@ -282,7 +309,21 @@ if (
   initTristyChat();
 
   const portrait = window.matchMedia('(orientation: portrait)');
+  let orientationClassTimer: number | undefined;
   portrait.addEventListener('change', () => {
+    root.classList.add('is-aio-orientation-settling');
+    document.querySelectorAll<HTMLElement>('[data-aio-result-list]').forEach((list) => {
+      list.setAttribute('data-aio-orientation-final', '');
+      list.style.removeProperty('opacity');
+      list.style.removeProperty('transform');
+      list.querySelectorAll<HTMLElement>('[data-reveal-blur-text]').forEach((text) => {
+        text.style.removeProperty('filter');
+        text.style.removeProperty('will-change');
+      });
+    });
+    resultBulletFinalizers.forEach((finish) => finish());
+    resultBulletFinalizers.clear();
+
     // Laufende Filter-/Transform-Layer vor dem mobilen Zeilenumbruch sauber
     // abschliessen. So kann WebKit keine einzelne alte Textzeile nachzeichnen.
     activeAnimations.forEach((animation) => {
@@ -292,6 +333,11 @@ if (
         animation.cancel();
       }
     });
+    if (orientationClassTimer !== undefined) window.clearTimeout(orientationClassTimer);
+    orientationClassTimer = window.setTimeout(() => {
+      root.classList.remove('is-aio-orientation-settling');
+      orientationClassTimer = undefined;
+    }, 900);
   });
 }
 

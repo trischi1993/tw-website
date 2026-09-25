@@ -172,8 +172,9 @@ const headerCtaHref = settings.headerCta
      Menue-Modul ist als ES-Modul absichtlich deferred und kann seinen
      Click-Listener deshalb erst nach dem vollstaendigen Dokument anhaengen.
      Bis dahin uebernimmt dieser kleine, abhaengigkeitsfreie Bootstrap exakt
-     den kompakten mobilen Oeffnungszustand. menu.ts adoptiert ihn spaeter und
-     fuehrt danach Animation, Fokussteuerung und Schliessen normal weiter. -->
+     den kompakten mobilen Oeffnungszustand. Auf der mobilen AIO-Seite bleibt
+     er bewusst allein zustaendig; alle anderen Seiten werden spaeter wie
+     bisher von menu.ts uebernommen. -->
 <script is:inline>
   (() => {
     const header = document.querySelector('[data-site-header]');
@@ -193,6 +194,10 @@ const headerCtaHref = settings.headerCta
     const reduced = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
     const ease = 'cubic-bezier(0.25, 0.1, 0.25, 1)';
     const outQuart = 'cubic-bezier(0.165, 0.84, 0.44, 1)';
+    const mobileMenu = window.matchMedia('(max-width: 991px)');
+    const persistentAioMenu =
+      document.documentElement.classList.contains('is-aio-route') && mobileMenu.matches;
+    if (persistentAioMenu) menu.setAttribute('data-aio-native-menu', '');
 
     /* Die Menue-Ebene wird auf mobilen Breakpoints bereits waehrend des
        Parsens offscreen zusammengesetzt. Der erste Tap muss sie dadurch nur
@@ -200,7 +205,7 @@ const headerCtaHref = settings.headerCta
        langen AIO-Seite `display:none` aufloesen und das gesamte Dokument neu
        vermessen. Inert + pointer-events halten die vorbereitete Ebene bis zum
        Oeffnen vollstaendig aus Bedienung und Hit-Testing heraus. */
-    if (window.matchMedia('(max-width: 991px)').matches) {
+    if (mobileMenu.matches) {
       menu.removeAttribute('hidden');
       menu.setAttribute('inert', '');
       menu.setAttribute('aria-hidden', 'true');
@@ -223,6 +228,22 @@ const headerCtaHref = settings.headerCta
       return headerCta.getBoundingClientRect().width + gap;
     };
 
+    const backdrop = () =>
+      Array.from(document.body.children).filter(
+        (element) => element !== header && element !== menu,
+      );
+    const setBackdropInert = (inert) => {
+      backdrop().forEach((element) =>
+        inert ? element.setAttribute('inert', '') : element.removeAttribute('inert'),
+      );
+    };
+    const trapStops = () =>
+      [
+        ...Array.from(header.querySelectorAll('a[href], button:not([disabled])')),
+        ...Array.from(menu.querySelectorAll('a[href], button:not([disabled])')),
+      ].filter((element) => element.getClientRects().length > 0);
+    let lastFocused = null;
+
     const resetEarlyStyles = () => {
       panel.style.removeProperty('transform');
       panel.style.removeProperty('will-change');
@@ -231,6 +252,44 @@ const headerCtaHref = settings.headerCta
         link.style.removeProperty('opacity');
       });
       arrows.forEach((arrow) => arrow.style.removeProperty('opacity'));
+      [burgerTop, burgerMiddle, burgerBottom, rightInner].forEach((element) => {
+        element?.style.removeProperty('transform');
+      });
+      header.style.removeProperty('background-color');
+    };
+
+    const freezeCurrentStyles = () => {
+      const freeze = (element, properties) => {
+        if (!element) return;
+        const computed = getComputedStyle(element);
+        properties.forEach((property) => {
+          element.style.setProperty(property, computed.getPropertyValue(property));
+        });
+      };
+      freeze(header, ['background-color']);
+      freeze(panel, ['transform']);
+      links.forEach((link) => freeze(link, ['transform', 'opacity']));
+      arrows.forEach((arrow) => freeze(arrow, ['opacity']));
+      [burgerTop, burgerMiddle, burgerBottom, rightInner].forEach((element) =>
+        freeze(element, ['transform']),
+      );
+    };
+
+    const preparePersistentClosedState = () => {
+      menu.removeAttribute('hidden');
+      menu.setAttribute('inert', '');
+      menu.setAttribute('aria-hidden', 'true');
+      menu.setAttribute('data-menu-prepared', '');
+      menu.style.pointerEvents = 'none';
+      panel.style.transform = 'translate3d(-100%, 0, 0)';
+      panel.style.willChange = 'transform';
+      links.forEach((link) => {
+        link.style.transform = 'translate3d(-80px, 0, 0)';
+        link.style.opacity = '0';
+      });
+      arrows.forEach((arrow) => {
+        arrow.style.opacity = '0';
+      });
       [burgerTop, burgerMiddle, burgerBottom, rightInner].forEach((element) => {
         element?.style.removeProperty('transform');
       });
@@ -251,7 +310,94 @@ const headerCtaHref = settings.headerCta
       delete menu.__earlyMenuBridge;
     };
 
+    const closePersistentAioMenu = () => {
+      freezeCurrentStyles();
+      menu.__earlyMenuBridge?.cancel();
+
+      let stopped = false;
+      const animations = [];
+      const play = (element, keyframes, options) => {
+        if (!element || stopped) return;
+        animations.push(element.animate(keyframes, { fill: 'both', ...options }));
+      };
+      const cancel = () => {
+        stopped = true;
+        animations.forEach((animation) => animation.cancel());
+      };
+      menu.__earlyMenuBridge = { cancel };
+
+      toggle.setAttribute('aria-expanded', 'false');
+      menu.setAttribute('inert', '');
+      menu.setAttribute('aria-hidden', 'true');
+      setBackdropInert(false);
+
+      if (reduced) {
+        document.body.classList.remove('no-scroll');
+        header.classList.remove('is-menu-open');
+        preparePersistentClosedState();
+        (lastFocused ?? toggle).focus();
+        delete menu.__earlyMenuBridge;
+        return;
+      }
+
+      play(panel, [{ transform: panel.style.transform }, { transform: 'translate3d(-100%, 0, 0)' }], {
+        duration: 520,
+        easing: outQuart,
+      });
+      links.forEach((link) => {
+        play(link, [{ opacity: link.style.opacity }, { opacity: 0 }], {
+          duration: 180,
+          easing: ease,
+        });
+      });
+      arrows.forEach((arrow) => {
+        play(arrow, [{ opacity: arrow.style.opacity }, { opacity: 0 }], {
+          duration: 180,
+          easing: ease,
+        });
+      });
+      play(burgerTop, [{ transform: burgerTop?.style.transform }, { transform: 'translate3d(0, 0, 0) rotate(0deg)' }], {
+        duration: 250,
+        easing: outQuart,
+      });
+      play(burgerBottom, [{ transform: burgerBottom?.style.transform }, { transform: 'translate3d(0, 0, 0) rotate(0deg)' }], {
+        duration: 250,
+        easing: outQuart,
+      });
+      play(burgerMiddle, [{ transform: burgerMiddle?.style.transform }, { transform: 'translate3d(0, 0, 0)' }], {
+        duration: 250,
+        delay: 150,
+        easing: outQuart,
+      });
+      play(rightInner, [{ transform: rightInner?.style.transform }, { transform: 'translate3d(0, 0, 0)' }], {
+        duration: 350,
+        delay: 100,
+        easing: outQuart,
+      });
+      play(header, [{ backgroundColor: header.style.backgroundColor }, { backgroundColor: 'rgba(231, 226, 220, 0.12)' }], {
+        duration: 300,
+        delay: 200,
+        easing: ease,
+      });
+
+      void Promise.allSettled(animations.map((animation) => animation.finished)).then(() => {
+        if (stopped || toggle.getAttribute('aria-expanded') === 'true') return;
+        animations.forEach((animation) => animation.cancel());
+        document.body.classList.remove('no-scroll');
+        header.classList.remove('is-menu-open');
+        preparePersistentClosedState();
+        (lastFocused ?? toggle).focus();
+        delete menu.__earlyMenuBridge;
+      });
+    };
+
     const openBeforeMainModule = () => {
+      menu.__earlyMenuBridge?.cancel();
+      delete menu.__earlyMenuBridge;
+      if (persistentAioMenu) {
+        lastFocused = document.activeElement;
+        setBackdropInert(true);
+      }
       const animations = [];
       let followUpFrame;
       let stopped = false;
@@ -364,19 +510,22 @@ const headerCtaHref = settings.headerCta
     let suppressEarlyClickTimer;
 
     const signalEarlyInteraction = () => {
-      /* Signalisiert dem kleinen Loader, dass die abhaengigkeitsfreie
-         Fruehsteuerung bereits uebernommen hat. Das vollstaendige GSAP-Modul
-         darf dann erst nach der sichtbaren Oeffnungsanimation nachladen und
-         nicht denselben ersten Tap durch Parse-/Initialisierungsarbeit
-         verzoegern. Das data-Attribut deckt auch einen Tap ab, der noch vor
-         der Ausfuehrung des deferred Loader-Moduls erfolgt. */
+      /* Außerhalb der mobilen AIO-Seite signalisiert dies dem Loader, dass
+         die Fruehsteuerung bereits uebernommen hat. Auf AIO bleibt dieselbe
+         native Steuerung dauerhaft zustaendig; dort gibt es bewusst keine
+         spaetere Uebergabe mehr. */
       toggle.setAttribute('data-menu-early-interacted', '');
-      document.dispatchEvent(new Event('site:early-menu-interaction'));
+      if (!persistentAioMenu) {
+        document.dispatchEvent(new Event('site:early-menu-interaction'));
+      }
     };
 
     const toggleBeforeMainModule = () => {
       signalEarlyInteraction();
-      if (toggle.getAttribute('aria-expanded') === 'true') closeBeforeMainModule();
+      if (toggle.getAttribute('aria-expanded') === 'true') {
+        if (persistentAioMenu) closePersistentAioMenu();
+        else closeBeforeMainModule();
+      }
       else openBeforeMainModule();
     };
 
@@ -424,6 +573,32 @@ const headerCtaHref = settings.headerCta
       event.stopImmediatePropagation();
       toggleBeforeMainModule();
     });
+
+    if (persistentAioMenu) {
+      document.addEventListener('DOMContentLoaded', () => {
+        if (toggle.getAttribute('aria-expanded') === 'true') setBackdropInert(true);
+      }, { once: true });
+
+      window.addEventListener('keydown', (event) => {
+        if (toggle.getAttribute('aria-expanded') !== 'true') return;
+        if (event.key === 'Escape') {
+          closePersistentAioMenu();
+          return;
+        }
+        if (event.key !== 'Tab') return;
+        const stops = trapStops();
+        if (!stops.length) return;
+        const first = stops[0];
+        const last = stops[stops.length - 1];
+        if (event.shiftKey && document.activeElement === first) {
+          event.preventDefault();
+          last.focus();
+        } else if (!event.shiftKey && document.activeElement === last) {
+          event.preventDefault();
+          first.focus();
+        }
+      });
+    }
   })();
 </script>
 
