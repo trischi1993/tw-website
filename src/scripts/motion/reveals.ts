@@ -60,7 +60,7 @@ function belongsToInitialHashScopes(element: Element): boolean {
 
 const triggers: EnterOnceTrigger[] = [];
 const pendingHashListeners: Array<() => void> = [];
-const activeRevealAnimations = new Set<Animation>();
+const activeRevealFinalizers = new Set<() => void>();
 const ebookMobileQuery = window.matchMedia('(max-width: 767px)');
 const isEbookPage = Boolean(document.querySelector('[data-ebook-hero]'));
 
@@ -112,17 +112,8 @@ function getRevealTextTargets(root: HTMLElement): HTMLElement[] {
   );
 }
 
-function trackRevealAnimation(animation: Animation): Animation {
-  activeRevealAnimations.add(animation);
-  void animation.finished
-    .catch(() => undefined)
-    .finally(() => activeRevealAnimations.delete(animation));
-  return animation;
-}
-
-function cancelRevealAnimations(): void {
-  activeRevealAnimations.forEach((animation) => animation.cancel());
-  activeRevealAnimations.clear();
+function finishActiveRevealAnimations(): void {
+  [...activeRevealFinalizers].forEach((finish) => finish());
 }
 
 interface SharedObserverGroup {
@@ -279,49 +270,57 @@ function initReveal(): void {
         fill: 'both' as FillMode,
       };
       const animations = [
-        trackRevealAnimation(
-          el.animate([{ opacity: 0 }, { opacity: 1 }], {
-            ...timing,
-            easing: NATIVE_EASE.ease,
-          }),
-        ),
-        trackRevealAnimation(
-          el.animate(
-            [
-              { transform: 'translate3d(0, 1rem, 0)' },
-              { transform: 'translate3d(0, 0, 0)' },
-            ],
-            { ...timing, easing: NATIVE_EASE.outQuart },
-          ),
+        el.animate([{ opacity: 0 }, { opacity: 1 }], {
+          ...timing,
+          easing: NATIVE_EASE.ease,
+        }),
+        el.animate(
+          [
+            { transform: 'translate3d(0, 1rem, 0)' },
+            { transform: 'translate3d(0, 0, 0)' },
+          ],
+          { ...timing, easing: NATIVE_EASE.outQuart },
         ),
         ...blurTargets.map((target) =>
-          trackRevealAnimation(
-            target.animate(
-              [
-                { filter: 'blur(3.5px)', offset: 0 },
-                { filter: 'blur(1.15px)', offset: 0.62 },
-                // Ein fast-null Endwert verhindert, dass WebKit den Filter-
-                // Layer im letzten sichtbaren Frame abrupt neu rasterisiert.
-                { filter: 'blur(0.001px)', offset: 1 },
-              ],
-              {
-                duration: Math.max(duration, 0.9) * 1000,
-                delay: delay * 1000,
-                easing: NATIVE_EASE.ease,
-                fill: 'both',
-              },
-            ),
+          target.animate(
+            [
+              { filter: 'blur(3.5px)', offset: 0 },
+              { filter: 'blur(1.15px)', offset: 0.62 },
+              // Ein fast-null Endwert verhindert, dass WebKit den Filter-
+              // Layer im letzten sichtbaren Frame abrupt neu rasterisiert.
+              { filter: 'blur(0.001px)', offset: 1 },
+            ],
+            {
+              duration: Math.max(duration, 0.9) * 1000,
+              delay: delay * 1000,
+              easing: NATIVE_EASE.ease,
+              fill: 'both',
+            },
           ),
         ),
       ];
 
-      void Promise.all(animations.map((animation) => animation.finished)).then(() => {
-        // Erst nach dem letzten optischen Frame entfernen. Danach braucht die
-        // Seite keine zusätzlichen Compositor-Layer mehr.
+      let finished = false;
+      const finish = () => {
+        if (finished) return;
+        finished = true;
+        activeRevealFinalizers.delete(finish);
+
+        // Safari kann beim Orientierungswechsel eine einzelne native Filter-
+        // Animation abbrechen. Alle Fragmente muessen dann atomar denselben
+        // sichtbaren Endzustand erhalten; andernfalls faellt genau ein Text-
+        // Layer auf den vorbereiteten Blur-Startwert zurueck und blinkt dunkel.
+        animations.forEach((animation) => animation.cancel());
+        gsap.set(el, { opacity: 1, y: 0 });
+        if (blurTargets.length) gsap.set(blurTargets, { filter: 'blur(0px)' });
         gsap.set(el, { clearProps: 'opacity,transform,willChange' });
         if (blurTargets.length) gsap.set(blurTargets, { clearProps: 'filter,willChange' });
-        animations.forEach((animation) => animation.cancel());
-      }).catch(() => undefined);
+      };
+
+      activeRevealFinalizers.add(finish);
+      // Der Fehlerpfad ist bewusst identisch mit dem normalen Abschluss. Ein
+      // von WebKit abgebrochener Teil darf nie als halbfertiger Layer bleiben.
+      void Promise.all(animations.map((animation) => animation.finished)).then(finish, finish);
     };
 
     // Eager-Hero-Elemente starten bewusst mit der Ladechoreografie statt erst
@@ -737,7 +736,7 @@ function initFaqItems(): void {
 function build(): void {
   pendingHashListeners.splice(0).forEach((remove) => remove());
   triggers.splice(0).forEach((trigger) => trigger.kill());
-  cancelRevealAnimations();
+  finishActiveRevealAnimations();
 
   // Laufende oder bereits beendete Callback-Tweens gehören nicht automatisch
   // zu ihrem ScrollTrigger. Vor dem Neuaufbau stoppen; die FAQ-Funktion hält
@@ -772,6 +771,13 @@ function build(): void {
 export function init(_mm: gsap.MatchMedia): void {
   initialized = true;
   build();
+}
+
+/** Ein laufender Text-Reveal wird vor einer neuen Viewport-Geometrie sauber
+ * beendet. Bereits fertige Reveals und normale Scroll-Eintritte bleiben
+ * unangetastet. */
+export function settleForOrientationChange(): void {
+  finishActiveRevealAnimations();
 }
 
 /** Webflow initialisiert seine IX2-Entrance-Events nach einem Breakpoint- bzw.

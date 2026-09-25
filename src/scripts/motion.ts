@@ -768,6 +768,11 @@ function init(): void {
   preservePageContentOnOrientation(portrait);
   let orientationSettleTimer: number | undefined;
   portrait.addEventListener('change', () => {
+    // Native Filteranimationen koennen in Mobile Safari beim Wechsel der
+    // Viewport-Geometrie fragmentweise abgebrochen werden. Vor dem ersten
+    // Paint des neuen Formats alle gerade laufenden Reveals gemeinsam in den
+    // sichtbaren Endzustand ueberfuehren; fertige Reveals bleiben unveraendert.
+    reveals.settleForOrientationChange();
     requestAnimationFrame(() => {
       requestAnimationFrame(() => {
         refreshEnterOnce();
