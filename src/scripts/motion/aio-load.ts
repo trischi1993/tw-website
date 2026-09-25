@@ -10,6 +10,10 @@ import { gsap, EASE } from './util';
 export function init(_mm: gsap.MatchMedia): void {
   const hero = document.querySelector<HTMLElement>('[data-aio-hero]');
   if (!hero) return;
+  // Mobil spielt das kleine browsernative Startmodul dieselbe Choreografie.
+  // Das später geladene Gesamtpaket initialisiert nur noch die Animationen
+  // unterhalb des Heros und darf Kopfzeile/Hero nicht doppelt abspielen.
+  if (document.documentElement.classList.contains('aio-mobile-motion')) return;
 
   const h1 = hero.querySelector('[data-aio-h1]');
   const intro = hero.querySelector('[data-aio-intro]');

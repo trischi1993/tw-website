@@ -119,19 +119,26 @@ const jsonLdArray = [orgJsonLd, ...pageJsonLd];
         if (window.matchMedia('(prefers-reduced-motion: reduce)').matches) return;
         if (shouldDeferAioReload) el.classList.add('is-aio-mobile-reload');
         el.classList.add('has-motion');
-        /* Auf der mobilen E-Book-Seite läuft nur die sichtbare Load-Choreo in
-           einem kleinen browsernativen Modul. Die Bewegung und Timings bleiben
-           wie bei AIO/Über mich, ohne dass dafür das große seitenweite Motion-
-           Bundle während der ersten Frames initialisiert werden muss. */
-        if (
+        /* Auf der mobilen E-Book- und AIO-Seite läuft nur die sichtbare Load-
+           Choreo in einem kleinen browsernativen Modul. Bewegung und Timings
+           bleiben unverändert, ohne dass das große seitenweite Motion-Bundle
+           während der ersten Frames den Menü-Tap ausbremsen kann. */
+        var useMobileEbookMotion =
           el.classList.contains('is-ebook-route') &&
-          window.matchMedia('(max-width: 767px)').matches
-        ) {
-          el.classList.add('ebook-mobile-motion');
+          window.matchMedia('(max-width: 767px)').matches;
+        var useMobileAioMotion =
+          el.classList.contains('is-aio-route') &&
+          window.matchMedia('(max-width: 991px)').matches;
+        if (useMobileEbookMotion || useMobileAioMotion) {
+          var mobileMotionClass = useMobileEbookMotion
+            ? 'ebook-mobile-motion'
+            : 'aio-mobile-motion';
+          el.classList.add(mobileMotionClass);
           window.addEventListener('load', function () {
             setTimeout(function () {
               if (!el.classList.contains('motion-ready')) {
-                el.classList.remove('has-motion', 'ebook-mobile-motion');
+                el.classList.remove('has-motion', mobileMotionClass);
+                el.classList.remove('is-aio-mobile-reload');
               }
             }, 1500);
           });
@@ -218,6 +225,7 @@ const jsonLdArray = [orgJsonLd, ...pageJsonLd];
       // Underline-Wipes und der Glow-CTA im Header animieren auf jeder Seite
       // (IX2 a-87/a-91/a-141); eine Hook-Bedingung wäre immer wahr.
       const isMobileEbook = document.documentElement.classList.contains('ebook-mobile-motion');
+      const isMobileAio = document.documentElement.classList.contains('aio-mobile-motion');
       const isAioMobileReload = document.documentElement.classList.contains(
         'is-aio-mobile-reload',
       );
@@ -225,13 +233,44 @@ const jsonLdArray = [orgJsonLd, ...pageJsonLd];
         new Promise((resolve, reject) => {
           const remaining = Math.max(0, 2200 - performance.now());
           window.setTimeout(() => {
-            const run = () => void load().then(resolve, reject);
+            const run = () => {
+              const openedInTheMeantime = document.querySelector('[data-nav-toggle]')
+                ?.getAttribute('aria-expanded') === 'true';
+              if (openedInTheMeantime) {
+                window.setTimeout(runWhenHeaderIsFree, 250);
+                return;
+              }
+              void load().then(resolve, reject);
+            };
             if ('requestIdleCallback' in window) {
               window.requestIdleCallback(run, { timeout: 1000 });
             } else {
               run();
             }
           }, remaining);
+        });
+      const afterAioInitialPhase = (load: () => Promise<unknown>): Promise<unknown> =>
+        new Promise((resolve, reject) => {
+          // Relativ zu diesem Modul warten: Die lange AIO-Seite kann auf einem
+          // Handy erst nach >2,2 s fertig geparst sein. Ein absoluter Wert ab
+          // Navigation würde das große Bundle dann genau beim ersten Tap
+          // starten. 1,9 s decken die unveränderte Hero-Choreo bis zum letzten
+          // Fade ab; ein geöffnetes Menü erhält weiterhin Vorrang.
+          const runWhenHeaderIsFree = () => {
+            const menuIsOpen = document.querySelector('[data-nav-toggle]')
+              ?.getAttribute('aria-expanded') === 'true';
+            if (menuIsOpen) {
+              window.setTimeout(runWhenHeaderIsFree, 250);
+              return;
+            }
+            const run = () => void load().then(resolve, reject);
+            if ('requestIdleCallback' in window) {
+              window.requestIdleCallback(run, { timeout: 1000 });
+            } else {
+              run();
+            }
+          };
+          window.setTimeout(runWhenHeaderIsFree, 1900);
         });
       const afterNativeScrollRestore = (load: () => Promise<unknown>): Promise<unknown> =>
         new Promise((resolve, reject) => {
@@ -303,6 +342,16 @@ const jsonLdArray = [orgJsonLd, ...pageJsonLd];
             // Reveals und Animationen darunter bleiben identisch erhalten.
             afterMobileHero(() => import('../scripts/motion.ts')),
           ])
+        : isMobileAio
+          ? Promise.all([
+              import('../scripts/aio-mobile-load.ts'),
+              // Die sichtbare AIO-Startchoreografie bleibt unverändert. Das
+              // große Scroll-/Reveal-Paket beginnt erst danach, damit der
+              // Menübutton direkt nach dem Laden zuverlässig reagieren kann.
+              isAioMobileReload
+                ? afterNativeScrollRestore(() => import('../scripts/motion.ts'))
+                : afterAioInitialPhase(() => import('../scripts/motion.ts')),
+            ])
         : isAioMobileReload
           ? afterNativeScrollRestore(() => import('../scripts/motion.ts'))
           : import('../scripts/motion.ts');
