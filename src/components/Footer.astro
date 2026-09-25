@@ -362,10 +362,14 @@ const mailHref = `mailto:${contact.email}?subject=Hey%20Tristan`;
 </style>
 
 <script>
-  import lottie from 'lottie-web/build/player/lottie_light.js';
-
   const roots = document.querySelectorAll<HTMLElement>('[data-lottie-root]');
-  const initializeLotties = () => {
+  const initializeLotties = async () => {
+    /* Der Player ist deutlich groesser als die eigentliche Footer-Logik.
+       Deshalb erst laden, wenn die Animationen wirklich initialisiert werden;
+       insbesondere darf er auf langen mobilen Seiten nicht den ersten
+       Header-/Menue-Tap durch Parse-Arbeit blockieren. */
+    const { default: lottie } = await import('lottie-web/build/player/lottie_light.js');
+
     const initRoot = (root: HTMLElement) => {
       return Promise.all(
         Array.from(root.querySelectorAll<HTMLElement>('[data-lottie]')).map(
@@ -442,8 +446,14 @@ const mailHref = `mailto:${contact.email}?subject=Hey%20Tristan`;
   };
 
   const deferMobile =
-    document.documentElement.classList.contains('ebook-mobile-motion') &&
-    Array.from(roots).some((root) => root.hasAttribute('data-defer-mobile-lottie'));
+    window.matchMedia('(max-width: 991px), (hover: none) and (pointer: coarse)').matches &&
+    (
+      document.documentElement.classList.contains('aio-mobile-motion') ||
+      (
+        document.documentElement.classList.contains('ebook-mobile-motion') &&
+        Array.from(roots).some((root) => root.hasAttribute('data-defer-mobile-lottie'))
+      )
+    );
 
   if (deferMobile && 'IntersectionObserver' in window) {
     const footer = document.querySelector<HTMLElement>('.footer');
@@ -452,13 +462,13 @@ const mailHref = `mailto:${contact.email}?subject=Hey%20Tristan`;
           ([entry]) => {
             if (!entry?.isIntersecting) return;
             observer.disconnect();
-            initializeLotties();
+            void initializeLotties();
           },
         { rootMargin: '800px 0px', threshold: 0 },
       );
       observer.observe(footer);
     }
   } else if (roots.length) {
-    initializeLotties();
+    void initializeLotties();
   }
 </script>

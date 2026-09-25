@@ -434,7 +434,14 @@ const jsonLdArray = [orgJsonLd, ...pageJsonLd];
       };
       const widgetsReady = isMobileEbook
         ? afterMobileHero(() => import('../scripts/widgets.ts'))
-        : import('../scripts/widgets.ts');
+        : isMobileAio
+          /* FAQ, Tabs und weitere Widgets liegen auf der AIO-Seite deutlich
+             unterhalb des ersten Viewports. Ihre GSAP-Initialisierung darf
+             deshalb wie das Reveal-Paket erst nach der interaktiven
+             Anfangsphase starten; so bleibt der erste Menue-Tap frei von
+             konkurrierender Hauptthread-Arbeit. */
+          ? afterAioInitialPhase(() => import('../scripts/widgets.ts'))
+          : import('../scripts/widgets.ts');
       // Die AIO-Ergebnis-Slider sind funktionale Bedienelemente. Sie laden
       // bewusst als kleines natives Modul unabhaengig vom grossen GSAP-Bundle,
       // damit sie auf iOS/LAN auch bei einem Fehler in einer anderen Motion-

@@ -332,6 +332,14 @@ const headerCtaHref = settings.headerCta
       if (toggle.hasAttribute('data-menu-ready')) return;
       event.preventDefault();
       event.stopImmediatePropagation();
+      /* Signalisiert dem kleinen Loader, dass die abhaengigkeitsfreie
+         Fruehsteuerung bereits uebernommen hat. Das vollstaendige GSAP-Modul
+         darf dann erst nach der sichtbaren Oeffnungsanimation nachladen und
+         nicht denselben ersten Tap durch Parse-/Initialisierungsarbeit
+         verzoegern. Das data-Attribut deckt auch einen Tap ab, der noch vor
+         der Ausfuehrung des deferred Loader-Moduls erfolgt. */
+      toggle.setAttribute('data-menu-early-interacted', '');
+      document.dispatchEvent(new Event('site:early-menu-interaction'));
       if (toggle.getAttribute('aria-expanded') === 'true') closeBeforeMainModule();
       else openBeforeMainModule();
     });
@@ -591,5 +599,5 @@ const headerCtaHref = settings.headerCta
 </style>
 
 <script>
-  import '../scripts/menu.ts';
+  import '../scripts/menu-loader.ts';
 </script>
