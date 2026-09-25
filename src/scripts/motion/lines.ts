@@ -203,11 +203,29 @@ export function init(): void {
     // Nur auf Breitenänderungen neu splitten (wie das Original).
     let lastWidth = window.innerWidth;
     let debounce: number | undefined;
+    const portrait = window.matchMedia('(orientation: portrait)');
+    const rebuildAll = () => entries.forEach(rebuild);
+
+    /* Ein Gerätewechsel ist kein stufenloses Resize: CSS und Textspalte
+     * springen in einem Schritt auf die neue Geometrie. Der bisherige
+     * 200-ms-Desktop-Debounce ließ bis dahin noch die alten SplitText-Masken
+     * stehen. Besonders das lange Startseiten-Statement behielt dadurch kurz
+     * seine Hochformat-Zeilenhöhe; beim verspäteten Re-Split wurden Abschnitt
+     * und gesamter Folgeinhalt dann sichtbar nach oben gezogen. Das
+     * Orientation-Media-Event läuft bereits mit der neuen CSS-Geometrie und
+     * baut die Zeilen deshalb sofort im selben Wechsel neu auf. */
+    portrait.addEventListener('change', () => {
+      window.clearTimeout(debounce);
+      debounce = undefined;
+      lastWidth = window.innerWidth;
+      rebuildAll();
+    });
+
     window.addEventListener('resize', () => {
       if (window.innerWidth === lastWidth) return;
       lastWidth = window.innerWidth;
       window.clearTimeout(debounce);
-      debounce = window.setTimeout(() => entries.forEach(rebuild), RESIZE_DEBOUNCE_MS);
+      debounce = window.setTimeout(rebuildAll, RESIZE_DEBOUNCE_MS);
     });
   });
 }
