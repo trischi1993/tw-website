@@ -189,7 +189,6 @@ const headerCtaHref = settings.headerCta
     const burgerBottom = header.querySelector('[data-burger-bottom]');
     const navRight = header.querySelector('[data-nav-right]');
     const rightInner = header.querySelector('[data-nav-right-inner]');
-    const headerCta = header.querySelector('.navbar__cta');
     const mobile = window.matchMedia('(max-width: 991px)');
     const portrait = window.matchMedia('(orientation: portrait)');
     const finePointer = window.matchMedia('(hover: hover) and (pointer: fine)');
@@ -197,28 +196,20 @@ const headerCtaHref = settings.headerCta
     const ease = 'cubic-bezier(0.25, 0.1, 0.25, 1)';
     const outQuart = 'cubic-bezier(0.165, 0.84, 0.44, 1)';
     const inOutQuart = 'cubic-bezier(0.76, 0, 0.24, 1)';
-    const OPEN_END_MS = 750;
-    const CLOSE_END_MS = 530;
     const INITIAL_HEADER_BACKGROUND = 'rgba(21, 21, 21, 0.12)';
     const CLOSED_HEADER_BACKGROUND = 'rgba(231, 226, 220, 0.12)';
+    const OPEN_RIGHT_TRANSFORM = 'translate3d(9.2rem, 0, 0)';
 
     /* Marker fuer Tests und optionale Progressive-Enhancement-Fallbacks: Der
        mobile Controller ist bereits waehrend des Parsens vollstaendig aktiv. */
     toggle.setAttribute('data-inline-mobile-menu', '');
 
-    const openShift = () => {
-      if (!rightInner || !headerCta) return 9.2 * 16;
-      const gap = Number.parseFloat(getComputedStyle(rightInner).columnGap) || 0;
-      return headerCta.getBoundingClientRect().width + gap;
-    };
-
     let isOpen = false;
     let menuPhase = 'closed';
     let transitionId = 0;
-    let transitionTimer;
-    let followUpFrame;
+    let startFrame;
     let suppressNextClick = false;
-    let suppressClickTimer;
+    let inputModality = 'pointer';
     let lastFocused = null;
     let runningAnimations = [];
     let inertBackdrop = [];
@@ -233,16 +224,21 @@ const headerCtaHref = settings.headerCta
     const cancelAnimations = () => {
       runningAnimations.forEach((animation) => animation.cancel());
       runningAnimations = [];
-      if (followUpFrame !== undefined) cancelAnimationFrame(followUpFrame);
-      followUpFrame = undefined;
-      if (transitionTimer !== undefined) clearTimeout(transitionTimer);
-      transitionTimer = undefined;
+      if (startFrame !== undefined) cancelAnimationFrame(startFrame);
+      startFrame = undefined;
     };
 
     const play = (element, keyframes, options) => {
-      if (!element) return;
+      if (!element) return undefined;
       const animation = element.animate(keyframes, { fill: 'both', ...options });
       runningAnimations.push(animation);
+      return animation;
+    };
+
+    const setInputModality = (modality) => {
+      inputModality = modality;
+      header.dataset.menuInput = modality;
+      menu.dataset.menuInput = modality;
     };
 
     /* ---------------------------------------------------------------------
@@ -535,9 +531,12 @@ const headerCtaHref = settings.headerCta
       menu.setAttribute('aria-hidden', 'true');
       menu.setAttribute('data-menu-prepared', '');
       menu.style.pointerEvents = 'none';
-      menu.style.visibility = 'hidden';
+      menu.style.removeProperty('visibility');
       panel.style.transform = 'translate3d(-100%, 0, 0)';
-      panel.style.removeProperty('will-change');
+      /* Die geschlossene Vollbild-Ebene bleibt ausserhalb des Viewports
+         vorgerendert. So muss WebKit beim ersten Tap auf langen Seiten keine
+         neue Compositor-Ebene aufbauen, bevor die Bewegung sichtbar wird. */
+      panel.style.willChange = 'transform';
       links.forEach((link) => {
         link.style.transform = 'translate3d(-80px, 0, 0)';
         link.style.opacity = '0';
@@ -554,7 +553,7 @@ const headerCtaHref = settings.headerCta
       cancelAnimations();
       releaseBackdrop();
       resetHoverStyles(true);
-      if (mustRestoreFocus) {
+      if (mustRestoreFocus && inputModality === 'keyboard') {
         const visibleHeaderTarget = Array.from(
           header.querySelectorAll('a[href], button:not([disabled])'),
         ).find((element) => element.getClientRects().length > 0);
@@ -588,10 +587,10 @@ const headerCtaHref = settings.headerCta
       if (id !== transitionId || !isOpen) return;
       runningAnimations.forEach((animation) => animation.cancel());
       runningAnimations = [];
-      transitionTimer = undefined;
       menuPhase = 'open';
-      panel.style.removeProperty('will-change');
-      links[0]?.focus({ preventScroll: true });
+      document.body.classList.add('no-scroll');
+      isolateBackdrop();
+      if (inputModality === 'keyboard') links[0]?.focus({ preventScroll: true });
     };
 
     const openMenu = () => {
@@ -646,90 +645,97 @@ const headerCtaHref = settings.headerCta
       menu.style.removeProperty('visibility');
       panel.style.willChange = 'transform';
 
-      header.style.backgroundColor = 'rgba(0, 0, 0, 0)';
-      panel.style.transform = 'translate3d(0, 0, 0)';
-      links.forEach((link) => {
-        link.style.transform = 'translate3d(0, 0, 0)';
-        link.style.opacity = '1';
-      });
-      arrows.forEach((arrow) => {
-        arrow.style.opacity = '1';
-      });
-      if (burgerMiddle) burgerMiddle.style.transform = 'translate3d(200%, 0, 0)';
-      if (burgerTop) burgerTop.style.transform = 'translate3d(0, 3.5px, 0) rotate(45deg)';
-      if (burgerBottom) burgerBottom.style.transform = 'translate3d(0, -3.5px, 0) rotate(-45deg)';
-
       if (reduced) {
-        document.body.classList.add('no-scroll');
-        isolateBackdrop();
-        menuPhase = 'open';
-        panel.style.removeProperty('will-change');
-        links[0]?.focus({ preventScroll: true });
+        header.style.backgroundColor = 'rgba(0, 0, 0, 0)';
+        panel.style.transform = 'translate3d(0, 0, 0)';
+        links.forEach((link) => {
+          link.style.transform = 'translate3d(0, 0, 0)';
+          link.style.opacity = '1';
+        });
+        arrows.forEach((arrow) => {
+          arrow.style.opacity = '1';
+        });
+        if (rightInner) rightInner.style.transform = OPEN_RIGHT_TRANSFORM;
+        if (burgerMiddle) burgerMiddle.style.transform = 'translate3d(200%, 0, 0)';
+        if (burgerTop) burgerTop.style.transform = 'translate3d(0, 3.5px, 0) rotate(45deg)';
+        if (burgerBottom) burgerBottom.style.transform = 'translate3d(0, -3.5px, 0) rotate(-45deg)';
+        openRightTransform = OPEN_RIGHT_TRANSFORM;
+        finishOpen(id);
         return;
       }
 
-      /* Panel, Header und Burger beginnen synchron im pointerdown-Task. Erst
-         der naechste Frame sperrt den Scroll und misst den CTA-Shift. */
-      play(header, [
-        { backgroundColor: starts.headerBackground },
-        { backgroundColor: 'rgba(0, 0, 0, 0)' },
-      ], { duration: 200, easing: ease });
-      play(panel, [
-        { transform: starts.panelTransform },
-        { transform: 'translate3d(0, 0, 0)' },
-      ], { duration: 720, easing: outQuart });
-      play(burgerMiddle, [
-        { transform: starts.middleTransform },
-        { transform: 'translate3d(200%, 0, 0)' },
-      ], { duration: 500, delay: 100, easing: outQuart });
-      play(burgerTop, [
-        { transform: starts.topTransform },
-        { transform: 'translate3d(0, 3.5px, 0) rotate(45deg)' },
-      ], { duration: 300, delay: 200, easing: outQuart });
-      play(burgerBottom, [
-        { transform: starts.bottomTransform },
-        { transform: 'translate3d(0, -3.5px, 0) rotate(-45deg)' },
-      ], { duration: 300, delay: 200, easing: outQuart });
-      links.forEach((link, index) => {
-        const delay = 180 + index * 70;
-        play(link, [
-          { transform: starts.linkTransforms[index] },
-          { transform: 'translate3d(0, 0, 0)' },
-        ], { duration: 350, delay, easing: outQuart });
-        play(link, [
-          { opacity: starts.linkOpacities[index] },
-          { opacity: 1 },
-        ], { duration: 250, delay, easing: ease });
-      });
-      arrows.forEach((arrow, index) => {
-        play(arrow, [
-          { opacity: starts.arrowOpacities[index] },
-          { opacity: 1 },
-        ], { duration: 250, delay: 450, easing: ease });
-      });
-
-      followUpFrame = requestAnimationFrame(() => {
-        followUpFrame = undefined;
+      /* Die Timeline startet erst in einem renderbaren Frame. Eine lange
+         AIO-Initialisierung kann dadurch den Tap zwar bis zum Ende ihres
+         aktuellen Tasks aufhalten, aber niemals mehr die komplette
+         Oeffnungsbewegung unsichtbar verstreichen lassen. */
+      startFrame = requestAnimationFrame(() => {
+        startFrame = undefined;
         if (id !== transitionId || !isOpen) return;
-        document.body.classList.add('no-scroll');
-        isolateBackdrop();
-        if (!rightInner) return;
-        const targetTransform = `translate3d(${openShift()}px, 0, 0)`;
-        openRightTransform = targetTransform;
-        rightInner.style.transform = targetTransform;
+
+        header.style.backgroundColor = 'rgba(0, 0, 0, 0)';
+        panel.style.transform = 'translate3d(0, 0, 0)';
+        links.forEach((link) => {
+          link.style.transform = 'translate3d(0, 0, 0)';
+          link.style.opacity = '1';
+        });
+        arrows.forEach((arrow) => {
+          arrow.style.opacity = '1';
+        });
+        if (rightInner) rightInner.style.transform = OPEN_RIGHT_TRANSFORM;
+        if (burgerMiddle) burgerMiddle.style.transform = 'translate3d(200%, 0, 0)';
+        if (burgerTop) burgerTop.style.transform = 'translate3d(0, 3.5px, 0) rotate(45deg)';
+        if (burgerBottom) burgerBottom.style.transform = 'translate3d(0, -3.5px, 0) rotate(-45deg)';
+        openRightTransform = OPEN_RIGHT_TRANSFORM;
+
+        play(header, [
+          { backgroundColor: starts.headerBackground },
+          { backgroundColor: 'rgba(0, 0, 0, 0)' },
+        ], { duration: 200, easing: ease });
+        const panelAnimation = play(panel, [
+          { transform: starts.panelTransform },
+          { transform: 'translate3d(0, 0, 0)' },
+        ], { duration: 720, easing: outQuart });
+        play(burgerMiddle, [
+          { transform: starts.middleTransform },
+          { transform: 'translate3d(200%, 0, 0)' },
+        ], { duration: 500, delay: 100, easing: outQuart });
+        play(burgerTop, [
+          { transform: starts.topTransform },
+          { transform: 'translate3d(0, 3.5px, 0) rotate(45deg)' },
+        ], { duration: 300, delay: 200, easing: outQuart });
+        play(burgerBottom, [
+          { transform: starts.bottomTransform },
+          { transform: 'translate3d(0, -3.5px, 0) rotate(-45deg)' },
+        ], { duration: 300, delay: 200, easing: outQuart });
+        links.forEach((link, index) => {
+          const delay = 180 + index * 70;
+          play(link, [
+            { transform: starts.linkTransforms[index] },
+            { transform: 'translate3d(0, 0, 0)' },
+          ], { duration: 350, delay, easing: outQuart });
+          play(link, [
+            { opacity: starts.linkOpacities[index] },
+            { opacity: 1 },
+          ], { duration: 250, delay, easing: ease });
+        });
+        arrows.forEach((arrow, index) => {
+          play(arrow, [
+            { opacity: starts.arrowOpacities[index] },
+            { opacity: 1 },
+          ], { duration: 250, delay: 450, easing: ease });
+        });
         play(rightInner, [
           { transform: starts.rightTransform },
-          { transform: targetTransform },
+          { transform: OPEN_RIGHT_TRANSFORM },
         ], { duration: 350, easing: outQuart });
+        void panelAnimation?.finished.then(() => finishOpen(id), () => {});
       });
-      transitionTimer = setTimeout(() => finishOpen(id), OPEN_END_MS);
     };
 
     const finishClose = (id) => {
       if (id !== transitionId || isOpen) return;
       runningAnimations.forEach((animation) => animation.cancel());
       runningAnimations = [];
-      transitionTimer = undefined;
       menuPhase = 'closed';
       links.forEach((link) => {
         link.style.transform = 'translate3d(-70px, 0, 0)';
@@ -739,12 +745,14 @@ const headerCtaHref = settings.headerCta
       closedLinkTransform = 'translate3d(-70px, 0, 0)';
       openRightTransform = 'translate3d(0, 0, 0)';
       menu.style.pointerEvents = 'none';
-      menu.style.visibility = 'hidden';
-      panel.style.removeProperty('will-change');
+      menu.style.removeProperty('visibility');
+      panel.style.willChange = 'transform';
       releaseBackdrop();
       document.body.classList.remove('no-scroll');
-      const focusTarget = lastFocused?.isConnected ? lastFocused : toggle;
-      focusTarget.focus({ preventScroll: true });
+      if (inputModality === 'keyboard') {
+        const focusTarget = lastFocused?.isConnected ? lastFocused : toggle;
+        focusTarget.focus({ preventScroll: true });
+      }
     };
 
     const closeMenu = () => {
@@ -777,7 +785,9 @@ const headerCtaHref = settings.headerCta
       cancelAnimations();
       resetHoverStyles();
 
-      (lastFocused?.isConnected ? lastFocused : toggle).focus({ preventScroll: true });
+      if (inputModality === 'keyboard') {
+        (lastFocused?.isConnected ? lastFocused : toggle).focus({ preventScroll: true });
+      }
       header.classList.remove('is-menu-open');
       toggle.setAttribute('aria-expanded', 'false');
       menu.setAttribute('inert', '');
@@ -786,61 +796,78 @@ const headerCtaHref = settings.headerCta
       const closedBackground = CLOSED_HEADER_BACKGROUND;
       menu.style.removeProperty('visibility');
       panel.style.willChange = 'transform';
-      header.style.backgroundColor = closedBackground;
-      panel.style.transform = 'translate3d(-100%, 0, 0)';
-      if (rightInner) rightInner.style.transform = 'translate3d(0, 0, 0)';
-      if (burgerMiddle) burgerMiddle.style.transform = 'translate3d(0, 0, 0)';
-      if (burgerTop) burgerTop.style.transform = 'translate3d(0, 0, 0) rotate(0deg)';
-      if (burgerBottom) burgerBottom.style.transform = 'translate3d(0, 0, 0) rotate(0deg)';
-      links.forEach((link) => {
-        link.style.opacity = '0';
-      });
-      arrows.forEach((arrow) => {
-        arrow.style.opacity = '0';
-      });
-
       if (reduced) {
+        header.style.backgroundColor = closedBackground;
+        panel.style.transform = 'translate3d(-100%, 0, 0)';
+        if (rightInner) rightInner.style.transform = 'translate3d(0, 0, 0)';
+        if (burgerMiddle) burgerMiddle.style.transform = 'translate3d(0, 0, 0)';
+        if (burgerTop) burgerTop.style.transform = 'translate3d(0, 0, 0) rotate(0deg)';
+        if (burgerBottom) burgerBottom.style.transform = 'translate3d(0, 0, 0) rotate(0deg)';
+        links.forEach((link) => {
+          link.style.opacity = '0';
+        });
+        arrows.forEach((arrow) => {
+          arrow.style.opacity = '0';
+        });
         finishClose(id);
         return;
       }
 
-      links.forEach((link, index) => {
-        play(link, [
-          { opacity: starts.linkOpacities[index] },
-          { opacity: 0 },
-        ], { duration: 180, easing: ease });
+      startFrame = requestAnimationFrame(() => {
+        startFrame = undefined;
+        if (id !== transitionId || isOpen) return;
+
+        header.style.backgroundColor = closedBackground;
+        panel.style.transform = 'translate3d(-100%, 0, 0)';
+        if (rightInner) rightInner.style.transform = 'translate3d(0, 0, 0)';
+        if (burgerMiddle) burgerMiddle.style.transform = 'translate3d(0, 0, 0)';
+        if (burgerTop) burgerTop.style.transform = 'translate3d(0, 0, 0) rotate(0deg)';
+        if (burgerBottom) burgerBottom.style.transform = 'translate3d(0, 0, 0) rotate(0deg)';
+        links.forEach((link) => {
+          link.style.opacity = '0';
+        });
+        arrows.forEach((arrow) => {
+          arrow.style.opacity = '0';
+        });
+
+        links.forEach((link, index) => {
+          play(link, [
+            { opacity: starts.linkOpacities[index] },
+            { opacity: 0 },
+          ], { duration: 180, easing: ease });
+        });
+        arrows.forEach((arrow, index) => {
+          play(arrow, [
+            { opacity: starts.arrowOpacities[index] },
+            { opacity: 0 },
+          ], { duration: 180, easing: ease });
+        });
+        const panelAnimation = play(panel, [
+          { transform: starts.panelTransform },
+          { transform: 'translate3d(-100%, 0, 0)' },
+        ], { duration: 520, easing: outQuart });
+        play(burgerTop, [
+          { transform: starts.topTransform },
+          { transform: 'translate3d(0, 0, 0) rotate(0deg)' },
+        ], { duration: 250, easing: outQuart });
+        play(burgerBottom, [
+          { transform: starts.bottomTransform },
+          { transform: 'translate3d(0, 0, 0) rotate(0deg)' },
+        ], { duration: 250, easing: outQuart });
+        play(burgerMiddle, [
+          { transform: starts.middleTransform },
+          { transform: 'translate3d(0, 0, 0)' },
+        ], { duration: 250, delay: 150, easing: outQuart });
+        play(rightInner, [
+          { transform: starts.rightTransform },
+          { transform: 'translate3d(0, 0, 0)' },
+        ], { duration: 350, delay: 100, easing: outQuart });
+        play(header, [
+          { backgroundColor: starts.headerBackground },
+          { backgroundColor: closedBackground },
+        ], { duration: 300, delay: 200, easing: ease });
+        void panelAnimation?.finished.then(() => finishClose(id), () => {});
       });
-      arrows.forEach((arrow, index) => {
-        play(arrow, [
-          { opacity: starts.arrowOpacities[index] },
-          { opacity: 0 },
-        ], { duration: 180, easing: ease });
-      });
-      play(panel, [
-        { transform: starts.panelTransform },
-        { transform: 'translate3d(-100%, 0, 0)' },
-      ], { duration: 520, easing: outQuart });
-      play(burgerTop, [
-        { transform: starts.topTransform },
-        { transform: 'translate3d(0, 0, 0) rotate(0deg)' },
-      ], { duration: 250, easing: outQuart });
-      play(burgerBottom, [
-        { transform: starts.bottomTransform },
-        { transform: 'translate3d(0, 0, 0) rotate(0deg)' },
-      ], { duration: 250, easing: outQuart });
-      play(burgerMiddle, [
-        { transform: starts.middleTransform },
-        { transform: 'translate3d(0, 0, 0)' },
-      ], { duration: 250, delay: 150, easing: outQuart });
-      play(rightInner, [
-        { transform: starts.rightTransform },
-        { transform: 'translate3d(0, 0, 0)' },
-      ], { duration: 350, delay: 100, easing: outQuart });
-      play(header, [
-        { backgroundColor: starts.headerBackground },
-        { backgroundColor: closedBackground },
-      ], { duration: 300, delay: 200, easing: ease });
-      transitionTimer = setTimeout(() => finishClose(id), CLOSE_END_MS);
     };
 
     const toggleMenu = () => {
@@ -895,12 +922,8 @@ const headerCtaHref = settings.headerCta
       if (!mobile.matches) return;
       event.preventDefault();
       event.stopImmediatePropagation();
+      setInputModality('touch');
       suppressNextClick = true;
-      if (suppressClickTimer !== undefined) clearTimeout(suppressClickTimer);
-      suppressClickTimer = setTimeout(() => {
-        suppressNextClick = false;
-        suppressClickTimer = undefined;
-      }, 900);
       toggleMenu();
     };
 
@@ -917,18 +940,19 @@ const headerCtaHref = settings.headerCta
       if (!mobile.matches) return;
       if (suppressNextClick) {
         suppressNextClick = false;
-        if (suppressClickTimer !== undefined) clearTimeout(suppressClickTimer);
-        suppressClickTimer = undefined;
         event.preventDefault();
         event.stopImmediatePropagation();
         return;
       }
       event.preventDefault();
       event.stopImmediatePropagation();
+      setInputModality(event.detail === 0 ? 'keyboard' : 'pointer');
       toggleMenu();
     });
 
     window.addEventListener('keydown', (event) => {
+      setInputModality('keyboard');
+      suppressNextClick = false;
       if (!mobile.matches || !isOpen) return;
       if (event.key === 'Escape') {
         event.preventDefault();
@@ -1090,6 +1114,7 @@ const headerCtaHref = settings.headerCta
     cursor: pointer;
     flex: none;
     overflow: hidden;
+    touch-action: manipulation;
   }
   .navbar__burger-line {
     display: block;
@@ -1177,6 +1202,17 @@ const headerCtaHref = settings.headerCta
     width: auto;
     height: 2.25rem;
     flex: none;
+  }
+
+  /* Safari behandelt Fokus nach Touch bzw. Pointer-Klick teilweise wie
+     Tastaturfokus. Nur fuer diese beiden Eingabemodi wird die goldene Kontur
+     lokal unterdrueckt; sobald eine Taste benutzt wird, bleibt die globale
+     barrierefreie Focus-Visible-Kontur erhalten. */
+  .navbar[data-menu-input='touch'] .navbar__burger:focus-visible,
+  .menu[data-menu-input='touch'] .menu__link:focus-visible,
+  .navbar[data-menu-input='pointer'] .navbar__burger:focus-visible,
+  .menu[data-menu-input='pointer'] .menu__link:focus-visible {
+    outline: none;
   }
 
   /* --- Breakpoints (1:1 Export) -------------------------------------------- */
