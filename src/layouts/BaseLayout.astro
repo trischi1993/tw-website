@@ -85,12 +85,49 @@ const jsonLdArray = [orgJsonLd, ...pageJsonLd];
         var isTouchDevice =
           navigator.maxTouchPoints > 0 ||
           window.matchMedia('(hover: none) and (pointer: coarse)').matches;
-        var shouldDeferAioReload =
+        var isMobileAioViewport =
           el.classList.contains('is-aio-route') &&
+          window.matchMedia('(max-width: 991px)').matches;
+        var shouldDeferAioReload =
+          isMobileAioViewport &&
           isReload &&
           isTouchDevice;
         if (shouldDeferAioReload) {
           if ('scrollRestoration' in history) history.scrollRestoration = 'auto';
+        }
+
+        if (isMobileAioViewport) {
+          /* Die Reload-Maske schuetzt nur Safaris automatische
+             Positionswiederherstellung. Sobald der Nutzer selbst beruehrt oder
+             scrollt, muss der echte Seiteninhalt sofort uebernehmen. Gleichzeitig
+             wird eine noch ausstehende Browser-Wiederherstellung angehalten,
+             damit sie den bereits begonnenen Nutzer-Scroll nicht auf eine alte
+             Position zuruecksetzt. Nach der Motion-Initialisierung wird wieder
+             auf `auto` umgestellt. */
+          var releaseAioReloadForInput = function () {
+            if (
+              document.readyState !== 'complete' &&
+              'scrollRestoration' in history
+            ) {
+              history.scrollRestoration = 'manual';
+            }
+            el.classList.remove('is-aio-mobile-reload');
+          };
+          window.addEventListener('touchstart', releaseAioReloadForInput, {
+            once: true,
+            passive: true,
+            capture: true,
+          });
+          window.addEventListener('pointerdown', releaseAioReloadForInput, {
+            once: true,
+            passive: true,
+            capture: true,
+          });
+          window.addEventListener('wheel', releaseAioReloadForInput, {
+            once: true,
+            passive: true,
+            capture: true,
+          });
         }
         /* Ein Fragment bei einem neuen Seitenaufruf darf nicht den globalen
            Smooth-Scroll von ganz oben starten: Während dieses langen Scrolls
@@ -252,79 +289,149 @@ const jsonLdArray = [orgJsonLd, ...pageJsonLd];
             }
           }, remaining);
         });
-      const afterAioInitialPhase = (load: () => Promise<unknown>): Promise<unknown> =>
+      const afterAioScrollIdle = (
+        load: () => Promise<unknown>,
+        initialDelay: number,
+        waitForPageShow = false,
+      ): Promise<unknown> =>
         new Promise((resolve, reject) => {
-          // Relativ zu diesem Modul warten: Die lange AIO-Seite kann auf einem
-          // Handy erst nach >2,2 s fertig geparst sein. Ein absoluter Wert ab
-          // Navigation würde das große Bundle dann genau beim ersten Tap
-          // starten. 1,9 s decken die unveränderte Hero-Choreo bis zum letzten
-          // Fade ab; ein geöffnetes Menü erhält weiterhin Vorrang.
-          const runWhenHeaderIsFree = () => {
+          const SCROLL_IDLE_MS = 260;
+          let started = false;
+          let touchActive = false;
+          let lastScrollAt = performance.now();
+          let earliestStartAt = lastScrollAt + initialDelay;
+          let pageShown = !waitForPageShow || document.readyState === 'complete';
+          let retryTimer: number | undefined;
+          let pageShowFallback: number | undefined;
+
+          const cleanup = () => {
+            if (retryTimer !== undefined) window.clearTimeout(retryTimer);
+            if (pageShowFallback !== undefined) window.clearTimeout(pageShowFallback);
+            window.removeEventListener('scroll', onScroll);
+            window.removeEventListener('touchstart', onTouchStart);
+            window.removeEventListener('touchend', onTouchEnd);
+            window.removeEventListener('touchcancel', onTouchEnd);
+            window.removeEventListener('pointerdown', onPointerDown);
+            window.removeEventListener('wheel', onScroll);
+            window.removeEventListener('pageshow', onPageShow);
+          };
+
+          const schedule = (minimumDelay = 0) => {
+            if (started) return;
+            if (retryTimer !== undefined) window.clearTimeout(retryTimer);
+            const now = performance.now();
+            const quietWait = Math.max(0, SCROLL_IDLE_MS - (now - lastScrollAt));
+            const phaseWait = Math.max(0, earliestStartAt - now);
+            retryTimer = window.setTimeout(attempt, Math.max(minimumDelay, quietWait, phaseWait));
+          };
+
+          const run = () => {
+            if (started) return;
             const menuIsOpen = document.querySelector('[data-nav-toggle]')
               ?.getAttribute('aria-expanded') === 'true';
-            if (menuIsOpen) {
-              window.setTimeout(runWhenHeaderIsFree, 250);
+            const scrollIsQuiet = performance.now() - lastScrollAt >= SCROLL_IDLE_MS;
+            if (!pageShown || touchActive || menuIsOpen || !scrollIsQuiet) {
+              schedule(menuIsOpen ? 250 : 60);
               return;
             }
-            const run = () => void load().then(resolve, reject);
+
+            started = true;
+            cleanup();
+            const finish = () => {
+              if ('scrollRestoration' in history) history.scrollRestoration = 'auto';
+            };
+            void load().then(
+              (value) => {
+                finish();
+                resolve(value);
+              },
+              (error) => {
+                finish();
+                reject(error);
+              },
+            );
+          };
+
+          const attempt = () => {
+            if (started) return;
+            const now = performance.now();
+            if (!pageShown || touchActive || now < earliestStartAt) {
+              schedule(60);
+              return;
+            }
             if ('requestIdleCallback' in window) {
               window.requestIdleCallback(run, { timeout: 1000 });
             } else {
               run();
             }
           };
-          window.setTimeout(runWhenHeaderIsFree, 1900);
-        });
-      const afterNativeScrollRestore = (load: () => Promise<unknown>): Promise<unknown> =>
-        new Promise((resolve, reject) => {
-          let started = false;
-          let fallbackTimer: number | undefined;
-          const run = () => {
-            if (started) return;
-            started = true;
-            window.removeEventListener('scroll', onRestoreScroll);
-            if (fallbackTimer !== undefined) window.clearTimeout(fallbackTimer);
-            // Nach dem nativen Scrollsignal geben zwei Frames WebKit Zeit, den
-            // endgültigen Stand in Layout und UI-Prozess zu synchronisieren,
-            // bevor GSAP seine erste Vermessung startet.
-            requestAnimationFrame(() => {
-              requestAnimationFrame(() => {
-                const finish = () => {
-                  if ('scrollRestoration' in history) history.scrollRestoration = 'auto';
-                  document.documentElement.classList.remove('is-aio-mobile-reload');
-                };
-                void load().then(
-                  (value) => {
-                    finish();
-                    resolve(value);
-                  },
-                  (error) => {
-                    finish();
-                    reject(error);
-                  },
-                );
-              });
-            });
+
+          const onScroll = () => {
+            lastScrollAt = performance.now();
+            schedule();
           };
-          const onRestoreScroll = () => {
-            // Kleine Subpixel-/Fokuskorrekturen am Seitenanfang sind noch
-            // keine echte History-Wiederherstellung.
-            if (Math.abs(window.scrollY) > 32) run();
+          const onTouchStart = () => {
+            touchActive = true;
+            lastScrollAt = performance.now();
+            if (retryTimer !== undefined) window.clearTimeout(retryTimer);
+          };
+          const onTouchEnd = () => {
+            touchActive = false;
+            lastScrollAt = performance.now();
+            schedule();
+          };
+          const onPointerDown = (event: PointerEvent) => {
+            if (event.pointerType === 'touch') return;
+            lastScrollAt = performance.now();
+            schedule();
           };
           const onPageShow = () => {
-            if (Math.abs(window.scrollY) > 32) run();
-            else fallbackTimer = window.setTimeout(run, 250);
+            if (pageShown) return;
+            pageShown = true;
+            if (pageShowFallback !== undefined) {
+              window.clearTimeout(pageShowFallback);
+              pageShowFallback = undefined;
+            }
+            earliestStartAt = Math.max(earliestStartAt, performance.now() + initialDelay);
+            lastScrollAt = performance.now();
+            schedule();
           };
 
-          window.addEventListener('scroll', onRestoreScroll, { passive: true });
-          if (document.readyState === 'complete') onPageShow();
-          else {
+          window.addEventListener('scroll', onScroll, { passive: true });
+          window.addEventListener('touchstart', onTouchStart, { passive: true });
+          window.addEventListener('touchend', onTouchEnd, { passive: true });
+          window.addEventListener('touchcancel', onTouchEnd, { passive: true });
+          window.addEventListener('pointerdown', onPointerDown, { passive: true });
+          window.addEventListener('wheel', onScroll, { passive: true });
+
+          if (waitForPageShow && !pageShown) {
             window.addEventListener('pageshow', onPageShow, { once: true });
-            // Sicherheitsnetz für ältere WebKit-Versionen, falls `pageshow`
-            // wider Erwarten ausbleibt.
-            window.addEventListener('load', () => window.setTimeout(run, 750), { once: true });
+            // Sicherheitsnetz fuer aeltere WebKit-Versionen: `pageshow` ist
+            // Standard, darf den Inhalt aber bei einem Browserfehler nicht
+            // dauerhaft blockieren.
+            pageShowFallback = window.setTimeout(onPageShow, 1250);
           }
+          schedule();
         });
+
+      const afterAioInitialPhase = (load: () => Promise<unknown>): Promise<unknown> =>
+        // Relativ zu diesem Modul warten: Die lange AIO-Seite kann auf einem
+        // Handy erst nach >2,2 s fertig geparst sein. Danach startet die schwere
+        // Vermessung nur in einer echten Scroll-Ruhephase.
+        afterAioScrollIdle(load, 1900);
+
+      const afterNativeScrollRestore = async (
+        load: () => Promise<unknown>,
+      ): Promise<unknown> => {
+        try {
+          // Weder Safaris automatische Wiederherstellung noch der erste echte
+          // Nutzer-Wisch darf durch die ScrollTrigger-Initialisierung laufen.
+          return await afterAioScrollIdle(load, 250, true);
+        } finally {
+          if ('scrollRestoration' in history) history.scrollRestoration = 'auto';
+          document.documentElement.classList.remove('is-aio-mobile-reload');
+        }
+      };
       const widgetsReady = isMobileEbook
         ? afterMobileHero(() => import('../scripts/widgets.ts'))
         : import('../scripts/widgets.ts');
