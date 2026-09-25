@@ -30,72 +30,6 @@ const toggle = document.querySelector<HTMLButtonElement>('[data-nav-toggle]');
 const menu = document.querySelector<HTMLElement>('[data-site-menu]');
 const panel = menu?.querySelector<HTMLElement>('[data-menu-panel]');
 
-/**
- * iOS/WebKit kann eine alte Grafikschicht einer fixierten Navigation waehrend
- * einer Drehung noch an der Landscape-Position ausgeben, obwohl Layout-APIs
- * die neue Position bereits korrekt melden. Das ist kein zweites Logo im DOM.
- *
- * Fuer die instabile Drehphase wird deshalb nur die Wortmarke ausgeblendet.
- * Sie bleibt mindestens bis nach WebKits gestaffeltem Viewport-Umbau verborgen
- * und erscheint erst wieder, wenn zusaetzlich kurz keine Groessenaenderung mehr
- * kam. Normales Resizing und die Header-/Menueanimationen bleiben ausserhalb
- * dieses engen Fensters unberuehrt.
- */
-if (header) {
-  const root = document.documentElement;
-  const portrait = window.matchMedia('(orientation: portrait)');
-  const QUIET_MS = 180;
-  const MIN_HIDE_MS = 650;
-  const WATCH_MS = 1400;
-  let watchUntil = 0;
-  let minimumHideUntil = 0;
-  let wasPortrait = portrait.matches;
-  let revealTimer: number | undefined;
-  let stopTimer: number | undefined;
-
-  const revealLogo = () => {
-    revealTimer = undefined;
-    root.classList.remove('is-header-orienting');
-  };
-
-  const concealLogoUntilViewportSettles = () => {
-    root.classList.add('is-header-orienting');
-    if (revealTimer !== undefined) window.clearTimeout(revealTimer);
-    const revealAt = Math.max(Date.now() + QUIET_MS, minimumHideUntil);
-    revealTimer = window.setTimeout(revealLogo, Math.max(0, revealAt - Date.now()));
-  };
-
-  const beginOrientationGuard = () => {
-    const now = Date.now();
-    wasPortrait = portrait.matches;
-    watchUntil = now + WATCH_MS;
-    minimumHideUntil = now + MIN_HIDE_MS;
-    concealLogoUntilViewportSettles();
-    if (stopTimer !== undefined) window.clearTimeout(stopTimer);
-    stopTimer = window.setTimeout(() => {
-      watchUntil = 0;
-      revealLogo();
-    }, WATCH_MS);
-  };
-
-  const handleViewportResize = () => {
-    const isPortrait = portrait.matches;
-    if (isPortrait !== wasPortrait) {
-      wasPortrait = isPortrait;
-      beginOrientationGuard();
-      return;
-    }
-    if (Date.now() >= watchUntil) return;
-    concealLogoUntilViewportSettles();
-  };
-
-  window.addEventListener('orientationchange', beginOrientationGuard, { passive: true });
-  screen.orientation?.addEventListener('change', beginOrientationGuard);
-  portrait.addEventListener('change', beginOrientationGuard);
-  window.addEventListener('resize', handleViewportResize, { passive: true });
-  window.visualViewport?.addEventListener('resize', handleViewportResize, { passive: true });
-}
-
 /** Stagger-Delays (s) nach DOM-Position: Startseite, Zum E-Book, ALL-IN-ONE,
     Über mich ⇒ is-1/is-4/is-3/is-2 ⇒ 1.0/1.3/1.2/1.1 (Original-Werte). */
 const LINK_DELAYS_4 = [1.0, 1.3, 1.2, 1.1];
@@ -198,6 +132,10 @@ if (header && toggle && menu && panel) {
       onComplete: () => {
         gsap.set(links, { x: -70 });
         gsap.set(panel, { clearProps: 'willChange' });
+        // Die Menuebewegung braucht die Transform-Ebene nur waehrend der
+        // Animation. Am geschlossenen Header muss sie weg, sonst kann iOS sie
+        // beim spaeteren Drehen an der alten Viewportposition weiterzeichnen.
+        if (rightInner) gsap.set(rightInner, { clearProps: 'transform' });
         onDone();
       },
     });
