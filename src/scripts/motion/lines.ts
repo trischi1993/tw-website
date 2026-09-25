@@ -125,7 +125,6 @@ function build(entry: LineAnim): void {
     aria: 'none',
   });
 
-  gsap.set(el, { autoAlpha: 1 });
   const lines = entry.split.lines as HTMLElement[];
 
   // Nur der lange mobile Statement-Absatz braucht den nativen Compositor-Pfad.
@@ -136,8 +135,17 @@ function build(entry: LineAnim): void {
     typeof lines[0]?.animate === 'function'
   ) {
     buildNativeMobile(entry, lines, speed, delay, amount, replay);
+    // Erst sichtbar schalten, nachdem jede neue Zeile ihren verdeckten
+    // Ausgangszustand besitzt. Beim responsiven Re-Split kann Chrome sonst
+    // den von SplitText kurz wiederhergestellten Rohtext zeichnen.
+    gsap.set(el, { autoAlpha: 1 });
     return;
   }
+
+  // Den Startzustand synchron VOR dem Sichtbarschalten setzen. `fromTo()`
+  // kann seinen From-State bis zum ersten Render aufschieben; genau dieser
+  // Zwischenraum wurde bei Chromes mehrstufigem Orientation-Reflow sichtbar.
+  gsap.set(lines, { yPercent: 100 });
 
   const tl = gsap.timeline({
     scrollTrigger: {
@@ -158,15 +166,22 @@ function build(entry: LineAnim): void {
   // (Default = gleichmäßig über `amount`). Das ist auch die vom Webflow-Autor
   // ursprünglich gemeinte Wirkung (Kommentar „Power2.easeOut" im Original,
   // der dort wegen dieses GSAP-Verhaltens nie ankam).
-  tl.fromTo(
-    lines,
-    { yPercent: 100 },
-    { yPercent: 0, duration: speed, delay, ease: 'power2.out', stagger: { amount } },
-  );
+  tl.to(lines, {
+    yPercent: 0,
+    duration: speed,
+    delay,
+    ease: 'power2.out',
+    stagger: { amount },
+  });
   entry.tl = tl;
+  gsap.set(el, { autoAlpha: 1 });
 }
 
 function rebuild(entry: LineAnim): void {
+  // SplitText.revert() stellt fuer einen Moment den ungeteilten Originaltext
+  // her. Den Parent vorher ausblenden und erst wieder freigeben, nachdem die
+  // neuen Masken samt y=100-Startzustand synchron aufgebaut sind.
+  gsap.set(entry.el, { autoAlpha: 0 });
   entry.trigger?.kill();
   entry.nativeLines?.forEach(({ animation }) => animation.cancel());
   entry.tl?.scrollTrigger?.kill();
@@ -205,6 +220,29 @@ export function init(): void {
     let debounce: number | undefined;
     const portrait = window.matchMedia('(orientation: portrait)');
     const rebuildAll = () => entries.forEach(rebuild);
+    let orientationHoldActive = false;
+    let orientationHoldTimer: number | undefined;
+
+    /* Chrome meldet beim Drehen zuerst `orientationchange`, danach bereits
+     * einen Resize mit der neuen Geometrie und erst wenige Millisekunden
+     * spaeter den MediaQuery-Wechsel. Auf 120-Hz-Geraeten reicht diese Luecke
+     * fuer einen Paint der alten, bereits sichtbaren Zeilen im neuen Layout.
+     * Deshalb den Text am fruehesten Signal halten; der folgende MQL-Rebuild
+     * gibt ihn erst frei, nachdem die neuen Masken startbereit sind. */
+    window.addEventListener('orientationchange', () => {
+      orientationHoldActive = true;
+      if (orientationHoldTimer !== undefined) window.clearTimeout(orientationHoldTimer);
+      gsap.set(els, { autoAlpha: 0 });
+
+      // Falls ein Browser wider Erwarten keinen MQL-Change meldet, darf der
+      // Inhalt nicht verborgen bleiben.
+      orientationHoldTimer = window.setTimeout(() => {
+        if (!orientationHoldActive) return;
+        orientationHoldActive = false;
+        orientationHoldTimer = undefined;
+        gsap.set(els, { autoAlpha: 1 });
+      }, 1200);
+    }, { passive: true });
 
     /* Ein Gerätewechsel ist kein stufenloses Resize: CSS und Textspalte
      * springen in einem Schritt auf die neue Geometrie. Der bisherige
@@ -219,6 +257,9 @@ export function init(): void {
       debounce = undefined;
       lastWidth = window.innerWidth;
       rebuildAll();
+      orientationHoldActive = false;
+      if (orientationHoldTimer !== undefined) window.clearTimeout(orientationHoldTimer);
+      orientationHoldTimer = undefined;
     });
 
     window.addEventListener('resize', () => {
