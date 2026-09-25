@@ -2430,6 +2430,15 @@ html.has-motion [data-aio-growth-flow] {
 .reviews__stars { display: flex; margin-bottom: 1.5rem; color: var(--brand); }
 .reviews__stars svg { width: 1.5rem; height: 1.5rem; }
 .reviews__text { color: var(--ink-2); font-size: var(--text-md); }
+.read-more__short,
+.reviews__text .read-more { display: none; }
+.read-more__full { display: inline; }
+html.has-js .read-more__short,
+html.has-js .reviews__text .read-more { display: inline; }
+html.has-js .read-more__full { display: none; }
+html.has-js .reviews__text.is-expanded .read-more__short,
+html.has-js .reviews__text.is-expanded .read-more { display: none; }
+html.has-js .reviews__text.is-expanded .read-more__full { display: inline; }
 .reviews__text .read-more {
   color: inherit;
   text-decoration: underline;

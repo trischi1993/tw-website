@@ -74,6 +74,54 @@ const jsonLdArray = [orgJsonLd, ...pageJsonLd];
          sichtbar statt dauerhaft versteckt. */
       (function () {
         var el = document.documentElement;
+        el.classList.add('has-js');
+        /* Eine Scroll-Wiederherstellung ist eine Navigation. Die globale
+           Smooth-Scroll-Regel wuerde deshalb den Weg von 0 zur gespeicherten
+           Position sichtbar machen; auf der langen mobilen AIO-Seite fiel das
+           besonders deutlich auf. Die Klasse steht schon vor dem ersten Paint
+           und wird unmittelbar nach Safaris Restore-Signal wieder entfernt.
+           Header, Menue und Motion bleiben vollstaendig unberuehrt. */
+        var navigationEntry = performance.getEntriesByType('navigation')[0];
+        var isScrollRestore =
+          !!navigationEntry &&
+          (navigationEntry.type === 'reload' || navigationEntry.type === 'back_forward');
+        if (isScrollRestore) {
+          el.classList.add('is-scroll-restoring');
+          var released = false;
+          var pageShown = false;
+          var restoreScrollSeen = false;
+          var safetyTimer;
+          var releaseScrollRestore = function () {
+            if (released) return;
+            released = true;
+            window.removeEventListener('scroll', onRestoredScroll);
+            if (safetyTimer) window.clearTimeout(safetyTimer);
+            el.classList.remove('is-scroll-restoring');
+          };
+          var releaseAfterPaint = function () {
+            requestAnimationFrame(function () {
+              requestAnimationFrame(releaseScrollRestore);
+            });
+          };
+          var onRestoredScroll = function () {
+            if (Math.abs(window.scrollY) <= 1) return;
+            restoreScrollSeen = true;
+            if (pageShown) releaseAfterPaint();
+          };
+          window.addEventListener('scroll', onRestoredScroll, { passive: true });
+          window.addEventListener(
+            'pageshow',
+            function () {
+              pageShown = true;
+              if (restoreScrollSeen || Math.abs(window.scrollY) > 1) releaseAfterPaint();
+            },
+            { once: true }
+          );
+          /* Falls eine WebKit-Version weder ein Restore-Scrollsignal noch ein
+             verlaessliches pageshow liefert, darf Smooth-Scroll nicht fuer die
+             restliche Sitzung deaktiviert bleiben. */
+          safetyTimer = window.setTimeout(releaseScrollRestore, 3000);
+        }
         /* Ein Fragment bei einem neuen Seitenaufruf darf nicht den globalen
            Smooth-Scroll von ganz oben starten: Während dieses langen Scrolls
            ändern Widgets/Motion noch das Layout und die spätere
@@ -265,11 +313,16 @@ const jsonLdArray = [orgJsonLd, ...pageJsonLd];
       const homeProofCarouselReady = document.querySelector('[data-home-proof-carousel]')
         ? import('../scripts/home-results-carousel.ts')
         : Promise.resolve();
+      // Die Kundenstimmen stehen schon serverseitig in ihrer finalen kurzen
+      // Geometrie. Das winzige native Modul aktiviert lediglich „weiterlesen"
+      // und braucht weder GSAP noch die verzögerte Widget-Initialisierung.
+      const readMoreReady = import('../scripts/read-more.ts');
       Promise.allSettled([
         widgetsReady,
         aioResultsReady,
         motionReady,
         homeProofCarouselReady,
+        readMoreReady,
       ]).then(() =>
         import('../scripts/hash-navigation.ts')
       );

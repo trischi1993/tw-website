@@ -2,8 +2,8 @@ import { gsap } from 'gsap';
 
 /* ---------------------------------------------------------------------------
    Interaktive Widgets der Sections (delegierte Handler, ein zentraler Init):
-   FAQ-Accordion, Coaching-Tabs, Read-More, Testimonials-Load-More und das
-   direkte HTML5-Video. Animationsdauern fallen bei
+   FAQ-Accordion, Coaching-Tabs, Testimonials-Load-More und das direkte
+   HTML5-Video. Animationsdauern fallen bei
    prefers-reduced-motion auf 0 (Zustand wechselt sofort).
    --------------------------------------------------------------------------- */
 
@@ -100,31 +100,6 @@ function switchTab(btn: HTMLElement): void {
   notifyLayoutChanged();
 }
 
-/* --- Read-More (lange Testimonial-Texte, Grenze wie im Original: 216) ------ */
-
-const READ_MORE_LIMIT = 216;
-
-function initReadMore(root: ParentNode = document): void {
-  root.querySelectorAll<HTMLElement>('[data-read-more]').forEach((el) => {
-    if (el.dataset.readMoreDone) return;
-    el.dataset.readMoreDone = '1';
-    const full = el.textContent?.trim() ?? '';
-    if (full.length <= READ_MORE_LIMIT) return;
-
-    const short = full.slice(0, READ_MORE_LIMIT).trimEnd();
-    el.textContent = `${short}… `;
-    const more = document.createElement('button');
-    more.type = 'button';
-    more.className = 'read-more';
-    more.textContent = 'weiterlesen';
-    more.addEventListener('click', () => {
-      el.textContent = full;
-      notifyLayoutChanged();
-    });
-    el.appendChild(more);
-  });
-}
-
 /* --- Testimonials-Load-More (seitenweise, 250 ms-Stagger wie Original) ----- */
 
 function loadMore(btn: HTMLElement): void {
@@ -199,5 +174,3 @@ document.addEventListener('click', (e) => {
   const actionBtn = target.closest<HTMLElement>('[data-video-controls] [data-action]');
   if (actionBtn) return handleVideoAction(actionBtn);
 });
-
-initReadMore();

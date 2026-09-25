@@ -17,11 +17,41 @@ const Star = () => (
   </svg>
 );
 
+const READ_MORE_LIMIT = 216;
+
+function TestimonialText({ text }: { text: string }) {
+  const full = text.trim();
+  if (full.length <= READ_MORE_LIMIT) {
+    return (
+      <p className="reviews__text" data-read-more="" data-read-more-done="1" lang="de">
+        {full}
+      </p>
+    );
+  }
+
+  const short = full.slice(0, READ_MORE_LIMIT).trimEnd();
+  return (
+    <p
+      className="reviews__text"
+      data-read-more=""
+      data-read-more-done="1"
+      lang="de"
+    >
+      <span className="read-more__short">{short}… </span>
+      <span className="read-more__full">{full}</span>
+      <button type="button" className="read-more" aria-expanded="false">
+        weiterlesen
+      </button>
+    </p>
+  );
+}
+
 /**
  * Testimonials: zweilagige Banner-Headline (weiß + dunkle Schattenkopie,
  * scroll-versetzt via motion.ts [data-banner]) + 3er-Grid aus der
  * Testimonial-Collection. Initial N Karten, Rest über „Mehr laden"
- * (widgets.ts, [data-load-more]); lange Texte kürzt das Read-More-Script.
+ * (widgets.ts, [data-load-more]); lange Texte kommen für stabiles Layout
+ * bereits serverseitig in ihrer kurzen „weiterlesen"-Geometrie.
  */
 export default function TestimonialsSection({
   section,
@@ -74,9 +104,7 @@ export default function TestimonialsSection({
                   <Star />
                   <Star />
                 </div>
-                <p className="reviews__text" data-read-more="" lang="de">
-                  {t.text}
-                </p>
+                <TestimonialText text={t.text} />
               </div>
               <div className="reviews__client">
                 <Img image={t.image} sizes="3rem" />

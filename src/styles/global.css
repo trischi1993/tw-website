@@ -26,8 +26,10 @@ html {
 
 /* Normale Anker-Klicks innerhalb der bereits geladenen Seite bleiben weich.
    Bei einem neuen Dokument mit Fragment übernimmt dagegen die Seitenblende;
-   der Browser darf dahinter ohne sichtbare Fahrt direkt zum Ziel springen. */
-html:not(.has-initial-hash) { scroll-behavior: smooth; }
+   bei Reload/History stellt der Browser die gespeicherte Position direkt
+   wieder her. Beides darf keine sichtbare Fahrt von ganz oben auslösen. */
+html:not(.has-initial-hash):not(.is-scroll-restoring) { scroll-behavior: smooth; }
+html.is-scroll-restoring { scroll-behavior: auto !important; }
 
 /* Webflow-artige Seitenblende für dokumentübergreifende Fragment-Links. Das
    echte Dokument (insbesondere das Fragmentziel) bleibt vollständig sichtbar
