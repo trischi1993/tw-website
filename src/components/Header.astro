@@ -189,17 +189,14 @@ const headerCtaHref = settings.headerCta
     const burgerBottom = header.querySelector('[data-burger-bottom]');
     const navRight = header.querySelector('[data-nav-right]');
     const rightInner = header.querySelector('[data-nav-right-inner]');
+    const headerCta = header.querySelector('.navbar__cta');
     const mobile = window.matchMedia('(max-width: 991px)');
     const portrait = window.matchMedia('(orientation: portrait)');
     const finePointer = window.matchMedia('(hover: hover) and (pointer: fine)');
-    const reduced = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+    const reducedMotion = window.matchMedia('(prefers-reduced-motion: reduce)');
     const ease = 'cubic-bezier(0.25, 0.1, 0.25, 1)';
     const outQuart = 'cubic-bezier(0.165, 0.84, 0.44, 1)';
     const inOutQuart = 'cubic-bezier(0.76, 0, 0.24, 1)';
-    const INITIAL_HEADER_BACKGROUND = 'rgba(21, 21, 21, 0.12)';
-    const CLOSED_HEADER_BACKGROUND = 'rgba(231, 226, 220, 0.12)';
-    const OPEN_RIGHT_TRANSFORM = 'translate3d(9.2rem, 0, 0)';
-
     /* Marker fuer Tests und optionale Progressive-Enhancement-Fallbacks: Der
        mobile Controller ist bereits waehrend des Parsens vollstaendig aktiv. */
     toggle.setAttribute('data-inline-mobile-menu', '');
@@ -207,16 +204,22 @@ const headerCtaHref = settings.headerCta
     let isOpen = false;
     let menuPhase = 'closed';
     let transitionId = 0;
-    let startFrame;
+    let completionTimer;
     let suppressNextClick = false;
+    let aioVideoPauseTimer;
     let inputModality = 'pointer';
+    let lastTouchAt = -Infinity;
     let lastFocused = null;
     let runningAnimations = [];
     let inertBackdrop = [];
-    let closedHeaderBackground = INITIAL_HEADER_BACKGROUND;
-    let closedLinkTransform = 'translate3d(-80px, 0, 0)';
-    let openRightTransform = 'translate3d(0, 0, 0)';
+    let aioHeroVideo = null;
+    let pausedAioHeroVideo = null;
     const hoverAnimations = new Map();
+
+    document.addEventListener('DOMContentLoaded', () => {
+      const video = document.querySelector('[data-aio-hero] video');
+      aioHeroVideo = video instanceof HTMLVideoElement ? video : null;
+    }, { once: true });
 
     const computed = (element, property) =>
       element ? getComputedStyle(element)[property] : '';
@@ -224,8 +227,6 @@ const headerCtaHref = settings.headerCta
     const cancelAnimations = () => {
       runningAnimations.forEach((animation) => animation.cancel());
       runningAnimations = [];
-      if (startFrame !== undefined) cancelAnimationFrame(startFrame);
-      startFrame = undefined;
     };
 
     const play = (element, keyframes, options) => {
@@ -239,6 +240,43 @@ const headerCtaHref = settings.headerCta
       inputModality = modality;
       header.dataset.menuInput = modality;
       menu.dataset.menuInput = modality;
+    };
+
+    const pauseAioVideoBehindMenu = () => {
+      if (!(aioHeroVideo instanceof HTMLVideoElement)) {
+        const video = document.querySelector('[data-aio-hero] video');
+        aioHeroVideo = video instanceof HTMLVideoElement ? video : null;
+      }
+      if (
+        !(aioHeroVideo instanceof HTMLVideoElement) ||
+        aioHeroVideo.paused ||
+        !aioHeroVideo.muted
+      ) return;
+      pausedAioHeroVideo = aioHeroVideo;
+      aioHeroVideo.pause();
+    };
+
+    const clearScheduledVideoPause = () => {
+      if (aioVideoPauseTimer !== undefined) clearTimeout(aioVideoPauseTimer);
+      aioVideoPauseTimer = undefined;
+    };
+
+    const scheduleAioVideoPause = () => {
+      clearScheduledVideoPause();
+      /* Der erste sichtbare Menue-Frame hat Vorrang. Das Video wird erst kurz
+         danach pausiert, damit weder DOM-Suche noch Decoder-Umschaltung den
+         unmittelbaren Touch-Feedback-Pfad auf Mobile Safari blockieren. */
+      aioVideoPauseTimer = setTimeout(() => {
+        aioVideoPauseTimer = undefined;
+        if (isOpen) pauseAioVideoBehindMenu();
+      }, 80);
+    };
+
+    const resumeAioVideoAfterMenu = () => {
+      if (!(pausedAioHeroVideo instanceof HTMLVideoElement)) return;
+      const video = pausedAioHeroVideo;
+      pausedAioHeroVideo = null;
+      void video.play().catch(() => {});
     };
 
     /* ---------------------------------------------------------------------
@@ -316,7 +354,7 @@ const headerCtaHref = settings.headerCta
       clearOrientationStyles();
       const keepMenuState = orientationMenuWasOpen || isOpen;
       orientationMenuWasOpen = false;
-      if (reduced || keepMenuState) {
+      if (reducedMotion.matches || keepMenuState) {
         header.classList.remove('is-orientation-changing');
         menu.classList.remove('is-orientation-changing');
         return;
@@ -443,10 +481,24 @@ const headerCtaHref = settings.headerCta
       inertBackdrop.forEach((element) => element.setAttribute('inert', ''));
     };
 
-    const trapStops = () => [
-      ...Array.from(header.querySelectorAll('a[href], button:not([disabled])')),
-      ...links,
-    ].filter((element) => element.getClientRects().length > 0);
+    const trapStops = () => [toggle, ...links].filter(
+      (element) => element.getClientRects().length > 0,
+    );
+
+    const clearCompletionTimer = () => {
+      if (completionTimer !== undefined) clearTimeout(completionTimer);
+      completionTimer = undefined;
+    };
+
+    const scheduleCompletion = (id, delay) => {
+      clearCompletionTimer();
+      completionTimer = setTimeout(() => {
+        completionTimer = undefined;
+        if (id !== transitionId) return;
+        if (isOpen && menuPhase === 'opening') finishOpen(id);
+        else if (!isOpen && menuPhase === 'closing') finishClose(id);
+      }, delay);
+    };
 
     const cancelHoverAnimations = () => {
       hoverAnimations.forEach((animation) => animation.cancel());
@@ -489,7 +541,7 @@ const headerCtaHref = settings.headerCta
     };
 
     const setLinkHover = (index, active) => {
-      if (!mobile.matches || !finePointer.matches || reduced) return;
+      if (!mobile.matches || !finePointer.matches || reducedMotion.matches) return;
       animateHoverProperty(
         wipes[index],
         'height',
@@ -515,34 +567,41 @@ const headerCtaHref = settings.headerCta
 
     const prepareMobileMenu = () => {
       transitionId += 1;
+      clearCompletionTimer();
+      clearScheduledVideoPause();
       cancelAnimations();
       releaseBackdrop();
       resetHoverStyles();
+      resumeAioVideoAfterMenu();
       isOpen = false;
       menuPhase = 'closed';
-      closedHeaderBackground = INITIAL_HEADER_BACKGROUND;
-      closedLinkTransform = 'translate3d(-80px, 0, 0)';
-      openRightTransform = 'translate3d(0, 0, 0)';
       document.body.classList.remove('no-scroll');
       header.classList.remove('is-menu-open');
+      header.classList.remove('is-menu-closing');
+      headerCta?.removeAttribute('inert');
+      header.removeAttribute('data-menu-has-closed');
+      header.setAttribute('data-mobile-menu-prepared', '');
       toggle.setAttribute('aria-expanded', 'false');
       menu.removeAttribute('hidden');
       menu.setAttribute('inert', '');
       menu.setAttribute('aria-hidden', 'true');
       menu.setAttribute('data-menu-prepared', '');
-      menu.style.pointerEvents = 'none';
+      menu.classList.remove('is-menu-open', 'is-menu-closing');
+      menu.removeAttribute('data-menu-has-opened');
+      menu.style.removeProperty('pointer-events');
       menu.style.removeProperty('visibility');
-      panel.style.transform = 'translate3d(-100%, 0, 0)';
-      /* Die geschlossene Vollbild-Ebene bleibt ausserhalb des Viewports
-         vorgerendert. So muss WebKit beim ersten Tap auf langen Seiten keine
-         neue Compositor-Ebene aufbauen, bevor die Bewegung sichtbar wird. */
-      panel.style.willChange = 'transform';
-      links.forEach((link) => {
-        link.style.transform = 'translate3d(-80px, 0, 0)';
-        link.style.opacity = '0';
+      panel.style.removeProperty('transform');
+      panel.style.removeProperty('will-change');
+      links.forEach((link, index) => {
+        link.style.removeProperty('transform');
+        link.style.removeProperty('opacity');
+        link.style.setProperty('--menu-open-delay', `${180 + index * 70}ms`);
       });
       arrows.forEach((arrow) => {
-        arrow.style.opacity = '0';
+        arrow.style.removeProperty('opacity');
+      });
+      [burgerTop, burgerMiddle, burgerBottom, rightInner].forEach((element) => {
+        element?.style.removeProperty('transform');
       });
     };
 
@@ -550,9 +609,12 @@ const headerCtaHref = settings.headerCta
       const activeElement = document.activeElement;
       const mustRestoreFocus = isOpen || (activeElement && menu.contains(activeElement));
       transitionId += 1;
+      clearCompletionTimer();
+      clearScheduledVideoPause();
       cancelAnimations();
       releaseBackdrop();
       resetHoverStyles(true);
+      resumeAioVideoAfterMenu();
       if (mustRestoreFocus && inputModality === 'keyboard') {
         const visibleHeaderTarget = Array.from(
           header.querySelectorAll('a[href], button:not([disabled])'),
@@ -563,12 +625,18 @@ const headerCtaHref = settings.headerCta
       menuPhase = 'closed';
       document.body.classList.remove('no-scroll');
       header.classList.remove('is-menu-open');
+      header.classList.remove('is-menu-closing');
+      headerCta?.removeAttribute('inert');
+      header.removeAttribute('data-mobile-menu-prepared');
+      header.removeAttribute('data-menu-has-closed');
       header.style.removeProperty('background-color');
       toggle.setAttribute('aria-expanded', 'false');
       menu.setAttribute('hidden', '');
       menu.setAttribute('inert', '');
       menu.setAttribute('aria-hidden', 'true');
       menu.removeAttribute('data-menu-prepared');
+      menu.removeAttribute('data-menu-has-opened');
+      menu.classList.remove('is-menu-open', 'is-menu-closing');
       menu.style.removeProperty('pointer-events');
       menu.style.removeProperty('visibility');
       panel.style.removeProperty('transform');
@@ -576,6 +644,7 @@ const headerCtaHref = settings.headerCta
       links.forEach((link) => {
         link.style.removeProperty('transform');
         link.style.removeProperty('opacity');
+        link.style.removeProperty('--menu-open-delay');
       });
       arrows.forEach((arrow) => arrow.style.removeProperty('opacity'));
       [burgerTop, burgerMiddle, burgerBottom, rightInner].forEach((element) => {
@@ -585,8 +654,7 @@ const headerCtaHref = settings.headerCta
 
     const finishOpen = (id) => {
       if (id !== transitionId || !isOpen) return;
-      runningAnimations.forEach((animation) => animation.cancel());
-      runningAnimations = [];
+      clearCompletionTimer();
       menuPhase = 'open';
       document.body.classList.add('no-scroll');
       isolateBackdrop();
@@ -597,34 +665,6 @@ const headerCtaHref = settings.headerCta
       if (!mobile.matches || isOpen) return;
       isOpen = true;
       const id = ++transitionId;
-      const interrupted = menuPhase === 'closing';
-      /* Im stabil geschlossenen Zustand sind alle Startwerte bekannt. Nur ein
-         echter Richtungswechsel waehrend der Schliessanimation liest den
-         aktuellen Zwischenstand. Dadurch beginnt der normale erste und jeder
-         weitere Open-Tap ohne synchronen Style-/Layout-Flush. */
-      const starts = interrupted
-        ? {
-            headerBackground: computed(header, 'backgroundColor'),
-            panelTransform: computed(panel, 'transform'),
-            middleTransform: computed(burgerMiddle, 'transform'),
-            topTransform: computed(burgerTop, 'transform'),
-            bottomTransform: computed(burgerBottom, 'transform'),
-            rightTransform: computed(rightInner, 'transform'),
-            linkTransforms: links.map((link) => computed(link, 'transform')),
-            linkOpacities: links.map((link) => computed(link, 'opacity')),
-            arrowOpacities: arrows.map((arrow) => computed(arrow, 'opacity')),
-          }
-        : {
-            headerBackground: closedHeaderBackground,
-            panelTransform: 'translate3d(-100%, 0, 0)',
-            middleTransform: 'translate3d(0, 0, 0)',
-            topTransform: 'translate3d(0, 0, 0) rotate(0deg)',
-            bottomTransform: 'translate3d(0, 0, 0) rotate(0deg)',
-            rightTransform: 'translate3d(0, 0, 0)',
-            linkTransforms: links.map(() => closedLinkTransform),
-            linkOpacities: links.map(() => '0'),
-            arrowOpacities: arrows.map(() => '0'),
-          };
       menuPhase = 'opening';
       cancelAnimations();
       releaseBackdrop();
@@ -634,121 +674,43 @@ const headerCtaHref = settings.headerCta
           ? document.activeElement
           : toggle;
 
-      // Eine laufende Header-Load-Animation darf die Trefferflaeche nach der
-      // echten Bedienung nicht weiter verschieben.
-      navRight?.getAnimations().forEach((animation) => animation.cancel());
+      headerCta?.setAttribute('inert', '');
+      header.classList.remove('is-menu-closing');
       header.classList.add('is-menu-open');
+      menu.classList.remove('is-menu-closing');
+      menu.classList.add('is-menu-open');
       toggle.setAttribute('aria-expanded', 'true');
       menu.removeAttribute('inert');
       menu.removeAttribute('aria-hidden');
       menu.style.removeProperty('pointer-events');
       menu.style.removeProperty('visibility');
-      panel.style.willChange = 'transform';
 
-      if (reduced) {
-        header.style.backgroundColor = 'rgba(0, 0, 0, 0)';
-        panel.style.transform = 'translate3d(0, 0, 0)';
-        links.forEach((link) => {
-          link.style.transform = 'translate3d(0, 0, 0)';
-          link.style.opacity = '1';
-        });
-        arrows.forEach((arrow) => {
-          arrow.style.opacity = '1';
-        });
-        if (rightInner) rightInner.style.transform = OPEN_RIGHT_TRANSFORM;
-        if (burgerMiddle) burgerMiddle.style.transform = 'translate3d(200%, 0, 0)';
-        if (burgerTop) burgerTop.style.transform = 'translate3d(0, 3.5px, 0) rotate(45deg)';
-        if (burgerBottom) burgerBottom.style.transform = 'translate3d(0, -3.5px, 0) rotate(-45deg)';
-        openRightTransform = OPEN_RIGHT_TRANSFORM;
+      /* Der sichtbare Zustand wird zuerst gesetzt. Das AIO-Load-Modul kann
+         danach ausschließlich seine eigenen Header-Animationen abbrechen,
+         ohne hier getAnimations() und damit einen Style-Sync zu erzwingen. */
+      window.dispatchEvent(new CustomEvent('tw:mobile-menu-open'));
+      scheduleAioVideoPause();
+
+      if (reducedMotion.matches) {
         finishOpen(id);
-        return;
+      } else {
+        scheduleCompletion(id, 900);
       }
-
-      /* Die Timeline startet erst in einem renderbaren Frame. Eine lange
-         AIO-Initialisierung kann dadurch den Tap zwar bis zum Ende ihres
-         aktuellen Tasks aufhalten, aber niemals mehr die komplette
-         Oeffnungsbewegung unsichtbar verstreichen lassen. */
-      startFrame = requestAnimationFrame(() => {
-        startFrame = undefined;
-        if (id !== transitionId || !isOpen) return;
-
-        header.style.backgroundColor = 'rgba(0, 0, 0, 0)';
-        panel.style.transform = 'translate3d(0, 0, 0)';
-        links.forEach((link) => {
-          link.style.transform = 'translate3d(0, 0, 0)';
-          link.style.opacity = '1';
-        });
-        arrows.forEach((arrow) => {
-          arrow.style.opacity = '1';
-        });
-        if (rightInner) rightInner.style.transform = OPEN_RIGHT_TRANSFORM;
-        if (burgerMiddle) burgerMiddle.style.transform = 'translate3d(200%, 0, 0)';
-        if (burgerTop) burgerTop.style.transform = 'translate3d(0, 3.5px, 0) rotate(45deg)';
-        if (burgerBottom) burgerBottom.style.transform = 'translate3d(0, -3.5px, 0) rotate(-45deg)';
-        openRightTransform = OPEN_RIGHT_TRANSFORM;
-
-        play(header, [
-          { backgroundColor: starts.headerBackground },
-          { backgroundColor: 'rgba(0, 0, 0, 0)' },
-        ], { duration: 200, easing: ease });
-        const panelAnimation = play(panel, [
-          { transform: starts.panelTransform },
-          { transform: 'translate3d(0, 0, 0)' },
-        ], { duration: 720, easing: outQuart });
-        play(burgerMiddle, [
-          { transform: starts.middleTransform },
-          { transform: 'translate3d(200%, 0, 0)' },
-        ], { duration: 500, delay: 100, easing: outQuart });
-        play(burgerTop, [
-          { transform: starts.topTransform },
-          { transform: 'translate3d(0, 3.5px, 0) rotate(45deg)' },
-        ], { duration: 300, delay: 200, easing: outQuart });
-        play(burgerBottom, [
-          { transform: starts.bottomTransform },
-          { transform: 'translate3d(0, -3.5px, 0) rotate(-45deg)' },
-        ], { duration: 300, delay: 200, easing: outQuart });
-        links.forEach((link, index) => {
-          const delay = 180 + index * 70;
-          play(link, [
-            { transform: starts.linkTransforms[index] },
-            { transform: 'translate3d(0, 0, 0)' },
-          ], { duration: 350, delay, easing: outQuart });
-          play(link, [
-            { opacity: starts.linkOpacities[index] },
-            { opacity: 1 },
-          ], { duration: 250, delay, easing: ease });
-        });
-        arrows.forEach((arrow, index) => {
-          play(arrow, [
-            { opacity: starts.arrowOpacities[index] },
-            { opacity: 1 },
-          ], { duration: 250, delay: 450, easing: ease });
-        });
-        play(rightInner, [
-          { transform: starts.rightTransform },
-          { transform: OPEN_RIGHT_TRANSFORM },
-        ], { duration: 350, easing: outQuart });
-        void panelAnimation?.finished.then(() => finishOpen(id), () => {});
-      });
     };
 
     const finishClose = (id) => {
       if (id !== transitionId || isOpen) return;
-      runningAnimations.forEach((animation) => animation.cancel());
-      runningAnimations = [];
+      clearCompletionTimer();
       menuPhase = 'closed';
-      links.forEach((link) => {
-        link.style.transform = 'translate3d(-70px, 0, 0)';
-        link.style.opacity = '0';
-      });
-      closedHeaderBackground = CLOSED_HEADER_BACKGROUND;
-      closedLinkTransform = 'translate3d(-70px, 0, 0)';
-      openRightTransform = 'translate3d(0, 0, 0)';
-      menu.style.pointerEvents = 'none';
+      clearScheduledVideoPause();
+      header.classList.remove('is-menu-closing');
+      menu.classList.remove('is-menu-closing');
+      menu.setAttribute('data-menu-has-opened', '');
+      headerCta?.removeAttribute('inert');
       menu.style.removeProperty('visibility');
-      panel.style.willChange = 'transform';
       releaseBackdrop();
       document.body.classList.remove('no-scroll');
+      resumeAioVideoAfterMenu();
       if (inputModality === 'keyboard') {
         const focusTarget = lastFocused?.isConnected ? lastFocused : toggle;
         focusTarget.focus({ preventScroll: true });
@@ -759,116 +721,41 @@ const headerCtaHref = settings.headerCta
       if (!mobile.matches || !isOpen) return;
       isOpen = false;
       const id = ++transitionId;
-      const interrupted = menuPhase === 'opening';
-      const starts = interrupted
-        ? {
-            headerBackground: computed(header, 'backgroundColor'),
-            panelTransform: computed(panel, 'transform'),
-            rightTransform: computed(rightInner, 'transform'),
-            middleTransform: computed(burgerMiddle, 'transform'),
-            topTransform: computed(burgerTop, 'transform'),
-            bottomTransform: computed(burgerBottom, 'transform'),
-            linkOpacities: links.map((link) => computed(link, 'opacity')),
-            arrowOpacities: arrows.map((arrow) => computed(arrow, 'opacity')),
-          }
-        : {
-            headerBackground: 'rgba(0, 0, 0, 0)',
-            panelTransform: 'translate3d(0, 0, 0)',
-            rightTransform: openRightTransform,
-            middleTransform: 'translate3d(200%, 0, 0)',
-            topTransform: 'translate3d(0, 3.5px, 0) rotate(45deg)',
-            bottomTransform: 'translate3d(0, -3.5px, 0) rotate(-45deg)',
-            linkOpacities: links.map(() => '1'),
-            arrowOpacities: arrows.map(() => '1'),
-          };
       menuPhase = 'closing';
+      clearScheduledVideoPause();
       cancelAnimations();
       resetHoverStyles();
 
       if (inputModality === 'keyboard') {
         (lastFocused?.isConnected ? lastFocused : toggle).focus({ preventScroll: true });
       }
+      header.setAttribute('data-menu-has-closed', '');
       header.classList.remove('is-menu-open');
+      header.classList.add('is-menu-closing');
+      menu.classList.remove('is-menu-open');
+      menu.classList.add('is-menu-closing');
       toggle.setAttribute('aria-expanded', 'false');
       menu.setAttribute('inert', '');
       menu.setAttribute('aria-hidden', 'true');
-
-      const closedBackground = CLOSED_HEADER_BACKGROUND;
       menu.style.removeProperty('visibility');
-      panel.style.willChange = 'transform';
-      if (reduced) {
-        header.style.backgroundColor = closedBackground;
-        panel.style.transform = 'translate3d(-100%, 0, 0)';
-        if (rightInner) rightInner.style.transform = 'translate3d(0, 0, 0)';
-        if (burgerMiddle) burgerMiddle.style.transform = 'translate3d(0, 0, 0)';
-        if (burgerTop) burgerTop.style.transform = 'translate3d(0, 0, 0) rotate(0deg)';
-        if (burgerBottom) burgerBottom.style.transform = 'translate3d(0, 0, 0) rotate(0deg)';
-        links.forEach((link) => {
-          link.style.opacity = '0';
-        });
-        arrows.forEach((arrow) => {
-          arrow.style.opacity = '0';
-        });
+      if (reducedMotion.matches) {
         finishClose(id);
-        return;
+      } else {
+        scheduleCompletion(id, 700);
       }
-
-      startFrame = requestAnimationFrame(() => {
-        startFrame = undefined;
-        if (id !== transitionId || isOpen) return;
-
-        header.style.backgroundColor = closedBackground;
-        panel.style.transform = 'translate3d(-100%, 0, 0)';
-        if (rightInner) rightInner.style.transform = 'translate3d(0, 0, 0)';
-        if (burgerMiddle) burgerMiddle.style.transform = 'translate3d(0, 0, 0)';
-        if (burgerTop) burgerTop.style.transform = 'translate3d(0, 0, 0) rotate(0deg)';
-        if (burgerBottom) burgerBottom.style.transform = 'translate3d(0, 0, 0) rotate(0deg)';
-        links.forEach((link) => {
-          link.style.opacity = '0';
-        });
-        arrows.forEach((arrow) => {
-          arrow.style.opacity = '0';
-        });
-
-        links.forEach((link, index) => {
-          play(link, [
-            { opacity: starts.linkOpacities[index] },
-            { opacity: 0 },
-          ], { duration: 180, easing: ease });
-        });
-        arrows.forEach((arrow, index) => {
-          play(arrow, [
-            { opacity: starts.arrowOpacities[index] },
-            { opacity: 0 },
-          ], { duration: 180, easing: ease });
-        });
-        const panelAnimation = play(panel, [
-          { transform: starts.panelTransform },
-          { transform: 'translate3d(-100%, 0, 0)' },
-        ], { duration: 520, easing: outQuart });
-        play(burgerTop, [
-          { transform: starts.topTransform },
-          { transform: 'translate3d(0, 0, 0) rotate(0deg)' },
-        ], { duration: 250, easing: outQuart });
-        play(burgerBottom, [
-          { transform: starts.bottomTransform },
-          { transform: 'translate3d(0, 0, 0) rotate(0deg)' },
-        ], { duration: 250, easing: outQuart });
-        play(burgerMiddle, [
-          { transform: starts.middleTransform },
-          { transform: 'translate3d(0, 0, 0)' },
-        ], { duration: 250, delay: 150, easing: outQuart });
-        play(rightInner, [
-          { transform: starts.rightTransform },
-          { transform: 'translate3d(0, 0, 0)' },
-        ], { duration: 350, delay: 100, easing: outQuart });
-        play(header, [
-          { backgroundColor: starts.headerBackground },
-          { backgroundColor: closedBackground },
-        ], { duration: 300, delay: 200, easing: ease });
-        void panelAnimation?.finished.then(() => finishClose(id), () => {});
-      });
     };
+
+    /* Die sichtbare Menuebewegung ist eine CSS-Zustandsmaschine. Dadurch kann
+       WebKit die bereits vorgerenderte Ebene auf dem Compositor bewegen, auch
+       wenn die lange AIO-Seite parallel Bilder dekodiert oder Module startet.
+       transitionend finalisiert nur A11y/Scroll-Lock und setzt keinen
+       sichtbaren Endzustand. */
+    panel.addEventListener('transitionend', (event) => {
+      if (event.target !== panel || event.propertyName !== 'transform') return;
+      const id = transitionId;
+      if (isOpen && menuPhase === 'opening') finishOpen(id);
+      else if (!isOpen && menuPhase === 'closing') finishClose(id);
+    });
 
     const toggleMenu = () => {
       if (isOpen) closeMenu();
@@ -888,7 +775,7 @@ const headerCtaHref = settings.headerCta
         event.preventDefault();
         navigationPending = true;
         const navigate = () => window.location.assign(link.href);
-        if (reduced) {
+        if (reducedMotion.matches) {
           navigate();
           return;
         }
@@ -922,6 +809,7 @@ const headerCtaHref = settings.headerCta
       if (!mobile.matches) return;
       event.preventDefault();
       event.stopImmediatePropagation();
+      lastTouchAt = performance.now();
       setInputModality('touch');
       suppressNextClick = true;
       toggleMenu();
@@ -929,24 +817,54 @@ const headerCtaHref = settings.headerCta
 
     if ('PointerEvent' in window) {
       toggle.addEventListener('pointerdown', (event) => {
-        if (event.pointerType !== 'touch' && event.pointerType !== 'pen') return;
-        activateOnTouch(event);
+        if (event.pointerType === 'touch' || event.pointerType === 'pen') {
+          activateOnTouch(event);
+          return;
+        }
+        suppressNextClick = false;
+        setInputModality('pointer');
       }, { passive: false });
+      toggle.addEventListener('pointerup', (event) => {
+        if (event.pointerType === 'touch' || event.pointerType === 'pen') {
+          /* Bezugspunkt ist das Loslassen, damit auch ein langes Gedrueckthalten
+             den anschliessenden Safari-Kompatibilitaetsklick sicher schluckt. */
+          lastTouchAt = performance.now();
+        }
+      }, { passive: true });
+      toggle.addEventListener('pointercancel', (event) => {
+        if (event.pointerType === 'touch' || event.pointerType === 'pen') {
+          suppressNextClick = false;
+        }
+      }, { passive: true });
     } else {
       toggle.addEventListener('touchstart', activateOnTouch, { passive: false });
+      toggle.addEventListener('touchend', () => {
+        lastTouchAt = performance.now();
+      }, { passive: true });
+      toggle.addEventListener('touchcancel', () => {
+        suppressNextClick = false;
+      }, { passive: true });
+    }
+    if ('PointerEvent' in window) {
+      toggle.addEventListener('touchstart', () => {
+        lastTouchAt = performance.now();
+        setInputModality('touch');
+      }, { passive: true });
     }
 
     toggle.addEventListener('click', (event) => {
       if (!mobile.matches) return;
-      if (suppressNextClick) {
+      if (suppressNextClick && performance.now() - lastTouchAt < 1500) {
         suppressNextClick = false;
         event.preventDefault();
         event.stopImmediatePropagation();
         return;
       }
+      suppressNextClick = false;
       event.preventDefault();
       event.stopImmediatePropagation();
-      setInputModality(event.detail === 0 ? 'keyboard' : 'pointer');
+      const recentTouch = performance.now() - lastTouchAt < 1200;
+      setInputModality(event.detail === 0 ? (recentTouch ? 'touch' : 'keyboard') : 'pointer');
       toggleMenu();
     });
 
@@ -1060,7 +978,7 @@ const headerCtaHref = settings.headerCta
     background: var(--brand);
     flex: none;
   }
-  /* --- Rechte Seite: Overflow-Maske (Load-Anim + 9.2rem-Menü-Shift) -------- */
+  /* --- Rechte Seite: Overflow-Maske (Load-Anim + responsiver Menü-Shift) ---- */
   .navbar__right {
     grid-area: 1 / 2;
     justify-self: end;
@@ -1071,6 +989,7 @@ const headerCtaHref = settings.headerCta
     overflow: hidden;
   }
   .navbar__right-inner {
+    --navbar-burger-size: 3rem;
     display: flex;
     align-items: center;
     gap: 2rem;
@@ -1105,8 +1024,8 @@ const headerCtaHref = settings.headerCta
     align-items: center;
     justify-content: center;
     gap: 2px;
-    width: 3rem;
-    height: 3rem;
+    width: var(--navbar-burger-size, 3rem);
+    height: var(--navbar-burger-size, 3rem);
     padding: 0.375rem 0.5rem;
     background: var(--paper-2);
     border: 0;
@@ -1227,6 +1146,135 @@ const headerCtaHref = settings.headerCta
     .navbar__menu { display: none; }
     .navbar__burger { display: inline-flex; }
     .navbar__right-inner { gap: 0.75rem; }
+
+    /* Das Fullscreen-Menü ist bereits vor dem ersten Tap links ausserhalb des
+       Viewports gerendert. Ein Tap ändert nur Klassen; Transform und Opacity
+       laufen dadurch compositorseitig und werden nicht von AIO-Initialisierung
+       oder einem ausgelassenen JavaScript-Frame übersprungen. */
+    .navbar[data-mobile-menu-prepared] {
+      transition: background-color 300ms cubic-bezier(0.25, 0.1, 0.25, 1) 200ms;
+    }
+    .navbar[data-mobile-menu-prepared][data-menu-has-closed] {
+      background-color: rgba(231, 226, 220, 0.12);
+    }
+    .navbar[data-mobile-menu-prepared].is-menu-open {
+      background-color: rgba(0, 0, 0, 0);
+      transition-duration: 200ms;
+      transition-delay: 0ms;
+    }
+
+    .menu[data-menu-prepared] {
+      pointer-events: none;
+    }
+    .menu[data-menu-prepared].is-menu-open,
+    .menu[data-menu-prepared].is-menu-closing {
+      pointer-events: auto;
+    }
+    .menu[data-menu-prepared] .menu__panel {
+      transform: translate3d(-100%, 0, 0);
+      will-change: transform;
+      transition: transform 520ms cubic-bezier(0.165, 0.84, 0.44, 1);
+    }
+    .menu[data-menu-prepared].is-menu-open .menu__panel {
+      transform: translate3d(0, 0, 0);
+      transition-duration: 720ms;
+    }
+
+    .menu[data-menu-prepared] .menu__link {
+      opacity: 0;
+      transform: translate3d(-80px, 0, 0);
+      transition:
+        transform 350ms cubic-bezier(0.165, 0.84, 0.44, 1),
+        opacity 180ms cubic-bezier(0.25, 0.1, 0.25, 1);
+    }
+    .menu[data-menu-prepared][data-menu-has-opened] .menu__link {
+      transform: translate3d(-70px, 0, 0);
+    }
+    .menu[data-menu-prepared].is-menu-open .menu__link {
+      opacity: 1;
+      transform: translate3d(0, 0, 0);
+      transition-duration: 350ms, 250ms;
+      transition-delay:
+        var(--menu-open-delay, 180ms),
+        var(--menu-open-delay, 180ms);
+    }
+    .menu[data-menu-prepared].is-menu-closing .menu__link {
+      opacity: 0;
+      transform: translate3d(0, 0, 0);
+      transition-duration: 0ms, 180ms;
+      transition-delay: 0ms;
+    }
+
+    .menu[data-menu-prepared] .menu__arrow {
+      opacity: 0;
+      transition: opacity 180ms cubic-bezier(0.25, 0.1, 0.25, 1);
+    }
+    .menu[data-menu-prepared].is-menu-open .menu__arrow {
+      opacity: 1;
+      transition-duration: 250ms;
+      transition-delay: 450ms;
+    }
+    .menu[data-menu-prepared].is-menu-closing .menu__arrow {
+      opacity: 0;
+      transition-delay: 0ms;
+    }
+
+    .navbar[data-mobile-menu-prepared] .navbar__burger-line {
+      transform: none;
+    }
+    .navbar[data-mobile-menu-prepared] .navbar__burger-line.is-top,
+    .navbar[data-mobile-menu-prepared] .navbar__burger-line.is-bottom {
+      transition: transform 250ms cubic-bezier(0.165, 0.84, 0.44, 1);
+    }
+    .navbar[data-mobile-menu-prepared] .navbar__burger-line.is-middle {
+      transition: transform 250ms cubic-bezier(0.165, 0.84, 0.44, 1) 150ms;
+    }
+    .navbar[data-mobile-menu-prepared].is-menu-open .navbar__burger-line.is-top {
+      transform: translate3d(0, 3.5px, 0) rotate(45deg);
+      transition-duration: 300ms;
+      transition-delay: 200ms;
+    }
+    .navbar[data-mobile-menu-prepared].is-menu-open .navbar__burger-line.is-middle {
+      transform: translate3d(200%, 0, 0);
+      transition-duration: 500ms;
+      transition-delay: 100ms;
+    }
+    .navbar[data-mobile-menu-prepared].is-menu-open .navbar__burger-line.is-bottom {
+      transform: translate3d(0, -3.5px, 0) rotate(-45deg);
+      transition-duration: 300ms;
+      transition-delay: 200ms;
+    }
+    .navbar[data-mobile-menu-prepared]:is(.is-menu-open, .is-menu-closing)
+      .navbar__burger-line {
+      will-change: transform;
+    }
+
+    .navbar[data-mobile-menu-prepared] .navbar__right-inner {
+      transform: none;
+      transition: transform 350ms cubic-bezier(0.165, 0.84, 0.44, 1) 100ms;
+    }
+    .navbar[data-mobile-menu-prepared].is-menu-open .navbar__right-inner {
+      /* 100 % = Burger + Gap + CTA. Abzüglich Burgerbreite bleibt exakt die
+         aktuelle CTA-Breite samt Gap – unabhängig von Text und Viewport. */
+      transform: translate3d(calc(100% - var(--navbar-burger-size)), 0, 0);
+      transition-delay: 0ms;
+    }
+    .navbar[data-mobile-menu-prepared]:is(.is-menu-open, .is-menu-closing)
+      .navbar__right-inner {
+      will-change: transform;
+    }
+  }
+
+  @media (max-width: 991px) and (prefers-reduced-motion: reduce) {
+    .navbar[data-mobile-menu-prepared],
+    .navbar[data-mobile-menu-prepared] .navbar__right-inner,
+    .navbar[data-mobile-menu-prepared] .navbar__burger-line,
+    .menu[data-menu-prepared] .menu__panel,
+    .menu[data-menu-prepared] .menu__link,
+    .menu[data-menu-prepared] .menu__arrow {
+      transition-duration: 0ms !important;
+      transition-delay: 0ms !important;
+    }
   }
   @media (max-width: 767px) {
     .navbar__logo { height: 3rem; }

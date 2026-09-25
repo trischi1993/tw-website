@@ -73,6 +73,7 @@ export default function GalleryMarqueeSection({
                    schwarzen Karten, bis Lazy-Loading erst später anspringt. */
                 loading={!titlesVisible && i < 2 ? 'eager' : 'lazy'}
                 fetchPriority={!titlesVisible && i < 2 ? 'low' : undefined}
+                decoding="async"
               />
               {item.title &&
                 (titlesVisible ? (

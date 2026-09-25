@@ -4,6 +4,7 @@
    und initialisiert werden müssen. */
 
 let runningAnimations: Animation[] = [];
+let navAnimations: Animation[] = [];
 
 const EASE = 'cubic-bezier(0.25, 0.1, 0.25, 1)';
 const OUT_QUART = 'cubic-bezier(0.165, 0.84, 0.44, 1)';
@@ -12,9 +13,16 @@ function play(
   element: Element | null,
   keyframes: Keyframe[],
   options: KeyframeAnimationOptions,
-): void {
-  if (!element) return;
-  runningAnimations.push(element.animate(keyframes, { fill: 'backwards', ...options }));
+): Animation | undefined {
+  if (!element) return undefined;
+  const animation = element.animate(keyframes, { fill: 'backwards', ...options });
+  runningAnimations.push(animation);
+  return animation;
+}
+
+function stopNavLoadAnimations(): void {
+  navAnimations.forEach((animation) => animation.cancel());
+  navAnimations = [];
 }
 
 function initEbookMobileLoad(): void {
@@ -23,6 +31,7 @@ function initEbookMobileLoad(): void {
 
   runningAnimations.forEach((animation) => animation.cancel());
   runningAnimations = [];
+  navAnimations = [];
 
   const heading = hero.querySelector<HTMLElement>('[data-ebook-heading]');
   const intro = hero.querySelector<HTMLElement>('[data-ebook-intro]');
@@ -31,6 +40,9 @@ function initEbookMobileLoad(): void {
   const visual = hero.querySelector<HTMLElement>('[data-ebook-visual]');
   const logoLines = document.querySelectorAll<HTMLElement>('[data-nav-logo-line]');
   const navRight = document.querySelector<HTMLElement>('[data-nav-right]');
+  const menuAlreadyOpen =
+    document.querySelector<HTMLElement>('[data-nav-toggle]')?.getAttribute('aria-expanded') ===
+    'true';
 
   [heading, intro, facts, buttons, visual, navRight].forEach((element) => {
     element?.setAttribute('data-revealed', '');
@@ -47,19 +59,24 @@ function initEbookMobileLoad(): void {
     });
   });
 
-  play(navRight, [{ opacity: 0 }, { opacity: 1 }], {
-    duration: 1200,
-    delay: 300,
-    easing: EASE,
-  });
-  play(
-    navRight,
-    [
-      { transform: 'translate3d(2.5rem, 0, 0)' },
-      { transform: 'translate3d(0, 0, 0)' },
-    ],
-    { duration: 1000, delay: 300, easing: OUT_QUART },
-  );
+  if (!menuAlreadyOpen) {
+    const opacityAnimation = play(navRight, [{ opacity: 0 }, { opacity: 1 }], {
+      duration: 1200,
+      delay: 300,
+      easing: EASE,
+    });
+    const transformAnimation = play(
+      navRight,
+      [
+        { transform: 'translate3d(2.5rem, 0, 0)' },
+        { transform: 'translate3d(0, 0, 0)' },
+      ],
+      { duration: 1000, delay: 300, easing: OUT_QUART },
+    );
+    navAnimations = [opacityAnimation, transformAnimation].filter(
+      (animation): animation is Animation => animation !== undefined,
+    );
+  }
 
   const slideIn = (element: Element | null, delay: number, opacityDuration = 750): void => {
     play(element, [{ opacity: 0 }, { opacity: 1 }], {
@@ -92,5 +109,6 @@ function initEbookMobileLoad(): void {
 
 initEbookMobileLoad();
 document.addEventListener('astro:page-load', initEbookMobileLoad);
+window.addEventListener('tw:mobile-menu-open', stopNavLoadAnimations);
 
 export {};

@@ -5,6 +5,7 @@
    wichtigen Anfangsphase reaktionsfähig. */
 
 let runningAnimations: Animation[] = [];
+let navAnimations: Animation[] = [];
 
 const EASE = 'cubic-bezier(0.25, 0.1, 0.25, 1)';
 const OUT_QUART = 'cubic-bezier(0.165, 0.84, 0.44, 1)';
@@ -13,9 +14,16 @@ function play(
   element: Element | null,
   keyframes: Keyframe[],
   options: KeyframeAnimationOptions,
-): void {
-  if (!element) return;
-  runningAnimations.push(element.animate(keyframes, { fill: 'backwards', ...options }));
+): Animation | undefined {
+  if (!element) return undefined;
+  const animation = element.animate(keyframes, { fill: 'backwards', ...options });
+  runningAnimations.push(animation);
+  return animation;
+}
+
+function stopNavLoadAnimations(): void {
+  navAnimations.forEach((animation) => animation.cancel());
+  navAnimations = [];
 }
 
 function initAioMobileLoad(): void {
@@ -25,6 +33,7 @@ function initAioMobileLoad(): void {
 
   runningAnimations.forEach((animation) => animation.cancel());
   runningAnimations = [];
+  navAnimations = [];
 
   const heading = hero.querySelector<HTMLElement>('[data-aio-h1]');
   const intro = hero.querySelector<HTMLElement>('[data-aio-intro]');
@@ -42,9 +51,11 @@ function initAioMobileLoad(): void {
   logoLines.forEach((line) => line.setAttribute('data-revealed', ''));
 
   logoLines.forEach((line) => {
-    const height = line.offsetHeight;
-    if (!height) return;
-    play(line, [{ height: '0px' }, { height: `${height}px` }], {
+    /* Kein offsetHeight-Read: Auf der sehr langen AIO-Seite wuerde er hier
+       direkt nach dem Parsen einen synchronen Ganzseiten-Layout-Pass erzwingen
+       und genau den ersten Menue-Tap blockieren. Die feste Logo-Linie sieht
+       mit compositorseitigem scaleY identisch aus. */
+    play(line, [{ transform: 'scaleY(0)' }, { transform: 'scaleY(1)' }], {
       duration: 500,
       delay: 100,
       easing: OUT_QUART,
@@ -55,18 +66,21 @@ function initAioMobileLoad(): void {
      Dann darf die Seiten-Load-Choreografie den bereits bedienten Header nicht
      nachtraeglich erneut verschieben oder ausblenden. */
   if (!menuAlreadyOpen) {
-    play(navRight, [{ opacity: 0 }, { opacity: 1 }], {
+    const opacityAnimation = play(navRight, [{ opacity: 0 }, { opacity: 1 }], {
       duration: 1200,
       delay: 300,
       easing: EASE,
     });
-    play(
+    const transformAnimation = play(
       navRight,
       [
         { transform: 'translate3d(2.5rem, 0, 0)' },
         { transform: 'translate3d(0, 0, 0)' },
       ],
       { duration: 1000, delay: 300, easing: OUT_QUART },
+    );
+    navAnimations = [opacityAnimation, transformAnimation].filter(
+      (animation): animation is Animation => animation !== undefined,
     );
   }
 
@@ -100,5 +114,6 @@ function initAioMobileLoad(): void {
 
 initAioMobileLoad();
 document.addEventListener('astro:page-load', initAioMobileLoad);
+window.addEventListener('tw:mobile-menu-open', stopNavLoadAnimations);
 
 export {};
