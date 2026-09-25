@@ -20,7 +20,8 @@ const EBOOK_ORIGIN = 'https://ebook.tristanweithaler.com';
  * Desktop-Links mit Underline-Wipe (motion/buttons.ts), Glow-CTA, Burger NUR
  * ≤991 (im Original ist .navbar_menu-button auf Desktop display:none — das
  * Fullscreen-Menü existiert nur auf Tablet/Mobile, IX2 a-121/a-122).
- * Menü-Logik + exakte IX2-Choreografie in src/scripts/menu.ts.
+ * Mobile Menü- und Rotationslogik laufen parser-früh im Inline-Controller
+ * unten, ohne ein Menü-/GSAP-Modul im kritischen Ladepfad.
  */
 const settings = await getSiteSettings();
 const isExternal = (href: string) => {
@@ -167,13 +168,10 @@ const headerCtaHref = settings.headerCta
   </nav>
 </div>
 
-<!-- Ein klassisches Inline-Script wird waehrend des HTML-Parsens ausgefuehrt.
-     Das ist fuer die lange AIO-Seite entscheidend: Das normale gebuendelte
-     Menue-Modul ist als ES-Modul absichtlich deferred und kann seinen
-     Click-Listener deshalb erst nach dem vollstaendigen Dokument anhaengen.
-     Bis dahin uebernimmt dieser kleine, abhaengigkeitsfreie Bootstrap exakt
-     den kompakten mobilen Oeffnungszustand. menu.ts adoptiert ihn spaeter und
-     fuehrt danach Animation, Fokussteuerung und Schliessen normal weiter. -->
+<!-- Der mobile Menue-Controller laeuft absichtlich inline waehrend des
+     HTML-Parsens. Damit steht er auf jeder Seite vor allen deferred Modulen
+     bereit und beginnt die sichtbare Bewegung direkt mit dem Fingerkontakt.
+     Es gibt mobil keine spaetere Uebergabe an einen zweiten Controller. -->
 <script is:inline>
   (() => {
     const header = document.querySelector('[data-site-header]');
@@ -183,6 +181,8 @@ const headerCtaHref = settings.headerCta
     if (!header || !toggle || !menu || !panel) return;
 
     const links = Array.from(menu.querySelectorAll('[data-menu-link]'));
+    const texts = links.map((link) => link.querySelector('[data-menu-text]'));
+    const wipes = links.map((link) => link.querySelector('[data-menu-wipe]'));
     const arrows = Array.from(menu.querySelectorAll('[data-menu-arrow]'));
     const burgerTop = header.querySelector('[data-burger-top]');
     const burgerMiddle = header.querySelector('[data-burger-middle]');
@@ -190,31 +190,21 @@ const headerCtaHref = settings.headerCta
     const navRight = header.querySelector('[data-nav-right]');
     const rightInner = header.querySelector('[data-nav-right-inner]');
     const headerCta = header.querySelector('.navbar__cta');
+    const mobile = window.matchMedia('(max-width: 991px)');
+    const portrait = window.matchMedia('(orientation: portrait)');
+    const finePointer = window.matchMedia('(hover: hover) and (pointer: fine)');
     const reduced = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
     const ease = 'cubic-bezier(0.25, 0.1, 0.25, 1)';
     const outQuart = 'cubic-bezier(0.165, 0.84, 0.44, 1)';
-    /* Die Menue-Ebene wird auf mobilen Breakpoints bereits waehrend des
-       Parsens offscreen zusammengesetzt. Der erste Tap muss sie dadurch nur
-       noch auf den Compositor schieben; er darf nicht gleichzeitig auf der
-       langen AIO-Seite `display:none` aufloesen und das gesamte Dokument neu
-       vermessen. Inert + pointer-events halten die vorbereitete Ebene bis zum
-       Oeffnen vollstaendig aus Bedienung und Hit-Testing heraus. */
-    if (window.matchMedia('(max-width: 991px)').matches) {
-      menu.removeAttribute('hidden');
-      menu.setAttribute('inert', '');
-      menu.setAttribute('aria-hidden', 'true');
-      menu.setAttribute('data-menu-prepared', '');
-      menu.style.pointerEvents = 'none';
-      panel.style.transform = 'translate3d(-100%, 0, 0)';
-      panel.style.willChange = 'transform';
-      links.forEach((link) => {
-        link.style.transform = 'translate3d(-80px, 0, 0)';
-        link.style.opacity = '0';
-      });
-      arrows.forEach((arrow) => {
-        arrow.style.opacity = '0';
-      });
-    }
+    const inOutQuart = 'cubic-bezier(0.76, 0, 0.24, 1)';
+    const OPEN_END_MS = 750;
+    const CLOSE_END_MS = 530;
+    const INITIAL_HEADER_BACKGROUND = 'rgba(21, 21, 21, 0.12)';
+    const CLOSED_HEADER_BACKGROUND = 'rgba(231, 226, 220, 0.12)';
+
+    /* Marker fuer Tests und optionale Progressive-Enhancement-Fallbacks: Der
+       mobile Controller ist bereits waehrend des Parsens vollstaendig aktiv. */
+    toggle.setAttribute('data-inline-mobile-menu', '');
 
     const openShift = () => {
       if (!rightInner || !headerCta) return 9.2 * 16;
@@ -222,7 +212,366 @@ const headerCtaHref = settings.headerCta
       return headerCta.getBoundingClientRect().width + gap;
     };
 
-    const resetEarlyStyles = () => {
+    let isOpen = false;
+    let menuPhase = 'closed';
+    let transitionId = 0;
+    let transitionTimer;
+    let followUpFrame;
+    let suppressNextClick = false;
+    let suppressClickTimer;
+    let lastFocused = null;
+    let runningAnimations = [];
+    let inertBackdrop = [];
+    let closedHeaderBackground = INITIAL_HEADER_BACKGROUND;
+    let closedLinkTransform = 'translate3d(-80px, 0, 0)';
+    let openRightTransform = 'translate3d(0, 0, 0)';
+    const hoverAnimations = new Map();
+
+    const computed = (element, property) =>
+      element ? getComputedStyle(element)[property] : '';
+
+    const cancelAnimations = () => {
+      runningAnimations.forEach((animation) => animation.cancel());
+      runningAnimations = [];
+      if (followUpFrame !== undefined) cancelAnimationFrame(followUpFrame);
+      followUpFrame = undefined;
+      if (transitionTimer !== undefined) clearTimeout(transitionTimer);
+      transitionTimer = undefined;
+    };
+
+    const play = (element, keyframes, options) => {
+      if (!element) return;
+      const animation = element.animate(keyframes, { fill: 'both', ...options });
+      runningAnimations.push(animation);
+    };
+
+    /* ---------------------------------------------------------------------
+       Parser-fruehe Header-Rotationssicherung. Sie ersetzt die fruehere
+       menu.ts/GSAP-Abhaengigkeit vollständig, sodass die ganze fixe Navbar
+       schon vor `window.load` verborgen werden kann. Wartezeiten und sichtbare
+       Replay-Choreografie entsprechen exakt dem bisherigen Ablauf. */
+    const logoText1 = Array.from(header.querySelectorAll('[data-nav-logo-text="1"]'));
+    const logoText2 = Array.from(header.querySelectorAll('[data-nav-logo-text="2"]'));
+    const logoLines = Array.from(header.querySelectorAll('[data-nav-logo-line]'));
+    const headerMotionTargets = [
+      ...logoText1,
+      ...logoText2,
+      ...logoLines,
+      ...(navRight ? [navRight] : []),
+    ];
+    const MIN_HIDE_MS = 600;
+    const VIEWPORT_QUIET_MS = 160;
+    const HARD_SETTLE_MS = 1500;
+    let orientationPending = false;
+    let pendingPortrait = portrait.matches;
+    let orientationStartedAt = 0;
+    let lastViewportChangeAt = 0;
+    let orientationSettleTimer;
+    let orientationHardTimer;
+    let orientationCleanupTimer;
+    let orientationReplayId = 0;
+    let orientationAnimations = [];
+    let orientationMenuWasOpen = false;
+
+    const cancelOrientationAnimations = () => {
+      orientationReplayId += 1;
+      if (orientationCleanupTimer !== undefined) clearTimeout(orientationCleanupTimer);
+      orientationCleanupTimer = undefined;
+      orientationAnimations.forEach((animation) => animation.cancel());
+      orientationAnimations = [];
+      headerMotionTargets.forEach((target) => {
+        target.getAnimations().forEach((animation) => animation.cancel());
+      });
+    };
+
+    const clearOrientationStyles = () => {
+      [...logoText1, ...logoText2].forEach((element) => {
+        element.style.removeProperty('transform');
+        element.style.removeProperty('will-change');
+      });
+      logoLines.forEach((element) => {
+        element.style.removeProperty('height');
+        element.style.removeProperty('transform');
+        element.style.removeProperty('transform-origin');
+        element.style.removeProperty('will-change');
+      });
+      if (navRight) {
+        navRight.style.removeProperty('transform');
+        navRight.style.removeProperty('opacity');
+        navRight.style.removeProperty('will-change');
+      }
+    };
+
+    const playOrientation = (element, keyframes, options) => {
+      if (!element) return;
+      const animation = element.animate(keyframes, { fill: 'both', ...options });
+      orientationAnimations.push(animation);
+    };
+
+    const finishOrientationChange = () => {
+      if (!orientationPending) return;
+      orientationPending = false;
+      if (orientationSettleTimer !== undefined) clearTimeout(orientationSettleTimer);
+      if (orientationHardTimer !== undefined) clearTimeout(orientationHardTimer);
+      orientationSettleTimer = undefined;
+      orientationHardTimer = undefined;
+
+      cancelOrientationAnimations();
+      clearOrientationStyles();
+      const keepMenuState = orientationMenuWasOpen || isOpen;
+      orientationMenuWasOpen = false;
+      if (reduced || keepMenuState) {
+        header.classList.remove('is-orientation-changing');
+        menu.classList.remove('is-orientation-changing');
+        return;
+      }
+
+      const replayId = ++orientationReplayId;
+      logoText1.forEach((element) => {
+        element.style.transform = 'translate3d(0, 0, 0)';
+        element.style.willChange = 'transform';
+        playOrientation(element, [
+          { transform: 'translate3d(140%, 0, 0)' },
+          { transform: 'translate3d(0, 0, 0)' },
+        ], { duration: 900, delay: 60, easing: outQuart });
+      });
+      logoText2.forEach((element) => {
+        element.style.transform = 'translate3d(0, 0, 0)';
+        element.style.willChange = 'transform';
+        playOrientation(element, [
+          { transform: 'translate3d(-140%, 0, 0)' },
+          { transform: 'translate3d(0, 0, 0)' },
+        ], { duration: 900, delay: 60, easing: outQuart });
+      });
+      logoLines.forEach((element) => {
+        element.style.transform = 'scaleY(1)';
+        element.style.transformOrigin = '50% 50%';
+        element.style.willChange = 'transform';
+        playOrientation(element, [
+          { transform: 'scaleY(0)' },
+          { transform: 'scaleY(1)' },
+        ], { duration: 500, easing: outQuart });
+      });
+      if (navRight) {
+        navRight.style.opacity = '1';
+        navRight.style.transform = 'translate3d(0, 0, 0)';
+        navRight.style.willChange = 'transform, opacity';
+        playOrientation(navRight, [{ opacity: 0 }, { opacity: 1 }], {
+          duration: 1080,
+          delay: 60,
+          easing: ease,
+        });
+        playOrientation(navRight, [
+          { transform: 'translate3d(2.5rem, 0, 0)' },
+          { transform: 'translate3d(0, 0, 0)' },
+        ], { duration: 900, delay: 60, easing: outQuart });
+      }
+
+      // Alle Startwerte stehen noch hinter dem Whole-Navbar-Guard. Erst jetzt
+      // wird der definierte erste Replay-Frame sichtbar.
+      header.classList.remove('is-orientation-changing');
+      menu.classList.remove('is-orientation-changing');
+      orientationCleanupTimer = setTimeout(() => {
+        if (replayId !== orientationReplayId) return;
+        orientationAnimations.forEach((animation) => animation.cancel());
+        orientationAnimations = [];
+        orientationCleanupTimer = undefined;
+        clearOrientationStyles();
+      }, 1150);
+    };
+
+    const scheduleOrientationFinish = () => {
+      if (!orientationPending) return;
+      if (orientationSettleTimer !== undefined) clearTimeout(orientationSettleTimer);
+      const now = performance.now();
+      const earliestFinish = Math.max(
+        orientationStartedAt + MIN_HIDE_MS,
+        lastViewportChangeAt + VIEWPORT_QUIET_MS,
+      );
+      orientationSettleTimer = setTimeout(
+        finishOrientationChange,
+        Math.max(0, earliestFinish - now),
+      );
+    };
+
+    const beginOrientationChange = () => {
+      const isPortrait = portrait.matches;
+      const now = performance.now();
+      if (orientationPending && isPortrait === pendingPortrait) {
+        lastViewportChangeAt = now;
+        scheduleOrientationFinish();
+        return;
+      }
+
+      orientationPending = true;
+      pendingPortrait = isPortrait;
+      orientationStartedAt = now;
+      lastViewportChangeAt = now;
+      orientationMenuWasOpen = isOpen;
+      header.classList.add('is-orientation-changing');
+      menu.classList.add('is-orientation-changing');
+      cancelOrientationAnimations();
+      if (orientationSettleTimer !== undefined) clearTimeout(orientationSettleTimer);
+      if (orientationHardTimer !== undefined) clearTimeout(orientationHardTimer);
+      scheduleOrientationFinish();
+      orientationHardTimer = setTimeout(finishOrientationChange, HARD_SETTLE_MS);
+    };
+
+    const handleViewportResize = () => {
+      if (!orientationPending) return;
+      lastViewportChangeAt = performance.now();
+      scheduleOrientationFinish();
+    };
+
+    window.addEventListener('orientationchange', beginOrientationChange, { passive: true });
+    screen.orientation?.addEventListener('change', beginOrientationChange);
+    portrait.addEventListener('change', beginOrientationChange);
+    window.addEventListener('resize', handleViewportResize, { passive: true });
+    window.visualViewport?.addEventListener('resize', handleViewportResize, { passive: true });
+    window.addEventListener('lp:orientation-settled', scheduleOrientationFinish);
+
+    const releaseBackdrop = () => {
+      inertBackdrop.forEach((element) => element.removeAttribute('inert'));
+      inertBackdrop = [];
+    };
+
+    const isolateBackdrop = () => {
+      releaseBackdrop();
+      inertBackdrop = Array.from(document.body.children).filter(
+        (element) =>
+          element instanceof HTMLElement &&
+          element !== header &&
+          element !== menu &&
+          !element.hasAttribute('inert'),
+      );
+      inertBackdrop.forEach((element) => element.setAttribute('inert', ''));
+    };
+
+    const trapStops = () => [
+      ...Array.from(header.querySelectorAll('a[href], button:not([disabled])')),
+      ...links,
+    ].filter((element) => element.getClientRects().length > 0);
+
+    const cancelHoverAnimations = () => {
+      hoverAnimations.forEach((animation) => animation.cancel());
+      hoverAnimations.clear();
+    };
+
+    const resetHoverStyles = (remove = false) => {
+      cancelHoverAnimations();
+      wipes.forEach((wipe) => {
+        if (!wipe) return;
+        if (remove) wipe.style.removeProperty('height');
+        else wipe.style.height = '0px';
+      });
+      texts.forEach((text) => {
+        if (!text) return;
+        if (remove) text.style.removeProperty('transform');
+        else text.style.transform = 'translate3d(0, 0, 0)';
+      });
+      arrows.forEach((arrow) => {
+        if (remove) arrow.style.removeProperty('transform');
+        else arrow.style.transform = 'rotate(0deg)';
+      });
+    };
+
+    const animateHoverProperty = (element, property, target, duration, easing) => {
+      if (!element) return;
+      const start = computed(element, property);
+      hoverAnimations.get(element)?.cancel();
+      element.style[property] = target;
+      const animation = element.animate(
+        [{ [property]: start }, { [property]: target }],
+        { duration, easing, fill: 'both' },
+      );
+      hoverAnimations.set(element, animation);
+      animation.finished.then(() => {
+        if (hoverAnimations.get(element) !== animation) return;
+        animation.cancel();
+        hoverAnimations.delete(element);
+      }, () => {});
+    };
+
+    const setLinkHover = (index, active) => {
+      if (!mobile.matches || !finePointer.matches || reduced) return;
+      animateHoverProperty(
+        wipes[index],
+        'height',
+        active ? '100%' : '0px',
+        500,
+        inOutQuart,
+      );
+      animateHoverProperty(
+        arrows[index],
+        'transform',
+        active ? 'rotate(90deg)' : 'rotate(0deg)',
+        500,
+        outQuart,
+      );
+      animateHoverProperty(
+        texts[index],
+        'transform',
+        active ? 'translate3d(40px, 0, 0)' : 'translate3d(0, 0, 0)',
+        500,
+        outQuart,
+      );
+    };
+
+    const prepareMobileMenu = () => {
+      transitionId += 1;
+      cancelAnimations();
+      releaseBackdrop();
+      resetHoverStyles();
+      isOpen = false;
+      menuPhase = 'closed';
+      closedHeaderBackground = INITIAL_HEADER_BACKGROUND;
+      closedLinkTransform = 'translate3d(-80px, 0, 0)';
+      openRightTransform = 'translate3d(0, 0, 0)';
+      document.body.classList.remove('no-scroll');
+      header.classList.remove('is-menu-open');
+      toggle.setAttribute('aria-expanded', 'false');
+      menu.removeAttribute('hidden');
+      menu.setAttribute('inert', '');
+      menu.setAttribute('aria-hidden', 'true');
+      menu.setAttribute('data-menu-prepared', '');
+      menu.style.pointerEvents = 'none';
+      menu.style.visibility = 'hidden';
+      panel.style.transform = 'translate3d(-100%, 0, 0)';
+      panel.style.removeProperty('will-change');
+      links.forEach((link) => {
+        link.style.transform = 'translate3d(-80px, 0, 0)';
+        link.style.opacity = '0';
+      });
+      arrows.forEach((arrow) => {
+        arrow.style.opacity = '0';
+      });
+    };
+
+    const leaveMobileMenu = () => {
+      const activeElement = document.activeElement;
+      const mustRestoreFocus = isOpen || (activeElement && menu.contains(activeElement));
+      transitionId += 1;
+      cancelAnimations();
+      releaseBackdrop();
+      resetHoverStyles(true);
+      if (mustRestoreFocus) {
+        const visibleHeaderTarget = Array.from(
+          header.querySelectorAll('a[href], button:not([disabled])'),
+        ).find((element) => element.getClientRects().length > 0);
+        visibleHeaderTarget?.focus({ preventScroll: true });
+      }
+      isOpen = false;
+      menuPhase = 'closed';
+      document.body.classList.remove('no-scroll');
+      header.classList.remove('is-menu-open');
+      header.style.removeProperty('background-color');
+      toggle.setAttribute('aria-expanded', 'false');
+      menu.setAttribute('hidden', '');
+      menu.setAttribute('inert', '');
+      menu.setAttribute('aria-hidden', 'true');
+      menu.removeAttribute('data-menu-prepared');
+      menu.style.removeProperty('pointer-events');
+      menu.style.removeProperty('visibility');
       panel.style.removeProperty('transform');
       panel.style.removeProperty('will-change');
       links.forEach((link) => {
@@ -233,198 +582,379 @@ const headerCtaHref = settings.headerCta
       [burgerTop, burgerMiddle, burgerBottom, rightInner].forEach((element) => {
         element?.style.removeProperty('transform');
       });
-      header.style.removeProperty('background-color');
     };
 
-    const closeBeforeMainModule = () => {
-      menu.__earlyMenuBridge?.cancel();
-      resetEarlyStyles();
-      menu.setAttribute('hidden', '');
-      menu.setAttribute('inert', '');
-      menu.setAttribute('aria-hidden', 'true');
-      menu.removeAttribute('data-menu-prepared');
-      menu.style.removeProperty('pointer-events');
-      header.classList.remove('is-menu-open');
-      toggle.setAttribute('aria-expanded', 'false');
-      document.body.classList.remove('no-scroll');
-      delete menu.__earlyMenuBridge;
+    const finishOpen = (id) => {
+      if (id !== transitionId || !isOpen) return;
+      runningAnimations.forEach((animation) => animation.cancel());
+      runningAnimations = [];
+      transitionTimer = undefined;
+      menuPhase = 'open';
+      panel.style.removeProperty('will-change');
+      links[0]?.focus({ preventScroll: true });
     };
 
-    const openBeforeMainModule = () => {
-      menu.__earlyMenuBridge?.cancel();
-      delete menu.__earlyMenuBridge;
-      const animations = [];
-      let followUpFrame;
-      let stopped = false;
+    const openMenu = () => {
+      if (!mobile.matches || isOpen) return;
+      isOpen = true;
+      const id = ++transitionId;
+      const interrupted = menuPhase === 'closing';
+      /* Im stabil geschlossenen Zustand sind alle Startwerte bekannt. Nur ein
+         echter Richtungswechsel waehrend der Schliessanimation liest den
+         aktuellen Zwischenstand. Dadurch beginnt der normale erste und jeder
+         weitere Open-Tap ohne synchronen Style-/Layout-Flush. */
+      const starts = interrupted
+        ? {
+            headerBackground: computed(header, 'backgroundColor'),
+            panelTransform: computed(panel, 'transform'),
+            middleTransform: computed(burgerMiddle, 'transform'),
+            topTransform: computed(burgerTop, 'transform'),
+            bottomTransform: computed(burgerBottom, 'transform'),
+            rightTransform: computed(rightInner, 'transform'),
+            linkTransforms: links.map((link) => computed(link, 'transform')),
+            linkOpacities: links.map((link) => computed(link, 'opacity')),
+            arrowOpacities: arrows.map((arrow) => computed(arrow, 'opacity')),
+          }
+        : {
+            headerBackground: closedHeaderBackground,
+            panelTransform: 'translate3d(-100%, 0, 0)',
+            middleTransform: 'translate3d(0, 0, 0)',
+            topTransform: 'translate3d(0, 0, 0) rotate(0deg)',
+            bottomTransform: 'translate3d(0, 0, 0) rotate(0deg)',
+            rightTransform: 'translate3d(0, 0, 0)',
+            linkTransforms: links.map(() => closedLinkTransform),
+            linkOpacities: links.map(() => '0'),
+            arrowOpacities: arrows.map(() => '0'),
+          };
+      menuPhase = 'opening';
+      cancelAnimations();
+      releaseBackdrop();
+      lastFocused =
+        document.activeElement instanceof HTMLElement &&
+        document.activeElement !== document.body
+          ? document.activeElement
+          : toggle;
 
-      const cancel = () => {
-        stopped = true;
-        if (followUpFrame !== undefined) cancelAnimationFrame(followUpFrame);
-        animations.forEach((animation) => animation.cancel());
-      };
-      menu.__earlyMenuBridge = { cancel };
-
-      // Eine noch laufende AIO-Load-Animation der rechten Kopfzeile wird bei
-      // echter Bedienung in ihren normalen CSS-Endzustand ueberfuehrt. Sie
-      // darf weder die Trefferflaeche noch die Menuebewegung weiter versetzen.
+      // Eine laufende Header-Load-Animation darf die Trefferflaeche nach der
+      // echten Bedienung nicht weiter verschieben.
       navRight?.getAnimations().forEach((animation) => animation.cancel());
       header.classList.add('is-menu-open');
       toggle.setAttribute('aria-expanded', 'true');
       menu.removeAttribute('inert');
       menu.removeAttribute('aria-hidden');
       menu.style.removeProperty('pointer-events');
-
-      panel.style.transform = 'translate3d(-100%, 0, 0)';
+      menu.style.removeProperty('visibility');
       panel.style.willChange = 'transform';
+
+      header.style.backgroundColor = 'rgba(0, 0, 0, 0)';
+      panel.style.transform = 'translate3d(0, 0, 0)';
       links.forEach((link) => {
-        link.style.transform = 'translate3d(-80px, 0, 0)';
+        link.style.transform = 'translate3d(0, 0, 0)';
+        link.style.opacity = '1';
+      });
+      arrows.forEach((arrow) => {
+        arrow.style.opacity = '1';
+      });
+      if (burgerMiddle) burgerMiddle.style.transform = 'translate3d(200%, 0, 0)';
+      if (burgerTop) burgerTop.style.transform = 'translate3d(0, 3.5px, 0) rotate(45deg)';
+      if (burgerBottom) burgerBottom.style.transform = 'translate3d(0, -3.5px, 0) rotate(-45deg)';
+
+      if (reduced) {
+        document.body.classList.add('no-scroll');
+        isolateBackdrop();
+        menuPhase = 'open';
+        panel.style.removeProperty('will-change');
+        links[0]?.focus({ preventScroll: true });
+        return;
+      }
+
+      /* Panel, Header und Burger beginnen synchron im pointerdown-Task. Erst
+         der naechste Frame sperrt den Scroll und misst den CTA-Shift. */
+      play(header, [
+        { backgroundColor: starts.headerBackground },
+        { backgroundColor: 'rgba(0, 0, 0, 0)' },
+      ], { duration: 200, easing: ease });
+      play(panel, [
+        { transform: starts.panelTransform },
+        { transform: 'translate3d(0, 0, 0)' },
+      ], { duration: 720, easing: outQuart });
+      play(burgerMiddle, [
+        { transform: starts.middleTransform },
+        { transform: 'translate3d(200%, 0, 0)' },
+      ], { duration: 500, delay: 100, easing: outQuart });
+      play(burgerTop, [
+        { transform: starts.topTransform },
+        { transform: 'translate3d(0, 3.5px, 0) rotate(45deg)' },
+      ], { duration: 300, delay: 200, easing: outQuart });
+      play(burgerBottom, [
+        { transform: starts.bottomTransform },
+        { transform: 'translate3d(0, -3.5px, 0) rotate(-45deg)' },
+      ], { duration: 300, delay: 200, easing: outQuart });
+      links.forEach((link, index) => {
+        const delay = 180 + index * 70;
+        play(link, [
+          { transform: starts.linkTransforms[index] },
+          { transform: 'translate3d(0, 0, 0)' },
+        ], { duration: 350, delay, easing: outQuart });
+        play(link, [
+          { opacity: starts.linkOpacities[index] },
+          { opacity: 1 },
+        ], { duration: 250, delay, easing: ease });
+      });
+      arrows.forEach((arrow, index) => {
+        play(arrow, [
+          { opacity: starts.arrowOpacities[index] },
+          { opacity: 1 },
+        ], { duration: 250, delay: 450, easing: ease });
+      });
+
+      followUpFrame = requestAnimationFrame(() => {
+        followUpFrame = undefined;
+        if (id !== transitionId || !isOpen) return;
+        document.body.classList.add('no-scroll');
+        isolateBackdrop();
+        if (!rightInner) return;
+        const targetTransform = `translate3d(${openShift()}px, 0, 0)`;
+        openRightTransform = targetTransform;
+        rightInner.style.transform = targetTransform;
+        play(rightInner, [
+          { transform: starts.rightTransform },
+          { transform: targetTransform },
+        ], { duration: 350, easing: outQuart });
+      });
+      transitionTimer = setTimeout(() => finishOpen(id), OPEN_END_MS);
+    };
+
+    const finishClose = (id) => {
+      if (id !== transitionId || isOpen) return;
+      runningAnimations.forEach((animation) => animation.cancel());
+      runningAnimations = [];
+      transitionTimer = undefined;
+      menuPhase = 'closed';
+      links.forEach((link) => {
+        link.style.transform = 'translate3d(-70px, 0, 0)';
+        link.style.opacity = '0';
+      });
+      closedHeaderBackground = CLOSED_HEADER_BACKGROUND;
+      closedLinkTransform = 'translate3d(-70px, 0, 0)';
+      openRightTransform = 'translate3d(0, 0, 0)';
+      menu.style.pointerEvents = 'none';
+      menu.style.visibility = 'hidden';
+      panel.style.removeProperty('will-change');
+      releaseBackdrop();
+      document.body.classList.remove('no-scroll');
+      const focusTarget = lastFocused?.isConnected ? lastFocused : toggle;
+      focusTarget.focus({ preventScroll: true });
+    };
+
+    const closeMenu = () => {
+      if (!mobile.matches || !isOpen) return;
+      isOpen = false;
+      const id = ++transitionId;
+      const interrupted = menuPhase === 'opening';
+      const starts = interrupted
+        ? {
+            headerBackground: computed(header, 'backgroundColor'),
+            panelTransform: computed(panel, 'transform'),
+            rightTransform: computed(rightInner, 'transform'),
+            middleTransform: computed(burgerMiddle, 'transform'),
+            topTransform: computed(burgerTop, 'transform'),
+            bottomTransform: computed(burgerBottom, 'transform'),
+            linkOpacities: links.map((link) => computed(link, 'opacity')),
+            arrowOpacities: arrows.map((arrow) => computed(arrow, 'opacity')),
+          }
+        : {
+            headerBackground: 'rgba(0, 0, 0, 0)',
+            panelTransform: 'translate3d(0, 0, 0)',
+            rightTransform: openRightTransform,
+            middleTransform: 'translate3d(200%, 0, 0)',
+            topTransform: 'translate3d(0, 3.5px, 0) rotate(45deg)',
+            bottomTransform: 'translate3d(0, -3.5px, 0) rotate(-45deg)',
+            linkOpacities: links.map(() => '1'),
+            arrowOpacities: arrows.map(() => '1'),
+          };
+      menuPhase = 'closing';
+      cancelAnimations();
+      resetHoverStyles();
+
+      (lastFocused?.isConnected ? lastFocused : toggle).focus({ preventScroll: true });
+      header.classList.remove('is-menu-open');
+      toggle.setAttribute('aria-expanded', 'false');
+      menu.setAttribute('inert', '');
+      menu.setAttribute('aria-hidden', 'true');
+
+      const closedBackground = CLOSED_HEADER_BACKGROUND;
+      menu.style.removeProperty('visibility');
+      panel.style.willChange = 'transform';
+      header.style.backgroundColor = closedBackground;
+      panel.style.transform = 'translate3d(-100%, 0, 0)';
+      if (rightInner) rightInner.style.transform = 'translate3d(0, 0, 0)';
+      if (burgerMiddle) burgerMiddle.style.transform = 'translate3d(0, 0, 0)';
+      if (burgerTop) burgerTop.style.transform = 'translate3d(0, 0, 0) rotate(0deg)';
+      if (burgerBottom) burgerBottom.style.transform = 'translate3d(0, 0, 0) rotate(0deg)';
+      links.forEach((link) => {
         link.style.opacity = '0';
       });
       arrows.forEach((arrow) => {
         arrow.style.opacity = '0';
       });
-      menu.removeAttribute('hidden');
 
       if (reduced) {
-        document.body.classList.add('no-scroll');
-        panel.style.transform = 'translate3d(0, 0, 0)';
-        links.forEach((link) => {
-          link.style.transform = 'translate3d(0, 0, 0)';
-          link.style.opacity = '1';
-        });
-        arrows.forEach((arrow) => {
-          arrow.style.opacity = '1';
-        });
+        finishClose(id);
         return;
       }
 
-      const play = (element, keyframes, options) => {
-        if (!element || stopped) return;
-        animations.push(element.animate(keyframes, { fill: 'both', ...options }));
-      };
-
-      /* Der sichtbare Compositor-Start geschieht synchron zum Fingerkontakt.
-         Scroll-Lock und die einzige benoetigte Breitenmessung folgen erst im
-         naechsten Frame, nachdem das Panel bereits unterwegs ist. */
-      play(header, [{ backgroundColor: 'rgba(21, 21, 21, 0.12)' }, { backgroundColor: 'rgba(0, 0, 0, 0)' }], {
-        duration: 200,
-        easing: ease,
-      });
-      play(panel, [{ transform: 'translate3d(-100%, 0, 0)' }, { transform: 'translate3d(0, 0, 0)' }], {
-        duration: 720,
-        easing: outQuart,
-      });
-      play(burgerMiddle, [{ transform: 'translate3d(0, 0, 0)' }, { transform: 'translate3d(200%, 0, 0)' }], {
-        duration: 500,
-        delay: 100,
-        easing: outQuart,
-      });
-      play(burgerTop, [{ transform: 'translate3d(0, 0, 0) rotate(0deg)' }, { transform: 'translate3d(0, 3.5px, 0) rotate(45deg)' }], {
-        duration: 300,
-        delay: 200,
-        easing: outQuart,
-      });
-      play(burgerBottom, [{ transform: 'translate3d(0, 0, 0) rotate(0deg)' }, { transform: 'translate3d(0, -3.5px, 0) rotate(-45deg)' }], {
-        duration: 300,
-        delay: 200,
-        easing: outQuart,
-      });
       links.forEach((link, index) => {
-        const delay = 180 + index * 70;
-        play(link, [{ transform: 'translate3d(-80px, 0, 0)' }, { transform: 'translate3d(0, 0, 0)' }], {
-          duration: 350,
-          delay,
-          easing: outQuart,
-        });
-        play(link, [{ opacity: 0 }, { opacity: 1 }], {
-          duration: 250,
-          delay,
-          easing: ease,
-        });
+        play(link, [
+          { opacity: starts.linkOpacities[index] },
+          { opacity: 0 },
+        ], { duration: 180, easing: ease });
       });
-      arrows.forEach((arrow) => {
-        play(arrow, [{ opacity: 0 }, { opacity: 1 }], {
-          duration: 250,
-          delay: 450,
-          easing: ease,
-        });
+      arrows.forEach((arrow, index) => {
+        play(arrow, [
+          { opacity: starts.arrowOpacities[index] },
+          { opacity: 0 },
+        ], { duration: 180, easing: ease });
       });
-
-      followUpFrame = requestAnimationFrame(() => {
-        followUpFrame = undefined;
-        if (stopped || toggle.getAttribute('aria-expanded') !== 'true') return;
-        document.body.classList.add('no-scroll');
-        play(rightInner, [{ transform: 'translate3d(0, 0, 0)' }, { transform: `translate3d(${openShift()}px, 0, 0)` }], {
-          duration: 350,
-          easing: outQuart,
-        });
-      });
+      play(panel, [
+        { transform: starts.panelTransform },
+        { transform: 'translate3d(-100%, 0, 0)' },
+      ], { duration: 520, easing: outQuart });
+      play(burgerTop, [
+        { transform: starts.topTransform },
+        { transform: 'translate3d(0, 0, 0) rotate(0deg)' },
+      ], { duration: 250, easing: outQuart });
+      play(burgerBottom, [
+        { transform: starts.bottomTransform },
+        { transform: 'translate3d(0, 0, 0) rotate(0deg)' },
+      ], { duration: 250, easing: outQuart });
+      play(burgerMiddle, [
+        { transform: starts.middleTransform },
+        { transform: 'translate3d(0, 0, 0)' },
+      ], { duration: 250, delay: 150, easing: outQuart });
+      play(rightInner, [
+        { transform: starts.rightTransform },
+        { transform: 'translate3d(0, 0, 0)' },
+      ], { duration: 350, delay: 100, easing: outQuart });
+      play(header, [
+        { backgroundColor: starts.headerBackground },
+        { backgroundColor: closedBackground },
+      ], { duration: 300, delay: 200, easing: ease });
+      transitionTimer = setTimeout(() => finishClose(id), CLOSE_END_MS);
     };
 
-    let suppressNextEarlyClick = false;
-    let suppressEarlyClickTimer;
-
-    const signalEarlyInteraction = () => {
-      /* Signalisiert dem kleinen Loader, dass die abhaengigkeitsfreie
-         Fruehsteuerung bereits uebernommen hat. Das vollstaendige GSAP-Modul
-         darf dann erst nach der sichtbaren Oeffnungsanimation nachladen und
-         nicht denselben ersten Tap durch Parse-/Initialisierungsarbeit
-         verzoegern. Das data-Attribut deckt auch einen Tap ab, der noch vor
-         der Ausfuehrung des deferred Loader-Moduls erfolgt. */
-      toggle.setAttribute('data-menu-early-interacted', '');
-      document.dispatchEvent(new Event('site:early-menu-interaction'));
+    const toggleMenu = () => {
+      if (isOpen) closeMenu();
+      else openMenu();
     };
 
-    const toggleBeforeMainModule = () => {
-      signalEarlyInteraction();
-      if (toggle.getAttribute('aria-expanded') === 'true') closeBeforeMainModule();
-      else openBeforeMainModule();
-    };
+    let navigationPending = false;
+    links.forEach((link, index) => {
+      link.addEventListener('mouseenter', () => setLinkHover(index, true));
+      link.addEventListener('mouseleave', () => setLinkHover(index, false));
+      link.addEventListener('click', (event) => {
+        const modifiedClick =
+          event.button !== 0 || event.metaKey || event.ctrlKey || event.shiftKey || event.altKey;
+        const opensSeparateContext = link.target === '_blank' || link.hasAttribute('download');
+        if (modifiedClick || opensSeparateContext || navigationPending) return;
 
-    /* Auf iOS kann ein Element, das waehrend der Startchoreografie noch per
-       transform in seine Endposition faehrt, seinen normalen `click` erst
-       nach stabiler Geometrie erhalten. Der Fingerkontakt selbst kommt jedoch
-       sofort an. Nur fuer Touch/Stift und nur vor der vollstaendigen
-       Menueinitialisierung reagieren wir deshalb schon auf `pointerdown`.
-       Der danach vom Browser erzeugte Click wird genau einmal geschluckt,
-       damit er das gerade geoeffnete Menue nicht wieder schliesst. */
-    const activateOnEarlyTouch = (event) => {
-      if (toggle.hasAttribute('data-menu-ready')) return;
+        event.preventDefault();
+        navigationPending = true;
+        const navigate = () => window.location.assign(link.href);
+        if (reduced) {
+          navigate();
+          return;
+        }
+
+        const clickWipe = link.querySelector('[data-menu-click-wipe]');
+        const arrow = arrows[index];
+        if (arrow) {
+          hoverAnimations.get(arrow)?.cancel();
+          hoverAnimations.delete(arrow);
+          const startTransform = computed(arrow, 'transform');
+          arrow.style.transform = 'rotate(45deg)';
+          play(arrow, [
+            { transform: startTransform },
+            { transform: 'rotate(45deg)' },
+          ], { duration: 300, easing: outQuart });
+        }
+        if (clickWipe) {
+          clickWipe.style.height = '100%';
+          const animation = clickWipe.animate(
+            [{ height: '0%' }, { height: '100%' }],
+            { duration: 300, easing: outQuart, fill: 'both' },
+          );
+          animation.finished.then(navigate, navigate);
+        } else {
+          setTimeout(navigate, 300);
+        }
+      });
+    });
+
+    const activateOnTouch = (event) => {
+      if (!mobile.matches) return;
       event.preventDefault();
       event.stopImmediatePropagation();
-      suppressNextEarlyClick = true;
-      if (suppressEarlyClickTimer !== undefined) clearTimeout(suppressEarlyClickTimer);
-      suppressEarlyClickTimer = setTimeout(() => {
-        suppressNextEarlyClick = false;
-        suppressEarlyClickTimer = undefined;
+      suppressNextClick = true;
+      if (suppressClickTimer !== undefined) clearTimeout(suppressClickTimer);
+      suppressClickTimer = setTimeout(() => {
+        suppressNextClick = false;
+        suppressClickTimer = undefined;
       }, 900);
-      toggleBeforeMainModule();
+      toggleMenu();
     };
 
     if ('PointerEvent' in window) {
       toggle.addEventListener('pointerdown', (event) => {
         if (event.pointerType !== 'touch' && event.pointerType !== 'pen') return;
-        activateOnEarlyTouch(event);
+        activateOnTouch(event);
       }, { passive: false });
     } else {
-      /* Fallback fuer aeltere WebKit-Versionen ohne Pointer Events. */
-      toggle.addEventListener('touchstart', activateOnEarlyTouch, { passive: false });
+      toggle.addEventListener('touchstart', activateOnTouch, { passive: false });
     }
 
     toggle.addEventListener('click', (event) => {
-      if (suppressNextEarlyClick) {
-        suppressNextEarlyClick = false;
-        if (suppressEarlyClickTimer !== undefined) clearTimeout(suppressEarlyClickTimer);
-        suppressEarlyClickTimer = undefined;
+      if (!mobile.matches) return;
+      if (suppressNextClick) {
+        suppressNextClick = false;
+        if (suppressClickTimer !== undefined) clearTimeout(suppressClickTimer);
+        suppressClickTimer = undefined;
         event.preventDefault();
         event.stopImmediatePropagation();
         return;
       }
-      if (toggle.hasAttribute('data-menu-ready')) return;
       event.preventDefault();
       event.stopImmediatePropagation();
-      toggleBeforeMainModule();
+      toggleMenu();
     });
+
+    window.addEventListener('keydown', (event) => {
+      if (!mobile.matches || !isOpen) return;
+      if (event.key === 'Escape') {
+        event.preventDefault();
+        closeMenu();
+        return;
+      }
+      if (event.key !== 'Tab') return;
+      const stops = trapStops();
+      if (!stops.length) return;
+      const first = stops[0];
+      const last = stops[stops.length - 1];
+      if (event.shiftKey && document.activeElement === first) {
+        event.preventDefault();
+        last.focus();
+      } else if (!event.shiftKey && document.activeElement === last) {
+        event.preventDefault();
+        first.focus();
+      }
+    });
+
+    mobile.addEventListener('change', (event) => {
+      if (event.matches) prepareMobileMenu();
+      else leaveMobileMenu();
+    });
+
+    if (mobile.matches) prepareMobileMenu();
 
   })();
 </script>
@@ -470,13 +1000,13 @@ const headerCtaHref = settings.headerCta
     margin-inline: auto;
   }
 
-  /* iOS kann beim Drehen die alte Grafikschicht eines fixierten Kindes noch
-     mit der vorherigen Viewportgeometrie zeichnen. Waehrend dieser kurzen,
-     zentral in menu.ts gesteuerten Phase wird deshalb der komplette
-     Header-Inhalt unterdrueckt. Erst nachdem der neue Viewport stabil ist,
-     wird die gesamte Kopfzeile aus einem gemeinsamen Startzustand aufgebaut.
-     Die Navbar-Flaeche selbst bleibt stehen, damit nichts im Layout springt. */
-  .navbar.is-orientation-changing .navbar__container {
+  /* iOS kann beim Drehen alte Grafikschichten der fixierten Navbar oder des
+     vorbereiteten Fullscreen-Menues mit der vorherigen Viewportgeometrie im
+     Seiteninhalt weiterzeichnen. Waehrend der kurzen Stabilisierungsphase
+     werden deshalb beide Paint-Ebenen gemeinsam unterdrueckt. Als fixed
+     Elemente belegen sie keinen Platz im Dokument. */
+  .navbar.is-orientation-changing,
+  .menu.is-orientation-changing {
     visibility: hidden;
     pointer-events: none;
   }
@@ -543,7 +1073,7 @@ const headerCtaHref = settings.headerCta
     flex: none;
   }
 
-  /* --- Burger (nur ≤991, wie im Original; Linien-Morph macht menu.ts) ------ */
+  /* --- Burger (nur ≤991, wie im Original; Morph macht der Inline-Controller) */
   .navbar__burger {
     display: none;
     position: relative;
@@ -615,8 +1145,8 @@ const headerCtaHref = settings.headerCta
     color: var(--ink);
     text-decoration: none;
   }
-  /* Hover-/Klick-Wipes: Höhe animiert menu.ts (IX2 a-56/a-57/a-74);
-     Basis 0, damit sie ohne JS nie Inhalte überdecken. */
+  /* Klick-Wipe: Höhe animiert der Inline-Controller (IX2 a-74); Basis 0,
+     damit die Fläche ohne JS nie Inhalte überdeckt. */
   .menu__wipe {
     position: absolute;
     inset: 0 auto auto 0;
@@ -680,7 +1210,3 @@ const headerCtaHref = settings.headerCta
     .menu__arrow { height: 2rem; }
   }
 </style>
-
-<script>
-  import '../scripts/menu-loader.ts';
-</script>

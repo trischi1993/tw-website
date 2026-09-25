@@ -32,6 +32,9 @@ function initAioMobileLoad(): void {
   const video = hero.querySelector<HTMLElement>('[data-aio-video]');
   const logoLines = document.querySelectorAll<HTMLElement>('[data-nav-logo-line]');
   const navRight = document.querySelector<HTMLElement>('[data-nav-right]');
+  const menuAlreadyOpen =
+    document.querySelector<HTMLElement>('[data-nav-toggle]')?.getAttribute('aria-expanded') ===
+    'true';
 
   [heading, intro, buttons, video, navRight].forEach((element) => {
     element?.setAttribute('data-revealed', '');
@@ -48,19 +51,24 @@ function initAioMobileLoad(): void {
     });
   });
 
-  play(navRight, [{ opacity: 0 }, { opacity: 1 }], {
-    duration: 1200,
-    delay: 300,
-    easing: EASE,
-  });
-  play(
-    navRight,
-    [
-      { transform: 'translate3d(2.5rem, 0, 0)' },
-      { transform: 'translate3d(0, 0, 0)' },
-    ],
-    { duration: 1000, delay: 300, easing: OUT_QUART },
-  );
+  /* Ein extrem frueher Menue-Tap kann noch vor diesem Body-End-Modul kommen.
+     Dann darf die Seiten-Load-Choreografie den bereits bedienten Header nicht
+     nachtraeglich erneut verschieben oder ausblenden. */
+  if (!menuAlreadyOpen) {
+    play(navRight, [{ opacity: 0 }, { opacity: 1 }], {
+      duration: 1200,
+      delay: 300,
+      easing: EASE,
+    });
+    play(
+      navRight,
+      [
+        { transform: 'translate3d(2.5rem, 0, 0)' },
+        { transform: 'translate3d(0, 0, 0)' },
+      ],
+      { duration: 1000, delay: 300, easing: OUT_QUART },
+    );
+  }
 
   const slideIn = (element: Element | null, delay: number, opacityDuration = 750): void => {
     play(element, [{ opacity: 0 }, { opacity: 1 }], {
