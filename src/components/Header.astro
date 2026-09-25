@@ -328,10 +328,10 @@ const headerCtaHref = settings.headerCta
       });
     };
 
-    toggle.addEventListener('click', (event) => {
-      if (toggle.hasAttribute('data-menu-ready')) return;
-      event.preventDefault();
-      event.stopImmediatePropagation();
+    let suppressNextEarlyClick = false;
+    let suppressEarlyClickTimer;
+
+    const signalEarlyInteraction = () => {
       /* Signalisiert dem kleinen Loader, dass die abhaengigkeitsfreie
          Fruehsteuerung bereits uebernommen hat. Das vollstaendige GSAP-Modul
          darf dann erst nach der sichtbaren Oeffnungsanimation nachladen und
@@ -340,8 +340,57 @@ const headerCtaHref = settings.headerCta
          der Ausfuehrung des deferred Loader-Moduls erfolgt. */
       toggle.setAttribute('data-menu-early-interacted', '');
       document.dispatchEvent(new Event('site:early-menu-interaction'));
+    };
+
+    const toggleBeforeMainModule = () => {
+      signalEarlyInteraction();
       if (toggle.getAttribute('aria-expanded') === 'true') closeBeforeMainModule();
       else openBeforeMainModule();
+    };
+
+    /* Auf iOS kann ein Element, das waehrend der Startchoreografie noch per
+       transform in seine Endposition faehrt, seinen normalen `click` erst
+       nach stabiler Geometrie erhalten. Der Fingerkontakt selbst kommt jedoch
+       sofort an. Nur fuer Touch/Stift und nur vor der vollstaendigen
+       Menueinitialisierung reagieren wir deshalb schon auf `pointerdown`.
+       Der danach vom Browser erzeugte Click wird genau einmal geschluckt,
+       damit er das gerade geoeffnete Menue nicht wieder schliesst. */
+    const activateOnEarlyTouch = (event) => {
+      if (toggle.hasAttribute('data-menu-ready')) return;
+      event.preventDefault();
+      event.stopImmediatePropagation();
+      suppressNextEarlyClick = true;
+      if (suppressEarlyClickTimer !== undefined) clearTimeout(suppressEarlyClickTimer);
+      suppressEarlyClickTimer = setTimeout(() => {
+        suppressNextEarlyClick = false;
+        suppressEarlyClickTimer = undefined;
+      }, 900);
+      toggleBeforeMainModule();
+    };
+
+    if ('PointerEvent' in window) {
+      toggle.addEventListener('pointerdown', (event) => {
+        if (event.pointerType !== 'touch' && event.pointerType !== 'pen') return;
+        activateOnEarlyTouch(event);
+      }, { passive: false });
+    } else {
+      /* Fallback fuer aeltere WebKit-Versionen ohne Pointer Events. */
+      toggle.addEventListener('touchstart', activateOnEarlyTouch, { passive: false });
+    }
+
+    toggle.addEventListener('click', (event) => {
+      if (suppressNextEarlyClick) {
+        suppressNextEarlyClick = false;
+        if (suppressEarlyClickTimer !== undefined) clearTimeout(suppressEarlyClickTimer);
+        suppressEarlyClickTimer = undefined;
+        event.preventDefault();
+        event.stopImmediatePropagation();
+        return;
+      }
+      if (toggle.hasAttribute('data-menu-ready')) return;
+      event.preventDefault();
+      event.stopImmediatePropagation();
+      toggleBeforeMainModule();
     });
   })();
 </script>
