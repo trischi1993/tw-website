@@ -60,7 +60,15 @@ function belongsToInitialHashScopes(element: Element): boolean {
 
 const triggers: EnterOnceTrigger[] = [];
 const pendingHashListeners: Array<() => void> = [];
-const activeRevealFinalizers = new Set<() => void>();
+const activeRevealFinalizers = new Set<(holdTextLayer?: boolean) => void>();
+interface RevealedTextLayer {
+  targets: HTMLElement[];
+  heldForOrientation: boolean;
+}
+const revealedTextLayers = new Set<RevealedTextLayer>();
+let orientationHoldActive = false;
+let orientationReleaseTimer: number | undefined;
+let orientationReleaseFrame: number | undefined;
 const ebookMobileQuery = window.matchMedia('(max-width: 767px)');
 const isEbookPage = Boolean(document.querySelector('[data-ebook-hero]'));
 
@@ -112,8 +120,47 @@ function getRevealTextTargets(root: HTMLElement): HTMLElement[] {
   );
 }
 
-function finishActiveRevealAnimations(): void {
-  [...activeRevealFinalizers].forEach((finish) => finish());
+function holdTextLayersForOrientation(): void {
+  orientationHoldActive = true;
+  if (orientationReleaseTimer !== undefined) window.clearTimeout(orientationReleaseTimer);
+  if (orientationReleaseFrame !== undefined) cancelAnimationFrame(orientationReleaseFrame);
+
+  revealedTextLayers.forEach((layer) => {
+    layer.heldForOrientation = true;
+    // Ein explizites finales `none` bleibt bis zum Ende aller iOS-Viewport-
+    // Stufen bestehen. Damit kann WebKit beim Neuumbrechen keine einzelne
+    // Zeile mehr aus dem alten Blur-Compositor-Layer zeichnen.
+    if (layer.targets.length) gsap.set(layer.targets, { filter: 'none' });
+  });
+
+  // Sicherheitsnetz fuer den seltenen Fall, dass kein stabiler Inhaltsanker
+  // vorhanden ist und der zentrale Rotationsabschluss deshalb nicht feuert.
+  orientationReleaseTimer = window.setTimeout(releaseOrientationHold, 2100);
+}
+
+function finishActiveRevealAnimations(holdTextLayer = false): void {
+  [...activeRevealFinalizers].forEach((finish) => finish(holdTextLayer));
+}
+
+/** Entfernt den rein technischen Endzustand erst nach der finalen mobilen
+ * Geometrie. Zwei Frames verhindern, dass Layer-Abbau und letzter Reflow in
+ * demselben Safari-Paint landen. */
+export function releaseOrientationHold(): void {
+  if (orientationReleaseTimer !== undefined) window.clearTimeout(orientationReleaseTimer);
+  if (orientationReleaseFrame !== undefined) cancelAnimationFrame(orientationReleaseFrame);
+  orientationReleaseTimer = undefined;
+
+  orientationReleaseFrame = requestAnimationFrame(() => {
+    orientationReleaseFrame = requestAnimationFrame(() => {
+      orientationReleaseFrame = undefined;
+      orientationHoldActive = false;
+      revealedTextLayers.forEach((layer) => {
+        if (!layer.heldForOrientation) return;
+        layer.heldForOrientation = false;
+        if (layer.targets.length) gsap.set(layer.targets, { clearProps: 'filter,willChange' });
+      });
+    });
+  });
 }
 
 interface SharedObserverGroup {
@@ -269,6 +316,14 @@ function initReveal(): void {
         delay: delay * 1000,
         fill: 'both' as FillMode,
       };
+      const textLayer: RevealedTextLayer = {
+        targets: blurTargets,
+        // Ein Reveal kann erst DURCH die neue Viewport-Geometrie in den
+        // sichtbaren Bereich geraten. Auch dann darf waehrend der Rotation
+        // kein frischer Blur-Layer aufgebaut werden.
+        heldForOrientation: orientationHoldActive,
+      };
+      revealedTextLayers.add(textLayer);
       const animations = [
         el.animate([{ opacity: 0 }, { opacity: 1 }], {
           ...timing,
@@ -301,23 +356,30 @@ function initReveal(): void {
       ];
 
       let finished = false;
-      const finish = () => {
-        if (finished) return;
-        finished = true;
-        activeRevealFinalizers.delete(finish);
+      const finish = (holdTextLayer = false) => {
+        if (holdTextLayer) textLayer.heldForOrientation = true;
 
-        // Safari kann beim Orientierungswechsel eine einzelne native Filter-
-        // Animation abbrechen. Alle Fragmente muessen dann atomar denselben
-        // sichtbaren Endzustand erhalten; andernfalls faellt genau ein Text-
-        // Layer auf den vorbereiteten Blur-Startwert zurueck und blinkt dunkel.
-        animations.forEach((animation) => animation.cancel());
-        gsap.set(el, { opacity: 1, y: 0 });
-        if (blurTargets.length) gsap.set(blurTargets, { filter: 'blur(0px)' });
-        gsap.set(el, { clearProps: 'opacity,transform,willChange' });
-        if (blurTargets.length) gsap.set(blurTargets, { clearProps: 'filter,willChange' });
+        if (!finished) {
+          finished = true;
+          activeRevealFinalizers.delete(finish);
+
+          // Den sichtbaren Endzustand VOR `cancel()` hinter der nativen
+          // Animation setzen. Die bisherige umgekehrte Reihenfolge legte auf
+          // Safari fuer einen Paint wieder den vorbereiteten Blur-Startwert
+          // frei; nach einem Zeilenumbruch betraf das oft nur eine Textzeile.
+          gsap.set(el, { opacity: 1, y: 0 });
+          if (blurTargets.length) gsap.set(blurTargets, { filter: 'none' });
+          animations.forEach((animation) => animation.cancel());
+          gsap.set(el, { clearProps: 'opacity,transform,willChange' });
+        }
+
+        if (!textLayer.heldForOrientation && blurTargets.length) {
+          gsap.set(blurTargets, { clearProps: 'filter,willChange' });
+        }
       };
 
       activeRevealFinalizers.add(finish);
+      if (orientationHoldActive) finish(true);
       // Der Fehlerpfad ist bewusst identisch mit dem normalen Abschluss. Ein
       // von WebKit abgebrochener Teil darf nie als halbfertiger Layer bleiben.
       void Promise.all(animations.map((animation) => animation.finished)).then(finish, finish);
@@ -777,7 +839,8 @@ export function init(_mm: gsap.MatchMedia): void {
  * beendet. Bereits fertige Reveals und normale Scroll-Eintritte bleiben
  * unangetastet. */
 export function settleForOrientationChange(): void {
-  finishActiveRevealAnimations();
+  holdTextLayersForOrientation();
+  finishActiveRevealAnimations(true);
 }
 
 /** Webflow initialisiert seine IX2-Entrance-Events nach einem Breakpoint- bzw.

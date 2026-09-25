@@ -451,6 +451,11 @@ function preservePageContentOnOrientation(portrait: MediaQueryList): void {
     pendingAnchor = undefined;
     root.style.scrollBehavior = previousScrollBehavior;
     root.style.overflowAnchor = previousOverflowAnchor;
+    // Erst jetzt ist die responsive Safari-Geometrie wirklich stabil. Bis zu
+    // diesem Punkt bleiben bereits sichtbare Reveal-Texte explizit filterfrei,
+    // damit beim Neuumbrechen keine einzelne Zeile aus einem alten Blur-Layer
+    // aufblinkt.
+    reveals.releaseOrientationHold();
     // Solange der Nutzer nicht scrollt, bleibt exakt derselbe semantische
     // Bezug auch fuer ein direktes Zurueckdrehen aktiv. Eine Neumessung an der
     // geometrischen Viewportmitte koennte im anders umbrochenen Querformat ein
