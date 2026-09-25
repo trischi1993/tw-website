@@ -30,6 +30,12 @@ const toggle = document.querySelector<HTMLButtonElement>('[data-nav-toggle]');
 const menu = document.querySelector<HTMLElement>('[data-site-menu]');
 const panel = menu?.querySelector<HTMLElement>('[data-menu-panel]');
 
+interface EarlyMenuBridgeElement extends HTMLElement {
+  __earlyMenuBridge?: {
+    cancel(): void;
+  };
+}
+
 /**
  * Ein gemeinsamer Rotationsablauf fuer die Kopfzeile aller Seiten.
  *
@@ -238,6 +244,9 @@ if (header && toggle && menu && panel) {
   const burgerBottom = header.querySelector<HTMLElement>('[data-burger-bottom]');
   const rightInner = header.querySelector<HTMLElement>('[data-nav-right-inner]');
   const headerCta = header.querySelector<HTMLElement>('.navbar__cta');
+  const earlyMenu = menu as EarlyMenuBridgeElement;
+  const openedBeforeMainModule =
+    toggle.getAttribute('aria-expanded') === 'true' && !menu.hasAttribute('hidden');
 
   // Der geöffnete Zustand schiebt den Burger an die bisherige CTA-Position
   // und den CTA vollständig aus der Overflow-Maske. Der frühere Fixwert von
@@ -256,7 +265,7 @@ if (header && toggle && menu && panel) {
 
   // Initialzustände nur mit Motion (ohne JS/Reduced bleibt alles sichtbar,
   // das Menü ist ohnehin display:none bis zum Öffnen).
-  if (!reduced) {
+  if (!reduced && !openedBeforeMainModule) {
     gsap.set(links, { opacity: 0, x: -80 });
     gsap.set(arrows, { opacity: 0 });
     gsap.set(panel, { xPercent: -100 });
@@ -407,8 +416,33 @@ if (header && toggle && menu && panel) {
       ...Array.from(menu.querySelectorAll<HTMLElement>('a[href], button:not([disabled])')),
     ].filter((el) => el.getClientRects().length > 0);
 
-  let lastFocused: HTMLElement | null = null;
-  let isOpen = false;
+  let lastFocused: HTMLElement | null = openedBeforeMainModule ? toggle : null;
+  let isOpen = openedBeforeMainModule;
+
+  if (openedBeforeMainModule) {
+    // Der Inline-Bootstrap hat bereits auf den ersten Tap reagiert. Seine
+    // browsernativen Animationen werden jetzt atomar in denselben GSAP-
+    // Endzustand ueberfuehrt, damit die normale Schliessanimation und A11y-
+    // Logik ohne sichtbaren Zustandswechsel uebernehmen koennen.
+    earlyMenu.__earlyMenuBridge?.cancel();
+    delete earlyMenu.__earlyMenuBridge;
+    panel.style.removeProperty('transform');
+    panel.style.removeProperty('will-change');
+    links.forEach((link) => {
+      link.style.removeProperty('transform');
+      link.style.removeProperty('opacity');
+    });
+    arrows.forEach((arrow) => arrow.style.removeProperty('opacity'));
+    gsap.set(panel, { xPercent: 0, clearProps: 'willChange' });
+    gsap.set(links, { opacity: 1, x: 0 });
+    gsap.set(arrows, { opacity: 1 });
+    gsap.set(header, { backgroundColor: 'rgba(0,0,0,0)' });
+    if (rightInner) gsap.set(rightInner, { x: openMenuShift() });
+    if (burgerMiddle) gsap.set(burgerMiddle, { xPercent: 200 });
+    if (burgerTop) gsap.set(burgerTop, { rotation: 45, y: 3.5 });
+    if (burgerBottom) gsap.set(burgerBottom, { rotation: -45, y: -3.5 });
+    backdrop().forEach((el) => el.setAttribute('inert', ''));
+  }
 
   const setOpen = (open: boolean) => {
     if (open === isOpen) return;
@@ -451,6 +485,9 @@ if (header && toggle && menu && panel) {
     }
   };
 
+  // Ab jetzt gibt der fruehe Inline-Listener jeden Klick an diese vollstaendige
+  // Menue-Steuerung weiter.
+  toggle.setAttribute('data-menu-ready', '');
   toggle.addEventListener('click', () => setOpen(!isOpen));
   menu.addEventListener('click', (e) => {
     if (e.target === menu) setOpen(false);

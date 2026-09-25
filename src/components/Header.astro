@@ -167,6 +167,177 @@ const headerCtaHref = settings.headerCta
   </nav>
 </div>
 
+<!-- Ein klassisches Inline-Script wird waehrend des HTML-Parsens ausgefuehrt.
+     Das ist fuer die lange AIO-Seite entscheidend: Das normale gebuendelte
+     Menue-Modul ist als ES-Modul absichtlich deferred und kann seinen
+     Click-Listener deshalb erst nach dem vollstaendigen Dokument anhaengen.
+     Bis dahin uebernimmt dieser kleine, abhaengigkeitsfreie Bootstrap exakt
+     den kompakten mobilen Oeffnungszustand. menu.ts adoptiert ihn spaeter und
+     fuehrt danach Animation, Fokussteuerung und Schliessen normal weiter. -->
+<script is:inline>
+  (() => {
+    const header = document.querySelector('[data-site-header]');
+    const toggle = document.querySelector('[data-nav-toggle]');
+    const menu = document.querySelector('[data-site-menu]');
+    const panel = menu?.querySelector('[data-menu-panel]');
+    if (!header || !toggle || !menu || !panel) return;
+
+    const links = Array.from(menu.querySelectorAll('[data-menu-link]'));
+    const arrows = Array.from(menu.querySelectorAll('[data-menu-arrow]'));
+    const burgerTop = header.querySelector('[data-burger-top]');
+    const burgerMiddle = header.querySelector('[data-burger-middle]');
+    const burgerBottom = header.querySelector('[data-burger-bottom]');
+    const rightInner = header.querySelector('[data-nav-right-inner]');
+    const headerCta = header.querySelector('.navbar__cta');
+    const reduced = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+    const ease = 'cubic-bezier(0.25, 0.1, 0.25, 1)';
+    const outQuart = 'cubic-bezier(0.165, 0.84, 0.44, 1)';
+
+    const openShift = () => {
+      if (!rightInner || !headerCta) return 9.2 * 16;
+      const gap = Number.parseFloat(getComputedStyle(rightInner).columnGap) || 0;
+      return headerCta.getBoundingClientRect().width + gap;
+    };
+
+    const resetEarlyStyles = () => {
+      panel.style.removeProperty('transform');
+      panel.style.removeProperty('will-change');
+      links.forEach((link) => {
+        link.style.removeProperty('transform');
+        link.style.removeProperty('opacity');
+      });
+      arrows.forEach((arrow) => arrow.style.removeProperty('opacity'));
+      [burgerTop, burgerMiddle, burgerBottom, rightInner].forEach((element) => {
+        element?.style.removeProperty('transform');
+      });
+      header.style.removeProperty('background-color');
+    };
+
+    const closeBeforeMainModule = () => {
+      menu.__earlyMenuBridge?.cancel();
+      resetEarlyStyles();
+      menu.setAttribute('hidden', '');
+      header.classList.remove('is-menu-open');
+      toggle.setAttribute('aria-expanded', 'false');
+      document.body.classList.remove('no-scroll');
+      delete menu.__earlyMenuBridge;
+    };
+
+    const openBeforeMainModule = () => {
+      const animations = [];
+      let firstFrame;
+      let secondFrame;
+      let stopped = false;
+
+      const cancel = () => {
+        stopped = true;
+        if (firstFrame !== undefined) cancelAnimationFrame(firstFrame);
+        if (secondFrame !== undefined) cancelAnimationFrame(secondFrame);
+        animations.forEach((animation) => animation.cancel());
+      };
+      menu.__earlyMenuBridge = { cancel };
+
+      header.classList.add('is-menu-open');
+      toggle.setAttribute('aria-expanded', 'true');
+      document.body.classList.add('no-scroll');
+
+      panel.style.transform = 'translate3d(-100%, 0, 0)';
+      panel.style.willChange = 'transform';
+      links.forEach((link) => {
+        link.style.transform = 'translate3d(-80px, 0, 0)';
+        link.style.opacity = '0';
+      });
+      arrows.forEach((arrow) => {
+        arrow.style.opacity = '0';
+      });
+      menu.removeAttribute('hidden');
+
+      if (reduced) {
+        panel.style.transform = 'translate3d(0, 0, 0)';
+        links.forEach((link) => {
+          link.style.transform = 'translate3d(0, 0, 0)';
+          link.style.opacity = '1';
+        });
+        arrows.forEach((arrow) => {
+          arrow.style.opacity = '1';
+        });
+        return;
+      }
+
+      const play = (element, keyframes, options) => {
+        if (!element || stopped) return;
+        animations.push(element.animate(keyframes, { fill: 'both', ...options }));
+      };
+
+      // Wie in menu.ts geben zwei Frames WebKit Zeit, die offscreen liegende
+      // Vollbild-Ebene nach dem Entfernen von `hidden` separat zu compositen.
+      firstFrame = requestAnimationFrame(() => {
+        secondFrame = requestAnimationFrame(() => {
+          firstFrame = undefined;
+          secondFrame = undefined;
+          if (stopped || toggle.getAttribute('aria-expanded') !== 'true') return;
+
+          play(header, [{ backgroundColor: getComputedStyle(header).backgroundColor }, { backgroundColor: 'rgba(0, 0, 0, 0)' }], {
+            duration: 200,
+            easing: ease,
+          });
+          play(rightInner, [{ transform: 'translate3d(0, 0, 0)' }, { transform: `translate3d(${openShift()}px, 0, 0)` }], {
+            duration: 350,
+            easing: outQuart,
+          });
+          play(panel, [{ transform: 'translate3d(-100%, 0, 0)' }, { transform: 'translate3d(0, 0, 0)' }], {
+            duration: 720,
+            easing: outQuart,
+          });
+          play(burgerMiddle, [{ transform: 'translate3d(0, 0, 0)' }, { transform: 'translate3d(200%, 0, 0)' }], {
+            duration: 500,
+            delay: 100,
+            easing: outQuart,
+          });
+          play(burgerTop, [{ transform: 'translate3d(0, 0, 0) rotate(0deg)' }, { transform: 'translate3d(0, 3.5px, 0) rotate(45deg)' }], {
+            duration: 300,
+            delay: 200,
+            easing: outQuart,
+          });
+          play(burgerBottom, [{ transform: 'translate3d(0, 0, 0) rotate(0deg)' }, { transform: 'translate3d(0, -3.5px, 0) rotate(-45deg)' }], {
+            duration: 300,
+            delay: 200,
+            easing: outQuart,
+          });
+          links.forEach((link, index) => {
+            const delay = 180 + index * 70;
+            play(link, [{ transform: 'translate3d(-80px, 0, 0)' }, { transform: 'translate3d(0, 0, 0)' }], {
+              duration: 350,
+              delay,
+              easing: outQuart,
+            });
+            play(link, [{ opacity: 0 }, { opacity: 1 }], {
+              duration: 250,
+              delay,
+              easing: ease,
+            });
+          });
+          arrows.forEach((arrow) => {
+            play(arrow, [{ opacity: 0 }, { opacity: 1 }], {
+              duration: 250,
+              delay: 450,
+              easing: ease,
+            });
+          });
+        });
+      });
+    };
+
+    toggle.addEventListener('click', (event) => {
+      if (toggle.hasAttribute('data-menu-ready')) return;
+      event.preventDefault();
+      event.stopImmediatePropagation();
+      if (toggle.getAttribute('aria-expanded') === 'true') closeBeforeMainModule();
+      else openBeforeMainModule();
+    });
+  })();
+</script>
+
 <style>
   /* --- Navbar (fix, Blur; BG-Farbe getrennt vom Verlauf, weil IX2 beim
          Menü-Öffnen NUR die background-color animiert) ------------------- */
