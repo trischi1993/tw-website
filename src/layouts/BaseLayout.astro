@@ -75,6 +75,9 @@ const jsonLdArray = [orgJsonLd, ...pageJsonLd];
       (function () {
         var el = document.documentElement;
         el.classList.add('has-js');
+        var isMobileAioPage =
+          el.classList.contains('is-aio-route') &&
+          window.matchMedia('(max-width: 991px)').matches;
         /* Eine Scroll-Wiederherstellung ist eine Navigation. Die globale
            Smooth-Scroll-Regel wuerde deshalb den Weg von 0 zur gespeicherten
            Position sichtbar machen; auf der langen mobilen AIO-Seite fiel das
@@ -85,6 +88,158 @@ const jsonLdArray = [orgJsonLd, ...pageJsonLd];
         var isScrollRestore =
           !!navigationEntry &&
           (navigationEntry.type === 'reload' || navigationEntry.type === 'back_forward');
+
+        /* Safari wartet auf der langen AIO-Seite mit seiner nativen
+           Reload-Wiederherstellung bis `load/pageshow`. Die Position des
+           aktuellen Tabs wird deshalb synchron gespeichert und bei einem
+           echten Reload derselben mobilen Geometrie noch vor dem ersten
+           nutzbaren Paint selbst wiederhergestellt. Andere Seiten,
+           Erstaufrufe, Reloads am Seitenanfang und Back/Forward bleiben beim
+           Browser-Standard. */
+        if (isMobileAioPage) {
+          var aioScrollKey = 'tw:aio-scroll-position:v1';
+          var aioLocationKey = window.location.pathname + window.location.search;
+          var aioOrientation = window.innerWidth > window.innerHeight ? 'landscape' : 'portrait';
+          var aioRestoreTarget = 0;
+
+          if (navigationEntry && navigationEntry.type === 'reload' && !window.location.hash) {
+            try {
+              var savedAioScroll = JSON.parse(window.sessionStorage.getItem(aioScrollKey) || 'null');
+              var savedAioY = Number(savedAioScroll && savedAioScroll.y);
+              var savedAioWidth = Number(savedAioScroll && savedAioScroll.width);
+              if (
+                savedAioScroll &&
+                savedAioScroll.location === aioLocationKey &&
+                savedAioScroll.orientation === aioOrientation &&
+                Number.isFinite(savedAioY) &&
+                savedAioY > 4 &&
+                Number.isFinite(savedAioWidth) &&
+                Math.abs(savedAioWidth - window.innerWidth) <= 4
+              ) {
+                aioRestoreTarget = Math.max(0, Math.round(savedAioY));
+              }
+            } catch (_error) {
+              aioRestoreTarget = 0;
+            }
+          }
+
+          if (aioRestoreTarget > 0) {
+            if ('scrollRestoration' in history) history.scrollRestoration = 'manual';
+            el.dataset.aioRestoreY = String(aioRestoreTarget);
+            el.style.setProperty(
+              '--aio-restore-min-height',
+              Math.ceil(aioRestoreTarget + window.innerHeight) + 'px'
+            );
+            el.classList.add('is-aio-scroll-restore-pending');
+
+            /* Erst nach `pageshow` darf Safari für spätere History-Navigationen
+               wieder selbst zuständig sein. Ein früheres `auto` würde seinen
+               verspäteten zweiten Restore erneut auslösen. */
+            var restoreAioHistoryAuto = function () {
+              if ('scrollRestoration' in history) history.scrollRestoration = 'auto';
+            };
+            window.addEventListener(
+              'pageshow',
+              function () {
+                requestAnimationFrame(function () {
+                  restoreAioHistoryAuto();
+                  window.removeEventListener('beforeunload', restoreAioHistoryAuto);
+                });
+              },
+              { once: true }
+            );
+            /* Verlaesst der Nutzer die Seite ueber das sofort bedienbare Menue
+               noch vor dem spaeten AIO-pageshow, muss der aktuelle History-
+               Eintrag ebenfalls wieder an Safari uebergeben werden. */
+            window.addEventListener(
+              'pagehide',
+              restoreAioHistoryAuto,
+              { once: true }
+            );
+            /* WebKit friert den Restoration-Mode fuer den verlassenen
+               History-Eintrag bereits vor `pagehide` ein. Der Listener lebt
+               deshalb nur bis pageshow und greift ausschliesslich, wenn der
+               Nutzer die noch ladende Seite vorher wieder verlaesst. */
+            window.addEventListener('beforeunload', restoreAioHistoryAuto, { once: true });
+
+            /* Failsafe nur für einen unerwarteten Fehler im Restore-/Startmodul.
+               Er hängt bewusst am fertig geparsten Dokument statt an einer
+               willkürlichen Zeitgrenze, die auf langsamen Verbindungen zu früh
+               ablaufen könnte. */
+            document.addEventListener(
+              'DOMContentLoaded',
+              function () {
+                window.setTimeout(function () {
+                  if (!el.classList.contains('is-aio-scroll-restore-pending')) return;
+                  window.scrollTo(0, aioRestoreTarget);
+                  /* Falls eines der beiden kleinen AIO-Startmodule wider
+                     Erwarten nicht geladen hat, darf weder die Blende noch ein
+                     CSS-Ausgangszustand stehen bleiben. */
+                  el.classList.remove(
+                    'is-aio-scroll-restore-pending',
+                    'has-motion',
+                    'aio-mobile-motion'
+                  );
+                  el.style.removeProperty('--aio-restore-min-height');
+                  delete el.dataset.aioRestoreY;
+                  window.dispatchEvent(new Event('aio:scroll-restored'));
+                }, 1500);
+              },
+              { once: true }
+            );
+          }
+
+          var aioSaverStarted = false;
+          var aioSaveTimer;
+          var saveAioScroll = function () {
+            if (aioSaveTimer) window.clearTimeout(aioSaveTimer);
+            aioSaveTimer = undefined;
+            try {
+              window.sessionStorage.setItem(
+                aioScrollKey,
+                JSON.stringify({
+                  location: window.location.pathname + window.location.search,
+                  y: Math.max(0, window.scrollY),
+                  width: window.innerWidth,
+                  orientation:
+                    window.innerWidth > window.innerHeight ? 'landscape' : 'portrait',
+                })
+              );
+            } catch (_error) {
+              /* SessionStorage kann im privaten Modus gesperrt sein. Dann
+                 bleibt Safaris native Wiederherstellung als Fallback aktiv. */
+            }
+          };
+          var queueAioScrollSave = function () {
+            if (aioSaveTimer) window.clearTimeout(aioSaveTimer);
+            aioSaveTimer = window.setTimeout(saveAioScroll, 120);
+          };
+          var startAioScrollSaver = function () {
+            if (aioSaverStarted) return;
+            aioSaverStarted = true;
+            window.addEventListener('scroll', queueAioScrollSave, { passive: true });
+            window.addEventListener('resize', queueAioScrollSave, { passive: true });
+            window.addEventListener('pagehide', saveAioScroll);
+            document.addEventListener('visibilitychange', function () {
+              if (document.visibilityState === 'hidden') saveAioScroll();
+            });
+          };
+
+          /* Das initiale y=0 des neuen Dokuments darf den noch ausstehenden
+             Zielwert nicht überschreiben. */
+          if (aioRestoreTarget > 0) {
+            window.addEventListener('aio:scroll-restored', startAioScrollSaver, { once: true });
+          } else {
+            startAioScrollSaver();
+            /* Ein echter neuer Aufruf beginnt sicher oben. Diesen Wert sofort
+               festhalten, damit ein sehr schneller Reload nicht noch eine
+               tiefe Position aus einem frueheren AIO-Aufruf desselben Tabs
+               uebernimmt. Back/Forward und Reload schreiben vor Safaris
+               eigener Wiederherstellung bewusst nichts. */
+            if (!navigationEntry || navigationEntry.type === 'navigate') saveAioScroll();
+          }
+        }
+
         if (isScrollRestore) {
           el.classList.add('is-scroll-restoring');
           var released = false;
@@ -103,6 +258,10 @@ const jsonLdArray = [orgJsonLd, ...pageJsonLd];
               requestAnimationFrame(releaseScrollRestore);
             });
           };
+          var armRestoreFallback = function (delay) {
+            if (safetyTimer) window.clearTimeout(safetyTimer);
+            safetyTimer = window.setTimeout(releaseScrollRestore, delay);
+          };
           var onRestoredScroll = function () {
             if (Math.abs(window.scrollY) <= 1) return;
             restoreScrollSeen = true;
@@ -114,13 +273,22 @@ const jsonLdArray = [orgJsonLd, ...pageJsonLd];
             function () {
               pageShown = true;
               if (restoreScrollSeen || Math.abs(window.scrollY) > 1) releaseAfterPaint();
+              else armRestoreFallback(250);
             },
             { once: true }
           );
-          /* Falls eine WebKit-Version weder ein Restore-Scrollsignal noch ein
-             verlaessliches pageshow liefert, darf Smooth-Scroll nicht fuer die
-             restliche Sitzung deaktiviert bleiben. */
-          safetyTimer = window.setTimeout(releaseScrollRestore, 3000);
+          /* Der Fallback beginnt erst NACH dem Lifecycle-Signal. Der fruehere
+             absolute 3-Sekunden-Timer lief auf der AIO-Seite noch vor Safaris
+             spaetem `load/pageshow` ab und aktivierte Smooth-Scroll mitten im
+             nativen Restore. */
+          window.addEventListener(
+            'load',
+            function () {
+              if (!pageShown) armRestoreFallback(1000);
+            },
+            { once: true }
+          );
+          armRestoreFallback(15000);
         }
         /* Ein Fragment bei einem neuen Seitenaufruf darf nicht den globalen
            Smooth-Scroll von ganz oben starten: Während dieses langen Scrolls
@@ -156,8 +324,7 @@ const jsonLdArray = [orgJsonLd, ...pageJsonLd];
           el.classList.contains('is-ebook-route') &&
           window.matchMedia('(max-width: 767px)').matches;
         var useMobileAioMotion =
-          el.classList.contains('is-aio-route') &&
-          window.matchMedia('(max-width: 991px)').matches;
+          isMobileAioPage;
         if (useMobileEbookMotion || useMobileAioMotion) {
           var mobileMotionClass = useMobileEbookMotion
             ? 'ebook-mobile-motion'
@@ -231,6 +398,17 @@ const jsonLdArray = [orgJsonLd, ...pageJsonLd];
     <slot name="head" />
   </head>
   <body>
+    <script is:inline>
+      /* Die im <head> reservierte Mindesthoehe macht die gespeicherte
+         AIO-Position schon beim Oeffnen des Body scrollbar. Dadurch kann
+         Safari noch vor Header und Seiteninhalt dorthin springen. */
+      (function () {
+        var el = document.documentElement;
+        if (!el.classList.contains('is-aio-scroll-restore-pending')) return;
+        var target = Number(el.dataset.aioRestoreY);
+        if (Number.isFinite(target) && target > 0) window.scrollTo(0, target);
+      })();
+    </script>
     <a href="#main" class="skip-link">{UI.skipToContent}</a>
     <Header context={navigationContext} />
     {/* tabindex=-1: macht das Sprung-Ziel per Skip-Link fokussierbar (sonst
@@ -242,6 +420,42 @@ const jsonLdArray = [orgJsonLd, ...pageJsonLd];
     {/* Direkte Body-Kinder: die inert-Logik der Modals erwartet Top-Level. */}
     <CtaModal />
     <AioModal />
+    <script is:inline>
+      /* Zu diesem Zeitpunkt ist das komplette SSR-Layout geparst. Die
+         Position wird vor den Modul-Imports final korrigiert. Die Blende bleibt
+         noch bis zur Initialisierung der zwei kleinen AIO-Startmodule aktiv,
+         damit ein tief sichtbarer Reveal-Text keinen einzelnen statischen
+         Zwischenframe zeichnet. */
+      (function () {
+        var el = document.documentElement;
+        if (!el.classList.contains('is-aio-scroll-restore-pending')) return;
+        var savedTarget = Number(el.dataset.aioRestoreY);
+        if (!Number.isFinite(savedTarget) || savedTarget <= 0) return;
+
+        var finishPositioning = function () {
+          el.dataset.aioRestorePositioned = '';
+          window.dispatchEvent(new Event('aio:scroll-positioned'));
+        };
+        var restore = function () {
+          var maximum = Math.max(0, document.documentElement.scrollHeight - window.innerHeight);
+          var target = Math.min(savedTarget, maximum);
+          window.scrollTo(0, target);
+          return Math.abs(window.scrollY - target) <= 2;
+        };
+
+        if (restore()) {
+          finishPositioning();
+          return;
+        }
+        requestAnimationFrame(function () {
+          restore();
+          requestAnimationFrame(function () {
+            restore();
+            finishPositioning();
+          });
+        });
+      })();
+    </script>
     <script>
       // Interaktive Widgets (FAQ, Tabs, Read-More, Load-More, Video-Controls)
       // laufen auf jeder Seite. Das GSAP-Motion-Bundle ebenso: Footer-Reveal,
@@ -283,6 +497,19 @@ const jsonLdArray = [orgJsonLd, ...pageJsonLd];
       const aioResultsReady = isMobileAio
         ? afterMobileHero(() => import('../scripts/aio-results-interactions.ts'))
         : import('../scripts/aio-results-interactions.ts');
+      const aioMobileLoadReady = isMobileAio
+        ? import('../scripts/aio-mobile-load.ts')
+        : Promise.resolve();
+      const aioMobileRevealsReady = isMobileAio
+        ? import('../scripts/aio-mobile-reveals.ts')
+        : Promise.resolve();
+      const aioScrollPositionReady = document.documentElement.classList.contains(
+        'is-aio-scroll-restore-pending',
+      ) && !document.documentElement.hasAttribute('data-aio-restore-positioned')
+        ? new Promise<void>((resolve) => {
+            window.addEventListener('aio:scroll-positioned', () => resolve(), { once: true });
+          })
+        : Promise.resolve();
       // Fragmentziele erst nach dem Motion-Setup nachjustieren: ScrollTrigger
       // und Widgets verändern vor dem Ziel noch das Layout. Erst wenn beide
       // Initialisierungen abgeschlossen sind, wird der Anker final gesetzt.
@@ -297,19 +524,59 @@ const jsonLdArray = [orgJsonLd, ...pageJsonLd];
           ])
         : isMobileAio
           ? Promise.all([
-              import('../scripts/aio-mobile-load.ts'),
+              aioMobileLoadReady,
               // Scroll-Reveals muessen schon beim ersten direkten Wischen
               // bereitstehen. Nur die sichtbaren Entrance-Module laden hier;
               // das grosse ScrollTrigger-Paket bleibt bis zur Ruhephase
               // zurueckgestellt und initialisiert diese Elemente dank
               // idempotenter Module nicht ein zweites Mal.
-              import('../scripts/aio-mobile-reveals.ts'),
+              aioMobileRevealsReady,
               // Wie bei der stabilen E-Book-Seite folgt das Gesamtpaket einmalig
               // nach der sichtbaren Startchoreografie. Es wird nicht mehr durch
               // Scroll-/Touch-Ereignisse immer wieder nach hinten verschoben.
               afterMobileHero(() => import('../scripts/motion.ts')),
             ])
         : import('../scripts/motion.ts');
+
+      /* Beim manuellen Deep-Reload wird die deckende Ebene erst entfernt,
+         nachdem Header/Hero und die direkt sichtbaren Scroll-Reveals ihre
+         echten Anfangszustaende gesetzt haben. Die Import-Promises loesen nach
+         der synchronen Modul-Initialisierung, aber noch vor dem naechsten
+         Paint; dadurch bleibt die originale Animation vollstaendig sichtbar. */
+      const aioRestorePending = document.documentElement.classList.contains(
+        'is-aio-scroll-restore-pending',
+      );
+      const finishAioScrollRestore = (disableMotion = false) => {
+        const root = document.documentElement;
+        const target = Number(root.dataset.aioRestoreY);
+        if (Number.isFinite(target) && target > 0) {
+          const maximum = Math.max(0, root.scrollHeight - window.innerHeight);
+          window.scrollTo(0, Math.min(target, maximum));
+        }
+        root.classList.remove('is-aio-scroll-restore-pending');
+        if (disableMotion) root.classList.remove('has-motion', 'aio-mobile-motion');
+        root.style.removeProperty('--aio-restore-min-height');
+        delete root.dataset.aioRestoreY;
+        delete root.dataset.aioRestorePositioned;
+        window.dispatchEvent(new Event('aio:scroll-restored'));
+      };
+
+      if (aioRestorePending) {
+        if (isMobileAio) {
+          Promise.all([
+            aioMobileLoadReady,
+            aioMobileRevealsReady,
+            aioScrollPositionReady,
+          ]).then(
+            () => finishAioScrollRestore(),
+            () => finishAioScrollRestore(true),
+          );
+        } else {
+          // prefers-reduced-motion besitzt absichtlich keine AIO-Startmodule.
+          // Dort reicht die fertige Scrollposition; die Blende darf sofort weg.
+          void aioScrollPositionReady.then(() => finishAioScrollRestore());
+        }
+      }
       const homeProofCarouselReady = document.querySelector('[data-home-proof-carousel]')
         ? import('../scripts/home-results-carousel.ts')
         : Promise.resolve();
