@@ -220,29 +220,161 @@ export function init(): void {
     let debounce: number | undefined;
     const portrait = window.matchMedia('(orientation: portrait)');
     const rebuildAll = () => entries.forEach(rebuild);
-    let orientationHoldActive = false;
-    let orientationHoldTimer: number | undefined;
+    const homeHeroEntry = entries.find((entry) => entry.el.classList.contains('hhero__h1'));
+    const needsChromeHomeTransaction = Boolean(
+      homeHeroEntry
+      && /\b(?:HeadlessChrome|Chrome|Chromium|CriOS)\//.test(window.navigator.userAgent),
+    );
 
-    /* Chrome meldet beim Drehen zuerst `orientationchange`, danach bereits
-     * einen Resize mit der neuen Geometrie und erst wenige Millisekunden
-     * spaeter den MediaQuery-Wechsel. Auf 120-Hz-Geraeten reicht diese Luecke
-     * fuer einen Paint der alten, bereits sichtbaren Zeilen im neuen Layout.
-     * Deshalb den Text am fruehesten Signal halten; der folgende MQL-Rebuild
-     * gibt ihn erst frei, nachdem die neuen Masken startbereit sind. */
-    window.addEventListener('orientationchange', () => {
-      orientationHoldActive = true;
-      if (orientationHoldTimer !== undefined) window.clearTimeout(orientationHoldTimer);
-      gsap.set(els, { autoAlpha: 0 });
+    /* Der bisherige Pfad bleibt auf Safari und allen anderen Seiten bewusst
+     * unveraendert. Nur Chrome/Chromium (inklusive CriOS auf dem iPhone) kann
+     * die drei Rotationssignale in jener Reihenfolge liefern, die beim
+     * Startseiten-H1 den doppelten beziehungsweise verdeckten Lauf erzeugt. */
+    if (!needsChromeHomeTransaction) {
+      let orientationHoldActive = false;
+      let orientationHoldTimer: number | undefined;
 
-      // Falls ein Browser wider Erwarten keinen MQL-Change meldet, darf der
-      // Inhalt nicht verborgen bleiben.
-      orientationHoldTimer = window.setTimeout(() => {
-        if (!orientationHoldActive) return;
+      window.addEventListener('orientationchange', () => {
+        orientationHoldActive = true;
+        if (orientationHoldTimer !== undefined) window.clearTimeout(orientationHoldTimer);
+        gsap.set(els, { autoAlpha: 0 });
+
+        orientationHoldTimer = window.setTimeout(() => {
+          if (!orientationHoldActive) return;
+          orientationHoldActive = false;
+          orientationHoldTimer = undefined;
+          gsap.set(els, { autoAlpha: 1 });
+        }, 1200);
+      }, { passive: true });
+
+      portrait.addEventListener('change', () => {
+        window.clearTimeout(debounce);
+        debounce = undefined;
+        lastWidth = window.innerWidth;
+        rebuildAll();
         orientationHoldActive = false;
+        if (orientationHoldTimer !== undefined) window.clearTimeout(orientationHoldTimer);
         orientationHoldTimer = undefined;
-        gsap.set(els, { autoAlpha: 1 });
-      }, 1200);
-    }, { passive: true });
+      });
+
+      window.addEventListener('resize', () => {
+        if (window.innerWidth === lastWidth) return;
+        lastWidth = window.innerWidth;
+        window.clearTimeout(debounce);
+        debounce = window.setTimeout(rebuildAll, RESIZE_DEBOUNCE_MS);
+      });
+      return;
+    }
+    if (!homeHeroEntry) return;
+
+    let lastHandledPortrait = portrait.matches;
+    let orientationActive = false;
+    let orientationRebuilt = false;
+    let orientationStartWidth = lastWidth;
+    let orientationFrameOne: number | undefined;
+    let orientationFrameTwo: number | undefined;
+    let orientationFallbackTimer: number | undefined;
+    let orientationFinishTimer: number | undefined;
+
+    const clearOrientationFrames = () => {
+      if (orientationFrameOne !== undefined) window.cancelAnimationFrame(orientationFrameOne);
+      if (orientationFrameTwo !== undefined) window.cancelAnimationFrame(orientationFrameTwo);
+      orientationFrameOne = undefined;
+      orientationFrameTwo = undefined;
+    };
+
+    const endOrientationTransaction = () => {
+      clearOrientationFrames();
+      if (orientationFallbackTimer !== undefined) window.clearTimeout(orientationFallbackTimer);
+      if (orientationFinishTimer !== undefined) window.clearTimeout(orientationFinishTimer);
+      orientationFallbackTimer = undefined;
+      orientationFinishTimer = undefined;
+      orientationActive = false;
+      orientationRebuilt = false;
+    };
+
+    const finishOrientationRebuild = () => {
+      if (!orientationActive || orientationRebuilt) return;
+      clearOrientationFrames();
+      window.clearTimeout(debounce);
+      debounce = undefined;
+      lastWidth = window.innerWidth;
+      lastHandledPortrait = portrait.matches;
+      rebuildAll();
+      orientationRebuilt = true;
+      if (orientationFallbackTimer !== undefined) window.clearTimeout(orientationFallbackTimer);
+      orientationFallbackTimer = undefined;
+
+      /* Spaete Resize-/orientationchange-Signale derselben Drehung duerfen die
+       * bereits laufende ca. 1,2-s-Zeilenanimation nicht erneut aufbauen. */
+      orientationFinishTimer = window.setTimeout(endOrientationTransaction, 1400);
+    };
+
+    const queueOrientationRebuild = () => {
+      if (!orientationActive || orientationRebuilt) return;
+      clearOrientationFrames();
+      orientationFrameOne = window.requestAnimationFrame(() => {
+        orientationFrameOne = undefined;
+        orientationFrameTwo = window.requestAnimationFrame(() => {
+          orientationFrameTwo = undefined;
+          // Erst der MQL-Wechsel garantiert, dass die neue CSS-Geometrie gilt.
+          if (portrait.matches !== lastHandledPortrait) finishOrientationRebuild();
+        });
+      });
+    };
+
+    const armOrientationFallback = () => {
+      if (orientationFallbackTimer !== undefined) window.clearTimeout(orientationFallbackTimer);
+      orientationFallbackTimer = window.setTimeout(() => {
+        if (!orientationActive || orientationRebuilt) return;
+        if (
+          portrait.matches !== lastHandledPortrait
+          || window.innerWidth !== orientationStartWidth
+        ) {
+          finishOrientationRebuild();
+          return;
+        }
+
+        // Seltenes orientationchange ohne echten Formatwechsel: nichts neu
+        // starten, den vorsorglich gehaltenen Hero lediglich wieder freigeben.
+        gsap.set(homeHeroEntry.el, { autoAlpha: 1 });
+        endOrientationTransaction();
+      }, 700);
+    };
+
+    const beginOrientationTransaction = (earlySignal = false) => {
+      const orientationChanged = portrait.matches !== lastHandledPortrait;
+
+      if (!orientationActive) {
+        if (!orientationChanged && !earlySignal) return;
+        orientationActive = true;
+        orientationRebuilt = false;
+        orientationStartWidth = lastWidth;
+        gsap.set(homeHeroEntry.el, { autoAlpha: 0 });
+        armOrientationFallback();
+      } else if (orientationRebuilt) {
+        // Auch ein sehr schnelles Zurueckdrehen ist eine neue Transaktion.
+        if (!orientationChanged) return;
+        if (orientationFinishTimer !== undefined) window.clearTimeout(orientationFinishTimer);
+        orientationFinishTimer = undefined;
+        orientationRebuilt = false;
+        orientationStartWidth = lastWidth;
+        gsap.set(homeHeroEntry.el, { autoAlpha: 0 });
+        armOrientationFallback();
+      }
+
+      queueOrientationRebuild();
+    };
+
+    /* Chrome kann orientationchange, MediaQuery-change und resize in
+     * unterschiedlicher Reihenfolge melden. Alle drei Signale laufen deshalb
+     * in dieselbe idempotente Transaktion: frueh halten, genau einmal neu
+     * splitten, spaete Duplikate ignorieren. */
+    window.addEventListener(
+      'orientationchange',
+      () => beginOrientationTransaction(true),
+      { passive: true },
+    );
 
     /* Ein Gerätewechsel ist kein stufenloses Resize: CSS und Textspalte
      * springen in einem Schritt auf die neue Geometrie. Der bisherige
@@ -253,16 +385,19 @@ export function init(): void {
      * Orientation-Media-Event läuft bereits mit der neuen CSS-Geometrie und
      * baut die Zeilen deshalb sofort im selben Wechsel neu auf. */
     portrait.addEventListener('change', () => {
-      window.clearTimeout(debounce);
-      debounce = undefined;
-      lastWidth = window.innerWidth;
-      rebuildAll();
-      orientationHoldActive = false;
-      if (orientationHoldTimer !== undefined) window.clearTimeout(orientationHoldTimer);
-      orientationHoldTimer = undefined;
+      beginOrientationTransaction();
     });
 
     window.addEventListener('resize', () => {
+      if (orientationActive) {
+        if (orientationRebuilt) lastWidth = window.innerWidth;
+        else queueOrientationRebuild();
+        return;
+      }
+      if (portrait.matches !== lastHandledPortrait) {
+        beginOrientationTransaction();
+        return;
+      }
       if (window.innerWidth === lastWidth) return;
       lastWidth = window.innerWidth;
       window.clearTimeout(debounce);
