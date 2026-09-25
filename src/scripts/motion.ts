@@ -656,20 +656,9 @@ function init(): void {
   const portrait = window.matchMedia('(orientation: portrait)');
   preservePageContentOnOrientation(portrait);
   let orientationSettleTimer: number | undefined;
-  const restartResponsiveNavbar = () => {
-    homeLoad.restartNavbar();
-    aboutLoad.restartNavbar();
-    aioLoad.restartNavbar();
-    ebookLoad.restartNavbar();
-    erfolgsCheckLoad.restartNavbar();
-  };
   portrait.addEventListener('change', () => {
     requestAnimationFrame(() => {
       requestAnimationFrame(() => {
-        // Webflows Kopfzeilen-Choreografie startet nach dem Media-Key-Wechsel
-        // erneut. Nur die Navbar wird wiederholt; bereits gelesene Seiten- und
-        // Scroll-Reveals bleiben bewusst unangetastet.
-        restartResponsiveNavbar();
         refreshEnterOnce();
       });
     });

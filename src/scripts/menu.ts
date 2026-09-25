@@ -30,6 +30,196 @@ const toggle = document.querySelector<HTMLButtonElement>('[data-nav-toggle]');
 const menu = document.querySelector<HTMLElement>('[data-site-menu]');
 const panel = menu?.querySelector<HTMLElement>('[data-menu-panel]');
 
+/**
+ * Ein gemeinsamer Rotationsablauf fuer die Kopfzeile aller Seiten.
+ *
+ * Mobile Safari baut den Visual Viewport beim Drehen in mehreren Schritten um
+ * und kann dabei alte Grafikschichten einzelner fixed-Kinder an ihrer
+ * vorherigen Position weiterzeichnen. Einzelne Logo-/CTA-Schutzschichten
+ * verschieben das Problem nur auf das jeweils andere Element. Deshalb wird
+ * waehrend der instabilen Phase der komplette Header-Inhalt verborgen und
+ * nach stabiler Geometrie als eine Einheit neu aufgebaut. Die normalen,
+ * seitenspezifischen Load-Choreografien bleiben davon unberuehrt.
+ */
+if (header) {
+  const portrait = window.matchMedia('(orientation: portrait)');
+  const reducedMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+  const logoText1 = Array.from(
+    header.querySelectorAll<HTMLElement>('[data-nav-logo-text="1"]'),
+  );
+  const logoText2 = Array.from(
+    header.querySelectorAll<HTMLElement>('[data-nav-logo-text="2"]'),
+  );
+  const logoLines = Array.from(
+    header.querySelectorAll<HTMLElement>('[data-nav-logo-line]'),
+  );
+  const navRight = header.querySelector<HTMLElement>('[data-nav-right]');
+  const headerMotionTargets = [
+    ...logoText1,
+    ...logoText2,
+    ...logoLines,
+    ...(navRight ? [navRight] : []),
+  ];
+
+  const MIN_HIDE_MS = 600;
+  const VIEWPORT_QUIET_MS = 160;
+  const HARD_SETTLE_MS = 1500;
+
+  let pending = false;
+  let pendingPortrait = portrait.matches;
+  let startedAt = 0;
+  let lastViewportChangeAt = 0;
+  let settleTimer: number | undefined;
+  let hardSettleTimer: number | undefined;
+  let replayTimeline: gsap.core.Timeline | null = null;
+
+  const cancelHeaderAnimations = () => {
+    replayTimeline?.kill();
+    replayTimeline = null;
+    gsap.killTweensOf(headerMotionTargets);
+    headerMotionTargets.forEach((target) => {
+      target.getAnimations().forEach((animation) => animation.cancel());
+    });
+  };
+
+  const clearOrientationStyles = () => {
+    if (logoText1.length || logoText2.length) {
+      gsap.set([...logoText1, ...logoText2], { clearProps: 'transform,willChange' });
+    }
+    if (logoLines.length) {
+      gsap.set(logoLines, { clearProps: 'height,transform,transformOrigin,willChange' });
+    }
+    if (navRight) {
+      gsap.set(navRight, { clearProps: 'transform,opacity,willChange' });
+    }
+  };
+
+  const finishOrientationChange = () => {
+    if (!pending) return;
+    pending = false;
+    if (settleTimer !== undefined) window.clearTimeout(settleTimer);
+    if (hardSettleTimer !== undefined) window.clearTimeout(hardSettleTimer);
+    settleTimer = undefined;
+    hardSettleTimer = undefined;
+
+    cancelHeaderAnimations();
+    clearOrientationStyles();
+
+    if (reducedMotion) {
+      header.classList.remove('is-orientation-changing');
+      return;
+    }
+
+    // Alle Ausgangswerte werden gesetzt, solange der gesamte Inhalt noch
+    // unsichtbar ist. Dadurch kann kein einzelnes Kind an der alten Position
+    // aufblitzen, und der erste sichtbare Frame ist immer der definierte
+    // Animationsanfang der vollstaendigen Kopfzeile.
+    gsap.set(logoText1, { xPercent: 140, willChange: 'transform' });
+    gsap.set(logoText2, { xPercent: -140, willChange: 'transform' });
+    gsap.set(logoLines, {
+      scaleY: 0,
+      transformOrigin: '50% 50%',
+      willChange: 'transform',
+    });
+    if (navRight) {
+      gsap.set(navRight, {
+        opacity: 0,
+        x: '2.5rem',
+        willChange: 'transform,opacity',
+      });
+    }
+
+    replayTimeline = gsap.timeline({
+      onComplete: () => {
+        replayTimeline = null;
+        clearOrientationStyles();
+      },
+    });
+    replayTimeline.to(logoLines, {
+      scaleY: 1,
+      duration: 0.5,
+      ease: EASE.outQuart,
+    }, 0);
+    replayTimeline.to(logoText1, {
+      xPercent: 0,
+      duration: 0.9,
+      ease: EASE.outQuart,
+    }, 0.06);
+    replayTimeline.to(logoText2, {
+      xPercent: 0,
+      duration: 0.9,
+      ease: EASE.outQuart,
+    }, 0.06);
+    if (navRight) {
+      replayTimeline.to(navRight, {
+        opacity: 1,
+        duration: 1.08,
+        ease: EASE.ease,
+      }, 0.06);
+      replayTimeline.to(navRight, {
+        x: 0,
+        duration: 0.9,
+        ease: EASE.outQuart,
+      }, 0.06);
+    }
+
+    header.classList.remove('is-orientation-changing');
+  };
+
+  const scheduleStableFinish = () => {
+    if (!pending) return;
+    if (settleTimer !== undefined) window.clearTimeout(settleTimer);
+    const now = performance.now();
+    const earliestFinish = Math.max(
+      startedAt + MIN_HIDE_MS,
+      lastViewportChangeAt + VIEWPORT_QUIET_MS,
+    );
+    settleTimer = window.setTimeout(
+      finishOrientationChange,
+      Math.max(0, earliestFinish - now),
+    );
+  };
+
+  const beginOrientationChange = () => {
+    const isPortrait = portrait.matches;
+    const now = performance.now();
+
+    // orientationchange, Screen Orientation und MediaQuery melden dieselbe
+    // Drehung je nach Browser nacheinander. Nur eine echte neue Ausrichtung
+    // startet den Ablauf erneut; Duplikate verlaengern ihn nicht kuenstlich.
+    if (pending && isPortrait === pendingPortrait) {
+      lastViewportChangeAt = now;
+      scheduleStableFinish();
+      return;
+    }
+
+    pending = true;
+    pendingPortrait = isPortrait;
+    startedAt = now;
+    lastViewportChangeAt = now;
+    header.classList.add('is-orientation-changing');
+    cancelHeaderAnimations();
+    if (settleTimer !== undefined) window.clearTimeout(settleTimer);
+    if (hardSettleTimer !== undefined) window.clearTimeout(hardSettleTimer);
+    scheduleStableFinish();
+    hardSettleTimer = window.setTimeout(finishOrientationChange, HARD_SETTLE_MS);
+  };
+
+  const handleViewportResize = () => {
+    if (!pending) return;
+    lastViewportChangeAt = performance.now();
+    scheduleStableFinish();
+  };
+
+  const handleOrientationSignal = () => beginOrientationChange();
+  window.addEventListener('orientationchange', handleOrientationSignal, { passive: true });
+  screen.orientation?.addEventListener('change', handleOrientationSignal);
+  portrait.addEventListener('change', handleOrientationSignal);
+  window.addEventListener('resize', handleViewportResize, { passive: true });
+  window.visualViewport?.addEventListener('resize', handleViewportResize, { passive: true });
+  window.addEventListener('lp:orientation-settled', scheduleStableFinish);
+}
+
 /** Stagger-Delays (s) nach DOM-Position: Startseite, Zum E-Book, ALL-IN-ONE,
     Über mich ⇒ is-1/is-4/is-3/is-2 ⇒ 1.0/1.3/1.2/1.1 (Original-Werte). */
 const LINK_DELAYS_4 = [1.0, 1.3, 1.2, 1.1];

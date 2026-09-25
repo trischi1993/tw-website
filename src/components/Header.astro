@@ -208,6 +208,17 @@ const headerCtaHref = settings.headerCta
     margin-inline: auto;
   }
 
+  /* iOS kann beim Drehen die alte Grafikschicht eines fixierten Kindes noch
+     mit der vorherigen Viewportgeometrie zeichnen. Waehrend dieser kurzen,
+     zentral in menu.ts gesteuerten Phase wird deshalb der komplette
+     Header-Inhalt unterdrueckt. Erst nachdem der neue Viewport stabil ist,
+     wird die gesamte Kopfzeile aus einem gemeinsamen Startzustand aufgebaut.
+     Die Navbar-Flaeche selbst bleibt stehen, damit nichts im Layout springt. */
+  .navbar.is-orientation-changing .navbar__container {
+    visibility: hidden;
+    pointer-events: none;
+  }
+
   /* --- Split-Wortmarke (Word-Wrapper = Overflow-Masken der Load-Anim) ------ */
   .navbar__logo {
     grid-area: 1 / 1;

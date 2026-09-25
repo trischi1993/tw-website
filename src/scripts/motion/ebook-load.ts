@@ -1,7 +1,5 @@
 import { gsap, EASE } from './util';
 
-let responsiveNavbarAnimations: Animation[] = [];
-
 /* ---------------------------------------------------------------------------
    E-Book-Load-Choreografie, abgeleitet vom gemeinsamen AIO-/Über-mich-Muster:
    Textblöcke kommen nacheinander von rechts, das Mockup faded zuletzt ein;
@@ -168,48 +166,5 @@ export function init(_mm: gsap.MatchMedia): void {
       ease: EASE.ease,
       clearProps: 'willChange',
     });
-  }
-}
-
-/** Bildet beim Wechsel zwischen Desktop-/Tablet-/Mobile-Breakpoints dieselbe
- * Navbar-Wiederholung wie auf der AIO- und Über-mich-Seite ab. */
-export function restartNavbar(): void {
-  if (!document.querySelector('[data-ebook-hero]')) return;
-  if (document.documentElement.classList.contains('ebook-mobile-motion')) return;
-  const logoLines = document.querySelectorAll<HTMLElement>('[data-nav-logo-line]');
-  const navRight = document.querySelector<HTMLElement>('[data-nav-right]');
-
-  responsiveNavbarAnimations.forEach((animation) => animation.cancel());
-  responsiveNavbarAnimations = [];
-
-  logoLines.forEach((line) => {
-    responsiveNavbarAnimations.push(line.animate(
-      [{ transform: 'scaleY(0)' }, { transform: 'scaleY(1)' }],
-      {
-        duration: 500,
-        delay: 100,
-        easing: 'cubic-bezier(0.165, 0.84, 0.44, 1)',
-        fill: 'backwards',
-      },
-    ));
-  });
-  if (navRight) {
-    responsiveNavbarAnimations.push(
-      navRight.animate([{ opacity: 0 }, { opacity: 1 }], {
-        duration: 1200,
-        delay: 300,
-        easing: 'cubic-bezier(0.25, 0.1, 0.25, 1)',
-        fill: 'backwards',
-      }),
-      navRight.animate(
-        [{ transform: 'translate3d(2.5rem, 0, 0)' }, { transform: 'translate3d(0, 0, 0)' }],
-        {
-          duration: 1000,
-          delay: 300,
-          easing: 'cubic-bezier(0.165, 0.84, 0.44, 1)',
-          fill: 'backwards',
-        },
-      ),
-    );
   }
 }

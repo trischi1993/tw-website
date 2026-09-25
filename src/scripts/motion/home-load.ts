@@ -13,7 +13,6 @@ import { EASE, gsap } from './util';
 
 const LOGO_LINE_HEIGHT = '2rem'; // Header.astro: .navbar__logo-line { height: 2rem }
 let replayHomeLoad: (() => void) | undefined;
-let responsiveNavbarAnimations: Animation[] = [];
 
 export function init(_mm: gsap.MatchMedia): void {
   const hero = document.querySelector<HTMLElement>('[data-home-hero]');
@@ -134,72 +133,4 @@ export function restart(): void {
   // zweites Mal starten. Ein echter Handy-Wechsel nach dem Laden ist sicher.
   if (document.readyState !== 'complete') return;
   replayHomeLoad?.();
-}
-
-/** Wiederholt beim Formatwechsel nur den Aufbau der Kopfzeile. Die fruehere
- * Wiederholung der kompletten PAGE_FINISH-Choreografie bewegte auch bereits
- * gelesene Hero- und CTA-Inhalte erneut. */
-export function restartNavbar(): void {
-  if (!document.querySelector('[data-home-hero]')) return;
-  if (document.readyState !== 'complete') return;
-
-  const logoLines = document.querySelectorAll<HTMLElement>('[data-nav-logo-line]');
-  const logoText1 = document.querySelectorAll<HTMLElement>('[data-nav-logo-text="1"]');
-  const logoText2 = document.querySelectorAll<HTMLElement>('[data-nav-logo-text="2"]');
-  const navRight = document.querySelector<HTMLElement>('[data-nav-right]');
-
-  responsiveNavbarAnimations.forEach((animation) => animation.cancel());
-  responsiveNavbarAnimations = [];
-
-  logoLines.forEach((line) => {
-    responsiveNavbarAnimations.push(line.animate(
-      [{ height: '0px' }, { height: LOGO_LINE_HEIGHT }],
-      {
-        duration: 450,
-        easing: 'cubic-bezier(0.165, 0.84, 0.44, 1)',
-        fill: 'backwards',
-      },
-    ));
-  });
-  logoText1.forEach((text) => {
-    responsiveNavbarAnimations.push(text.animate(
-      [{ transform: 'translate3d(140%, 0, 0)' }, { transform: 'translate3d(0, 0, 0)' }],
-      {
-        duration: 900,
-        delay: 60,
-        easing: 'cubic-bezier(0.165, 0.84, 0.44, 1)',
-        fill: 'backwards',
-      },
-    ));
-  });
-  logoText2.forEach((text) => {
-    responsiveNavbarAnimations.push(text.animate(
-      [{ transform: 'translate3d(-140%, 0, 0)' }, { transform: 'translate3d(0, 0, 0)' }],
-      {
-        duration: 900,
-        delay: 60,
-        easing: 'cubic-bezier(0.165, 0.84, 0.44, 1)',
-        fill: 'backwards',
-      },
-    ));
-  });
-  if (navRight) {
-    responsiveNavbarAnimations.push(
-      navRight.animate([{ opacity: 0 }, { opacity: 1 }], {
-        duration: 1080,
-        delay: 60,
-        easing: 'cubic-bezier(0.25, 0.1, 0.25, 1)',
-        fill: 'backwards',
-      }),
-      navRight.animate(
-        [{ transform: 'translate3d(2.5rem, 0, 0)' }, { transform: 'translate3d(0, 0, 0)' }],
-        {
-          duration: 900,
-          delay: 60,
-          easing: 'cubic-bezier(0.165, 0.84, 0.44, 1)',
-          fill: 'backwards',
-        },
-      ),
-    );
-  }
 }
