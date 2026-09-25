@@ -337,7 +337,16 @@ export default function AioCustomerResultsSection({
             </p>
             <h3 {...edit?.(`${path}.heading`)}>{outcomesHeading}</h3>
           </div>
-          <ul data-anim="reveal" data-delay="0.15" data-offset="0">
+          <ul
+            data-anim="reveal"
+            data-delay="0.15"
+            data-offset="0"
+            // Mobile Safari darf fuer diesen mehrzeiligen Bereich keine
+            // Filter-Layer anlegen: Beim Drehen recycelt WebKit sonst einzelne
+            // alte Zeilen als grauen Balken. Fade und Bewegung bleiben aktiv;
+            // Desktop behaelt den vollstaendigen Blur-Reveal.
+            data-aio-mobile-no-blur=""
+          >
             {outcomes.map((outcome, index) => (
               <li key={`${outcome}-${index}`} {...edit?.(`${path}.bullets[${index}]`)}>
                 <span data-reveal-blur-text="">{outcome}</span>

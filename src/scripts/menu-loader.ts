@@ -4,12 +4,11 @@
  * Menue-Modul bringt danach die GSAP-Choreografie, Rotation-Stabilisierung und
  * A11y-Logik mit.
  *
- * Auf der sehr langen mobilen AIO-Seite darf dieses schwere Modul beim echten
- * Erstaufruf nicht gleichzeitig mit der sichtbaren Header-/Hero-Choreografie
- * geparst werden: Mobile Safari haelt sonst den Hauptthread kurz an und der
- * erste Tap wirkt, als sei der Menuebutton noch nicht bereit. Nur dort wird
- * das Nachladen deshalb bis nach der Startchoreografie verschoben. Die Optik
- * und die Menueanimation selbst bleiben unveraendert.
+ * Das vollstaendige Menue-Modul wird auf allen Seiten sofort geladen. Nur wenn
+ * der Nutzer noch waehrend des HTML-Parsens getippt hat und die native
+ * Fruehanimation bereits laeuft, wartet die Uebergabe bis zu deren sichtbarem
+ * Ende. Dadurch verwendet AIO nach dem Start denselben GSAP-Controller wie
+ * jede andere Seite und besitzt keinen dauerhaft abweichenden Menuepfad.
  */
 
 const root = document.documentElement;
@@ -39,9 +38,9 @@ if (!isMobileAio) {
   };
 
   /* Wurde schon waehrend des Parsens getippt, darf die native
-     Oeffnungsanimation erst sichtbar fertig werden. Andernfalls liegt der
-     normale Fallback knapp hinter der 1,5-s-AIO-Headerchoreografie. */
-  scheduleLoad(toggle?.hasAttribute('data-menu-early-interacted') ? 780 : 1650);
+     Oeffnungsanimation erst sichtbar fertig werden. Ohne Fruehinteraktion
+     startet derselbe Menue-Controller wie auf allen anderen Seiten sofort. */
+  scheduleLoad(toggle?.hasAttribute('data-menu-early-interacted') ? 780 : 0);
 
   document.addEventListener(
     'site:early-menu-interaction',

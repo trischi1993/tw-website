@@ -230,7 +230,7 @@ if (header) {
     Über mich ⇒ is-1/is-4/is-3/is-2 ⇒ 1.0/1.3/1.2/1.1 (Original-Werte). */
 const LINK_DELAYS_4 = [1.0, 1.3, 1.2, 1.1];
 
-if (header && toggle && menu && panel && !menu.hasAttribute('data-aio-native-menu')) {
+if (header && toggle && menu && panel) {
   const reduced = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
   const compactMenuMotion = window.matchMedia(
     '(max-width: 767px), (hover: none) and (pointer: coarse)',

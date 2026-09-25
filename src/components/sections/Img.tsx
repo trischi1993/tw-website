@@ -13,6 +13,7 @@ export default function Img({
   quality,
   loading = 'lazy',
   fetchPriority,
+  decoding,
   style,
 }: {
   image?: SiteImage;
@@ -22,6 +23,7 @@ export default function Img({
   quality?: number;
   loading?: 'lazy' | 'eager';
   fetchPriority?: 'high' | 'low' | 'auto';
+  decoding?: 'sync' | 'async' | 'auto';
   style?: React.CSSProperties;
 }) {
   if (!image) return null;
@@ -47,7 +49,7 @@ export default function Img({
       // sizes ist ohne srcset wirkungslos - nur dann setzen.
       sizes={srcSet ? sizes : undefined}
       loading={loading}
-      decoding={loading === 'eager' ? 'sync' : 'async'}
+      decoding={decoding ?? (loading === 'eager' ? 'sync' : 'async')}
       // Kleinschreibung erzwingt das HTML-Attribut unabhaengig von der React-Version.
       {...(fetchPriority ? { fetchpriority: fetchPriority } : {})}
       style={style}

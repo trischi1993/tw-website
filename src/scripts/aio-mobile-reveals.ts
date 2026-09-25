@@ -8,7 +8,7 @@ const root = document.documentElement;
 const EASE = 'cubic-bezier(0.25, 0.1, 0.25, 1)';
 const OUT_QUART = 'cubic-bezier(0.165, 0.84, 0.44, 1)';
 const activeAnimations = new Set<Animation>();
-const resultBulletFinalizers = new Set<() => void>();
+const activeRevealFinalizers = new Set<() => void>();
 
 const TEXT_SELECTOR = [
   'h1',
@@ -117,11 +117,11 @@ function initGenericReveals(): void {
     const duration = (Number.isFinite(parsedDuration) ? parsedDuration : 0.8) * 1000;
     const parsedOffset = Number.parseFloat(element.dataset.offset ?? '');
     const offset = Number.isFinite(parsedOffset) ? parsedOffset : 16;
-    const blurTargets = element.hasAttribute('data-reveal-no-blur')
+    const blurTargets =
+      element.hasAttribute('data-reveal-no-blur') ||
+      element.hasAttribute('data-aio-mobile-no-blur')
       ? []
       : textTargets(element);
-    const isResultBullets = element.matches('.aio-results__outcomes > ul');
-    if (isResultBullets) element.setAttribute('data-aio-result-list', '');
 
     element.style.opacity = '0';
     element.style.transform = 'translate3d(0, 1rem, 0)';
@@ -131,15 +131,6 @@ function initGenericReveals(): void {
 
     const reveal = () => {
       element.setAttribute('data-aio-native-revealed', '');
-      if (isResultBullets && element.hasAttribute('data-aio-orientation-final')) {
-        element.style.removeProperty('opacity');
-        element.style.removeProperty('transform');
-        blurTargets.forEach((target) => {
-          target.style.removeProperty('filter');
-          target.style.removeProperty('will-change');
-        });
-        return;
-      }
       const animations = [
         play(element, [{ opacity: 0 }, { opacity: 1 }], {
           duration,
@@ -171,7 +162,7 @@ function initGenericReveals(): void {
       const finish = () => {
         if (finished) return;
         finished = true;
-        if (isResultBullets) resultBulletFinalizers.delete(finish);
+        activeRevealFinalizers.delete(finish);
 
         // Den nativen Endzustand zuerst unter die Animation legen. Erst dann
         // werden die WebKit-Layer entfernt; so existiert beim Canceln kein
@@ -189,7 +180,7 @@ function initGenericReveals(): void {
         element.style.removeProperty('transform');
         blurTargets.forEach((target) => target.style.removeProperty('filter'));
       };
-      if (isResultBullets) resultBulletFinalizers.add(finish);
+      activeRevealFinalizers.add(finish);
       void Promise.allSettled(animations.map((animation) => animation.finished)).then(finish);
     };
 
@@ -309,35 +300,12 @@ if (
   initTristyChat();
 
   const portrait = window.matchMedia('(orientation: portrait)');
-  let orientationClassTimer: number | undefined;
   portrait.addEventListener('change', () => {
-    root.classList.add('is-aio-orientation-settling');
-    document.querySelectorAll<HTMLElement>('[data-aio-result-list]').forEach((list) => {
-      list.setAttribute('data-aio-orientation-final', '');
-      list.style.removeProperty('opacity');
-      list.style.removeProperty('transform');
-      list.querySelectorAll<HTMLElement>('[data-reveal-blur-text]').forEach((text) => {
-        text.style.removeProperty('filter');
-        text.style.removeProperty('will-change');
-      });
-    });
-    resultBulletFinalizers.forEach((finish) => finish());
-    resultBulletFinalizers.clear();
-
-    // Laufende Filter-/Transform-Layer vor dem mobilen Zeilenumbruch sauber
-    // abschliessen. So kann WebKit keine einzelne alte Textzeile nachzeichnen.
-    activeAnimations.forEach((animation) => {
-      try {
-        animation.finish();
-      } catch {
-        animation.cancel();
-      }
-    });
-    if (orientationClassTimer !== undefined) window.clearTimeout(orientationClassTimer);
-    orientationClassTimer = window.setTimeout(() => {
-      root.classList.remove('is-aio-orientation-settling');
-      orientationClassTimer = undefined;
-    }, 900);
+    // Der sichtbare Endzustand wird zuerst in die DOM-Styles geschrieben und
+    // erst danach werden die nativen Filter-/Transform-Layer entfernt. Das
+    // verhindert WebKits Zwischen-Paint beim Neuumbrechen, ohne spaeter noch
+    // einmal einzelne Bullet-Zeilen zu initialisieren.
+    [...activeRevealFinalizers].forEach((finish) => finish());
   });
 }
 

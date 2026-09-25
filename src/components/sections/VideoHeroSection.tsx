@@ -60,9 +60,24 @@ export default function VideoHeroSection({
               </div>
             </header>
             <div className="vhero__phone" data-aio-video="">
-              <Img image={mockupImage} className="vhero__mockup" loading="eager" />
+              <Img
+                image={mockupImage}
+                className="vhero__mockup"
+                sizes="(max-width: 479px) 70vw, (max-width: 767px) 10rem, (max-width: 991px) 16rem, 18rem"
+                loading="eager"
+                fetchPriority="high"
+                decoding="async"
+              />
               <div className="vhero__video" data-video-player="">
-                <Img image={posterImage} className="vhero__poster" loading="eager" />
+                <Img
+                  image={posterImage}
+                  className="vhero__poster"
+                  sizes="(max-width: 479px) 70vw, (max-width: 767px) 10rem, (max-width: 991px) 16rem, 18rem"
+                  quality={78}
+                  loading="eager"
+                  fetchPriority="high"
+                  decoding="async"
+                />
                 {playbackUrl ? (
                   <video
                     src={playbackUrl}

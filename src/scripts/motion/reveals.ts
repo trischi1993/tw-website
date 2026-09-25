@@ -276,7 +276,10 @@ function initReveal(): void {
     const isHeroReveal = Boolean(el.closest('.ebook-hero'));
     const isLightweightEbookReveal = usesSharedEbookObserver() && !isHeroReveal;
     const isLightweightReveal = isHeroReveal || isLightweightEbookReveal;
-    const skipsBlur = el.hasAttribute('data-reveal-no-blur');
+    const skipsBlur =
+      el.hasAttribute('data-reveal-no-blur') ||
+      (document.documentElement.classList.contains('aio-mobile-motion') &&
+        el.hasAttribute('data-aio-mobile-no-blur'));
     const blurTargets = skipsBlur ? [] : getRevealTextTargets(el);
     const supportsNativeAnimation = typeof el.animate === 'function';
 
