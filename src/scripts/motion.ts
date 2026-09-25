@@ -161,7 +161,7 @@ function preservePageContentOnOrientation(portrait: MediaQueryList): void {
     centerY: number,
     fallback: Extract<PageViewportScrollAnchor, { kind: 'element' }>,
   ): PageViewportScrollAnchor | undefined => {
-    const textContainer = hit?.closest<HTMLElement>([
+    const textSelector = [
       'h1',
       'h2',
       'h3',
@@ -175,14 +175,42 @@ function preservePageContentOnOrientation(portrait: MediaQueryList): void {
       'figcaption',
       'dt',
       'dd',
-    ].join(','));
-    if (!textContainer || !textContainer.closest('main,footer')) return undefined;
+    ].join(',');
+    const directTextContainer = hit?.closest<HTMLElement>(textSelector) ?? null;
+    const localContentContainer = hit?.closest<HTMLElement>([
+      'article',
+      'figure',
+      'details',
+      '[class*="__card"]',
+      '[class*="__item"]',
+      '[class*="__base"]',
+      '[class*="__content"]',
+    ].join(',')) ?? null;
+
+    /* Die Viewportmitte liegt auf Mobilgeräten häufig auf einem Bild, einer
+     * Kartenfläche oder genau in einer Grid-Lücke. Dann war der alte
+     * Wortanker leer und die Rotation hielt nur einen Prozentwert innerhalb
+     * der gesamten Section fest. Nach dem responsiven Textumbruch bezeichnet
+     * dieser Prozentwert einen anderen Inhalt; die spätere GSAP-Vermessung
+     * wurde als sichtbares Einrasten wahrgenommen. Wir suchen deshalb zuerst
+     * im unmittelbar getroffenen Text, dann im lokalen Inhaltsblock und erst
+     * zuletzt im bereits als stabil erkannten Fallback-Block nach dem
+     * nächstgelegenen sichtbaren Wort. */
+    const containers = [
+      directTextContainer,
+      localContentContainer && fallback.element.contains(localContentContainer)
+        ? localContentContainer
+        : null,
+      fallback.element.matches('main,footer') ? null : fallback.element,
+    ].filter((container, index, all): container is HTMLElement =>
+      Boolean(container)
+      && container!.closest('main,footer') !== null
+      && all.indexOf(container) === index);
 
     // SHOW_TEXT = 4; die Zahl vermeidet Abhaengigkeit vom globalen
     // `NodeFilter`-Konstruktor in eingeschraenkten WebViews.
-    const walker = document.createTreeWalker(textContainer, 4);
     const range = document.createRange();
-    let best:
+    type TextCandidate =
       | {
           node: Text;
           start: number;
@@ -193,42 +221,58 @@ function preservePageContentOnOrientation(portrait: MediaQueryList): void {
         }
       | undefined;
 
-    let current = walker.nextNode();
-    while (current) {
-      const node = current as Text;
-      const value = node.data;
-      const words = value.matchAll(/\S+/g);
-      for (const word of words) {
-        const start = word.index ?? 0;
-        const end = start + word[0].length;
-        range.setStart(node, start);
-        range.setEnd(node, end);
-        for (const bounds of Array.from(range.getClientRects())) {
-          if (bounds.width <= 0 || bounds.height <= 0) continue;
-          const dx = centerX < bounds.left
-            ? bounds.left - centerX
-            : centerX > bounds.right
-              ? centerX - bounds.right
-              : 0;
-          const dy = centerY < bounds.top
-            ? bounds.top - centerY
-            : centerY > bounds.bottom
-              ? centerY - bounds.bottom
-              : 0;
-          const distance = Math.hypot(dx, dy * 2);
-          if (!best || distance < best.distance) {
-            best = {
-              node,
-              start,
-              end,
-              viewportRatio: (bounds.top + bounds.height / 2) / root.clientHeight,
-              distance,
-              verticalDistance: dy,
-            };
+    const nearestWordIn = (container: HTMLElement): TextCandidate => {
+      const walker = document.createTreeWalker(container, 4);
+      let best: TextCandidate;
+      let current = walker.nextNode();
+      while (current) {
+        const node = current as Text;
+        const value = node.data;
+        const words = value.matchAll(/\S+/g);
+        for (const word of words) {
+          const start = word.index ?? 0;
+          const end = start + word[0].length;
+          range.setStart(node, start);
+          range.setEnd(node, end);
+          for (const bounds of Array.from(range.getClientRects())) {
+            if (bounds.width <= 0 || bounds.height <= 0) continue;
+            const dx = centerX < bounds.left
+              ? bounds.left - centerX
+              : centerX > bounds.right
+                ? centerX - bounds.right
+                : 0;
+            const dy = centerY < bounds.top
+              ? bounds.top - centerY
+              : centerY > bounds.bottom
+                ? centerY - bounds.bottom
+                : 0;
+            const distance = Math.hypot(dx, dy * 2);
+            if (!best || distance < best.distance) {
+              best = {
+                node,
+                start,
+                end,
+                viewportRatio: (bounds.top + bounds.height / 2) / root.clientHeight,
+                distance,
+                verticalDistance: dy,
+              };
+            }
           }
         }
+        current = walker.nextNode();
       }
-      current = walker.nextNode();
+      return best;
+    };
+
+    let best: TextCandidate;
+    for (const container of containers) {
+      const candidate = nearestWordIn(container);
+      if (!candidate) continue;
+      best = candidate;
+      // Ein lokaler Treffer ist semantisch präziser als ein zufällig gleich
+      // nahes Wort aus dem gesamten Abschnitt. Nur wenn im lokalen Block kein
+      // Wort nahe genug liegt, wird der breitere Fallback durchsucht.
+      if (candidate.verticalDistance <= Math.max(96, root.clientHeight * 0.18)) break;
     }
 
     // Nur einen tatsaechlich nahe am Messpunkt liegenden Text verwenden. In
@@ -237,7 +281,7 @@ function preservePageContentOnOrientation(portrait: MediaQueryList): void {
     // bedecken, obwohl ihr Wort weit links von der horizontalen Viewportmitte
     // steht. Entscheidend ist deshalb die passende Textzeile (Y), nicht der
     // horizontale Abstand innerhalb desselben getroffenen Textelements.
-    if (!best || best.verticalDistance > Math.max(48, root.clientHeight * 0.08)) return undefined;
+    if (!best || best.verticalDistance > Math.max(96, root.clientHeight * 0.18)) return undefined;
     return {
       kind: 'text',
       node: best.node,
