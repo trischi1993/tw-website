@@ -156,8 +156,11 @@ const jsonLdArray = [orgJsonLd, ...pageJsonLd];
     </script>
     <style is:inline>
       /* Verhindert ausschließlich beim mobilen AIO-Reload, dass Safari den
-         Seitenanfang vor seiner nativen Positionswiederherstellung zeichnet. */
-      html.is-aio-mobile-reload body {
+         Seiteninhalt vor seiner nativen Positionswiederherstellung zeichnet.
+         Kopfzeile und Fullscreen-Menü bleiben davon bewusst ausgenommen: Sie
+         müssen bereits während dieser Phase echt sichtbar und anklickbar sein,
+         statt nur als nicht interaktive Safari-Altschicht stehen zu bleiben. */
+      html.is-aio-mobile-reload body > :not(.navbar):not(.menu) {
         visibility: hidden;
       }
     </style>
