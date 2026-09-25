@@ -43,10 +43,37 @@ type PageViewportScrollAnchor =
  * Inhalt im Viewport. Ein einmaliges Wiederherstellen reicht nicht: iOS und
  * GSAP vermessen den neuen Viewport in mehreren Phasen. Würden wir erst nach
  * der letzten Phase korrigieren, wäre genau das als verspätetes „Einrasten“
- * sichtbar. Deshalb wird derselbe Inhaltsanker bei den tatsaechlichen
- * Resize-, Visual-Viewport- und GSAP-Refresh-Stufen wiederhergestellt. */
+ * sichtbar. Deshalb wird derselbe Inhaltsanker bis zur nachweislich ruhigen
+ * Visual-Viewport- und GSAP-Geometrie kontinuierlich wiederhergestellt. */
 function preservePageContentOnOrientation(portrait: MediaQueryList): void {
   const root = document.documentElement;
+  const MIN_STABILIZE_MS = 1050;
+  const VIEWPORT_QUIET_MS = 220;
+  const HARD_STOP_MS = 1900;
+
+  /* `clientHeight` beschreibt auf iOS nur den Layout-Viewport. Sichtbar ist
+   * jedoch der Visual Viewport, den Safari beim Drehen samt Browserleisten in
+   * mehreren, teils verspäteten Stufen verschiebt und skaliert. Sämtliche
+   * Ankerkoordinaten müssen deshalb aus derselben sichtbaren Geometrie stammen.
+   * WebKit liefert Client-Rects relativ zum Layout-Viewport; offsetTop/-Left
+   * übersetzen den sichtbaren Mittelpunkt in genau dieses Koordinatensystem. */
+  const getVisibleViewport = () => {
+    const visual = window.visualViewport;
+    const width = visual?.width || root.clientWidth;
+    const height = visual?.height || root.clientHeight;
+    const left = visual?.offsetLeft || 0;
+    const top = visual?.offsetTop || 0;
+    return {
+      left,
+      top,
+      width,
+      height,
+      right: left + width,
+      bottom: top + height,
+      centerX: left + width / 2,
+      centerY: top + height / 2,
+    };
+  };
   /* Stabile Layoutblöcke bewusst vor generischen Elementen prüfen. `closest()`
    * beachtet die Reihenfolge einer kombinierten Selektorliste nicht: Der alte
    * Code fing dadurch in Carousels oft ein bewegtes <figure> und in USP-Listen
@@ -55,6 +82,9 @@ function preservePageContentOnOrientation(portrait: MediaQueryList): void {
    * rastete in zwei Stufen ein. */
   const anchorSelectors = [
     '[data-results]',
+    '.services__card',
+    '.reviews__card',
+    '.faq__item',
     '.home-proof-card',
     '.home-proof__head',
     '.split-cta__grid',
@@ -96,6 +126,8 @@ function preservePageContentOnOrientation(portrait: MediaQueryList): void {
   let timelineLandscapeUserMoved = false;
   let stabilizing = false;
   let layoutSettled = false;
+  let stabilizingStartedAt = 0;
+  let lastGeometryChangeAt = 0;
   let previousScrollBehavior = '';
   let previousOverflowAnchor = '';
   let wasPortrait = portrait.matches;
@@ -117,16 +149,17 @@ function preservePageContentOnOrientation(portrait: MediaQueryList): void {
      * Section waehlen, damit beim Rueckdrehen derselbe Inhalt erhalten bleibt. */
     const scope = hit.closest<HTMLElement>(anchorScopeSelector);
     if (!scope) return null;
+    const viewport = getVisibleViewport();
     for (const selector of anchorSelectors) {
       const candidates = Array.from(scope.querySelectorAll<HTMLElement>(selector))
         .filter((candidate) => {
           const bounds = candidate.getBoundingClientRect();
           return bounds.width > 0
             && bounds.height > 0
-            && bounds.right >= 0
-            && bounds.left <= root.clientWidth
-            && bounds.bottom >= 0
-            && bounds.top <= root.clientHeight;
+            && bounds.right >= viewport.left
+            && bounds.left <= viewport.right
+            && bounds.bottom >= viewport.top
+            && bounds.top <= viewport.bottom;
         });
       if (!candidates.length) continue;
       return candidates.reduce((closest, candidate) => {
@@ -161,6 +194,7 @@ function preservePageContentOnOrientation(portrait: MediaQueryList): void {
     centerY: number,
     fallback: Extract<PageViewportScrollAnchor, { kind: 'element' }>,
   ): PageViewportScrollAnchor | undefined => {
+    const viewport = getVisibleViewport();
     const textSelector = [
       'h1',
       'h2',
@@ -252,7 +286,9 @@ function preservePageContentOnOrientation(portrait: MediaQueryList): void {
                 node,
                 start,
                 end,
-                viewportRatio: (bounds.top + bounds.height / 2) / root.clientHeight,
+                viewportRatio: Math.min(1, Math.max(0, (
+                  bounds.top + bounds.height / 2 - viewport.top
+                ) / viewport.height)),
                 distance,
                 verticalDistance: dy,
               };
@@ -272,7 +308,7 @@ function preservePageContentOnOrientation(portrait: MediaQueryList): void {
       // Ein lokaler Treffer ist semantisch präziser als ein zufällig gleich
       // nahes Wort aus dem gesamten Abschnitt. Nur wenn im lokalen Block kein
       // Wort nahe genug liegt, wird der breitere Fallback durchsucht.
-      if (candidate.verticalDistance <= Math.max(96, root.clientHeight * 0.18)) break;
+      if (candidate.verticalDistance <= Math.max(64, viewport.height * 0.12)) break;
     }
 
     // Nur einen tatsaechlich nahe am Messpunkt liegenden Text verwenden. In
@@ -281,7 +317,7 @@ function preservePageContentOnOrientation(portrait: MediaQueryList): void {
     // bedecken, obwohl ihr Wort weit links von der horizontalen Viewportmitte
     // steht. Entscheidend ist deshalb die passende Textzeile (Y), nicht der
     // horizontale Abstand innerhalb desselben getroffenen Textelements.
-    if (!best || best.verticalDistance > Math.max(96, root.clientHeight * 0.18)) return undefined;
+    if (!best || best.verticalDistance > Math.max(64, viewport.height * 0.12)) return undefined;
     return {
       kind: 'text',
       node: best.node,
@@ -311,8 +347,9 @@ function preservePageContentOnOrientation(portrait: MediaQueryList): void {
     captureFrame = undefined;
     if (stabilizing) return;
 
-    const centerX = root.clientWidth / 2;
-    const centerY = root.clientHeight / 2;
+    const viewport = getVisibleViewport();
+    const centerX = viewport.centerX;
+    const centerY = viewport.centerY;
     const hit = document.elementFromPoint(centerX, centerY) as HTMLElement | null;
     const element = findAnchor(hit, centerX, centerY);
     if (!element || element === document.body || element === root) return;
@@ -324,7 +361,9 @@ function preservePageContentOnOrientation(portrait: MediaQueryList): void {
       kind: 'element',
       element,
       ratio: Math.min(1, Math.max(0, (centerY - bounds.top) / bounds.height)),
-      viewportRatio: centerY / root.clientHeight,
+      viewportRatio: Math.min(1, Math.max(0, (
+        centerY - viewport.top
+      ) / viewport.height)),
     };
     anchor = elementAnchor;
 
@@ -334,8 +373,9 @@ function preservePageContentOnOrientation(portrait: MediaQueryList): void {
     const capturePreciseText = () => {
       preciseCaptureTimer = undefined;
       if (stabilizing) return;
-      const currentX = root.clientWidth / 2;
-      const currentY = root.clientHeight / 2;
+      const currentViewport = getVisibleViewport();
+      const currentX = currentViewport.centerX;
+      const currentY = currentViewport.centerY;
       const currentHit = document.elementFromPoint(currentX, currentY) as HTMLElement | null;
       const currentElement = findAnchor(currentHit, currentX, currentY);
       if (!currentElement || currentElement !== element || !element.isConnected) return;
@@ -355,6 +395,7 @@ function preservePageContentOnOrientation(portrait: MediaQueryList): void {
   const restore = (saved: PageViewportScrollAnchor): boolean => {
     let currentFocusY: number;
     let targetFocusY: number;
+    const viewport = getVisibleViewport();
 
     if (saved.kind === 'text' && saved.node.isConnected) {
       const length = saved.node.length;
@@ -367,14 +408,14 @@ function preservePageContentOnOrientation(portrait: MediaQueryList): void {
       const bounds = range.getBoundingClientRect();
       if (bounds.height <= 0) return restore({ kind: 'element', ...saved.fallback });
       currentFocusY = bounds.top + bounds.height / 2;
-      targetFocusY = root.clientHeight * saved.viewportRatio;
+      targetFocusY = viewport.top + viewport.height * saved.viewportRatio;
     } else {
       const elementAnchor = saved.kind === 'element' ? saved : saved.fallback;
       if (!elementAnchor.element.isConnected) return false;
       const bounds = elementAnchor.element.getBoundingClientRect();
       if (bounds.height <= 0) return false;
       currentFocusY = bounds.top + bounds.height * elementAnchor.ratio;
-      targetFocusY = root.clientHeight * elementAnchor.viewportRatio;
+      targetFocusY = viewport.top + viewport.height * elementAnchor.viewportRatio;
     }
 
     const correction = currentFocusY - targetFocusY;
@@ -426,40 +467,62 @@ function preservePageContentOnOrientation(portrait: MediaQueryList): void {
     else requestAnimationFrame(() => capture(true));
   };
 
-  const restorePending = () => {
-    restoreFrame = undefined;
+  const restorePending = (): boolean => {
     const saved = pendingAnchor;
     if (!saved || !restore(saved)) {
       finishStabilizing();
+      return false;
     }
+    return true;
   };
 
-  const queueRestore = () => {
+  /* WebKit kann Visual-Viewport-Werte im resize-Callback noch aus der
+   * vorherigen Rotationsstufe liefern. Eine fortlaufende rAF-Kontrolle hält
+   * denselben sichtbaren Inhalt auch über diese verspäteten Werte hinweg,
+   * ohne auf ein bestimmtes Safari-Event angewiesen zu sein. */
+  const stabilizeFrame = () => {
+    restoreFrame = undefined;
+    if (!stabilizing || !restorePending()) return;
+    restoreFrame = requestAnimationFrame(stabilizeFrame);
+  };
+
+  const ensureStabilizationFrame = () => {
     if (!stabilizing || restoreFrame !== undefined) return;
-    restoreFrame = requestAnimationFrame(restorePending);
+    restoreFrame = requestAnimationFrame(stabilizeFrame);
   };
 
   const scheduleFinish = () => {
     if (!stabilizing || !layoutSettled) return;
     if (finishTimer !== undefined) window.clearTimeout(finishTimer);
-    // Erst beenden, wenn nach dem finalen GSAP-Refresh und der letzten
-    // Visual-Viewport-Aenderung kurz Ruhe eingekehrt ist. So werden auch die
-    // zwei iOS-Rotationsphasen erfasst, ohne permanent scrollTo auszufuehren.
+    const now = performance.now();
+    const earliestFinish = Math.max(
+      stabilizingStartedAt + MIN_STABILIZE_MS,
+      lastGeometryChangeAt + VIEWPORT_QUIET_MS,
+    );
+    // Erst beenden, wenn sowohl der finale GSAP-Refresh erfolgt ist als auch
+    // der echte Safari-Viewport lange genug unverändert blieb. Die feste
+    // 180-ms-Frist war auf realen iPhones zu kurz und ließ eine spätere
+    // Browserleisten-/Visual-Viewport-Stufe sichtbar durchrutschen.
     finishTimer = window.setTimeout(() => {
-      restorePending();
+      if (!stabilizing || !layoutSettled) return;
+      if (performance.now() + 1 < earliestFinish) {
+        scheduleFinish();
+        return;
+      }
+      if (!restorePending()) return;
       finishStabilizing();
-    }, 180);
+    }, Math.max(0, earliestFinish - now));
   };
 
   const handleGeometryChange = () => {
     if (!stabilizing) return;
-    if (restoreFrame !== undefined) cancelAnimationFrame(restoreFrame);
-    restoreFrame = undefined;
+    lastGeometryChangeAt = performance.now();
     // ResizeObserver, VisualViewport und ScrollTrigger melden nach der neuen
     // Layoutberechnung, aber noch vor dem Paint. Direktes Wiederherstellen in
-    // diesem Callback verhindert den einzelnen Zwischenframe, der bei einer
-    // zusaetzlichen rAF-Verzoegerung noch sichtbar werden konnte.
-    restorePending();
+    // diesem Callback verhindert den ersten Zwischenframe; die laufende
+    // rAF-Kontrolle fängt zusätzlich WebKits verspätete Messwerte ab.
+    if (!restorePending()) return;
+    ensureStabilizationFrame();
     scheduleFinish();
   };
 
@@ -470,7 +533,7 @@ function preservePageContentOnOrientation(portrait: MediaQueryList): void {
       // Scroll-Event kommt noch vor dem Paint und stellt den gespeicherten
       // Inhaltsbezug sofort wieder her. Echte Nutzereingaben beenden die
       // Stabilisierung bereits ueber touchstart/pointerdown/wheel.
-      handleGeometryChange();
+      if (restorePending()) ensureStabilizationFrame();
       return;
     }
     queueCapture();
@@ -496,11 +559,12 @@ function preservePageContentOnOrientation(portrait: MediaQueryList): void {
   }, { passive: true });
   capture(true);
 
-  // Reale Layoutstufen korrigieren, nicht pauschal jeden Frame. Resize- und
-  // VisualViewport-Events laufen vor dem Paint; die direkte Korrektur bleibt
-  // damit im selben Rendering-Zyklus und erzeugt keine sichtbare Dauerfahrt.
+  // Window- und Visual-Viewport-Aenderungen gemeinsam beobachten. Auf iOS kann
+  // sich offsetTop beim Ein-/Ausblenden der Browserleisten ändern, ohne dass
+  // ein weiteres window.resize folgt.
   window.addEventListener('resize', handleGeometryChange, { passive: true });
   window.visualViewport?.addEventListener('resize', handleGeometryChange, { passive: true });
+  window.visualViewport?.addEventListener('scroll', handleGeometryChange, { passive: true });
   ScrollTrigger.addEventListener('matchMedia', handleGeometryChange);
   ScrollTrigger.addEventListener('refresh', () => {
     handleGeometryChange();
@@ -511,7 +575,8 @@ function preservePageContentOnOrientation(portrait: MediaQueryList): void {
       return;
     }
     layoutSettled = true;
-    queueRestore();
+    if (!restorePending()) return;
+    ensureStabilizationFrame();
     scheduleFinish();
   });
 
@@ -581,6 +646,8 @@ function preservePageContentOnOrientation(portrait: MediaQueryList): void {
     }
     stabilizing = true;
     layoutSettled = false;
+    stabilizingStartedAt = performance.now();
+    lastGeometryChangeAt = stabilizingStartedAt;
     root.style.scrollBehavior = 'auto';
     root.style.overflowAnchor = 'none';
 
@@ -604,13 +671,13 @@ function preservePageContentOnOrientation(portrait: MediaQueryList): void {
     // Zwischenzustand; die Event-Korrekturen fangen die spaeteren
     // iOS-/GSAP-Stufen ab.
     restore(pendingAnchor);
-    queueRestore();
+    ensureStabilizationFrame();
     // Sicherheitsnetz, falls ein Browser kein finales Viewport-/Refresh-Event
     // meldet. Der normale Abschluss kommt frueher ueber orientation-settled.
     hardStopTimer = window.setTimeout(() => {
       restorePending();
       finishStabilizing();
-    }, 1600);
+    }, HARD_STOP_MS);
   });
 }
 
