@@ -584,9 +584,14 @@ const headerCtaHref = settings.headerCta
       pendingPortrait = isPortrait;
       orientationStartedAt = now;
       lastViewportChangeAt = now;
-      orientationMenuWasOpen = isOpen;
-      header.classList.add('is-orientation-changing');
-      menu.classList.add('is-orientation-changing');
+      orientationMenuWasOpen = isOpen || menuPhase === 'opening';
+      /* Ein bereits sichtbares Fullscreen-Menue darf beim Drehen nicht unter
+         dem Paint-Guard verschwinden. Sein responsives Layout kann direkt auf
+         die neue Viewportgroesse reagieren; nur die geschlossene Navbar
+         braucht weiterhin den iOS-Schutz und den anschliessenden Replay. */
+      const hideClosedChrome = !orientationMenuWasOpen;
+      header.classList.toggle('is-orientation-changing', hideClosedChrome);
+      menu.classList.toggle('is-orientation-changing', hideClosedChrome);
       cancelPanelMotion();
       cancelOrientationAnimations();
       if (orientationSettleTimer !== undefined) clearTimeout(orientationSettleTimer);
