@@ -1814,6 +1814,9 @@ html.has-motion .results__track { height: 240vh; }
   gap: 0;
   list-style: none;
 }
+.aio-results__outcomes [data-reveal-blur-text] {
+  display: block;
+}
 .aio-results__outcomes li {
   position: relative;
   padding: 1.5rem 1.25rem 1.5rem 2rem;
