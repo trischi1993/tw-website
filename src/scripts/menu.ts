@@ -248,6 +248,30 @@ if (header && toggle && menu && panel) {
   const openedBeforeMainModule =
     toggle.getAttribute('aria-expanded') === 'true' && !menu.hasAttribute('hidden');
 
+  /* Der Parser-Bootstrap haelt das mobile Panel bereits offscreen im
+     Compositor. Sobald die vollstaendige Steuerung uebernimmt, wird dieser
+     Vorbereitungszustand atomar adoptiert: geschlossen wieder `hidden`, offen
+     ohne irgendeinen sichtbaren Zwischenframe. */
+  if (menu.hasAttribute('data-menu-prepared')) {
+    menu.removeAttribute('data-menu-prepared');
+    menu.style.removeProperty('pointer-events');
+    if (openedBeforeMainModule) {
+      menu.removeAttribute('inert');
+      menu.removeAttribute('aria-hidden');
+    } else {
+      menu.setAttribute('hidden', '');
+      menu.setAttribute('inert', '');
+      menu.setAttribute('aria-hidden', 'true');
+      panel.style.removeProperty('transform');
+      panel.style.removeProperty('will-change');
+      links.forEach((link) => {
+        link.style.removeProperty('transform');
+        link.style.removeProperty('opacity');
+      });
+      arrows.forEach((arrow) => arrow.style.removeProperty('opacity'));
+    }
+  }
+
   // Der geöffnete Zustand schiebt den Burger an die bisherige CTA-Position
   // und den CTA vollständig aus der Overflow-Maske. Der frühere Fixwert von
   // 9.2rem passte nicht mehr zur aktuellen Beschriftung „Insta-Check" und ließ
@@ -454,6 +478,8 @@ if (header && toggle && menu && panel) {
       open ? el.setAttribute('inert', '') : el.removeAttribute('inert'),
     );
     if (open) {
+      menu.removeAttribute('inert');
+      menu.removeAttribute('aria-hidden');
       lastFocused = document.activeElement as HTMLElement;
       menu.removeAttribute('hidden');
       if (reduced) {
@@ -472,6 +498,8 @@ if (header && toggle && menu && panel) {
         });
       }
     } else {
+      menu.setAttribute('inert', '');
+      menu.setAttribute('aria-hidden', 'true');
       if (openFrame !== undefined) {
         cancelAnimationFrame(openFrame);
         openFrame = undefined;

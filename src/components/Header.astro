@@ -187,11 +187,35 @@ const headerCtaHref = settings.headerCta
     const burgerTop = header.querySelector('[data-burger-top]');
     const burgerMiddle = header.querySelector('[data-burger-middle]');
     const burgerBottom = header.querySelector('[data-burger-bottom]');
+    const navRight = header.querySelector('[data-nav-right]');
     const rightInner = header.querySelector('[data-nav-right-inner]');
     const headerCta = header.querySelector('.navbar__cta');
     const reduced = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
     const ease = 'cubic-bezier(0.25, 0.1, 0.25, 1)';
     const outQuart = 'cubic-bezier(0.165, 0.84, 0.44, 1)';
+
+    /* Die Menue-Ebene wird auf mobilen Breakpoints bereits waehrend des
+       Parsens offscreen zusammengesetzt. Der erste Tap muss sie dadurch nur
+       noch auf den Compositor schieben; er darf nicht gleichzeitig auf der
+       langen AIO-Seite `display:none` aufloesen und das gesamte Dokument neu
+       vermessen. Inert + pointer-events halten die vorbereitete Ebene bis zum
+       Oeffnen vollstaendig aus Bedienung und Hit-Testing heraus. */
+    if (window.matchMedia('(max-width: 991px)').matches) {
+      menu.removeAttribute('hidden');
+      menu.setAttribute('inert', '');
+      menu.setAttribute('aria-hidden', 'true');
+      menu.setAttribute('data-menu-prepared', '');
+      menu.style.pointerEvents = 'none';
+      panel.style.transform = 'translate3d(-100%, 0, 0)';
+      panel.style.willChange = 'transform';
+      links.forEach((link) => {
+        link.style.transform = 'translate3d(-80px, 0, 0)';
+        link.style.opacity = '0';
+      });
+      arrows.forEach((arrow) => {
+        arrow.style.opacity = '0';
+      });
+    }
 
     const openShift = () => {
       if (!rightInner || !headerCta) return 9.2 * 16;
@@ -217,6 +241,10 @@ const headerCtaHref = settings.headerCta
       menu.__earlyMenuBridge?.cancel();
       resetEarlyStyles();
       menu.setAttribute('hidden', '');
+      menu.setAttribute('inert', '');
+      menu.setAttribute('aria-hidden', 'true');
+      menu.removeAttribute('data-menu-prepared');
+      menu.style.removeProperty('pointer-events');
       header.classList.remove('is-menu-open');
       toggle.setAttribute('aria-expanded', 'false');
       document.body.classList.remove('no-scroll');
@@ -225,21 +253,25 @@ const headerCtaHref = settings.headerCta
 
     const openBeforeMainModule = () => {
       const animations = [];
-      let firstFrame;
-      let secondFrame;
+      let followUpFrame;
       let stopped = false;
 
       const cancel = () => {
         stopped = true;
-        if (firstFrame !== undefined) cancelAnimationFrame(firstFrame);
-        if (secondFrame !== undefined) cancelAnimationFrame(secondFrame);
+        if (followUpFrame !== undefined) cancelAnimationFrame(followUpFrame);
         animations.forEach((animation) => animation.cancel());
       };
       menu.__earlyMenuBridge = { cancel };
 
+      // Eine noch laufende AIO-Load-Animation der rechten Kopfzeile wird bei
+      // echter Bedienung in ihren normalen CSS-Endzustand ueberfuehrt. Sie
+      // darf weder die Trefferflaeche noch die Menuebewegung weiter versetzen.
+      navRight?.getAnimations().forEach((animation) => animation.cancel());
       header.classList.add('is-menu-open');
       toggle.setAttribute('aria-expanded', 'true');
-      document.body.classList.add('no-scroll');
+      menu.removeAttribute('inert');
+      menu.removeAttribute('aria-hidden');
+      menu.style.removeProperty('pointer-events');
 
       panel.style.transform = 'translate3d(-100%, 0, 0)';
       panel.style.willChange = 'transform';
@@ -253,6 +285,7 @@ const headerCtaHref = settings.headerCta
       menu.removeAttribute('hidden');
 
       if (reduced) {
+        document.body.classList.add('no-scroll');
         panel.style.transform = 'translate3d(0, 0, 0)';
         links.forEach((link) => {
           link.style.transform = 'translate3d(0, 0, 0)';
@@ -269,61 +302,60 @@ const headerCtaHref = settings.headerCta
         animations.push(element.animate(keyframes, { fill: 'both', ...options }));
       };
 
-      // Wie in menu.ts geben zwei Frames WebKit Zeit, die offscreen liegende
-      // Vollbild-Ebene nach dem Entfernen von `hidden` separat zu compositen.
-      firstFrame = requestAnimationFrame(() => {
-        secondFrame = requestAnimationFrame(() => {
-          firstFrame = undefined;
-          secondFrame = undefined;
-          if (stopped || toggle.getAttribute('aria-expanded') !== 'true') return;
+      /* Der sichtbare Compositor-Start geschieht synchron zum Fingerkontakt.
+         Scroll-Lock und die einzige benoetigte Breitenmessung folgen erst im
+         naechsten Frame, nachdem das Panel bereits unterwegs ist. */
+      play(header, [{ backgroundColor: 'rgba(21, 21, 21, 0.12)' }, { backgroundColor: 'rgba(0, 0, 0, 0)' }], {
+        duration: 200,
+        easing: ease,
+      });
+      play(panel, [{ transform: 'translate3d(-100%, 0, 0)' }, { transform: 'translate3d(0, 0, 0)' }], {
+        duration: 720,
+        easing: outQuart,
+      });
+      play(burgerMiddle, [{ transform: 'translate3d(0, 0, 0)' }, { transform: 'translate3d(200%, 0, 0)' }], {
+        duration: 500,
+        delay: 100,
+        easing: outQuart,
+      });
+      play(burgerTop, [{ transform: 'translate3d(0, 0, 0) rotate(0deg)' }, { transform: 'translate3d(0, 3.5px, 0) rotate(45deg)' }], {
+        duration: 300,
+        delay: 200,
+        easing: outQuart,
+      });
+      play(burgerBottom, [{ transform: 'translate3d(0, 0, 0) rotate(0deg)' }, { transform: 'translate3d(0, -3.5px, 0) rotate(-45deg)' }], {
+        duration: 300,
+        delay: 200,
+        easing: outQuart,
+      });
+      links.forEach((link, index) => {
+        const delay = 180 + index * 70;
+        play(link, [{ transform: 'translate3d(-80px, 0, 0)' }, { transform: 'translate3d(0, 0, 0)' }], {
+          duration: 350,
+          delay,
+          easing: outQuart,
+        });
+        play(link, [{ opacity: 0 }, { opacity: 1 }], {
+          duration: 250,
+          delay,
+          easing: ease,
+        });
+      });
+      arrows.forEach((arrow) => {
+        play(arrow, [{ opacity: 0 }, { opacity: 1 }], {
+          duration: 250,
+          delay: 450,
+          easing: ease,
+        });
+      });
 
-          play(header, [{ backgroundColor: getComputedStyle(header).backgroundColor }, { backgroundColor: 'rgba(0, 0, 0, 0)' }], {
-            duration: 200,
-            easing: ease,
-          });
-          play(rightInner, [{ transform: 'translate3d(0, 0, 0)' }, { transform: `translate3d(${openShift()}px, 0, 0)` }], {
-            duration: 350,
-            easing: outQuart,
-          });
-          play(panel, [{ transform: 'translate3d(-100%, 0, 0)' }, { transform: 'translate3d(0, 0, 0)' }], {
-            duration: 720,
-            easing: outQuart,
-          });
-          play(burgerMiddle, [{ transform: 'translate3d(0, 0, 0)' }, { transform: 'translate3d(200%, 0, 0)' }], {
-            duration: 500,
-            delay: 100,
-            easing: outQuart,
-          });
-          play(burgerTop, [{ transform: 'translate3d(0, 0, 0) rotate(0deg)' }, { transform: 'translate3d(0, 3.5px, 0) rotate(45deg)' }], {
-            duration: 300,
-            delay: 200,
-            easing: outQuart,
-          });
-          play(burgerBottom, [{ transform: 'translate3d(0, 0, 0) rotate(0deg)' }, { transform: 'translate3d(0, -3.5px, 0) rotate(-45deg)' }], {
-            duration: 300,
-            delay: 200,
-            easing: outQuart,
-          });
-          links.forEach((link, index) => {
-            const delay = 180 + index * 70;
-            play(link, [{ transform: 'translate3d(-80px, 0, 0)' }, { transform: 'translate3d(0, 0, 0)' }], {
-              duration: 350,
-              delay,
-              easing: outQuart,
-            });
-            play(link, [{ opacity: 0 }, { opacity: 1 }], {
-              duration: 250,
-              delay,
-              easing: ease,
-            });
-          });
-          arrows.forEach((arrow) => {
-            play(arrow, [{ opacity: 0 }, { opacity: 1 }], {
-              duration: 250,
-              delay: 450,
-              easing: ease,
-            });
-          });
+      followUpFrame = requestAnimationFrame(() => {
+        followUpFrame = undefined;
+        if (stopped || toggle.getAttribute('aria-expanded') !== 'true') return;
+        document.body.classList.add('no-scroll');
+        play(rightInner, [{ transform: 'translate3d(0, 0, 0)' }, { transform: `translate3d(${openShift()}px, 0, 0)` }], {
+          duration: 350,
+          easing: outQuart,
         });
       });
     };

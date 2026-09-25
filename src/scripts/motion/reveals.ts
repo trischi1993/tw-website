@@ -264,6 +264,10 @@ function onEnterOnceStable(el: Element, offset: number, onEnter: () => void): vo
 
 function initReveal(): void {
   document.querySelectorAll<HTMLElement>('[data-anim="reveal"]').forEach((el) => {
+    // Auf der mobilen AIO-Seite sind die kritischen ersten Reveals bereits
+    // browsernativ vorbereitet. Beim spaeteren GSAP-Handoff duerfen sie weder
+    // erneut versteckt noch ein zweites Mal abgespielt werden.
+    if (el.hasAttribute('data-aio-native-reveal')) return;
     const delay = parseFloat(el.dataset.delay ?? '') || 0;
     const durationAttr = parseFloat(el.dataset.duration ?? '');
     const duration = Number.isFinite(durationAttr) ? durationAttr : 0.8;
@@ -382,7 +386,10 @@ function initReveal(): void {
       if (orientationHoldActive) finish(true);
       // Der Fehlerpfad ist bewusst identisch mit dem normalen Abschluss. Ein
       // von WebKit abgebrochener Teil darf nie als halbfertiger Layer bleiben.
-      void Promise.all(animations.map((animation) => animation.finished)).then(finish, finish);
+      void Promise.all(animations.map((animation) => animation.finished)).then(
+        () => finish(),
+        () => finish(),
+      );
     };
 
     // Eager-Hero-Elemente starten bewusst mit der Ladechoreografie statt erst
@@ -430,6 +437,7 @@ function initGrowLines(): void {
 
 function initAioProgrammeModules(): void {
   document.querySelectorAll<HTMLElement>('[data-anim="aio-programme-modules"]').forEach((list) => {
+    if (list.hasAttribute('data-aio-native-programme')) return;
     list.querySelectorAll<HTMLElement>('.aio-programme__group').forEach((group) => {
       const head = group.querySelector<HTMLElement>('.aio-programme__group-head');
       const modules = group.querySelectorAll<HTMLElement>('.aio-programme__module');

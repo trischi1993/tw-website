@@ -277,7 +277,7 @@ const jsonLdArray = [orgJsonLd, ...pageJsonLd];
               const openedInTheMeantime = document.querySelector('[data-nav-toggle]')
                 ?.getAttribute('aria-expanded') === 'true';
               if (openedInTheMeantime) {
-                window.setTimeout(runWhenHeaderIsFree, 250);
+                window.setTimeout(run, 250);
                 return;
               }
               void load().then(resolve, reject);
@@ -442,11 +442,14 @@ const jsonLdArray = [orgJsonLd, ...pageJsonLd];
              konkurrierender Hauptthread-Arbeit. */
           ? afterAioInitialPhase(() => import('../scripts/widgets.ts'))
           : import('../scripts/widgets.ts');
-      // Die AIO-Ergebnis-Slider sind funktionale Bedienelemente. Sie laden
-      // bewusst als kleines natives Modul unabhaengig vom grossen GSAP-Bundle,
-      // damit sie auf iOS/LAN auch bei einem Fehler in einer anderen Motion-
-      // Animation sofort und zuverlaessig initialisiert werden.
-      const aioResultsReady = import('../scripts/aio-results-interactions.ts');
+      // Die AIO-Ergebnis-Slider liegen viele Viewports unterhalb des Einstiegs.
+      // Auf Mobilgeraeten duerfen ihre Layout-Messungen, ResizeObserver und
+      // Bild-Preloads deshalb nicht mit dem allerersten Menue-Tap konkurrieren.
+      // Die Interaktionen selbst bleiben browsernativ und werden noch vor dem
+      // grossen Motion-Paket in der ersten echten Ruhephase initialisiert.
+      const aioResultsReady = isMobileAio
+        ? afterAioInitialPhase(() => import('../scripts/aio-results-interactions.ts'))
+        : import('../scripts/aio-results-interactions.ts');
       // Fragmentziele erst nach dem Motion-Setup nachjustieren: ScrollTrigger
       // und Widgets verändern vor dem Ziel noch das Layout. Erst wenn beide
       // Initialisierungen abgeschlossen sind, wird der Anker final gesetzt.

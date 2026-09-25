@@ -30,6 +30,7 @@ export function init(): void {
   if (initialized) return;
   initialized = true;
   document.querySelectorAll<HTMLElement>('[data-tristy-chat]').forEach((chat) => {
+    if (chat.hasAttribute('data-aio-native-chat')) return;
     const prefix = chat.querySelector<HTMLElement>('[data-tristy-prefix]');
     const name = chat.querySelector<HTMLElement>('[data-tristy-name]');
     const dots = chat.querySelector<HTMLElement>('[data-tristy-dots]');
