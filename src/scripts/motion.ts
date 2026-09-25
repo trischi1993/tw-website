@@ -736,7 +736,7 @@ function init(): void {
   const mm = gsap.matchMedia();
 
   lines.init();
-  reveals.init(mm);
+  reveals.init();
   homeLoad.init(mm);
   homeHero.init(mm);
   results.init(mm);
@@ -746,7 +746,7 @@ function init(): void {
   aioLoad.init(mm);
   ebookLoad.init(mm);
   moduleScrub.init(mm);
-  bonuses.init(mm);
+  bonuses.init();
   aboutLoad.init(mm);
   erfolgsCheckLoad.init();
   timeline.init(mm);
@@ -812,6 +812,11 @@ function init(): void {
       ScrollTrigger.refresh();
     });
   });
+
+  // Ein eventuell bereits aktiver mobiler AIO-Reveal-Entry kann seine
+  // provisorische Rotationssicherung jetzt an die zentrale Motion-Steuerung
+  // uebergeben. Die Reveal-Module selbst sind idempotent und starten nicht neu.
+  window.dispatchEvent(new Event('lp:full-motion-ready'));
 }
 
 init();

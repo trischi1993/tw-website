@@ -462,9 +462,16 @@ const jsonLdArray = [orgJsonLd, ...pageJsonLd];
         : isMobileAio
           ? Promise.all([
               import('../scripts/aio-mobile-load.ts'),
+              // Scroll-Reveals muessen schon beim ersten direkten Wischen
+              // bereitstehen. Nur die sichtbaren Entrance-Module laden hier;
+              // das grosse ScrollTrigger-Paket bleibt bis zur Ruhephase
+              // zurueckgestellt und initialisiert diese Elemente dank
+              // idempotenter Module nicht ein zweites Mal.
+              import('../scripts/aio-mobile-reveals.ts'),
               // Die sichtbare AIO-Startchoreografie bleibt unverändert. Das
-              // große Scroll-/Reveal-Paket beginnt erst danach, damit der
-              // Menübutton direkt nach dem Laden zuverlässig reagieren kann.
+              // grosse seitenweite Motion-Paket beginnt erst danach, damit
+              // Menuebutton und nativer Scroll waehrend der Anfangsphase frei
+              // von ScrollTrigger-Vermessungen bleiben.
               isAioMobileReload
                 ? afterNativeScrollRestore(() => import('../scripts/motion.ts'))
                 : afterAioInitialPhase(() => import('../scripts/motion.ts')),

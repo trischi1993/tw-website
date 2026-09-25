@@ -830,7 +830,8 @@ function build(): void {
   initFaqItems();
 }
 
-export function init(_mm: gsap.MatchMedia): void {
+export function init(): void {
+  if (initialized) return;
   initialized = true;
   build();
 }

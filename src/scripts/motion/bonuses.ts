@@ -16,6 +16,7 @@ const PROMPT = Array.from('Wie kann ich dir helfen?');
 const GREETING_COUNT = PREFIX.length + NAME.length + DOTS.length;
 
 const CADENCE = [0.055, 0.075, 0.048, 0.068, 0.086, 0.058, 0.072];
+let initialized = false;
 
 function typingDelay(character: string, index: number): number {
   if (character === ',') return 0.22;
@@ -25,7 +26,9 @@ function typingDelay(character: string, index: number): number {
   return CADENCE[index % CADENCE.length];
 }
 
-export function init(_mm: gsap.MatchMedia): void {
+export function init(): void {
+  if (initialized) return;
+  initialized = true;
   document.querySelectorAll<HTMLElement>('[data-tristy-chat]').forEach((chat) => {
     const prefix = chat.querySelector<HTMLElement>('[data-tristy-prefix]');
     const name = chat.querySelector<HTMLElement>('[data-tristy-name]');
