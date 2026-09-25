@@ -172,11 +172,13 @@ const headerCtaHref = settings.headerCta
          Menü-Öffnen NUR die background-color animiert) ------------------- */
   .navbar {
     position: fixed;
-    inset: 0 0 auto auto;
+    top: 0;
+    right: 0;
+    left: 0;
     z-index: 499;
     display: flex;
     align-items: center;
-    width: 100%;
+    width: auto;
     height: var(--header-h);
     max-height: 80px;
     margin-inline: auto;
@@ -227,11 +229,11 @@ const headerCtaHref = settings.headerCta
   .navbar__logo-suffix { display: inline; }
   /* iOS kann die Grafikschicht eines position:fixed-Elements waehrend einer
      Drehung kurz an der alten Viewportposition ausgeben, obwohl die DOM-
-     Koordinaten bereits stimmen. menu.ts setzt diese Klasse nur fuer die
-     instabilen Resize-Frames. Opacity ist eine reine Compositor-Eigenschaft:
-     Die alte Textur wird gezielt unterdrueckt, ohne Layout oder Scrollposition
-     zu veraendern. */
+     Koordinaten bereits stimmen. menu.ts setzt diese Klasse bis zum stabilen
+     Viewport. visibility unterbindet dabei auch das Painten einer alten
+     Textebene; opacity allein reichte gegen den Safari-Compositor nicht aus. */
   :global(html.is-header-orienting) .navbar__logo {
+    visibility: hidden;
     opacity: 0;
     pointer-events: none;
   }
@@ -390,6 +392,13 @@ const headerCtaHref = settings.headerCta
 
   /* --- Breakpoints (1:1 Export) -------------------------------------------- */
   @media (max-width: 991px) {
+    /* Auf iOS kann eine fixe backdrop-filter-Ebene beim Drehen noch mit der
+       alten Viewportgeometrie gerastert werden. Der ohnehin fast deckende
+       Navbar-Tint bleibt erhalten; nur die mobile Blur-Ebene entfaellt. */
+    .navbar {
+      -webkit-backdrop-filter: none;
+      backdrop-filter: none;
+    }
     .navbar__menu { display: none; }
     .navbar__burger { display: inline-flex; }
     .navbar__right-inner { gap: 0.75rem; }

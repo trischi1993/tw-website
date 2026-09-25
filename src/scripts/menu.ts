@@ -35,18 +35,21 @@ const panel = menu?.querySelector<HTMLElement>('[data-menu-panel]');
  * einer Drehung noch an der Landscape-Position ausgeben, obwohl Layout-APIs
  * die neue Position bereits korrekt melden. Das ist kein zweites Logo im DOM.
  *
- * Fuer die kurzen instabilen Viewport-Frames wird deshalb nur die Wortmarke
- * ueber eine Compositor-Eigenschaft ausgeblendet. Nach 96 ms ohne weiteres
- * Resize erscheint sie sofort wieder. Spaete VisualViewport-Stufen innerhalb
- * der naechsten 1,2 s aktivieren denselben Schutz erneut; normales Resizing und
- * die Header-/Menueanimationen bleiben ausserhalb dieses Fensters unberuehrt.
+ * Fuer die instabile Drehphase wird deshalb nur die Wortmarke ausgeblendet.
+ * Sie bleibt mindestens bis nach WebKits gestaffeltem Viewport-Umbau verborgen
+ * und erscheint erst wieder, wenn zusaetzlich kurz keine Groessenaenderung mehr
+ * kam. Normales Resizing und die Header-/Menueanimationen bleiben ausserhalb
+ * dieses engen Fensters unberuehrt.
  */
 if (header) {
   const root = document.documentElement;
   const portrait = window.matchMedia('(orientation: portrait)');
-  const QUIET_MS = 96;
-  const WATCH_MS = 1200;
+  const QUIET_MS = 180;
+  const MIN_HIDE_MS = 650;
+  const WATCH_MS = 1400;
   let watchUntil = 0;
+  let minimumHideUntil = 0;
+  let wasPortrait = portrait.matches;
   let revealTimer: number | undefined;
   let stopTimer: number | undefined;
 
@@ -58,11 +61,15 @@ if (header) {
   const concealLogoUntilViewportSettles = () => {
     root.classList.add('is-header-orienting');
     if (revealTimer !== undefined) window.clearTimeout(revealTimer);
-    revealTimer = window.setTimeout(revealLogo, QUIET_MS);
+    const revealAt = Math.max(Date.now() + QUIET_MS, minimumHideUntil);
+    revealTimer = window.setTimeout(revealLogo, Math.max(0, revealAt - Date.now()));
   };
 
   const beginOrientationGuard = () => {
-    watchUntil = Date.now() + WATCH_MS;
+    const now = Date.now();
+    wasPortrait = portrait.matches;
+    watchUntil = now + WATCH_MS;
+    minimumHideUntil = now + MIN_HIDE_MS;
     concealLogoUntilViewportSettles();
     if (stopTimer !== undefined) window.clearTimeout(stopTimer);
     stopTimer = window.setTimeout(() => {
@@ -72,6 +79,12 @@ if (header) {
   };
 
   const handleViewportResize = () => {
+    const isPortrait = portrait.matches;
+    if (isPortrait !== wasPortrait) {
+      wasPortrait = isPortrait;
+      beginOrientationGuard();
+      return;
+    }
     if (Date.now() >= watchUntil) return;
     concealLogoUntilViewportSettles();
   };
