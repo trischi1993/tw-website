@@ -173,6 +173,7 @@ const headerCtaHref = settings.headerCta
     .menu[data-menu-prepared].is-menu-open .menu__panel {
       transform: translate3d(0, 0, 0);
     }
+
   }
 
   @media (min-width: 992px) {
@@ -257,6 +258,7 @@ const headerCtaHref = settings.headerCta
     let transitionId = 0;
     let completionTimer;
     let panelAnimation = null;
+    let primedOpenAnimation = null;
     let suppressNextClick = false;
     let aioVideoPauseTimer;
     let inputModality = 'pointer';
@@ -288,6 +290,17 @@ const headerCtaHref = settings.headerCta
       panelAnimation = null;
     };
 
+    const cancelPrimedOpenAnimation = () => {
+      if (!primedOpenAnimation) return;
+      primedOpenAnimation.cancel();
+      primedOpenAnimation = null;
+    };
+
+    const cancelPanelMotion = () => {
+      cancelPanelAnimation();
+      cancelPrimedOpenAnimation();
+    };
+
     const panelTranslateX = (transform, fallback) => {
       if (!transform || transform === 'none') return fallback;
       const matrix3d = transform.match(/^matrix3d\((.+)\)$/);
@@ -303,7 +316,35 @@ const headerCtaHref = settings.headerCta
       return fallback;
     };
 
-    const playPanelMotion = (opening, id, startTransform) => {
+    const primePanelOpen = () => {
+      cancelPrimedOpenAnimation();
+      if (
+        !mobile.matches ||
+        reducedMotion.matches ||
+        isOpen ||
+        menuPhase !== 'closed'
+      ) return;
+
+      /* Mobile Safari braucht beim allerersten Fullscreen-Transform
+         gelegentlich einen eigenen Compositor-Aufbau. Eine pausierte
+         Vorbereitung erzeugt die Ebene bereits im stabil geschlossenen
+         Zustand. Beim Tap wird sie verworfen und eine frische 720-ms-Timeline
+         gestartet: WebKit darf eine lange pausierte Timeline sonst irrtuemlich
+         als bereits abgelaufen behandeln. */
+      const animation = panel.animate(
+        [
+          { transform: 'translate3d(-100%, 0, 0)' },
+          { transform: 'translate3d(0, 0, 0)' },
+        ],
+        { duration: 720, easing: outQuart, fill: 'both' },
+      );
+      animation.pause();
+      animation.currentTime = 0;
+      primedOpenAnimation = animation;
+      void animation.ready.catch(() => {});
+    };
+
+    const playPanelMotion = (opening, id, startTransform, preparedAnimation = null) => {
       const targetTransform = opening
         ? 'translate3d(0, 0, 0)'
         : 'translate3d(-100%, 0, 0)';
@@ -313,6 +354,7 @@ const headerCtaHref = settings.headerCta
       const fullDuration = opening ? 720 : 520;
       const distanceRatio = Math.min(1, Math.abs(targetX - startX) / width);
       const duration = Math.max(120, fullDuration * distanceRatio);
+      preparedAnimation?.cancel();
       const animation = panel.animate(
         [{ transform: startTransform }, { transform: targetTransform }],
         { duration, easing: outQuart, fill: 'both' },
@@ -456,6 +498,7 @@ const headerCtaHref = settings.headerCta
       if (reducedMotion.matches || keepMenuState) {
         header.classList.remove('is-orientation-changing');
         menu.classList.remove('is-orientation-changing');
+        primePanelOpen();
         return;
       }
 
@@ -504,6 +547,7 @@ const headerCtaHref = settings.headerCta
       // wird der definierte erste Replay-Frame sichtbar.
       header.classList.remove('is-orientation-changing');
       menu.classList.remove('is-orientation-changing');
+      primePanelOpen();
       orientationCleanupTimer = setTimeout(() => {
         if (replayId !== orientationReplayId) return;
         orientationAnimations.forEach((animation) => animation.cancel());
@@ -543,7 +587,7 @@ const headerCtaHref = settings.headerCta
       orientationMenuWasOpen = isOpen;
       header.classList.add('is-orientation-changing');
       menu.classList.add('is-orientation-changing');
-      cancelPanelAnimation();
+      cancelPanelMotion();
       cancelOrientationAnimations();
       if (orientationSettleTimer !== undefined) clearTimeout(orientationSettleTimer);
       if (orientationHardTimer !== undefined) clearTimeout(orientationHardTimer);
@@ -669,7 +713,7 @@ const headerCtaHref = settings.headerCta
       transitionId += 1;
       clearCompletionTimer();
       clearScheduledVideoPause();
-      cancelPanelAnimation();
+      cancelPanelMotion();
       cancelAnimations();
       releaseBackdrop();
       resetHoverStyles();
@@ -704,6 +748,7 @@ const headerCtaHref = settings.headerCta
       [burgerTop, burgerMiddle, burgerBottom, rightInner].forEach((element) => {
         element?.style.removeProperty('transform');
       });
+      primePanelOpen();
     };
 
     const leaveMobileMenu = () => {
@@ -712,7 +757,7 @@ const headerCtaHref = settings.headerCta
       transitionId += 1;
       clearCompletionTimer();
       clearScheduledVideoPause();
-      cancelPanelAnimation();
+      cancelPanelMotion();
       cancelAnimations();
       releaseBackdrop();
       resetHoverStyles(true);
@@ -766,6 +811,9 @@ const headerCtaHref = settings.headerCta
 
     const openMenu = () => {
       if (!mobile.matches || isOpen) return;
+      const preparedAnimation = menuPhase === 'closed' ? primedOpenAnimation : null;
+      if (preparedAnimation) primedOpenAnimation = null;
+      else cancelPrimedOpenAnimation();
       const startTransform =
         menuPhase === 'closing'
           ? computed(panel, 'transform')
@@ -800,9 +848,10 @@ const headerCtaHref = settings.headerCta
       scheduleAioVideoPause();
 
       if (reducedMotion.matches) {
+        preparedAnimation?.cancel();
         finishOpen(id);
       } else {
-        playPanelMotion(true, id, startTransform);
+        playPanelMotion(true, id, startTransform, preparedAnimation);
         scheduleCompletion(id, 900);
       }
     };
@@ -825,6 +874,7 @@ const headerCtaHref = settings.headerCta
         const focusTarget = lastFocused?.isConnected ? lastFocused : toggle;
         focusTarget.focus({ preventScroll: true });
       }
+      primePanelOpen();
     };
 
     const closeMenu = () => {
@@ -833,6 +883,7 @@ const headerCtaHref = settings.headerCta
         menuPhase === 'opening'
           ? computed(panel, 'transform')
           : 'translate3d(0, 0, 0)';
+      cancelPrimedOpenAnimation();
       cancelPanelAnimation();
       isOpen = false;
       const id = ++transitionId;

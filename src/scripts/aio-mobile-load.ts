@@ -5,7 +5,6 @@
    wichtigen Anfangsphase reaktionsfähig. */
 
 let runningAnimations: Animation[] = [];
-let navAnimations: Animation[] = [];
 
 const EASE = 'cubic-bezier(0.25, 0.1, 0.25, 1)';
 const OUT_QUART = 'cubic-bezier(0.165, 0.84, 0.44, 1)';
@@ -21,11 +20,6 @@ function play(
   return animation;
 }
 
-function stopNavLoadAnimations(): void {
-  navAnimations.forEach((animation) => animation.cancel());
-  navAnimations = [];
-}
-
 function initAioMobileLoad(): void {
   const root = document.documentElement;
   const hero = document.querySelector<HTMLElement>('[data-aio-hero]');
@@ -33,7 +27,6 @@ function initAioMobileLoad(): void {
 
   runningAnimations.forEach((animation) => animation.cancel());
   runningAnimations = [];
-  navAnimations = [];
 
   const heading = hero.querySelector<HTMLElement>('[data-aio-h1]');
   const intro = hero.querySelector<HTMLElement>('[data-aio-intro]');
@@ -45,33 +38,28 @@ function initAioMobileLoad(): void {
     document.querySelector<HTMLElement>('[data-nav-toggle]')?.getAttribute('aria-expanded') ===
     'true';
 
-  [heading, intro, buttons, video, navRight].forEach((element) => {
-    element?.setAttribute('data-revealed', '');
-  });
-  logoLines.forEach((line) => line.setAttribute('data-revealed', ''));
-
   logoLines.forEach((line) => {
-    /* Kein offsetHeight-Read: Auf der sehr langen AIO-Seite wuerde er hier
-       direkt nach dem Parsen einen synchronen Ganzseiten-Layout-Pass erzwingen
-       und genau den ersten Menue-Tap blockieren. Die feste Logo-Linie sieht
-       mit compositorseitigem scaleY identisch aus. */
-    play(line, [{ transform: 'scaleY(0)' }, { transform: 'scaleY(1)' }], {
+    /* Originale Webflow-Geometrie: height-Reveal statt des zwischenzeitlich
+       verwendeten scaleY. Die kanonische 2-rem-Zielhoehe vermeidet dabei den
+       frueheren offsetHeight-Read samt synchronem Ganzseiten-Layout. */
+    play(line, [{ height: '0rem' }, { height: '2rem' }], {
       duration: 500,
       delay: 100,
       easing: OUT_QUART,
     });
+    line.setAttribute('data-revealed', '');
   });
 
   /* Ein extrem frueher Menue-Tap kann noch vor diesem Body-End-Modul kommen.
      Dann darf die Seiten-Load-Choreografie den bereits bedienten Header nicht
      nachtraeglich erneut verschieben oder ausblenden. */
   if (!menuAlreadyOpen) {
-    const opacityAnimation = play(navRight, [{ opacity: 0 }, { opacity: 1 }], {
+    play(navRight, [{ opacity: 0 }, { opacity: 1 }], {
       duration: 1200,
       delay: 300,
       easing: EASE,
     });
-    const transformAnimation = play(
+    play(
       navRight,
       [
         { transform: 'translate3d(2.5rem, 0, 0)' },
@@ -79,12 +67,11 @@ function initAioMobileLoad(): void {
       ],
       { duration: 1000, delay: 300, easing: OUT_QUART },
     );
-    navAnimations = [opacityAnimation, transformAnimation].filter(
-      (animation): animation is Animation => animation !== undefined,
-    );
   }
+  navRight?.setAttribute('data-revealed', '');
 
   const slideIn = (element: Element | null, delay: number, opacityDuration = 750): void => {
+    if (!element) return;
     play(element, [{ opacity: 0 }, { opacity: 1 }], {
       duration: opacityDuration,
       delay,
@@ -98,6 +85,7 @@ function initAioMobileLoad(): void {
       ],
       { duration: 750, delay, easing: OUT_QUART },
     );
+    element.setAttribute('data-revealed', '');
   };
 
   slideIn(heading, 400);
@@ -108,12 +96,12 @@ function initAioMobileLoad(): void {
     delay: 1300,
     easing: EASE,
   });
+  video?.setAttribute('data-revealed', '');
 
   root.classList.add('motion-ready');
 }
 
 initAioMobileLoad();
 document.addEventListener('astro:page-load', initAioMobileLoad);
-window.addEventListener('tw:mobile-menu-open', stopNavLoadAnimations);
 
 export {};
