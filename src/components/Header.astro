@@ -258,7 +258,6 @@ const headerCtaHref = settings.headerCta
     let transitionId = 0;
     let completionTimer;
     let panelAnimation = null;
-    let primedOpenAnimation = null;
     let suppressNextClick = false;
     let aioVideoPauseTimer;
     let inputModality = 'pointer';
@@ -290,15 +289,8 @@ const headerCtaHref = settings.headerCta
       panelAnimation = null;
     };
 
-    const cancelPrimedOpenAnimation = () => {
-      if (!primedOpenAnimation) return;
-      primedOpenAnimation.cancel();
-      primedOpenAnimation = null;
-    };
-
     const cancelPanelMotion = () => {
       cancelPanelAnimation();
-      cancelPrimedOpenAnimation();
     };
 
     const panelTranslateX = (transform, fallback) => {
@@ -316,35 +308,7 @@ const headerCtaHref = settings.headerCta
       return fallback;
     };
 
-    const primePanelOpen = () => {
-      cancelPrimedOpenAnimation();
-      if (
-        !mobile.matches ||
-        reducedMotion.matches ||
-        isOpen ||
-        menuPhase !== 'closed'
-      ) return;
-
-      /* Mobile Safari braucht beim allerersten Fullscreen-Transform
-         gelegentlich einen eigenen Compositor-Aufbau. Eine pausierte
-         Vorbereitung erzeugt die Ebene bereits im stabil geschlossenen
-         Zustand. Beim Tap wird sie verworfen und eine frische 720-ms-Timeline
-         gestartet: WebKit darf eine lange pausierte Timeline sonst irrtuemlich
-         als bereits abgelaufen behandeln. */
-      const animation = panel.animate(
-        [
-          { transform: 'translate3d(-100%, 0, 0)' },
-          { transform: 'translate3d(0, 0, 0)' },
-        ],
-        { duration: 720, easing: outQuart, fill: 'both' },
-      );
-      animation.pause();
-      animation.currentTime = 0;
-      primedOpenAnimation = animation;
-      void animation.ready.catch(() => {});
-    };
-
-    const playPanelMotion = (opening, id, startTransform, preparedAnimation = null) => {
+    const playPanelMotion = (opening, id, startTransform) => {
       const targetTransform = opening
         ? 'translate3d(0, 0, 0)'
         : 'translate3d(-100%, 0, 0)';
@@ -354,24 +318,14 @@ const headerCtaHref = settings.headerCta
       const fullDuration = opening ? 720 : 520;
       const distanceRatio = Math.min(1, Math.abs(targetX - startX) / width);
       const duration = Math.max(120, fullDuration * distanceRatio);
-      /* Die pausierte Prime-Timeline haelt nur die Compositor-Ebene warm.
-         Sichtbar laeuft immer eine frische Timeline: WebKit darf eine lange
-         pausierte Animation sonst beim ersten Tap als abgelaufen behandeln.
-         Unterbrochene Bewegungen starten ebenfalls frisch und nur ueber die
-         noch verbleibende Distanz. */
+      /* Jeder Aufruf benutzt genau dieselbe frische Timeline. Sie wird im
+         Touch-Task noch vor dem offenen CSS-Zustand erzeugt; dadurch besitzt
+         auch der allererste Safari-Frame garantiert den geschlossenen
+         Ausgangswert, ohne eine pausierte Animation austauschen zu muessen. */
       const animation = panel.animate(
         [{ transform: startTransform }, { transform: targetTransform }],
         { duration, easing: outQuart, fill: 'both' },
       );
-      if (opening && preparedAnimation) {
-        /* Die frische Timeline existiert bereits auf derselben vorbereiteten
-           Compositor-Ebene, bevor die lang pausierte Prime-Timeline weicht.
-           So gibt es weder einen Endzustands-Frame dazwischen noch das
-           WebKit-Risiko, eine alte pausierte Timeline als beendet zu werten. */
-        animation.pause();
-        animation.currentTime = 0;
-        preparedAnimation.cancel();
-      }
       panelAnimation = animation;
       animation.onfinish = () => {
         if (panelAnimation !== animation) return;
@@ -381,10 +335,6 @@ const headerCtaHref = settings.headerCta
         if (opening) finishOpen(id);
         else finishClose(id);
       };
-      if (opening && preparedAnimation) {
-        animation.playbackRate = 1;
-        animation.play();
-      }
     };
 
     const play = (element, keyframes, options) => {
@@ -451,6 +401,61 @@ const headerCtaHref = settings.headerCta
       ...logoLines,
       ...(navRight ? [navRight] : []),
     ];
+    let aioHeaderLoadAnimations = [];
+
+    const finishAioHeaderLoad = () => {
+      if (!document.documentElement.hasAttribute('data-aio-header-load-started')) return;
+      aioHeaderLoadAnimations.forEach((animation) => animation.cancel());
+      aioHeaderLoadAnimations = [];
+      logoLines.forEach((line) => line.setAttribute('data-revealed', ''));
+      navRight?.setAttribute('data-revealed', '');
+    };
+
+    const startAioHeaderLoad = () => {
+      const root = document.documentElement;
+      if (
+        !mobile.matches ||
+        reducedMotion.matches ||
+        !root.classList.contains('aio-mobile-motion') ||
+        root.hasAttribute('data-aio-restore-aborted') ||
+        root.hasAttribute('data-aio-header-load-started')
+      ) return;
+
+      root.setAttribute('data-aio-header-load-started', '');
+      logoLines.forEach((line) => {
+        const animation = line.animate(
+          [{ height: '0rem' }, { height: '2rem' }],
+          { duration: 500, delay: 100, easing: outQuart, fill: 'backwards' },
+        );
+        aioHeaderLoadAnimations.push(animation);
+        line.setAttribute('data-revealed', '');
+      });
+      if (navRight) {
+        aioHeaderLoadAnimations.push(
+          navRight.animate([{ opacity: 0 }, { opacity: 1 }], {
+            duration: 1200,
+            delay: 300,
+            easing: ease,
+            fill: 'backwards',
+          }),
+          navRight.animate(
+            [
+              { transform: 'translate3d(2.5rem, 0, 0)' },
+              { transform: 'translate3d(0, 0, 0)' },
+            ],
+            { duration: 1000, delay: 300, easing: outQuart, fill: 'backwards' },
+          ),
+        );
+        navRight.setAttribute('data-revealed', '');
+      }
+
+      const generation = [...aioHeaderLoadAnimations];
+      void Promise.allSettled(generation.map((animation) => animation.finished)).then(() => {
+        if (generation.some((animation) => !aioHeaderLoadAnimations.includes(animation))) return;
+        aioHeaderLoadAnimations = [];
+      });
+    };
+
     const HARD_SETTLE_MS = 1500;
     const STABLE_FRAME_COUNT = 3;
     const narrow = window.matchMedia('(max-width: 767px)');
@@ -549,7 +554,6 @@ const headerCtaHref = settings.headerCta
       if (reducedMotion.matches || keepMenuState) {
         header.classList.remove('is-orientation-changing');
         menu.classList.remove('is-orientation-changing');
-        primePanelOpen();
         return;
       }
 
@@ -579,7 +583,6 @@ const headerCtaHref = settings.headerCta
          noch den ersten Animationsframe ueberspringen. */
       header.classList.remove('is-orientation-changing');
       menu.classList.remove('is-orientation-changing');
-      primePanelOpen();
 
       requestAnimationFrame(() => {
         requestAnimationFrame(() => {
@@ -844,7 +847,6 @@ const headerCtaHref = settings.headerCta
       header.classList.remove('is-menu-open');
       header.classList.remove('is-menu-closing');
       headerCta?.removeAttribute('inert');
-      header.removeAttribute('data-menu-has-closed');
       header.setAttribute('data-mobile-menu-prepared', '');
       toggle.setAttribute('aria-expanded', 'false');
       menu.removeAttribute('hidden');
@@ -868,7 +870,6 @@ const headerCtaHref = settings.headerCta
       [burgerTop, burgerMiddle, burgerBottom, rightInner].forEach((element) => {
         element?.style.removeProperty('transform');
       });
-      primePanelOpen();
     };
 
     const leaveMobileMenu = () => {
@@ -895,7 +896,6 @@ const headerCtaHref = settings.headerCta
       header.classList.remove('is-menu-closing');
       headerCta?.removeAttribute('inert');
       header.removeAttribute('data-mobile-menu-prepared');
-      header.removeAttribute('data-menu-has-closed');
       header.style.removeProperty('background-color');
       toggle.setAttribute('aria-expanded', 'false');
       menu.setAttribute('hidden', '');
@@ -932,9 +932,6 @@ const headerCtaHref = settings.headerCta
 
     const openMenu = () => {
       if (!mobile.matches || isOpen) return;
-      const preparedAnimation = menuPhase === 'closed' ? primedOpenAnimation : null;
-      if (preparedAnimation) primedOpenAnimation = null;
-      else cancelPrimedOpenAnimation();
       const startTransform =
         menuPhase === 'closing'
           ? computed(panel, 'transform')
@@ -944,12 +941,18 @@ const headerCtaHref = settings.headerCta
       const id = ++transitionId;
       menuPhase = 'opening';
       cancelAnimations();
+      finishAioHeaderLoad();
       releaseBackdrop();
       lastFocused =
         document.activeElement instanceof HTMLElement &&
         document.activeElement !== document.body
           ? document.activeElement
           : toggle;
+
+      /* Die Panel-Timeline muss vor `.is-menu-open` existieren. Sonst kann
+         WebKit beim ersten Aufbau bereits den CSS-Endzustand zeichnen und die
+         Bewegung scheinbar ueberspringen. */
+      if (!reducedMotion.matches) playPanelMotion(true, id, startTransform);
 
       headerCta?.setAttribute('inert', '');
       header.classList.remove('is-menu-closing');
@@ -969,10 +972,8 @@ const headerCtaHref = settings.headerCta
       scheduleAioVideoPause();
 
       if (reducedMotion.matches) {
-        preparedAnimation?.cancel();
         finishOpen(id);
       } else {
-        playPanelMotion(true, id, startTransform, preparedAnimation);
         scheduleCompletion(id, 900);
       }
     };
@@ -995,7 +996,6 @@ const headerCtaHref = settings.headerCta
         const focusTarget = lastFocused?.isConnected ? lastFocused : toggle;
         focusTarget.focus({ preventScroll: true });
       }
-      primePanelOpen();
       window.dispatchEvent(new CustomEvent('tw:mobile-menu-closed'));
     };
 
@@ -1005,7 +1005,6 @@ const headerCtaHref = settings.headerCta
         menuPhase === 'opening'
           ? computed(panel, 'transform')
           : 'translate3d(0, 0, 0)';
-      cancelPrimedOpenAnimation();
       cancelPanelAnimation();
       isOpen = false;
       const id = ++transitionId;
@@ -1017,7 +1016,7 @@ const headerCtaHref = settings.headerCta
       if (inputModality === 'keyboard') {
         (lastFocused?.isConnected ? lastFocused : toggle).focus({ preventScroll: true });
       }
-      header.setAttribute('data-menu-has-closed', '');
+      if (!reducedMotion.matches) playPanelMotion(false, id, startTransform);
       header.classList.remove('is-menu-open');
       header.classList.add('is-menu-closing');
       menu.classList.remove('is-menu-open');
@@ -1029,7 +1028,6 @@ const headerCtaHref = settings.headerCta
       if (reducedMotion.matches) {
         finishClose(id);
       } else {
-        playPanelMotion(false, id, startTransform);
         scheduleCompletion(id, 700);
       }
     };
@@ -1174,12 +1172,21 @@ const headerCtaHref = settings.headerCta
     });
 
     mobile.addEventListener('change', (event) => {
-      if (event.matches) prepareMobileMenu();
-      else leaveMobileMenu();
+      if (event.matches) {
+        prepareMobileMenu();
+        startAioHeaderLoad();
+      } else {
+        finishAioHeaderLoad();
+        leaveMobileMenu();
+      }
     });
 
-    if (mobile.matches) prepareMobileMenu();
-    else leaveMobileMenu();
+    if (mobile.matches) {
+      prepareMobileMenu();
+      startAioHeaderLoad();
+    } else {
+      leaveMobileMenu();
+    }
 
   })();
 </script>
@@ -1435,9 +1442,6 @@ const headerCtaHref = settings.headerCta
        Controller explizit; Link- und Header-Choreografie bleiben klassengesteuert. */
     .navbar[data-mobile-menu-prepared] {
       transition: background-color 300ms cubic-bezier(0.25, 0.1, 0.25, 1) 200ms;
-    }
-    .navbar[data-mobile-menu-prepared][data-menu-has-closed] {
-      background-color: rgba(231, 226, 220, 0.12);
     }
     .navbar[data-mobile-menu-prepared].is-menu-open {
       background-color: rgba(0, 0, 0, 0);

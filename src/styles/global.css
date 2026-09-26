@@ -538,6 +538,14 @@ html.has-motion:not(.motion-ready):has([data-home-hero], [data-about-hero], [dat
   opacity: 0;
   transform: translateX(2.5rem);
 }
+/* Der AIO-Header steht im DOM vor dem langen Seiteninhalt. Die Root-Klasse
+   wird bereits im <head> gesetzt und garantiert deshalb auch in Safari den
+   korrekten Ausgangsframe, bevor der Parser den spaeteren Hero erreicht. */
+html.aio-mobile-motion:not(.motion-ready) [data-nav-logo-line]:not([data-revealed]) { height: 0; }
+html.aio-mobile-motion:not(.motion-ready) [data-nav-right]:not([data-revealed]) {
+  opacity: 0;
+  transform: translateX(2.5rem);
+}
 
 /* Home: Logo-Text-Slides + Buttons sind seitenübergreifende Selektoren → :has;
    Wipe/Scroll tragen Home-eigene Attribute und begrenzen sich selbst. */

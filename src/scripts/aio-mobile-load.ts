@@ -1,8 +1,6 @@
-/* Mobile AIO-Load-Choreografie mit exakt denselben sichtbaren Timings wie
-   motion/aio-load.ts. Sie läuft browsernativ, damit die Kopfzeile und der Hero
-   sofort aufgebaut werden, ohne gleichzeitig das große seitenweite GSAP-
-   Bundle initialisieren zu müssen. Dadurch bleibt der Menübutton während der
-   wichtigen Anfangsphase reaktionsfähig. */
+/* Mobile AIO-Hero-Choreografie mit exakt denselben sichtbaren Timings wie
+   motion/aio-load.ts. Die geteilte Kopfzeile startet bereits parser-frueh im
+   Header; dieses Body-End-Modul besitzt deshalb ausschliesslich den Hero. */
 
 let runningAnimations: Animation[] = [];
 
@@ -36,43 +34,6 @@ function initAioMobileLoad(): void {
   const intro = hero.querySelector<HTMLElement>('[data-aio-intro]');
   const buttons = hero.querySelector<HTMLElement>('[data-aio-buttons]');
   const video = hero.querySelector<HTMLElement>('[data-aio-video]');
-  const logoLines = document.querySelectorAll<HTMLElement>('[data-nav-logo-line]');
-  const navRight = document.querySelector<HTMLElement>('[data-nav-right]');
-  const menuAlreadyOpen =
-    document.querySelector<HTMLElement>('[data-nav-toggle]')?.getAttribute('aria-expanded') ===
-    'true';
-
-  logoLines.forEach((line) => {
-    /* Originale Webflow-Geometrie: height-Reveal statt des zwischenzeitlich
-       verwendeten scaleY. Die kanonische 2-rem-Zielhoehe vermeidet dabei den
-       frueheren offsetHeight-Read samt synchronem Ganzseiten-Layout. */
-    play(line, [{ height: '0rem' }, { height: '2rem' }], {
-      duration: 500,
-      delay: 100,
-      easing: OUT_QUART,
-    });
-    line.setAttribute('data-revealed', '');
-  });
-
-  /* Ein extrem frueher Menue-Tap kann noch vor diesem Body-End-Modul kommen.
-     Dann darf die Seiten-Load-Choreografie den bereits bedienten Header nicht
-     nachtraeglich erneut verschieben oder ausblenden. */
-  if (!menuAlreadyOpen) {
-    play(navRight, [{ opacity: 0 }, { opacity: 1 }], {
-      duration: 1200,
-      delay: 300,
-      easing: EASE,
-    });
-    play(
-      navRight,
-      [
-        { transform: 'translate3d(2.5rem, 0, 0)' },
-        { transform: 'translate3d(0, 0, 0)' },
-      ],
-      { duration: 1000, delay: 300, easing: OUT_QUART },
-    );
-  }
-  navRight?.setAttribute('data-revealed', '');
 
   const slideIn = (element: Element | null, delay: number, opacityDuration = 750): void => {
     if (!element) return;
