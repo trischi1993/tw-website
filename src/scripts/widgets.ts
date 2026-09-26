@@ -2,8 +2,9 @@ import { gsap } from 'gsap';
 
 /* ---------------------------------------------------------------------------
    Interaktive Widgets der Sections (delegierte Handler, ein zentraler Init):
-   FAQ-Accordion, Coaching-Tabs, Testimonials-Load-More und das direkte
-   HTML5-Video. Animationsdauern fallen bei
+   FAQ-Accordion, Coaching-Tabs und Testimonials-Load-More. Die direkte
+   HTML5-Video-Steuerung lebt im kleinen, GSAP-freien `video-controls.ts`.
+   Animationsdauern fallen bei
    prefers-reduced-motion auf 0 (Zustand wechselt sofort).
    --------------------------------------------------------------------------- */
 
@@ -127,35 +128,6 @@ function loadMore(btn: HTMLElement): void {
   notifyLayoutChanged();
 }
 
-/* --- Direktes HTML5-Video (Bunny MP4, ohne Drittanbieter-Player) ----------- */
-
-function syncMuteIcons(controls: HTMLElement, muted: boolean): void {
-  controls.querySelectorAll<SVGElement>('[data-icon]').forEach((icon) => {
-    const isMutedIcon = icon.getAttribute('data-icon') === 'muted';
-    icon.style.display = isMutedIcon === muted ? '' : 'none';
-  });
-}
-
-function handleVideoAction(btn: HTMLElement): void {
-  const controls = btn.closest<HTMLElement>('[data-video-controls]');
-  const video = controls?.parentElement?.querySelector<HTMLVideoElement>('[data-video-player] video');
-  if (!controls || !video) return;
-
-  if (btn.dataset.action === 'toggle-mute') {
-    const nowMuted = !video.muted;
-    video.muted = nowMuted;
-    controls.dataset.muted = nowMuted ? '1' : '0';
-    syncMuteIcons(controls, nowMuted);
-    void video.play().catch(() => undefined);
-  } else if (btn.dataset.action === 'replay') {
-    video.muted = false;
-    video.currentTime = 0;
-    controls.dataset.muted = '0';
-    syncMuteIcons(controls, false);
-    void video.play().catch(() => undefined);
-  }
-}
-
 /* --- Delegierter Klick-Handler + Init -------------------------------------- */
 
 document.addEventListener('click', (e) => {
@@ -171,6 +143,4 @@ document.addEventListener('click', (e) => {
   const moreBtn = target.closest<HTMLElement>('[data-load-more]');
   if (moreBtn) return loadMore(moreBtn);
 
-  const actionBtn = target.closest<HTMLElement>('[data-video-controls] [data-action]');
-  if (actionBtn) return handleVideoAction(actionBtn);
 });

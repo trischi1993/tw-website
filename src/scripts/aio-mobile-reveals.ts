@@ -9,6 +9,7 @@ const EASE = 'cubic-bezier(0.25, 0.1, 0.25, 1)';
 const OUT_QUART = 'cubic-bezier(0.165, 0.84, 0.44, 1)';
 const activeAnimations = new Set<Animation>();
 const activeRevealFinalizers = new Set<() => void>();
+const activeStaticFinalizers = new Set<() => void>();
 
 const TEXT_SELECTOR = [
   'h1',
@@ -128,8 +129,21 @@ function initGenericReveals(): void {
     blurTargets.forEach((target) => {
       target.style.filter = 'blur(3.5px)';
     });
+    const showStatic = () => {
+      element.style.removeProperty('opacity');
+      element.style.removeProperty('transform');
+      blurTargets.forEach((target) => {
+        target.style.removeProperty('filter');
+        target.style.removeProperty('will-change');
+      });
+    };
+    activeStaticFinalizers.add(showStatic);
 
     const reveal = () => {
+      if (root.hasAttribute('data-aio-restore-aborted')) {
+        showStatic();
+        return;
+      }
       element.setAttribute('data-aio-native-revealed', '');
       const animations = [
         play(element, [{ opacity: 0 }, { opacity: 1 }], {
@@ -163,6 +177,7 @@ function initGenericReveals(): void {
         if (finished) return;
         finished = true;
         activeRevealFinalizers.delete(finish);
+        activeStaticFinalizers.delete(showStatic);
 
         // Den nativen Endzustand zuerst unter die Animation legen. Erst dann
         // werden die WebKit-Layer entfernt; so existiert beim Canceln kein
@@ -206,7 +221,18 @@ function initProgrammeReveals(): void {
           item.style.opacity = '0';
           item.style.transform = 'translate3d(0, 1rem, 0)';
         });
+        const showStatic = () => {
+          items.forEach((item) => {
+            item.style.removeProperty('opacity');
+            item.style.removeProperty('transform');
+          });
+        };
+        activeStaticFinalizers.add(showStatic);
         observeOnce(group, 18, () => {
+          if (root.hasAttribute('data-aio-restore-aborted')) {
+            showStatic();
+            return;
+          }
           const animations = items.flatMap((item, index) => [
             play(item, [{ opacity: 0 }, { opacity: 1 }], {
               duration: 700,
@@ -223,10 +249,8 @@ function initProgrammeReveals(): void {
             ),
           ]);
           void Promise.allSettled(animations.map((animation) => animation.finished)).then(() => {
-            items.forEach((item) => {
-              item.style.removeProperty('opacity');
-              item.style.removeProperty('transform');
-            });
+            activeStaticFinalizers.delete(showStatic);
+            showStatic();
             animations.forEach((animation) => {
               if (animation.playState !== 'idle') animation.cancel();
             });
@@ -254,8 +278,23 @@ function initTristyChat(): void {
     prompt.textContent = '';
     chat.style.opacity = '0';
     chat.style.transform = 'translate3d(0, 3px, 0)';
+    let typingAborted = false;
+    const showStatic = () => {
+      typingAborted = true;
+      prefix.textContent = greeting.slice(0, 13);
+      name.textContent = greeting.slice(13, 19);
+      dots.textContent = greeting.slice(19);
+      prompt.textContent = promptText;
+      chat.style.removeProperty('opacity');
+      chat.style.removeProperty('transform');
+    };
+    activeStaticFinalizers.add(showStatic);
 
     observeOnce(chat, 15, () => {
+      if (root.hasAttribute('data-aio-restore-aborted')) {
+        showStatic();
+        return;
+      }
       const entrance = play(
         chat,
         [
@@ -273,6 +312,7 @@ function initTristyChat(): void {
       let position = 340;
       Array.from(greeting).forEach((_, index) => {
         window.setTimeout(() => {
+          if (typingAborted) return;
           const value = Array.from(greeting).slice(0, index + 1).join('');
           prefix.textContent = value.slice(0, Math.min(value.length, 13));
           name.textContent = value.slice(13, Math.min(value.length, 19));
@@ -283,6 +323,7 @@ function initTristyChat(): void {
       position += 420;
       Array.from(promptText).forEach((_, index) => {
         window.setTimeout(() => {
+          if (typingAborted) return;
           prompt.textContent = Array.from(promptText).slice(0, index + 1).join('');
         }, position);
         position += 58 + (index % 4) * 8;
@@ -293,11 +334,19 @@ function initTristyChat(): void {
 
 if (
   root.classList.contains('aio-mobile-motion') &&
+  !root.hasAttribute('data-aio-restore-aborted') &&
   !window.matchMedia('(prefers-reduced-motion: reduce)').matches
 ) {
   initGenericReveals();
   initProgrammeReveals();
   initTristyChat();
+
+  window.addEventListener('aio:restore-aborted', () => {
+    [...activeRevealFinalizers].forEach((finish) => finish());
+    [...activeStaticFinalizers].forEach((finish) => finish());
+    activeStaticFinalizers.clear();
+    [...activeAnimations].forEach((animation) => animation.cancel());
+  }, { once: true });
 
   const portrait = window.matchMedia('(orientation: portrait)');
   portrait.addEventListener('change', () => {

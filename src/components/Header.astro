@@ -354,11 +354,24 @@ const headerCtaHref = settings.headerCta
       const fullDuration = opening ? 720 : 520;
       const distanceRatio = Math.min(1, Math.abs(targetX - startX) / width);
       const duration = Math.max(120, fullDuration * distanceRatio);
-      preparedAnimation?.cancel();
+      /* Die pausierte Prime-Timeline haelt nur die Compositor-Ebene warm.
+         Sichtbar laeuft immer eine frische Timeline: WebKit darf eine lange
+         pausierte Animation sonst beim ersten Tap als abgelaufen behandeln.
+         Unterbrochene Bewegungen starten ebenfalls frisch und nur ueber die
+         noch verbleibende Distanz. */
       const animation = panel.animate(
         [{ transform: startTransform }, { transform: targetTransform }],
         { duration, easing: outQuart, fill: 'both' },
       );
+      if (opening && preparedAnimation) {
+        /* Die frische Timeline existiert bereits auf derselben vorbereiteten
+           Compositor-Ebene, bevor die lang pausierte Prime-Timeline weicht.
+           So gibt es weder einen Endzustands-Frame dazwischen noch das
+           WebKit-Risiko, eine alte pausierte Timeline als beendet zu werten. */
+        animation.pause();
+        animation.currentTime = 0;
+        preparedAnimation.cancel();
+      }
       panelAnimation = animation;
       animation.onfinish = () => {
         if (panelAnimation !== animation) return;
@@ -368,6 +381,10 @@ const headerCtaHref = settings.headerCta
         if (opening) finishOpen(id);
         else finishClose(id);
       };
+      if (opening && preparedAnimation) {
+        animation.playbackRate = 1;
+        animation.play();
+      }
     };
 
     const play = (element, keyframes, options) => {
@@ -434,24 +451,25 @@ const headerCtaHref = settings.headerCta
       ...logoLines,
       ...(navRight ? [navRight] : []),
     ];
-    const MIN_HIDE_MS = 600;
-    const VIEWPORT_QUIET_MS = 160;
     const HARD_SETTLE_MS = 1500;
+    const STABLE_FRAME_COUNT = 3;
+    const narrow = window.matchMedia('(max-width: 767px)');
+    const compactLandscape = window.matchMedia(
+      '(max-width: 991px) and (max-height: 500px) and (orientation: landscape)',
+    );
     let orientationPending = false;
-    let pendingPortrait = portrait.matches;
-    let orientationStartedAt = 0;
-    let lastViewportChangeAt = 0;
-    let orientationSettleTimer;
+    let settledPortrait = portrait.matches;
+    let settledOrientationToken = '';
+    let orientationStableSignature = '';
+    let orientationStableFrames = 0;
+    let orientationFrame;
     let orientationHardTimer;
-    let orientationCleanupTimer;
     let orientationReplayId = 0;
     let orientationAnimations = [];
     let orientationMenuWasOpen = false;
 
     const cancelOrientationAnimations = () => {
       orientationReplayId += 1;
-      if (orientationCleanupTimer !== undefined) clearTimeout(orientationCleanupTimer);
-      orientationCleanupTimer = undefined;
       orientationAnimations.forEach((animation) => animation.cancel());
       orientationAnimations = [];
       headerMotionTargets.forEach((target) => {
@@ -481,14 +499,47 @@ const headerCtaHref = settings.headerCta
       if (!element) return;
       const animation = element.animate(keyframes, { fill: 'both', ...options });
       orientationAnimations.push(animation);
+      return animation;
     };
+
+    const orientationSignature = () => {
+      const root = document.documentElement;
+      const bounds = header.getBoundingClientRect();
+      return [
+        portrait.matches ? 1 : 0,
+        mobile.matches ? 1 : 0,
+        narrow.matches ? 1 : 0,
+        compactLandscape.matches ? 1 : 0,
+        root.clientWidth,
+        root.clientHeight,
+        Math.round(bounds.width * 100) / 100,
+        Math.round(bounds.height * 100) / 100,
+      ].join(':');
+    };
+
+    const orientationToken = () => {
+      const screenOrientation = screen.orientation;
+      if (screenOrientation) return `${screenOrientation.type}:${screenOrientation.angle}`;
+      const legacyAngle = typeof window.orientation === 'number' ? window.orientation : '';
+      return String(legacyAngle);
+    };
+    const physicalPortrait = () => {
+      const type = screen.orientation?.type;
+      if (type?.startsWith('portrait')) return true;
+      if (type?.startsWith('landscape')) return false;
+      const legacyAngle = typeof window.orientation === 'number' ? window.orientation : null;
+      return legacyAngle === null ? null : Math.abs(legacyAngle) % 180 === 0;
+    };
+    settledOrientationToken = orientationToken();
 
     const finishOrientationChange = () => {
       if (!orientationPending) return;
       orientationPending = false;
-      if (orientationSettleTimer !== undefined) clearTimeout(orientationSettleTimer);
+      settledPortrait = portrait.matches;
+      settledOrientationToken = orientationToken();
       if (orientationHardTimer !== undefined) clearTimeout(orientationHardTimer);
-      orientationSettleTimer = undefined;
+      if (orientationFrame !== undefined) cancelAnimationFrame(orientationFrame);
+      orientationFrame = undefined;
       orientationHardTimer = undefined;
 
       cancelOrientationAnimations();
@@ -504,86 +555,136 @@ const headerCtaHref = settings.headerCta
 
       const replayId = ++orientationReplayId;
       logoText1.forEach((element) => {
-        element.style.transform = 'translate3d(0, 0, 0)';
+        element.style.transform = 'translate3d(140%, 0, 0)';
         element.style.willChange = 'transform';
-        playOrientation(element, [
-          { transform: 'translate3d(140%, 0, 0)' },
-          { transform: 'translate3d(0, 0, 0)' },
-        ], { duration: 900, delay: 60, easing: outQuart });
       });
       logoText2.forEach((element) => {
-        element.style.transform = 'translate3d(0, 0, 0)';
+        element.style.transform = 'translate3d(-140%, 0, 0)';
         element.style.willChange = 'transform';
-        playOrientation(element, [
-          { transform: 'translate3d(-140%, 0, 0)' },
-          { transform: 'translate3d(0, 0, 0)' },
-        ], { duration: 900, delay: 60, easing: outQuart });
       });
       logoLines.forEach((element) => {
-        element.style.transform = 'scaleY(1)';
+        element.style.transform = 'scaleY(0)';
         element.style.transformOrigin = '50% 50%';
         element.style.willChange = 'transform';
-        playOrientation(element, [
-          { transform: 'scaleY(0)' },
-          { transform: 'scaleY(1)' },
-        ], { duration: 500, easing: outQuart });
       });
       if (navRight) {
-        navRight.style.opacity = '1';
-        navRight.style.transform = 'translate3d(0, 0, 0)';
+        navRight.style.opacity = '0';
+        navRight.style.transform = 'translate3d(2.5rem, 0, 0)';
         navRight.style.willChange = 'transform, opacity';
-        playOrientation(navRight, [{ opacity: 0 }, { opacity: 1 }], {
-          duration: 1080,
-          delay: 60,
-          easing: ease,
-        });
-        playOrientation(navRight, [
-          { transform: 'translate3d(2.5rem, 0, 0)' },
-          { transform: 'translate3d(0, 0, 0)' },
-        ], { duration: 900, delay: 60, easing: outQuart });
       }
 
-      // Alle Startwerte stehen noch hinter dem Whole-Navbar-Guard. Erst jetzt
-      // wird der definierte erste Replay-Frame sichtbar.
+      /* Zuerst wird genau der definierte Startzustand sichtbar. Erst nach
+         einem wirklich gezeichneten Frame starten die Timelines. Dadurch kann
+         WebKit beim Viewport-Umbau weder einen alten Endzustand einblenden
+         noch den ersten Animationsframe ueberspringen. */
       header.classList.remove('is-orientation-changing');
       menu.classList.remove('is-orientation-changing');
       primePanelOpen();
-      orientationCleanupTimer = setTimeout(() => {
-        if (replayId !== orientationReplayId) return;
-        orientationAnimations.forEach((animation) => animation.cancel());
-        orientationAnimations = [];
-        orientationCleanupTimer = undefined;
-        clearOrientationStyles();
-      }, 1150);
+
+      requestAnimationFrame(() => {
+        requestAnimationFrame(() => {
+          if (replayId !== orientationReplayId || orientationPending) return;
+          logoText1.forEach((element) => {
+            playOrientation(element, [
+              { transform: 'translate3d(140%, 0, 0)' },
+              { transform: 'translate3d(0, 0, 0)' },
+            ], { duration: 900, delay: 60, easing: outQuart });
+          });
+          logoText2.forEach((element) => {
+            playOrientation(element, [
+              { transform: 'translate3d(-140%, 0, 0)' },
+              { transform: 'translate3d(0, 0, 0)' },
+            ], { duration: 900, delay: 60, easing: outQuart });
+          });
+          logoLines.forEach((element) => {
+            playOrientation(element, [
+              { transform: 'scaleY(0)' },
+              { transform: 'scaleY(1)' },
+            ], { duration: 500, easing: outQuart });
+          });
+          if (navRight) {
+            playOrientation(navRight, [{ opacity: 0 }, { opacity: 1 }], {
+              duration: 1080,
+              delay: 60,
+              easing: ease,
+            });
+            playOrientation(navRight, [
+              { transform: 'translate3d(2.5rem, 0, 0)' },
+              { transform: 'translate3d(0, 0, 0)' },
+            ], { duration: 900, delay: 60, easing: outQuart });
+          }
+
+          const animations = [...orientationAnimations];
+          void Promise.allSettled(animations.map((animation) => animation.finished)).then(() => {
+            if (replayId !== orientationReplayId || orientationPending) return;
+            orientationAnimations = [];
+            clearOrientationStyles();
+            animations.forEach((animation) => {
+              if (animation.playState !== 'idle') animation.cancel();
+            });
+          });
+        });
+      });
     };
 
-    const scheduleOrientationFinish = () => {
+    const watchOrientationStability = () => {
       if (!orientationPending) return;
-      if (orientationSettleTimer !== undefined) clearTimeout(orientationSettleTimer);
-      const now = performance.now();
-      const earliestFinish = Math.max(
-        orientationStartedAt + MIN_HIDE_MS,
-        lastViewportChangeAt + VIEWPORT_QUIET_MS,
-      );
-      orientationSettleTimer = setTimeout(
-        finishOrientationChange,
-        Math.max(0, earliestFinish - now),
-      );
+      const signature = orientationSignature();
+      const root = document.documentElement;
+      const layoutPortrait = root.clientWidth <= root.clientHeight;
+      const axisChanged = portrait.matches !== settledPortrait;
+      const physicalOrientationChanged = orientationToken() !== settledOrientationToken;
+      const changedOnlyWithinSameAxis =
+        physicalOrientationChanged && physicalPortrait() === settledPortrait;
+      const targetReached =
+        portrait.matches === layoutPortrait && (axisChanged || changedOnlyWithinSameAxis);
+      if (targetReached && signature === orientationStableSignature) {
+        orientationStableFrames += 1;
+      } else {
+        orientationStableSignature = signature;
+        orientationStableFrames = targetReached ? 1 : 0;
+      }
+      if (orientationStableFrames >= STABLE_FRAME_COUNT) {
+        finishOrientationChange();
+        return;
+      }
+      orientationFrame = requestAnimationFrame(watchOrientationStability);
     };
 
     const beginOrientationChange = () => {
-      const isPortrait = portrait.matches;
-      const now = performance.now();
-      if (orientationPending && isPortrait === pendingPortrait) {
-        lastViewportChangeAt = now;
-        scheduleOrientationFinish();
-        return;
+      if (orientationPending) return;
+
+      const root = document.documentElement;
+      const layoutPortrait = root.clientWidth <= root.clientHeight;
+      const currentOrientationToken = orientationToken();
+      const currentPhysicalPortrait = physicalPortrait();
+      const visualStateAlreadySettled =
+        portrait.matches === settledPortrait &&
+        layoutPortrait === settledPortrait;
+      /* iOS/WebKit kann denselben Wechsel ueber orientationchange,
+         ScreenOrientation und MediaQuery zeitversetzt mehrfach melden. Ein
+         bereits vollstaendig verarbeiteter Zustand darf die gerade beendete
+         Choreografie nicht erneut verstecken. Kommt das erste rohe Signal
+         noch vor dem Viewport-Umbau, erkennt der anschliessende MediaQuery-
+         oder Resize-Schritt die echte Achsenaenderung. */
+      if (visualStateAlreadySettled) {
+        if (currentOrientationToken === settledOrientationToken) return;
+        /* Manche WebKit-Versionen aktualisieren screen.orientation erst nach
+           dem stabilen Layout. Bestaetigt der spaete Token nur die bereits
+           verarbeitete Achse, wird er synchronisiert statt eine zweite
+           Replay-Generation zu starten. */
+        if (
+          currentPhysicalPortrait === null ||
+          currentPhysicalPortrait === settledPortrait
+        ) {
+          settledOrientationToken = currentOrientationToken;
+          return;
+        }
       }
 
       orientationPending = true;
-      pendingPortrait = isPortrait;
-      orientationStartedAt = now;
-      lastViewportChangeAt = now;
+      orientationStableSignature = '';
+      orientationStableFrames = 0;
       orientationMenuWasOpen = isOpen || menuPhase === 'opening';
       /* Ein bereits sichtbares Fullscreen-Menue darf beim Drehen nicht unter
          dem Paint-Guard verschwinden. Sein responsives Layout kann direkt auf
@@ -594,24 +695,38 @@ const headerCtaHref = settings.headerCta
       menu.classList.toggle('is-orientation-changing', hideClosedChrome);
       cancelPanelMotion();
       cancelOrientationAnimations();
-      if (orientationSettleTimer !== undefined) clearTimeout(orientationSettleTimer);
       if (orientationHardTimer !== undefined) clearTimeout(orientationHardTimer);
-      scheduleOrientationFinish();
+      orientationFrame = requestAnimationFrame(watchOrientationStability);
       orientationHardTimer = setTimeout(finishOrientationChange, HARD_SETTLE_MS);
     };
 
-    const handleViewportResize = () => {
-      if (!orientationPending) return;
-      lastViewportChangeAt = performance.now();
-      scheduleOrientationFinish();
+    const handleOrientationSignal = () => beginOrientationChange();
+    const handleOrientationViewportResize = () => {
+      if (!orientationPending) {
+        const root = document.documentElement;
+        const layoutPortrait = root.clientWidth <= root.clientHeight;
+        if (
+          portrait.matches !== settledPortrait ||
+          layoutPortrait !== settledPortrait ||
+          orientationToken() !== settledOrientationToken
+        ) beginOrientationChange();
+        return;
+      }
+      if (orientationFrame !== undefined) return;
+      orientationFrame = requestAnimationFrame(watchOrientationStability);
     };
 
-    window.addEventListener('orientationchange', beginOrientationChange, { passive: true });
-    screen.orientation?.addEventListener('change', beginOrientationChange);
+    window.addEventListener('orientationchange', handleOrientationSignal, { passive: true });
+    screen.orientation?.addEventListener('change', () => beginOrientationChange());
     portrait.addEventListener('change', beginOrientationChange);
-    window.addEventListener('resize', handleViewportResize, { passive: true });
-    window.visualViewport?.addEventListener('resize', handleViewportResize, { passive: true });
-    window.addEventListener('lp:orientation-settled', scheduleOrientationFinish);
+    window.addEventListener('resize', handleOrientationViewportResize, { passive: true });
+    window.visualViewport?.addEventListener('resize', handleOrientationViewportResize, {
+      passive: true,
+    });
+    window.addEventListener('lp:orientation-settled', () => {
+      if (!orientationPending || orientationFrame !== undefined) return;
+      orientationFrame = requestAnimationFrame(watchOrientationStability);
+    });
 
     const releaseBackdrop = () => {
       inertBackdrop.forEach((element) => element.removeAttribute('inert'));
@@ -802,6 +917,7 @@ const headerCtaHref = settings.headerCta
       [burgerTop, burgerMiddle, burgerBottom, rightInner].forEach((element) => {
         element?.style.removeProperty('transform');
       });
+      window.dispatchEvent(new CustomEvent('tw:mobile-menu-closed'));
     };
 
     const finishOpen = (id) => {
@@ -880,6 +996,7 @@ const headerCtaHref = settings.headerCta
         focusTarget.focus({ preventScroll: true });
       }
       primePanelOpen();
+      window.dispatchEvent(new CustomEvent('tw:mobile-menu-closed'));
     };
 
     const closeMenu = () => {

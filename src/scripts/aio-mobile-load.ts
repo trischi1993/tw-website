@@ -23,7 +23,11 @@ function play(
 function initAioMobileLoad(): void {
   const root = document.documentElement;
   const hero = document.querySelector<HTMLElement>('[data-aio-hero]');
-  if (!hero || !root.classList.contains('aio-mobile-motion')) return;
+  if (
+    !hero ||
+    !root.classList.contains('aio-mobile-motion') ||
+    root.hasAttribute('data-aio-restore-aborted')
+  ) return;
 
   runningAnimations.forEach((animation) => animation.cancel());
   runningAnimations = [];
@@ -101,7 +105,14 @@ function initAioMobileLoad(): void {
   root.classList.add('motion-ready');
 }
 
+function abortAioMobileLoad(): void {
+  runningAnimations.forEach((animation) => animation.cancel());
+  runningAnimations = [];
+  document.documentElement.classList.remove('motion-ready');
+}
+
 initAioMobileLoad();
 document.addEventListener('astro:page-load', initAioMobileLoad);
+window.addEventListener('aio:restore-aborted', abortAioMobileLoad, { once: true });
 
 export {};

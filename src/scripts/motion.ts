@@ -702,7 +702,10 @@ function preservePageContentOnOrientation(portrait: MediaQueryList): void {
    --------------------------------------------------------------------------- */
 
 function init(): void {
-  if (window.matchMedia('(prefers-reduced-motion: reduce)').matches) return;
+  if (
+    window.matchMedia('(prefers-reduced-motion: reduce)').matches ||
+    document.documentElement.hasAttribute('data-aio-restore-aborted')
+  ) return;
 
   document.documentElement.classList.add('has-motion');
   // Signal fürs Pre-Paint-Failsafe (BaseLayout-Inline-Script): das Motion-Bundle

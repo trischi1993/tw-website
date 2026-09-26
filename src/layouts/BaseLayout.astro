@@ -162,15 +162,32 @@ const jsonLdArray = [orgJsonLd, ...pageJsonLd];
                Nutzer die noch ladende Seite vorher wieder verlaesst. */
             window.addEventListener('beforeunload', restoreAioHistoryAuto, { once: true });
 
-            /* Failsafe nur für einen unerwarteten Fehler im Restore-/Startmodul.
-               Er hängt bewusst am fertig geparsten Dokument statt an einer
-               willkürlichen Zeitgrenze, die auf langsamen Verbindungen zu früh
-               ablaufen könnte. */
+            /* Failsafes nur fuer einen unerwarteten Fehler im Restore-/Startmodul.
+               Der kurze Check laesst eine bewusst laufende Initialisierung in
+               Ruhe. Ein zweiter absoluter Check verhindert trotzdem, dass die
+               deckende Ebene bei einem haengenden Chunk unbegrenzt stehenbleibt. */
             document.addEventListener(
               'DOMContentLoaded',
               function () {
-                window.setTimeout(function () {
+                var failOpenAioRestore = function (honorInitialization) {
                   if (!el.classList.contains('is-aio-scroll-restore-pending')) return;
+                  /* Ein tiefer Reload kann bereits erreichte Spezialmodule
+                     gezielt vor dem Aufdecken initialisieren. Das ist kein
+                     Bootstrap-Fehler; deren eigenes Promise beendet die
+                     Blende oder faellt kontrolliert auf den statischen Stand
+                     zurueck. */
+                  if (
+                    honorInitialization &&
+                    el.hasAttribute('data-aio-restore-initializing')
+                  ) return;
+                  if (!honorInitialization) {
+                    /* Endgueltige Recovery-Generation: Spaet eintreffende
+                       Dynamic Imports duerfen nach dem Aufdecken weder den
+                       gespeicherten Scrollstand erneut setzen noch neue
+                       Motion-Ausgangszustaende erzeugen. */
+                    el.setAttribute('data-aio-restore-aborted', '');
+                    window.dispatchEvent(new Event('aio:restore-aborted'));
+                  }
                   window.scrollTo(0, aioRestoreTarget);
                   /* Falls eines der beiden kleinen AIO-Startmodule wider
                      Erwarten nicht geladen hat, darf weder die Blende noch ein
@@ -180,10 +197,17 @@ const jsonLdArray = [orgJsonLd, ...pageJsonLd];
                     'has-motion',
                     'aio-mobile-motion'
                   );
+                  el.removeAttribute('data-aio-restore-initializing');
                   el.style.removeProperty('--aio-restore-min-height');
                   delete el.dataset.aioRestoreY;
                   window.dispatchEvent(new Event('aio:scroll-restored'));
+                };
+                window.setTimeout(function () {
+                  failOpenAioRestore(true);
                 }, 1500);
+                window.setTimeout(function () {
+                  failOpenAioRestore(false);
+                }, 10000);
               },
               { once: true }
             );
@@ -457,12 +481,18 @@ const jsonLdArray = [orgJsonLd, ...pageJsonLd];
       })();
     </script>
     <script>
-      // Interaktive Widgets (FAQ, Tabs, Read-More, Load-More, Video-Controls)
+      // Interaktive Widgets (FAQ, Tabs, Read-More, Load-More)
       // laufen auf jeder Seite. Das GSAP-Motion-Bundle ebenso: Footer-Reveal,
       // Underline-Wipes und der Glow-CTA im Header animieren auf jeder Seite
       // (IX2 a-87/a-91/a-141); eine Hook-Bedingung wäre immer wahr.
       const isMobileEbook = document.documentElement.classList.contains('ebook-mobile-motion');
       const isMobileAio = document.documentElement.classList.contains('aio-mobile-motion');
+      if (
+        isMobileAio &&
+        document.documentElement.classList.contains('is-aio-scroll-restore-pending')
+      ) {
+        document.documentElement.setAttribute('data-aio-restore-initializing', '');
+      }
       const afterMobileHero = (load: () => Promise<unknown>): Promise<unknown> =>
         new Promise((resolve, reject) => {
           const remaining = Math.max(0, 2200 - performance.now());
@@ -483,25 +513,37 @@ const jsonLdArray = [orgJsonLd, ...pageJsonLd];
             }
           }, remaining);
         });
+      /* Auf mobilem AIO ersetzt ein bedarfsnaher Scheduler die drei frueher
+         gleichzeitig bei t=2,2 s gestarteten Grosspakete. Genau dieser feste
+         Burst konnte Safaris ersten Menue-Paint blockieren. Sichtbare
+         Header-/Hero-/Scroll-Reveals bleiben in ihren kleinen Sofortmodulen. */
+      const aioDeferredReady = isMobileAio
+        ? import('../scripts/aio-mobile-deferred.ts')
+        : Promise.resolve(null);
       const widgetsReady = isMobileEbook
         ? afterMobileHero(() => import('../scripts/widgets.ts'))
         : isMobileAio
-          ? afterMobileHero(() => import('../scripts/widgets.ts'))
+          ? aioDeferredReady
           : import('../scripts/widgets.ts');
       // Die AIO-Ergebnis-Slider liegen viele Viewports unterhalb des Einstiegs.
       // Auf Mobilgeraeten duerfen ihre Layout-Messungen, ResizeObserver und
       // Bild-Preloads deshalb nicht mit dem allerersten Menue-Tap konkurrieren.
-      // Nach der sichtbaren Startchoreografie werden sie einmalig in einer
-      // Browser-Idle-Phase initialisiert. Scroll-/Touch-Ereignisse verschieben
-      // diesen Zeitpunkt nicht mehr unbestimmt nach hinten.
+      // Der mobile AIO-Scheduler initialisiert diese Interaktionen mehrere
+      // Viewports vor ihrem ersten Verbraucher; Desktop bleibt unverändert.
       const aioResultsReady = isMobileAio
-        ? afterMobileHero(() => import('../scripts/aio-results-interactions.ts'))
+        ? aioDeferredReady
         : import('../scripts/aio-results-interactions.ts');
+      const videoControlsReady = document.querySelector('[data-video-controls]')
+        ? import('../scripts/video-controls.ts')
+        : Promise.resolve();
       const aioMobileLoadReady = isMobileAio
         ? import('../scripts/aio-mobile-load.ts')
         : Promise.resolve();
       const aioMobileRevealsReady = isMobileAio
         ? import('../scripts/aio-mobile-reveals.ts')
+        : Promise.resolve();
+      const aioRestoredViewportReady = isMobileAio
+        ? aioDeferredReady.then((module) => module?.aioRestoredViewportReady)
         : Promise.resolve();
       const aioScrollPositionReady = document.documentElement.classList.contains(
         'is-aio-scroll-restore-pending',
@@ -531,10 +573,7 @@ const jsonLdArray = [orgJsonLd, ...pageJsonLd];
               // zurueckgestellt und initialisiert diese Elemente dank
               // idempotenter Module nicht ein zweites Mal.
               aioMobileRevealsReady,
-              // Wie bei der stabilen E-Book-Seite folgt das Gesamtpaket einmalig
-              // nach der sichtbaren Startchoreografie. Es wird nicht mehr durch
-              // Scroll-/Touch-Ereignisse immer wieder nach hinten verschoben.
-              afterMobileHero(() => import('../scripts/motion.ts')),
+              aioDeferredReady,
             ])
         : import('../scripts/motion.ts');
 
@@ -548,13 +587,19 @@ const jsonLdArray = [orgJsonLd, ...pageJsonLd];
       );
       const finishAioScrollRestore = (disableMotion = false) => {
         const root = document.documentElement;
-        const target = Number(root.dataset.aioRestoreY);
-        if (Number.isFinite(target) && target > 0) {
-          const maximum = Math.max(0, root.scrollHeight - window.innerHeight);
-          window.scrollTo(0, Math.min(target, maximum));
+        const restoreWasAborted = root.hasAttribute('data-aio-restore-aborted');
+        if (!restoreWasAborted) {
+          const target = Number(root.dataset.aioRestoreY);
+          if (Number.isFinite(target) && target > 0) {
+            const maximum = Math.max(0, root.scrollHeight - window.innerHeight);
+            window.scrollTo(0, Math.min(target, maximum));
+          }
         }
         root.classList.remove('is-aio-scroll-restore-pending');
-        if (disableMotion) root.classList.remove('has-motion', 'aio-mobile-motion');
+        root.removeAttribute('data-aio-restore-initializing');
+        if (disableMotion || restoreWasAborted) {
+          root.classList.remove('has-motion', 'aio-mobile-motion');
+        }
         root.style.removeProperty('--aio-restore-min-height');
         delete root.dataset.aioRestoreY;
         delete root.dataset.aioRestorePositioned;
@@ -567,6 +612,7 @@ const jsonLdArray = [orgJsonLd, ...pageJsonLd];
             aioMobileLoadReady,
             aioMobileRevealsReady,
             aioScrollPositionReady,
+            aioRestoredViewportReady,
           ]).then(
             () => finishAioScrollRestore(),
             () => finishAioScrollRestore(true),
@@ -584,12 +630,17 @@ const jsonLdArray = [orgJsonLd, ...pageJsonLd];
       // Geometrie. Das winzige native Modul aktiviert lediglich „weiterlesen"
       // und braucht weder GSAP noch die verzögerte Widget-Initialisierung.
       const readMoreReady = import('../scripts/read-more.ts');
+      const aioDeferredHashReady = isMobileAio
+        ? aioDeferredReady.then((module) => module?.aioDeferredHashReady)
+        : Promise.resolve();
       Promise.allSettled([
         widgetsReady,
         aioResultsReady,
         motionReady,
+        videoControlsReady,
         homeProofCarouselReady,
         readMoreReady,
+        aioDeferredHashReady,
       ]).then(() =>
         import('../scripts/hash-navigation.ts')
       );
