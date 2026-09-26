@@ -24,6 +24,11 @@ let running = false;
 let firstFrame: number | undefined;
 let secondFrame: number | undefined;
 let activeMenuPointerId: number | undefined;
+let touchBusy = false;
+let scrollBusy = false;
+let scrollQuietTimer: number | undefined;
+
+const SCROLL_QUIET_MS = 180;
 
 const cancelScheduledStart = () => {
   if (firstFrame !== undefined) cancelAnimationFrame(firstFrame);
@@ -33,17 +38,24 @@ const cancelScheduledStart = () => {
 };
 
 const scheduleNext = () => {
-  if (running || menuBusy || !pending.length || firstFrame !== undefined) return;
+  if (
+    running ||
+    menuBusy ||
+    touchBusy ||
+    scrollBusy ||
+    !pending.length ||
+    firstFrame !== undefined
+  ) return;
 
   /* Zwei Frames sind keine Wartezeit fuer die Funktion, sondern eine
      kooperative Paint-Grenze: bereits anstehende Touch-/Pointer-Eingaben und
      der aktuelle Scrollframe erhalten Vorrang, bevor genau ein Import startet. */
   firstFrame = requestAnimationFrame(() => {
     firstFrame = undefined;
-    if (running || menuBusy || !pending.length) return;
+    if (running || menuBusy || touchBusy || scrollBusy || !pending.length) return;
     secondFrame = requestAnimationFrame(() => {
       secondFrame = undefined;
-      if (running || menuBusy || !pending.length) return;
+      if (running || menuBusy || touchBusy || scrollBusy || !pending.length) return;
 
       const task = pending.shift();
       if (!task) return;
@@ -83,7 +95,64 @@ const createLoader = (name: string, load: () => Promise<unknown>) => {
   };
 };
 
-const loadMotion = createLoader('Motion', () => import('./motion.ts'));
+/* Ein gestarteter Dynamic Import ist nicht abbrechbar. Beginnt waehrend des
+   Downloads eine neue Geste, darf das danach folgende DOM-/ScrollTrigger-Init
+   trotzdem nicht in diese Bewegung fallen. Zwei ruhige Paints nach dem
+   letzten Scroll-/Touch-Signal bilden deshalb eine zweite, getrennte Schranke. */
+const waitForInteractiveIdle = (): Promise<void> => new Promise((resolve) => {
+  const check = () => {
+    if (root.hasAttribute('data-aio-restore-aborted')) {
+      resolve();
+      return;
+    }
+    if (menuBusy || touchBusy || scrollBusy) {
+      window.setTimeout(check, 50);
+      return;
+    }
+    requestAnimationFrame(() => {
+      requestAnimationFrame(() => {
+        if (menuBusy || touchBusy || scrollBusy) check();
+        else resolve();
+      });
+    });
+  };
+  check();
+});
+
+let motionPromise: Promise<void> | undefined;
+const loadMotion = () => {
+  if (motionPromise) return motionPromise;
+  motionPromise = new Promise<void>((resolve, reject) => {
+    let module: typeof import('./motion.ts') | undefined;
+    pending.push({
+      /* Nur Download/Auswertung belegt den seriellen Loader. Die anschliessende
+         Ruhepruefung darf Results und Widgets nicht hinter Motion festhalten,
+         wenn der Nutzer ohne Pause bereits tiefer scrollt. */
+      run: async () => {
+        module = await import('./motion.ts');
+      },
+      resolve: () => {
+        void (async () => {
+          if (root.hasAttribute('data-aio-restore-aborted')) {
+            resolve();
+            return;
+          }
+          await waitForInteractiveIdle();
+          if (root.hasAttribute('data-aio-restore-aborted')) {
+            resolve();
+            return;
+          }
+          module?.init();
+          root.dataset.aioMotionReady = '1';
+          resolve();
+        })().catch(reject);
+      },
+      reject,
+    });
+    scheduleNext();
+  });
+  return motionPromise;
+};
 const loadResults = createLoader(
   'Results',
   () => import('./aio-results-interactions.ts'),
@@ -95,6 +164,43 @@ const setMenuBusy = (busy: boolean) => {
   if (busy) cancelScheduledStart();
   else scheduleNext();
 };
+
+/* Dynamic Imports werden ausgewertet, sobald ihr Netzwerk-Request endet. Das
+   grosse Motion-Paket darf deshalb niemals mitten in einer Touch-Geste oder
+   in Safaris/Chromes Momentum-Scroll starten: genau das erzeugte den sichtbaren
+   Haken zwischen Programm und Bonusse. Die kleinen nativen AIO-Reveals laufen
+   waehrenddessen unveraendert weiter; nach 180 ms echter Scrollruhe ist bis zum
+   ersten tiefen Spezialziel noch reichlich Vorlauf. */
+const setTouchBusy = (busy: boolean) => {
+  touchBusy = busy;
+  if (busy) cancelScheduledStart();
+  else scheduleNext();
+};
+
+const markScrollBusy = () => {
+  scrollBusy = true;
+  cancelScheduledStart();
+  if (scrollQuietTimer !== undefined) window.clearTimeout(scrollQuietTimer);
+  scrollQuietTimer = window.setTimeout(() => {
+    scrollQuietTimer = undefined;
+    scrollBusy = false;
+    scheduleNext();
+  }, SCROLL_QUIET_MS);
+};
+
+window.addEventListener('scroll', markScrollBusy, { passive: true });
+document.addEventListener('touchstart', () => setTouchBusy(true), {
+  capture: true,
+  passive: true,
+});
+document.addEventListener('touchend', () => setTouchBusy(false), {
+  capture: true,
+  passive: true,
+});
+document.addEventListener('touchcancel', () => setTouchBusy(false), {
+  capture: true,
+  passive: true,
+});
 
 /* Capture laeuft vor dem Toggle-Handler und schliesst damit auch das kleine
    Zeitfenster zwischen Pointerdown und dem semantischen Menue-Event. */
@@ -147,6 +253,8 @@ window.addEventListener('tw:mobile-menu-open', () => setMenuBusy(true));
 window.addEventListener('tw:mobile-menu-closed', () => setMenuBusy(false));
 window.addEventListener('aio:restore-aborted', () => {
   cancelScheduledStart();
+  if (scrollQuietTimer !== undefined) window.clearTimeout(scrollQuietTimer);
+  scrollQuietTimer = undefined;
   pending.splice(0).forEach((task) => task.resolve());
 });
 

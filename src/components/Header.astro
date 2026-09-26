@@ -458,8 +458,11 @@ const headerCtaHref = settings.headerCta
       });
     };
 
-    const HARD_SETTLE_MS = 450;
-    const STABLE_FRAME_COUNT = 2;
+    const isAioRoute = document.documentElement.classList.contains('is-aio-route');
+    const HARD_SETTLE_MS = isAioRoute ? 900 : 450;
+    const ABSOLUTE_SETTLE_MS = 2600;
+    const STABLE_FRAME_COUNT = isAioRoute ? 3 : 2;
+    const VIEWPORT_QUIET_MS = 140;
     const narrow = window.matchMedia('(max-width: 767px)');
     let orientationPending = false;
     let settledPortrait = portrait.matches;
@@ -467,6 +470,8 @@ const headerCtaHref = settings.headerCta
     let settledOrientationToken = '';
     let orientationStableSignature = '';
     let orientationStableFrames = 0;
+    let orientationLastViewportChangeAt = 0;
+    let orientationStartedAt = 0;
     let orientationFrame;
     let orientationHardTimer;
     let orientationReplayId = 0;
@@ -509,11 +514,22 @@ const headerCtaHref = settings.headerCta
 
     const orientationSignature = () => {
       const root = document.documentElement;
-      return [
+      const signature = [
         mobile.matches ? 1 : 0,
         narrow.matches ? 1 : 0,
         root.clientWidth,
-      ].join(':');
+      ];
+      if (isAioRoute) {
+        const visual = window.visualViewport;
+        signature.push(
+          root.clientHeight,
+          Math.round((visual?.width ?? root.clientWidth) * 10) / 10,
+          Math.round((visual?.height ?? root.clientHeight) * 10) / 10,
+          Math.round((visual?.offsetLeft ?? 0) * 10) / 10,
+          Math.round((visual?.offsetTop ?? 0) * 10) / 10,
+        );
+      }
+      return signature.join(':');
     };
 
     const orientationToken = () => {
@@ -581,57 +597,66 @@ const headerCtaHref = settings.headerCta
         navRight.style.willChange = 'transform, opacity';
       }
 
-      /* Zuerst wird genau der definierte Startzustand sichtbar. Erst nach
-         einem wirklich gezeichneten Frame starten die Timelines. Dadurch kann
-         WebKit beim Viewport-Umbau weder einen alten Endzustand einblenden
-         noch den ersten Animationsframe ueberspringen. */
-      header.classList.remove('is-orientation-changing');
-      menu.classList.remove('is-orientation-changing');
+      const startOrientationAnimations = () => {
+        if (replayId !== orientationReplayId || orientationPending) return;
+        logoText1.forEach((element) => {
+          playOrientation(element, [
+            { transform: 'translate3d(140%, 0, 0)' },
+            { transform: 'translate3d(0, 0, 0)' },
+          ], { duration: 900, delay: 60, easing: outQuart });
+        });
+        logoText2.forEach((element) => {
+          playOrientation(element, [
+            { transform: 'translate3d(-140%, 0, 0)' },
+            { transform: 'translate3d(0, 0, 0)' },
+          ], { duration: 900, delay: 60, easing: outQuart });
+        });
+        logoLines.forEach((element) => {
+          playOrientation(element, [
+            { transform: 'scaleY(0)' },
+            { transform: 'scaleY(1)' },
+          ], { duration: 500, easing: outQuart });
+        });
+        if (navRight) {
+          playOrientation(navRight, [{ opacity: 0 }, { opacity: 1 }], {
+            duration: 1080,
+            delay: 60,
+            easing: ease,
+          });
+          playOrientation(navRight, [
+            { transform: 'translate3d(2.5rem, 0, 0)' },
+            { transform: 'translate3d(0, 0, 0)' },
+          ], { duration: 900, delay: 60, easing: outQuart });
+        }
 
-      requestAnimationFrame(() => {
-        requestAnimationFrame(() => {
+        const animations = [...orientationAnimations];
+        void Promise.allSettled(animations.map((animation) => animation.finished)).then(() => {
           if (replayId !== orientationReplayId || orientationPending) return;
-          logoText1.forEach((element) => {
-            playOrientation(element, [
-              { transform: 'translate3d(140%, 0, 0)' },
-              { transform: 'translate3d(0, 0, 0)' },
-            ], { duration: 900, delay: 60, easing: outQuart });
-          });
-          logoText2.forEach((element) => {
-            playOrientation(element, [
-              { transform: 'translate3d(-140%, 0, 0)' },
-              { transform: 'translate3d(0, 0, 0)' },
-            ], { duration: 900, delay: 60, easing: outQuart });
-          });
-          logoLines.forEach((element) => {
-            playOrientation(element, [
-              { transform: 'scaleY(0)' },
-              { transform: 'scaleY(1)' },
-            ], { duration: 500, easing: outQuart });
-          });
-          if (navRight) {
-            playOrientation(navRight, [{ opacity: 0 }, { opacity: 1 }], {
-              duration: 1080,
-              delay: 60,
-              easing: ease,
-            });
-            playOrientation(navRight, [
-              { transform: 'translate3d(2.5rem, 0, 0)' },
-              { transform: 'translate3d(0, 0, 0)' },
-            ], { duration: 900, delay: 60, easing: outQuart });
-          }
-
-          const animations = [...orientationAnimations];
-          void Promise.allSettled(animations.map((animation) => animation.finished)).then(() => {
-            if (replayId !== orientationReplayId || orientationPending) return;
-            orientationAnimations = [];
-            clearOrientationStyles();
-            animations.forEach((animation) => {
-              if (animation.playState !== 'idle') animation.cancel();
-            });
+          orientationAnimations = [];
+          clearOrientationStyles();
+          animations.forEach((animation) => {
+            if (animation.playState !== 'idle') animation.cancel();
           });
         });
-      });
+      };
+
+      if (isAioRoute) {
+        /* Nur die schwerere AIO-Seite benoetigt den zusaetzlichen Safari-
+           Paint-Guard. Die Startwerte werden unter dem Guard in die neue
+           Compositor-Ebene geschrieben und erst im Folgepaint freigegeben. */
+        void header.getBoundingClientRect();
+        requestAnimationFrame(() => {
+          if (replayId !== orientationReplayId || orientationPending) return;
+          header.classList.remove('is-orientation-changing');
+          menu.classList.remove('is-orientation-changing');
+          requestAnimationFrame(startOrientationAnimations);
+        });
+      } else {
+        /* Alle anderen Seiten behalten exakt den bereits stabilen Ablauf. */
+        header.classList.remove('is-orientation-changing');
+        menu.classList.remove('is-orientation-changing');
+        requestAnimationFrame(() => requestAnimationFrame(startOrientationAnimations));
+      }
     };
 
     const watchOrientationStability = () => {
@@ -643,17 +668,53 @@ const headerCtaHref = settings.headerCta
       const changedOnlyWithinSameAxis =
         physicalOrientationChanged && physicalPortrait() === settledPortrait;
       const targetReached = widthChanged || changedOnlyWithinSameAxis;
-      if (targetReached && signature === orientationStableSignature) {
+      const signatureChanged = signature !== orientationStableSignature;
+      if (targetReached && !signatureChanged) {
         orientationStableFrames += 1;
       } else {
         orientationStableSignature = signature;
         orientationStableFrames = targetReached ? 1 : 0;
+        if (isAioRoute) orientationLastViewportChangeAt = performance.now();
       }
-      if (orientationStableFrames >= STABLE_FRAME_COUNT) {
+      const viewportQuiet =
+        !isAioRoute ||
+        performance.now() - orientationLastViewportChangeAt >= VIEWPORT_QUIET_MS;
+      if (orientationStableFrames >= STABLE_FRAME_COUNT && viewportQuiet) {
         finishOrientationChange();
         return;
       }
       orientationFrame = requestAnimationFrame(watchOrientationStability);
+    };
+
+    const finishOrientationFallback = () => {
+      if (!orientationPending) return;
+      if (!isAioRoute || orientationMenuWasOpen || isOpen) {
+        finishOrientationChange();
+        return;
+      }
+
+      /* Auf AIO respektiert auch der Sicherheits-Timer normalerweise das
+         vollstaendige Safari-Stabilitaetsgate. Nur der absolute Notausstieg
+         nach 2,6 s verhindert bei einem fehlenden WebKit-Endsignal einen
+         dauerhaft unsichtbaren Header; freigegeben wird trotzdem erst ueber
+         den darunter definierten frischen Start-Paint. */
+      const quietFor = performance.now() - orientationLastViewportChangeAt;
+      const absoluteSettleReached =
+        performance.now() - orientationStartedAt >= ABSOLUTE_SETTLE_MS;
+      if (
+        absoluteSettleReached ||
+        (
+          orientationStableFrames >= STABLE_FRAME_COUNT &&
+          quietFor >= VIEWPORT_QUIET_MS
+        )
+      ) {
+        finishOrientationChange();
+        return;
+      }
+      orientationHardTimer = window.setTimeout(
+        finishOrientationFallback,
+        Math.max(50, VIEWPORT_QUIET_MS - quietFor),
+      );
     };
 
     const beginOrientationChange = () => {
@@ -690,6 +751,8 @@ const headerCtaHref = settings.headerCta
       orientationPending = true;
       orientationStableSignature = '';
       orientationStableFrames = 0;
+      orientationLastViewportChangeAt = performance.now();
+      orientationStartedAt = orientationLastViewportChangeAt;
       orientationMenuWasOpen = isOpen || menuPhase === 'opening';
       const interruptedOpening = isOpen && menuPhase === 'opening';
       const menuWasVisuallyOpen = menu.classList.contains('is-menu-open');
@@ -722,7 +785,7 @@ const headerCtaHref = settings.headerCta
       cancelOrientationAnimations();
       if (orientationHardTimer !== undefined) clearTimeout(orientationHardTimer);
       orientationFrame = requestAnimationFrame(watchOrientationStability);
-      orientationHardTimer = setTimeout(finishOrientationChange, HARD_SETTLE_MS);
+      orientationHardTimer = setTimeout(finishOrientationFallback, HARD_SETTLE_MS);
     };
 
     const handleOrientationSignal = () => beginOrientationChange();

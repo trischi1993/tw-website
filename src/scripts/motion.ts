@@ -701,7 +701,7 @@ function preservePageContentOnOrientation(portrait: MediaQueryList): void {
      und bleiben auch dann bedienbar.
    --------------------------------------------------------------------------- */
 
-function init(): void {
+export function init(): void {
   if (
     window.matchMedia('(prefers-reduced-motion: reduce)').matches ||
     document.documentElement.hasAttribute('data-aio-restore-aborted')
@@ -822,4 +822,8 @@ function init(): void {
   window.dispatchEvent(new Event('lp:full-motion-ready'));
 }
 
-init();
+/* Auf kleinen AIO-Viewports trennt der Deferred-Controller bewusst Download
+   und Auswertung von der DOM-/ScrollTrigger-Initialisierung. Beginnt waehrend
+   des Imports eine neue Touch-Bewegung, ruft er init() erst nach echter
+   Scrollruhe auf. Alle anderen Seiten behalten den bisherigen Side-Effect. */
+if (!document.documentElement.classList.contains('aio-mobile-motion')) init();
