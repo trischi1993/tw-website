@@ -2608,7 +2608,8 @@ html.has-js .reviews__text.is-expanded .read-more__full { display: inline; }
 .vhero__buttons { margin-top: 3rem; gap: 1.5rem; overflow: hidden; }
 .vhero__phone {
   position: relative;
-  aspect-ratio: 1 / 2.04;
+  /* Exaktes Seitenverhaeltnis des Mockup-Assets (935 x 1920). */
+  aspect-ratio: 935 / 1920;
   width: 18rem;
   margin-inline: auto;
 }
@@ -2633,16 +2634,24 @@ html.has-js .reviews__text.is-expanded .read-more__full { display: inline; }
   z-index: 20;
   width: 100%;
   height: 100%;
+  object-fit: contain;
   pointer-events: none;
 }
 .vhero__video {
   position: absolute;
   inset: 0;
-  width: calc(100% - 0.5rem);
+  width: 100%;
   height: 100%;
-  margin-inline: auto;
-  border-radius: 3rem;
-  overflow: clip;
+  margin: 0;
+  border-radius: 0;
+  overflow: hidden;
+  /* Das AVIF ist sowohl im Display als auch ausserhalb des Geraeterahmens
+     transparent. Deshalb muss das Video auf die echte Displayoeffnung
+     begrenzt werden. Die asset-relativen Werte skalieren in jeder Groesse
+     identisch; der kleine Ueberstand liegt unsichtbar unter dem Rahmen und
+     verhindert zugleich helle Spalten an dessen Innenkante. */
+  -webkit-clip-path: inset(1.6% 4% round 13% / 6%);
+  clip-path: inset(1.6% 4% round 13% / 6%);
   background: var(--paper-2);
 }
 .vhero__video video,
@@ -2706,7 +2715,6 @@ html.has-js .reviews__text.is-expanded .read-more__full { display: inline; }
   .vhero__grid { grid-template-columns: 1fr; column-gap: 3rem; row-gap: 3rem; }
   .vhero__buttons { margin-top: 1.5rem; }
   .vhero__phone { width: min(70%, 18rem); margin-inline: 0; }
-  .vhero__video { border-radius: 2.3rem; width: calc(100% - 0.25rem); }
 }
 @media (max-width: 479px) {
   .vhero__content { max-width: 20rem; }
