@@ -2628,6 +2628,31 @@ html.has-js .reviews__text.is-expanded .read-more__full { display: inline; }
   filter: blur(6rem);
   pointer-events: none;
 }
+@media (max-width: 991px) {
+  .vhero__phone::before {
+    /* Safari 27 kann den ersten sichtbaren Frame blockieren, wenn ein grosser
+       Filter-Blur zusammen mit SVGs im ersten Viewport gerastert wird. Die
+       weiche Maske bildet denselben Goldschein ohne Filter-Compositing nach. */
+    width: 140%;
+    height: 114%;
+    transform: translate(-50%, -50%) rotate(20deg) translateZ(0);
+    filter: none;
+    -webkit-mask-image: radial-gradient(
+      closest-side,
+      #000 20%,
+      rgb(0 0 0 / 50%) 55%,
+      transparent 100%
+    );
+    mask-image: radial-gradient(
+      closest-side,
+      #000 20%,
+      rgb(0 0 0 / 50%) 55%,
+      transparent 100%
+    );
+    -webkit-mask-repeat: no-repeat;
+    mask-repeat: no-repeat;
+  }
+}
 .vhero__mockup {
   position: absolute;
   inset: 0;

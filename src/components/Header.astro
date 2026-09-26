@@ -153,9 +153,6 @@ const headerCtaHref = settings.headerCta
       height: 100dvh;
       overflow: hidden;
       pointer-events: none;
-    }
-
-    .menu[data-menu-prepared] .menu__panel {
       transform: translate3d(-100%, 0, 0);
       will-change: transform;
       transition: none;
@@ -170,7 +167,7 @@ const headerCtaHref = settings.headerCta
       opacity: 0;
     }
 
-    .menu[data-menu-prepared].is-menu-open .menu__panel {
+    .menu[data-menu-prepared].is-menu-open {
       transform: translate3d(0, 0, 0);
     }
 
@@ -258,7 +255,6 @@ const headerCtaHref = settings.headerCta
     let transitionId = 0;
     let completionTimer;
     let panelAnimation = null;
-    let suppressNextClick = false;
     let aioVideoPauseTimer;
     let inputModality = 'pointer';
     let lastTouchAt = -Infinity;
@@ -311,18 +307,18 @@ const headerCtaHref = settings.headerCta
     const playPanelMotion = (opening, id, startTransform) => {
       const targetTransform = opening
         ? 'translate3d(0, 0, 0)'
-        : 'translate3d(-100%, 0, 0)';
+        : `translate3d(-${Math.max(window.innerWidth, 1)}px, 0, 0)`;
       const width = Math.max(window.innerWidth, 1);
       const startX = panelTranslateX(startTransform, opening ? -width : 0);
       const targetX = opening ? 0 : -width;
       const fullDuration = opening ? 720 : 520;
       const distanceRatio = Math.min(1, Math.abs(targetX - startX) / width);
       const duration = Math.max(120, fullDuration * distanceRatio);
-      /* Jeder Aufruf benutzt genau dieselbe frische Timeline. Sie wird im
-         Touch-Task noch vor dem offenen CSS-Zustand erzeugt; dadurch besitzt
-         auch der allererste Safari-Frame garantiert den geschlossenen
-         Ausgangswert, ohne eine pausierte Animation austauschen zu muessen. */
-      const animation = panel.animate(
+      /* Die feste Menue-Ebene selbst bewegt sich. Damit muss WebKit kein
+         transformiertes Kind durch den beschnittenen Parent hineinmalen –
+         genau diese Kombination kann beim ersten Safari-Paint bis zum
+         Animationsende unsichtbar bleiben. */
+      const animation = menu.animate(
         [{ transform: startTransform }, { transform: targetTransform }],
         { duration, easing: outQuart, fill: 'both' },
       );
@@ -371,13 +367,13 @@ const headerCtaHref = settings.headerCta
 
     const scheduleAioVideoPause = () => {
       clearScheduledVideoPause();
-      /* Der erste sichtbare Menue-Frame hat Vorrang. Das Video wird erst kurz
-         danach pausiert, damit weder DOM-Suche noch Decoder-Umschaltung den
-         unmittelbaren Touch-Feedback-Pfad auf Mobile Safari blockieren. */
+      /* Erst die ersten sichtbaren Menue-Frames zeichnen, dann den AIO-Video-
+         Decoder entlasten. So bleibt der Touch-Pfad frei, ohne dass das Video
+         die komplette 720-ms-Menuebewegung im Hintergrund weiter rendert. */
       aioVideoPauseTimer = setTimeout(() => {
         aioVideoPauseTimer = undefined;
         if (isOpen) pauseAioVideoBehindMenu();
-      }, 80);
+      }, 110);
     };
 
     const resumeAioVideoAfterMenu = () => {
@@ -405,7 +401,13 @@ const headerCtaHref = settings.headerCta
 
     const finishAioHeaderLoad = () => {
       if (!document.documentElement.hasAttribute('data-aio-header-load-started')) return;
-      aioHeaderLoadAnimations.forEach((animation) => animation.cancel());
+      aioHeaderLoadAnimations.forEach((animation) => {
+        try {
+          animation.finish();
+        } catch {
+          animation.cancel();
+        }
+      });
       aioHeaderLoadAnimations = [];
       logoLines.forEach((line) => line.setAttribute('data-revealed', ''));
       navRight?.setAttribute('data-revealed', '');
@@ -456,14 +458,12 @@ const headerCtaHref = settings.headerCta
       });
     };
 
-    const HARD_SETTLE_MS = 1500;
-    const STABLE_FRAME_COUNT = 3;
+    const HARD_SETTLE_MS = 450;
+    const STABLE_FRAME_COUNT = 2;
     const narrow = window.matchMedia('(max-width: 767px)');
-    const compactLandscape = window.matchMedia(
-      '(max-width: 991px) and (max-height: 500px) and (orientation: landscape)',
-    );
     let orientationPending = false;
     let settledPortrait = portrait.matches;
+    let settledViewportWidth = document.documentElement.clientWidth;
     let settledOrientationToken = '';
     let orientationStableSignature = '';
     let orientationStableFrames = 0;
@@ -509,16 +509,10 @@ const headerCtaHref = settings.headerCta
 
     const orientationSignature = () => {
       const root = document.documentElement;
-      const bounds = header.getBoundingClientRect();
       return [
-        portrait.matches ? 1 : 0,
         mobile.matches ? 1 : 0,
         narrow.matches ? 1 : 0,
-        compactLandscape.matches ? 1 : 0,
         root.clientWidth,
-        root.clientHeight,
-        Math.round(bounds.width * 100) / 100,
-        Math.round(bounds.height * 100) / 100,
       ].join(':');
     };
 
@@ -540,7 +534,17 @@ const headerCtaHref = settings.headerCta
     const finishOrientationChange = () => {
       if (!orientationPending) return;
       orientationPending = false;
-      settledPortrait = portrait.matches;
+      const root = document.documentElement;
+      const widthChanged = Math.abs(root.clientWidth - settledViewportWidth) >= 24;
+      const measuredPortrait = physicalPortrait();
+      /* Die echte Layoutbreite ist hier die Source of Truth: Safari kann
+         screen.orientation und die Orientation-Media-Query erst spaeter
+         aktualisieren. Bei einem 90-Grad-Wechsel hat sich die Achse mit der
+         deutlichen Breitenänderung bereits sicher umgekehrt. */
+      settledPortrait = widthChanged
+        ? !settledPortrait
+        : measuredPortrait ?? root.clientWidth <= root.clientHeight;
+      settledViewportWidth = root.clientWidth;
       settledOrientationToken = orientationToken();
       if (orientationHardTimer !== undefined) clearTimeout(orientationHardTimer);
       if (orientationFrame !== undefined) cancelAnimationFrame(orientationFrame);
@@ -634,13 +638,11 @@ const headerCtaHref = settings.headerCta
       if (!orientationPending) return;
       const signature = orientationSignature();
       const root = document.documentElement;
-      const layoutPortrait = root.clientWidth <= root.clientHeight;
-      const axisChanged = portrait.matches !== settledPortrait;
+      const widthChanged = Math.abs(root.clientWidth - settledViewportWidth) >= 24;
       const physicalOrientationChanged = orientationToken() !== settledOrientationToken;
       const changedOnlyWithinSameAxis =
         physicalOrientationChanged && physicalPortrait() === settledPortrait;
-      const targetReached =
-        portrait.matches === layoutPortrait && (axisChanged || changedOnlyWithinSameAxis);
+      const targetReached = widthChanged || changedOnlyWithinSameAxis;
       if (targetReached && signature === orientationStableSignature) {
         orientationStableFrames += 1;
       } else {
@@ -689,6 +691,8 @@ const headerCtaHref = settings.headerCta
       orientationStableSignature = '';
       orientationStableFrames = 0;
       orientationMenuWasOpen = isOpen || menuPhase === 'opening';
+      const interruptedOpening = isOpen && menuPhase === 'opening';
+      const menuWasVisuallyOpen = menu.classList.contains('is-menu-open');
       /* Ein bereits sichtbares Fullscreen-Menue darf beim Drehen nicht unter
          dem Paint-Guard verschwinden. Sein responsives Layout kann direkt auf
          die neue Viewportgroesse reagieren; nur die geschlossene Navbar
@@ -697,6 +701,24 @@ const headerCtaHref = settings.headerCta
       header.classList.toggle('is-orientation-changing', hideClosedChrome);
       menu.classList.toggle('is-orientation-changing', hideClosedChrome);
       cancelPanelMotion();
+      if (interruptedOpening) {
+        /* Eine Drehung darf die laufende Oeffnung nicht in einem halbfertigen
+           Zustand stehen lassen. Das Menue bleibt sichtbar und voll aktiv;
+           nur sein responsives Layout passt sich an die neue Breite an. */
+        menu.style.removeProperty('transform');
+        menu.style.removeProperty('will-change');
+        header.classList.remove('is-menu-closing');
+        header.classList.add('is-menu-open');
+        menu.classList.remove('is-menu-closing');
+        menu.classList.add('is-menu-open');
+        toggle.setAttribute('aria-expanded', 'true');
+        menu.removeAttribute('inert');
+        menu.removeAttribute('aria-hidden');
+        if (!menuWasVisuallyOpen) {
+          window.dispatchEvent(new CustomEvent('tw:mobile-menu-open'));
+        }
+        finishOpen(transitionId);
+      }
       cancelOrientationAnimations();
       if (orientationHardTimer !== undefined) clearTimeout(orientationHardTimer);
       orientationFrame = requestAnimationFrame(watchOrientationStability);
@@ -857,6 +879,8 @@ const headerCtaHref = settings.headerCta
       menu.removeAttribute('data-menu-has-opened');
       menu.style.removeProperty('pointer-events');
       menu.style.removeProperty('visibility');
+      menu.style.removeProperty('transform');
+      menu.style.removeProperty('will-change');
       panel.style.removeProperty('transform');
       panel.style.removeProperty('will-change');
       links.forEach((link, index) => {
@@ -906,6 +930,8 @@ const headerCtaHref = settings.headerCta
       menu.classList.remove('is-menu-open', 'is-menu-closing');
       menu.style.removeProperty('pointer-events');
       menu.style.removeProperty('visibility');
+      menu.style.removeProperty('transform');
+      menu.style.removeProperty('will-change');
       panel.style.removeProperty('transform');
       panel.style.removeProperty('will-change');
       links.forEach((link) => {
@@ -923,10 +949,12 @@ const headerCtaHref = settings.headerCta
     const finishOpen = (id) => {
       if (id !== transitionId || !isOpen) return;
       clearCompletionTimer();
+      clearScheduledVideoPause();
       cancelPanelAnimation();
       menuPhase = 'open';
       document.body.classList.add('no-scroll');
       isolateBackdrop();
+      pauseAioVideoBehindMenu();
       if (inputModality === 'keyboard') links[0]?.focus({ preventScroll: true });
     };
 
@@ -934,14 +962,13 @@ const headerCtaHref = settings.headerCta
       if (!mobile.matches || isOpen) return;
       const startTransform =
         menuPhase === 'closing'
-          ? computed(panel, 'transform')
-          : 'translate3d(-100%, 0, 0)';
+          ? computed(menu, 'transform')
+          : `translate3d(-${Math.max(window.innerWidth, 1)}px, 0, 0)`;
       cancelPanelAnimation();
       isOpen = true;
       const id = ++transitionId;
       menuPhase = 'opening';
       cancelAnimations();
-      finishAioHeaderLoad();
       releaseBackdrop();
       lastFocused =
         document.activeElement instanceof HTMLElement &&
@@ -949,41 +976,45 @@ const headerCtaHref = settings.headerCta
           ? document.activeElement
           : toggle;
 
-      /* Die Panel-Timeline muss vor `.is-menu-open` existieren. Sonst kann
-         WebKit beim ersten Aufbau bereits den CSS-Endzustand zeichnen und die
-         Bewegung scheinbar ueberspringen. */
-      if (!reducedMotion.matches) playPanelMotion(true, id, startTransform);
-
       headerCta?.setAttribute('inert', '');
-      header.classList.remove('is-menu-closing');
-      header.classList.add('is-menu-open');
-      menu.classList.remove('is-menu-closing');
-      menu.classList.add('is-menu-open');
       toggle.setAttribute('aria-expanded', 'true');
       menu.removeAttribute('inert');
       menu.removeAttribute('aria-hidden');
       menu.style.removeProperty('pointer-events');
       menu.style.removeProperty('visibility');
+      menu.style.transform = startTransform;
+      menu.style.willChange = 'transform';
 
-      /* Der sichtbare Zustand wird zuerst gesetzt. Das AIO-Load-Modul kann
-         danach ausschließlich seine eigenen Header-Animationen abbrechen,
-         ohne hier getAnimations() und damit einen Style-Sync zu erzwingen. */
-      window.dispatchEvent(new CustomEvent('tw:mobile-menu-open'));
-      scheduleAioVideoPause();
+      /* Safari 27 kann eine im aktiven Touch-Task gestartete Timeline bis zum
+         Endzustand weiterlaufen lassen, bevor ein Frame praesentiert wird.
+         Zwei Paint-Gelegenheiten sichern den geschlossenen Ausgangszustand;
+         erst danach beginnen alle sichtbaren Menuebewegungen gemeinsam. */
+      requestAnimationFrame(() => {
+        if (id !== transitionId || !isOpen || menuPhase !== 'opening') return;
+        finishAioHeaderLoad();
+        requestAnimationFrame(() => {
+          if (id !== transitionId || !isOpen || menuPhase !== 'opening') return;
+          if (!reducedMotion.matches) playPanelMotion(true, id, startTransform);
+          menu.style.removeProperty('transform');
+          header.classList.remove('is-menu-closing');
+          header.classList.add('is-menu-open');
+          menu.classList.remove('is-menu-closing');
+          menu.classList.add('is-menu-open');
+          window.dispatchEvent(new CustomEvent('tw:mobile-menu-open'));
+          scheduleAioVideoPause();
 
-      if (reducedMotion.matches) {
-        finishOpen(id);
-      } else {
-        scheduleCompletion(id, 900);
-      }
+          if (reducedMotion.matches) finishOpen(id);
+          else scheduleCompletion(id, 900);
+        });
+      });
     };
 
     const finishClose = (id) => {
       if (id !== transitionId || isOpen) return;
       clearCompletionTimer();
+      clearScheduledVideoPause();
       cancelPanelAnimation();
       menuPhase = 'closed';
-      clearScheduledVideoPause();
       header.classList.remove('is-menu-closing');
       menu.classList.remove('is-menu-closing');
       menu.setAttribute('data-menu-has-opened', '');
@@ -1003,7 +1034,7 @@ const headerCtaHref = settings.headerCta
       if (!mobile.matches || !isOpen) return;
       const startTransform =
         menuPhase === 'opening'
-          ? computed(panel, 'transform')
+          ? computed(menu, 'transform')
           : 'translate3d(0, 0, 0)';
       cancelPanelAnimation();
       isOpen = false;
@@ -1085,47 +1116,16 @@ const headerCtaHref = settings.headerCta
       });
     });
 
-    const activateOnTouch = (event) => {
-      if (!mobile.matches) return;
-      event.preventDefault();
-      event.stopImmediatePropagation();
-      lastTouchAt = performance.now();
-      setInputModality('touch');
-      suppressNextClick = true;
-      toggleMenu();
-    };
-
     if ('PointerEvent' in window) {
       toggle.addEventListener('pointerdown', (event) => {
         if (event.pointerType === 'touch' || event.pointerType === 'pen') {
-          activateOnTouch(event);
+          lastTouchAt = performance.now();
+          setInputModality('touch');
           return;
         }
-        suppressNextClick = false;
         setInputModality('pointer');
-      }, { passive: false });
-      toggle.addEventListener('pointerup', (event) => {
-        if (event.pointerType === 'touch' || event.pointerType === 'pen') {
-          /* Bezugspunkt ist das Loslassen, damit auch ein langes Gedrueckthalten
-             den anschliessenden Safari-Kompatibilitaetsklick sicher schluckt. */
-          lastTouchAt = performance.now();
-        }
-      }, { passive: true });
-      toggle.addEventListener('pointercancel', (event) => {
-        if (event.pointerType === 'touch' || event.pointerType === 'pen') {
-          suppressNextClick = false;
-        }
       }, { passive: true });
     } else {
-      toggle.addEventListener('touchstart', activateOnTouch, { passive: false });
-      toggle.addEventListener('touchend', () => {
-        lastTouchAt = performance.now();
-      }, { passive: true });
-      toggle.addEventListener('touchcancel', () => {
-        suppressNextClick = false;
-      }, { passive: true });
-    }
-    if ('PointerEvent' in window) {
       toggle.addEventListener('touchstart', () => {
         lastTouchAt = performance.now();
         setInputModality('touch');
@@ -1134,23 +1134,22 @@ const headerCtaHref = settings.headerCta
 
     toggle.addEventListener('click', (event) => {
       if (!mobile.matches) return;
-      if (suppressNextClick && performance.now() - lastTouchAt < 1500) {
-        suppressNextClick = false;
-        event.preventDefault();
-        event.stopImmediatePropagation();
-        return;
-      }
-      suppressNextClick = false;
       event.preventDefault();
       event.stopImmediatePropagation();
       const recentTouch = performance.now() - lastTouchAt < 1200;
-      setInputModality(event.detail === 0 ? (recentTouch ? 'touch' : 'keyboard') : 'pointer');
+      const pointerType = typeof event.pointerType === 'string' ? event.pointerType : '';
+      setInputModality(
+        pointerType === 'touch' || pointerType === 'pen' || recentTouch
+          ? 'touch'
+          : event.detail === 0
+            ? 'keyboard'
+            : 'pointer',
+      );
       toggleMenu();
     });
 
     window.addEventListener('keydown', (event) => {
       setInputModality('keyboard');
-      suppressNextClick = false;
       if (!mobile.matches || !isOpen) return;
       if (event.key === 'Escape') {
         event.preventDefault();
@@ -1451,17 +1450,15 @@ const headerCtaHref = settings.headerCta
 
     .menu[data-menu-prepared] {
       pointer-events: none;
+      transform: translate3d(-100%, 0, 0);
+      will-change: transform;
+      transition: none;
     }
     .menu[data-menu-prepared].is-menu-open,
     .menu[data-menu-prepared].is-menu-closing {
       pointer-events: auto;
     }
-    .menu[data-menu-prepared] .menu__panel {
-      transform: translate3d(-100%, 0, 0);
-      will-change: transform;
-      transition: none;
-    }
-    .menu[data-menu-prepared].is-menu-open .menu__panel {
+    .menu[data-menu-prepared].is-menu-open {
       transform: translate3d(0, 0, 0);
     }
 
@@ -1554,7 +1551,7 @@ const headerCtaHref = settings.headerCta
     .navbar[data-mobile-menu-prepared],
     .navbar[data-mobile-menu-prepared] .navbar__right-inner,
     .navbar[data-mobile-menu-prepared] .navbar__burger-line,
-    .menu[data-menu-prepared] .menu__panel,
+    .menu[data-menu-prepared],
     .menu[data-menu-prepared] .menu__link,
     .menu[data-menu-prepared] .menu__arrow {
       transition-duration: 0ms !important;
